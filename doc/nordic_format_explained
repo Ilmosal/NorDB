@@ -1,0 +1,199 @@
+"NORDIC" FORMAT DESCRIPTION                 Last update 27-09-2013
+                                                                                
+TYPE 1 LINE = EVENT PARAMETERS:
+                                                                               
+Columns Format Description                  Comments                           
+1              Free                                                   
+2- 5    I4     Year                         : Origin time (GMT) 
+6              Free                         :        
+7- 8    I2     Month                        :                        
+9-10    I2     Day of month                 : 
+11             Free                         :                            
+12-13   I2     Hour                         :                           
+14-15   I2     Minutes                      : 
+16             Free                         :                      
+17-20   F4.0   Seconds                      : 
+21      A1     Location model or quality indicator:  Any character
+22      A1     Distance indicator           L = Local, R = Regional, D = Distant 
+23      A1     Event ID                    ' '= Seismic event, unspecified event identification
+                                            * = Earthquake, with detailed source parameter analysis (used by BER) 
+                                            Q = Earthquake, confirmed by analyst
+                                            E = Explosion, confirmed by analyst or announced 
+                                            P = Probable explosion, fully automatic or confirmed by analyst
+                                            I = Induced (e.g rock burst, collapse, quake within underground mine area)
+                                            V = Volcanic event 
+                                            X = Landslide
+                                            
+24-30   F7.0   Epicenter latitude (deg +N)         
+31-38   F8.0   Epicenter longitude (deg +E) 
+39-43   F5.0   Depth (km)                  
+44      A1     Depth control or quality     F = Fixed depth, S = Starting value,             
+                                            D,G,N,*,? as used by USG
+                                            
+45      A1     Locating indicator           F = Fixed location, S = Starting value,
+46-48   A3     Epicenter reporting agency   APA = Kola Science Centre, Apatity, Russia 
+                                            BER = Inst. Solid Earth Physics, Univ. Bergen, Norway
+                                            DNK = Geological Survey of Denmark and Greenland 
+                                            EST = Geological Survey of Estonia
+                                            HEL = Inst. Seismology, Univ. Helsinki, Finland
+                                            NAO = NTNF/NORSAR, Norway
+                                            UPP = Seismological Dpt., Univ. Uppsala, Sweden
+                                            USG = U.S. Geological Survey, USA
+                                            BGS = British Geological Survey, UK
+49-51   I3     Number of stations used 
+52-55   F4.1   RMS of time residuals (s)                               
+56             Free                                                         
+57-59   F3.1   Magnitude no. 1                                         
+60      A1     Type of magnitude            L = Richter's local magnitude (ML)
+                                            C = coda duration magnitude (Mc)
+                                            B = body wave magnitude (mb)
+                                            S = surface wave magnitude (Ms)   
+                                            W = moment magnitude (MW)
+61-63   A3     Magnitude reporting agency        
+64             Free                           
+65-67   F3.1   Magnitude no. 2                                     
+68      A1     Type of magnitude                                         
+69-71   A3     Magnitude reporting agency                            
+72             Free                           
+73-75   F3.1   Magnitude no. 3                                             
+76      A1     Type of magnitude                                            
+77-79   A3     Magnitude reporting agency  
+80      A1     Type of this line ("1")                                
+                                                                           
+                                                                                
+TYPE 2 LINE (optional) = MACROSEISMIC INFORMATION:                        
+
+Columns Format Description                  Comments                     
+1-5            Blank                                                        
+6-20    A15    Any descriptive text
+21             Free
+22      A1     Diastrophism code (PDE type) F = Surface faulting
+                                            U = Uplift or subsidence
+                                            D = Faulting and uplift/subsidence
+23      A1     Tsunami code (PDE type)      T = Tsunami generated
+                                            Q = Possible tsunami
+24      A1     Seiche code (PDE type)       S = Seiche
+                                            Q = Possible seiche
+25      A1     Cultural effects (PDE type)  C = Casualties reported
+                                            D = Damage reported
+                                            F = Earthquake was felt
+                                            H = Earthquake was heard
+26      A1     Unusual effects (PDE type)   L = Liquefaction
+                                            G = Geysir/fumerol
+                                            S = Landslide/avalanches
+                                            B = Sand blows
+                                            C = Carcking in the ground 
+                                                (not normal faulting)
+                                            V = Visual phenomena
+                                            O = Olfactory phenomena
+                                            M = More than one of the above observed
+27             Free
+28-29   I2     Maximum observed  intensity                                                
+30      A1     Maximum intensity qualifier  (+/- indicating more precisely the intensity)
+31-32   A2     Intensity scale (ISC type)   MM = Modified Mercalli
+                                            RF = Rossi Forel
+                                            CS = Mercalli - Cancani - Seberg
+                                            SK = Medevev - Sponheur - Karnik
+33             Free
+34-39   F6.2   Macroseismic latitude (deg +N)                  
+40             Free                                                           
+41-47   F7.2   Macroseismic longitude (deg +E)                     
+48             Free                                                             
+49-51   F3.1   Macroseismic magnitude                                           
+52      A1     Type of magnitude            I = Magnitude based on maximum intensity
+                                            A = Magnitude based on felt area
+                                            R = Magnitude based on radius of felt area
+                                            * = Magnitude calculated by use of special 
+                                                formula developed for a certain area. 
+                                                Further info should be given on line 3
+53-56   F4.2   Logarithm (base 10) of radius (km) of felt area                               
+57-61   F5.2   Logarithm (base 10) of area (km**2) number 1 where earthquake was felt
+               exceeding a given intensity
+62-63   I2     Intensity boardering the area number 1
+64-68   F5.2   Logarithm (base 10) of area (km**2) number 2 where earthquake was felt 
+               exceeding a given intensity
+69-70   I2     Intensity boardering the area number 2 
+71             Free                                                             
+72      A1     Quality rank of the report (A, B, C, D)
+73-75   A3     Reporting agency                                    
+76-79          Free
+80      A1     Type of this line ("2")                                    
+ 
+
+TYPE 3 LINE (optional) = COMMENTS ON THE EVENT:
+
+Columns Format Description                  Comments                     
+1              Free                                                             
+2-79    A79    Text                         Anything                           
+80      A1     Type of this line ("3")                                
+                                                                           
+
+TYPE 5 LINE (optional) = ERROR ESTIMATES OF PREVIOUS LINE:
+
+Columns Format Description                  Comments
+1              Free
+2-79    Error estimates in same format as previous line, normally type 1 line
+80      A1     Type of this line ("5")      
+
+
+Type 6 LINE (optional) =  WAVEFORM DATA REFERENCE:
+
+Columns Format Description                  Comments
+1              Free
+2-79    A      Data format and name of the waveform file associated with this event
+80      A1     Type of this line ("6")       
+
+
+TYPE 7 LINE (optional) =  HELP LINE:
+
+Columns Format Description                  Comments
+1              Free
+2-79   A       Help lines to place information in right columns on type " " line
+80     A1      Type of this line ("7")       
+
+
+TYPE " " LINE = PHASE ARRIVAL DATA:
+                                                                                
+Columns Format Description                  Comments                           
+1              Free                                                             
+2- 5    A4     Station code                 Blank = end of readings            
+6              Free                                                             
+7       A1     Instrument type              S = SP, B = BB, L = LP             
+8       A1     Component                    Z, N, E                            
+9              Free                                                             
+10      A1     Quality indicator            I, E, etc.                         
+11-14   A4     Phase type (PG,SG,PN,SN, etc.) or maximum amplitude measurement 
+               Codes used by BER: AML/AMS/AMB amplitude used for ML/Ms/mb magnitude 
+               Codes used by HEL: MSG/MSN/MPN amplitude used for ML, measured from SG/SN/PN 
+15      I1     Weighting indicator (1-4)    0 = full weight as in Hypocenter program.
+                                            9 = timing error for the station (used by
+                                            BER). Hypocenter in this case uses travel time
+                                            differences if more than one phase reported 
+16             Free                                                             
+17      A1     First motion                 C/D = clear compression/dilatation, 
+                                            +/- = unclear compression/dilatation       
+18      A1     Time info                    Blank = same day as in type 1 line, 
+                                            + = next day, - = previous day      
+19-20   I2     Hour                         : Phase onset time or             
+21-22   I2     Minutes                      : time of maximum amplitude         
+23             Free                         : measurement (GMT)              
+24-28   F5.1   Seconds                      :                                   
+29             Free                                                             
+30-33   I4     Signal duration (s)          From phase onset to noise 
+34             Free                                                            
+35-40   F6.1   Maximum amplitude (nm)       Zero-to-peak ground motion amplitude                     
+41             Free                                                             
+42-45   F4.1   Period of maximum amplitude (s)                           
+46             Free                                                             
+47-51   F5.1   Back azimuth (deg)                          
+52             Free                                                             
+53-56   F4.1   Apparent velocity (km/s)                          
+57-60   F4.1   Signal-to-noise ratio                                            
+61-63   I3     Azimuth residual (deg) when using azimuth information in locations,
+                                            observed minus theoretical
+64-68   F5.1   Travel time residual (s)     Observed minus theoretical 
+69-70   I2     Actual weight used for location 
+71-75   I5     Epicentral distance (km)
+76             Free                          
+77-79   I3     Epicenter-to-station azimuth (deg)
+80      A1     Type of this line (" ")                           
