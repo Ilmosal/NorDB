@@ -1,3 +1,0 @@
-
-locating_progmam
-l

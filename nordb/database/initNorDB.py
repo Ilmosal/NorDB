@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -13,11 +14,11 @@ def init_database():
 
 	cur.execute("SELECT 1 FROM pg_database WHERE datname='nordb'")
 	if cur.fetchall():
-		logging.error("Database already exists. Destroy the database with -d and try again!")
+		logging.error("Database already exists. Destroy the database with -clear and try again!")
 		conn.close()
 		sys.exit()
 
-	cur.execute(open("../nordsql/init_nordb.sql", "r").read())
+	cur.execute(open("nordb/nordsql/init_nordb.sql", "r").read())
 
 	conn.commit()
 	conn.close()
@@ -25,16 +26,16 @@ def init_database():
 	conn = psycopg2.connect("dbname=nordb user={0}".format(username))
 	cur = conn.cursor()
 	
-	cur.execute(open("../nordsql/nordic_event_root.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_file.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_event.sql", "r").read())
-	cur.execute(open("../nordsql/scandia_header.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_modified.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_header_main.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_header_error.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_header_macroseismic.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_header_waveform.sql", "r").read())
-	cur.execute(open("../nordsql/nordic_phase_data.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_event_root.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_file.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_event.sql", "r").read())
+	cur.execute(open("nordb/nordsql/scandia_header.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_modified.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_header_main.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_header_error.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_header_macroseismic.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_header_waveform.sql", "r").read())
+	cur.execute(open("nordb/nordsql/nordic_phase_data.sql", "r").read())
 
 	conn.commit()
 	conn.close()
@@ -78,6 +79,9 @@ def print_help():
 	pass
 
 if __name__ == "__main__":
+	#go to main dir
+	os.chdir("../..")
+
 	if len(sys.argv) > 1:
 		if sys.argv[1] == "-d":
 			logging.info("Destroying the database")

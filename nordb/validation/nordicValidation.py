@@ -136,6 +136,7 @@ def removeEvent(event_id, cur):
 	cur.execute("DELETE FROM nordic_event WHERE id = '{0}'".format(event_id))
 
 def validateNordic(nordic_event, cur):
+	return False
 	validateEvent(nordic_event)	
 
 	for header in nordic_event.headers:
