@@ -4,9 +4,15 @@ import logging
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-username = "ilmosalm"
+MODULE_PATH = os.path.realpath(__file__)[:-len("initnordb.py")]
 
-#TODO: init_db
+try:
+	f_user = open(MODULE_PATH[:-len("database/")] + "user.config")
+	username = f_user.readline()[:-1]
+except:
+	logging.error("No user.config file!! Run the program with -conf flag to initialize the user.conif")
+	sys.exit(-1)
+
 def init_database():
 	conn = psycopg2.connect("dbname=postgres user={0}".format(username))
 	conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -40,7 +46,6 @@ def init_database():
 	conn.commit()
 	conn.close()
 
-#TODO: destroy db
 def destroy_database():
 	conn = psycopg2.connect("dbname=postgres user={0}".format(username))
 	conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)

@@ -20,5 +20,9 @@ if len(sys.argv) > 1:
 		nordb.database.initNorDB.init_database()
 	elif sys.argv[1] == "-h":
 		print("help not yet implemented")
+	elif sys.argv[1] == "-conf":
+		username = input("Give name for the postgres user: ")
+		f = open(MODULE_PATH + "user.config", "w")
+		f.write(username)
 else:
 	logging.error("No flags given for nordb. Type -h for help!")
