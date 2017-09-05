@@ -9,6 +9,7 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("initnordb.py")]
 try:
 	f_user = open(MODULE_PATH[:-len("database/")] + "user.config")
 	username = f_user.readline()[:-1]
+	f_user.close()
 except:
 	logging.error("No user.config file!! Run the program with -conf flag to initialize the user.conif")
 	sys.exit(-1)
@@ -79,10 +80,6 @@ def destroy_database():
 
 	pass
 
-#TODO: help function
-def print_help():
-	pass
-
 if __name__ == "__main__":
 	#go to main dir
 	os.chdir("../..")
@@ -96,8 +93,5 @@ if __name__ == "__main__":
 			logging.info("Initializing the database")
 			init_database()
 			logging.info("Database has been Initialized")
-		else:
-			logging.error("No such flag. Type -h for help.")
-			sys.exit()
 	else:
 		logging.error("No flag given for the program. Type -h for help")	
