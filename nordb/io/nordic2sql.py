@@ -7,13 +7,24 @@ from datetime import date
 import datetime
 import math
 import fnmatch
+import logging
+
+MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
 if __name__ == "__main__":
 	os.chdir("../..")
 	sys.path = sys.path + ['']
 
-from nordb.io.nordicStringClass import *
-from nordb.io import nordicFix
+try:
+	f_user = open(MODULE_PATH[:-len("io/")] + "user.config")
+	username = f_user.readline()[:-1]
+	f_user.close()
+except:
+	logging.error("No user.config file!! Run the program with -conf flag to initialize the user.conf")
+	sys.exit(-1)
+
+from nordb.core.nordicStringClass import *
+from nordb.core import nordicFix
 from nordb.validation import nordicValidation
 
 authorDict = {"ilmosalm": "---"}
@@ -182,9 +193,7 @@ def read_headers(nordic, header_id):
 		i-=1
 
 	#read the header lines
-	for x in xrange(0, i):
-		if len(nordic[x]) < 80:
-			print nordic[x] + "  \n len: " + str(len(nordic[x]))
+	for x in range(0, i):
 		if (nordic[x][79] == '1'):
 			headers.append(NordicHeaderMain(nordic[x], header_id))
 		elif (nordic[x][79] == '2'):
@@ -201,32 +210,32 @@ def read_headers(nordic, header_id):
 #Clearing the database
 def reset_database(cur):
 	start =  time.time()
-	print "Resetting database: "
-	print "-------------------"
-	print "Clearing nordic_phase_data..."
+	print("Resetting database: ")
+	print("-------------------")
+	print("Clearing nordic_phase_data...")
 	cur.execute("DELETE FROM nordic_phase_data")
-	print "Clearing nordic_header_comment..."
+	print("Clearing nordic_header_comment...")
 	cur.execute("DELETE FROM nordic_header_comment")	
-	print "Clearing nordic_header_error..."
+	print("Clearing nordic_header_error...")
 	cur.execute("DELETE FROM nordic_header_error")
-	print "Clearing nordic_header_macroseismic..."
+	print("Clearing nordic_header_macroseismic...")
 	cur.execute("DELETE FROM nordic_header_macroseismic")	
-	print "Clearing nordic_header_waveform..."
+	print("Clearing nordic_header_waveform...")
 	cur.execute("DELETE FROM nordic_header_waveform")
-	print "Clearing nordic_header_main..."
+	print("Clearing nordic_header_main...")
 	cur.execute("DELETE FROM nordic_header_main")	
-	print "Clearing nordic_modified..."
+	print("Clearing nordic_modified...")
 	cur.execute("DELETE FROM nordic_modified")	
-	print "Clearing scandia_header"
+	print("Clearing scandia_header")
 	cur.execute("DELETE FROM scandia_header")
-	print "Clearing nordic_event"
+	print("Clearing nordic_event")
 	cur.execute("DELETE FROM nordic_event")
-	print "Clearing nordic_file"
+	print("Clearing nordic_file")
 	cur.execute("DELETE FROM nordic_file")
-	print "Clearing nordic_event_root"	
+	print("Clearing nordic_event_root")
 	cur.execute("DELETE FROM nordic_event_root")
 
-	print "Altering sequence ids"
+	print ("Altering sequence ids")
 	cur.execute("ALTER SEQUENCE nordic_event_root_id_seq RESTART WITH 1")
 	cur.execute("ALTER SEQUENCE nordic_file_id_seq RESTART WITH 1")
 	cur.execute("ALTER SEQUENCE nordic_event_id_seq RESTART WITH 1")
@@ -241,11 +250,11 @@ def reset_database(cur):
 	
 	end = time.time()
 
-	print "All done! Time taken: " +  str(end - start) + " seconds!"
+	print("All done! Time taken: {0} seconds!".format(end))
 
 #TODO: DO THIS AGAIN!!!
 #function for reading one event and pushing it to the database
-def read_event(nordic, cur, event_type, author_id, nordic_filename):
+def read_event(nordic, cur, event_type, nordic_filename):
 	#Getting the nordic_event id from the database
 	if not nordic:
 		return False
@@ -282,11 +291,13 @@ def read_event(nordic, cur, event_type, author_id, nordic_filename):
 		if event[0] == event_type and nordicValidation.eventTypeValues[event_type] > 3:
 			update_this_event = event[1]
 
+	author_id = "---"
+	
 	#Get the author_id from the comment header
 	for header in headers:
 		if header.tpe == 3:
 			if fnmatch.fnmatch(header.h_comment, "*(???)*"):
-				for x in xrange(0, len(header.h_comment)-4):
+				for x in range(0, len(header.h_comment)-4):
 					if header.h_comment[x] == '(' and header.h_comment[x+4] == ')':
 						author_id = header.h_comment[x+1:x+4]
 
@@ -298,7 +309,7 @@ def read_event(nordic, cur, event_type, author_id, nordic_filename):
 		filename_id = filenameids[0]
 
 	#Read the data
-	for x in xrange(len(headers), len(nordic)):
+	for x in range(len(headers), len(nordic)):
 		data.append(NordicData(nordic[x], event_id))
 
 	#Generate the event
@@ -308,6 +319,8 @@ def read_event(nordic, cur, event_type, author_id, nordic_filename):
 	if not nordicValidation.validateNordic(nordic_event, cur):
 		return False
 	else:
+		return True		
+
 		if ans is None:
 			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES;")
 
@@ -371,20 +384,28 @@ def execute_command(cur, command, nordic):
 		try:
 			cur.execute(command)
 		except:
-			print "Error in sql command: " + command
-			for line in nordic:
-				print line
-			print "Exiting file.."
+			logging.error("Error in sql command: " + command)
 			sys.exit()
 
 #function for reading a nordicp file
-def read_nordicp(f, cur, event_type, author_id, old_nordic):
+def read_nordicp(f, event_type, old_nordic):
 	nordics = nordicFix.read_fix_nordicp_file(f, old_nordic)
 
+	try:
+		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+	except:
+		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
+		return 
+
+	cur = conn.cursor()
+
 	for nordic in nordics:
-		if not read_event(nordic, cur, event_type, author_id, f.name):
+		if not read_event(nordic, cur, event_type, f.name):
 			if len(nordic) > 0:
-				print "Problem in nordic: " + nordic[0][1:20]
+				logging.error("Problem in nordic: " + nordic[0][1:20])
+	
+	conn.commit()
+	conn.close()
 
 #function for getting the authorID of the last person who edited the file
 def get_author(filename):
@@ -395,64 +416,6 @@ def get_author(filename):
 		else:
 			return "---"
 	except:
-		print "Filename given to get Author is false"
+		logging.error("Filename given to get Author is false")
 		return "---"
 
-if __name__ == "__main__":
-	open("error.log", 'w').close()
-
-	#Test if the user has given an argument for the program1
-	if (len(sys.argv) < 2):
-		print "Give a filename for the program!!"
-		sys.exit()
-
-	#resetting the database with 'reset' argument
-	if (sys.argv[1] == "reset"):
-		#initializing psycopg
-		conn = psycopg2.connect("dbname=nordb user=ilmosalm")
-		#function for reading one event and pushing it to the database)
-		cur = conn.cursor()
-
-		reset_database(cur)
-		conn.commit()
-		conn.close()
-		sys.exit()
-
-	if (len(sys.argv) < 3):
-		print "Give the event type for the program: 'F' - final, 'R' - reviewed,'P' - preliminary, 'A' - automatic, 'O' - other"
-		sys.exit()
-
-	if sys.argv[2] not in "FRPAO":
-		print "Event type not correct: 'F' - final, 'R' - revieved, 'P' - preliminary, 'A' - automatic, 'O' - other"
-		sys.exit()
-
-	old_nordic = False
-
-	if (len(sys.argv) > 3):
-		if sys.argv[3] == 'O':
-			print "Nordic file is old"
-			old_nordic = True
-
-	author_id = get_author(sys.argv[1].strip())
-
-	#opening the given line
-	try:
-		f = open(sys.argv[1], 'r') 
-	except:
-		print("File: " + sys.argv[1] + " not found!")
-		sys.exit()
-
-	#initializing psycopg
-	conn = psycopg2.connect("dbname=test user=ilmosalm")
-	#function for reading one event and pushing it to the database)
-	cur = conn.cursor()
-
-	#print the file
-	print f.name
-
-	read_nordicp(f, cur, sys.argv[2], author_id, old_nordic)
-		
-	#committing and closing psycopq	
-	f.close()
-	conn.commit()
-	conn.close()

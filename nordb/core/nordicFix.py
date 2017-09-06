@@ -12,7 +12,7 @@ def read_fix_nordicp_file(f, old_nordic):
 		data_reached = False
 		nordics.append([])
 		for line in f:	
-			for char in xrange(0, len(line)):
+			for char in range(0, len(line)):
 				if line[char] == '\xc4':
 					ls = list(line)
 					ls[char] = 'A'
@@ -27,7 +27,7 @@ def read_fix_nordicp_file(f, old_nordic):
 				continue
 			if (len(line) < 81):
 				line = line[:-1]
-				for a in xrange(0, 80-len(line)):
+				for a in range(0, 80-len(line)):
 					line += ' '
 					line += '\n'
 			if (line == "                                                                                \n"):
@@ -42,8 +42,6 @@ def read_fix_nordicp_file(f, old_nordic):
 				continue
 			if (line[79] == ' '):
 				data_reached = True
-			if (line[79] == 'I'):
-				print "what the fuck"
 			if (data_reached and line[79] != ' '):
 				return nordics
 			
@@ -85,7 +83,7 @@ def read_fix_nordicp_file(f, old_nordic):
 
 def is_comment(line):
 	counter = 0
-	for i in xrange(0, len(line)):
+	for i in range(0, len(line)):
 		if line[i].isalpha():
 			counter += 1
 		elif line[i] == ' ':
@@ -94,21 +92,3 @@ def is_comment(line):
 			return True
 
 	return False
-
-if __name__ == "__main__":
-	if (len(sys.argv) < 2):
-		print("No filenames given!!")
-		sys.exit() 
-
-	try: 
-		f = open(sys.argv[1], 'r')
-	except:
-		print("File: " + sys.argv[1] + "not found!")
-		sys.exit
-
-	nordics = read_fix_nordicp_file(f)
-
-
-	for nordic in nordics:
-		for line in nordic:
-			print(line)
