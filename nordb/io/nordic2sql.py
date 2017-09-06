@@ -11,10 +11,6 @@ import logging
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
-if __name__ == "__main__":
-	os.chdir("../..")
-	sys.path = sys.path + ['']
-
 try:
 	f_user = open(MODULE_PATH[:-len("io/")] + "user.config")
 	username = f_user.readline()[:-1]

@@ -33,8 +33,8 @@ if len(sys.argv) > 1:
 		f.close()
 	elif sys.argv[1] == "-a":
 		if len(sys.argv) > 3:
-			if not sys.argv[2] in "OPRFS":
-				print(sys.argv[2] + " is not a valid flag! Only O, P, R, F or S are allowed")
+			if not sys.argv[2] in "AOPRFS":
+				print(sys.argv[2] + " is not a valid flag! Only A, O, P, R, F or S are allowed")
 				sys.exit()
 			else:
 				event_id = sys.argv
