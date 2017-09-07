@@ -18,30 +18,40 @@ def ValidatePhaseData(phase_data):
 
 	validation = validationTools.validateString(phase_data.station_code,
 												"station code",
+												3,
+												3,
 												"",
 												False,
 												phname)	
 	
 	validation = validationTools.validateString(phase_data.sp_instrument_type,
 												"instrument type",
+												0,
+												1,
 												"LSB ",
 												True,
 												phname)
 
 	validation = validationTools.validateString(phase_data.sp_component,
 												"component",
+												0,
+												1,
 												"ZNE ",
 												True,
 												phname)
 
 	validation = validationTools.validateString(phase_data.quality_indicator,
 												"quality indicator",
+												0,
+												1,
 												"",
 												False,
 												phname)
 
 	validation = validationTools.validateString(phase_data.phase_type,
 												"phase type",
+												0,
+												4
 												"",
 												False,
 												phname)
@@ -55,12 +65,16 @@ def ValidatePhaseData(phase_data):
 
 	validation = validationTools.validateString(phase_data.first_motion,
 												"first motion",
+												0,
+												1,
 												"CD+- ",
 												True,
 												phname)
 
 	validation = validationTools.validateString(phase_data.time_info,
 												"time info",
+												0,
+												1,
 												"-+ ",
 												True,
 												phname)
