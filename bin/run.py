@@ -28,7 +28,7 @@ else:
 
 from nordb.database import initNorDB
 from nordb.io import nordic2sql
-
+from nordb.core import resetDB
 #TODO
 def print_help():
 	print("")
@@ -57,7 +57,7 @@ def print_help():
 
 
 if sys.argv[1] == "-reset":
-	nordic2sql.reset_database()
+	resetDB.reset_database()
 elif sys.argv[1] == "-destroy":
 	initNorDB.destroy_database()
 elif sys.argv[1] == "-init":
