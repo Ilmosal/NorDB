@@ -1,7 +1,7 @@
 class NordicEvent:
 	def __init__(self, event_id, root_id, headers, data, event_type, author_id, locating_program):
-		self.event_id = event_id.strip()
-		self.root_id = root_id.strip()
+		self.event_id = str(event_id).strip()
+		self.root_id = str(root_id).strip()
 		self.headers = headers
 		self.data = data
 		self.event_type = event_type.strip()
@@ -53,7 +53,7 @@ class NordicHeaderMain(NordicHeader):
 	def __init__(self, header, event_id):
 		NordicHeader.__init__(self, 1)
 		self.event_id = str(event_id).strip()
-		self.date = header[1:5] + "-" + header[5:7] + "-" + header[7:9]
+		self.date = header[1:5] + "-" + header[6:8] + "-" + header[8:10]
 		self.hour = header[11:13].strip()
 		self.minute = header[13:15].strip()
 		self.second = header[16:20].strip()

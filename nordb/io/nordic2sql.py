@@ -12,11 +12,11 @@ import logging
 MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
 try:
-	f_user = open(MODULE_PATH[:-len("io/")] + "user.config")
-	username = f_user.readline()[:-1]
+	f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
+	username = f_user.readline().strip()
 	f_user.close()
 except:
-	logging.error("No user.config file!! Run the program with -conf flag to initialize the user.conf")
+	logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
 	sys.exit(-1)
 
 from nordb.core.nordicStringClass import *
@@ -154,28 +154,37 @@ def get_waveform_header_query_info(header):
 
 #Adding an integer the the query_info
 def add_to_query_int(string, tpe, query_info):
+	if string == "":
+		return
+
 	query_info.query_parameters += tpe + ", "
 	query_info.query_values += string + ", "
 
 #Adding a float to the query info
 def add_to_query_float(string, tpe, query_info):
+	if string == "":
+		return
+
 	query_info.query_parameters += tpe + ", "
 	query_info.query_values += string + ", "
 
 #Adding a string to the query info
 def add_to_query_string(string, tpe, query_info):
-	#Check if the string is empty
-	if (not (string.isspace())):
-		query_info.query_parameters += tpe + ", "
-		query_info.query_values += "'" + string.strip()+ "', "
+	if string == "":
+		return
+	query_info.query_parameters += tpe + ", "
+	query_info.query_values += "'" + string.strip()+ "', "
 
 #Adding a date to query info
 def add_to_query_date(string, tpe, query_info):
+	if string == "":
+		return
+
 	query_info.query_parameters += tpe + ", "
 	query_info.query_values += "'" + string + "', "
 
 #function for reading all the headers
-def read_headers(nordic, header_id):
+def read_headers(nordic, event_id):
 	i = 1
 	headers = []
 	#find where the data starts 
@@ -191,20 +200,28 @@ def read_headers(nordic, header_id):
 	#read the header lines
 	for x in range(0, i):
 		if (nordic[x][79] == '1'):
-			headers.append(NordicHeaderMain(nordic[x], header_id))
+			headers.append(NordicHeaderMain(nordic[x], event_id))
 		elif (nordic[x][79] == '2'):
-			headers.append(NordicHeaderMacroseismic(nordic[x], header_id))
+			headers.append(NordicHeaderMacroseismic(nordic[x], event_id))
 		elif (nordic[x][79] == '3'):
-			headers.append(NordicHeaderComment(nordic[x], header_id))
+			headers.append(NordicHeaderComment(nordic[x], event_id))
 		elif (nordic[x][79] == '5'):
 			headers.append(NordicHeaderError(nordic[x]))
 		elif (nordic[x][79] == '6'):
-			headers.append(NordicHeaderWaveform(nordic[x], header_id))
+			headers.append(NordicHeaderWaveform(nordic[x], event_id))
 
 	return headers
 	
 #Clearing the database
-def reset_database(cur):
+def reset_database():
+	try:
+		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+	except:
+		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
+		return 
+
+	cur = conn.cursor()
+
 	start =  time.time()
 	print("Resetting database: ")
 	print("-------------------")
@@ -244,9 +261,12 @@ def reset_database(cur):
 	cur.execute("ALTER SEQUENCE nordic_header_macroseismic_id_seq RESTART WITH 1")	
 	cur.execute("ALTER SEQUENCE nordic_header_waveform_id_seq RESTART WITH 1")	
 	
-	end = time.time()
+	end = time.time() - start
 
 	print("All done! Time taken: {0} seconds!".format(end))
+
+	conn.commit()
+	conn.close()
 
 #TODO: DO THIS AGAIN!!!
 #function for reading one event and pushing it to the database
@@ -313,10 +333,9 @@ def read_event(nordic, cur, event_type, nordic_filename):
 
 	#VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
 	if not nordicValidation.validateNordic(nordic_event, cur):
+		logging.error("Nordic validation failed!!!")
 		return False
 	else:
-		return True		
-
 		if ans is None:
 			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES;")
 

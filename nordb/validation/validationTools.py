@@ -1,8 +1,8 @@
 import math
 import logging
-import datetime
+from datetime import date
 
-nTypes = {0: "Nordic Event"
+nTypes = {0: "Nordic Event",
 		1: "Nordic Main Header",
 		2: "Nordic Macroseismic Header",
 		3: "Nordic Comment Header",
@@ -15,83 +15,78 @@ class values():
 	maxInt = 9223372036854775807 
 
 def validateInteger(val, valueName, low, high, limits, nType):
+	if val == "":
+		return True
+
 	try:
 		int(val)
 	except:		
 		msg = "Validation Error - {0}: {1} is not an integer! ({2})"
-		logging.error(msg.format(nTypes[nType], valuename, val))
+		logging.error(msg.format(nTypes[nType], valueName, val))
 		return False
 
-	if math.isnan(val):
-		msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-		logging.error(msg.format(nTypes[nType], valuename, val))
-		return False
-
-	if math.isinf(val):
-		msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-		logging.error(msg.format(nTypes[nType], valuename, val))
-		return False
-
-	if val < low and limits:
+	if int(val) < low and limits:
 		msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
-		logging.error(msg.format(nTypes[nType], valuename, low, val))
+		logging.error(msg.format(nTypes[nType], valueName, low, val))
 		return False
 
-	if val > high and limits:
+	if int(val) > high and limits:
 		msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
-		logging.error(msg.format(nTypes[nType], valuename, high, val))
+		logging.error(msg.format(nTypes[nType], valueName, high, val))
 		return False
 
 	return True
 
 def validateFloat(val, valueName, low, high, limits, nType):
+	if val == "":
+		return True
+
 	try:
 		float(val)
 	except:		
 		msg = "Validation Error - {0}: {1} is not an float! ({2})"
-		logging.error(msg.format(nTypes[nType], valuename, val))
+		logging.error(msg.format(nTypes[nType], valueName, val))
 		return False
 
-	if math.isnan(val):
+	if math.isnan(float(val)):
 		msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-		logging.error(msg.format(nTypes[nType], valuename, val))
+		logging.error(msg.format(nTypes[nType], valueName, val))
 		return False
 
-	if math.isinf(val):
+	if math.isinf(float(val)):
 		msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-		logging.error(msg.format(nTypes[nType], valuename, val))
+		logging.error(msg.format(nTypes[nType], valueName, val))
 		return False
 
-	if val < low and limits:
+	if float(val) < low and limits:
 		msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
 		logging.error(msg.format(nTypes[nType], valuename, low, val))
 		return False
 
-	if val > high and limits:
+	if float(val) > high and limits:
 		msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
 		logging.error(msg.format(nTypes[nType], valuename, high, val))
 		return False
 
 	return True
 
-def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nType):
-	if string is None:
-		msg = "WRTITE"
-		return False
+def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nType):	
+	if string is "":
+		return True
 
 	if string not in listOfAllowed and isList:
 		msg = "Validation Error - {0}: {1} not int the list of allowed strings! ({2})\nAllowed:\n"
 		for allowed in listOfAllowed:
-			msg += "  -" + allowed "\n"
+			msg += "  -" + allowed + "\n"
 		logging.error(msg.format(nTypes[nType], stringName, string))
 		return False
 
-	if minlen > -1  && len(string) < minlen:
+	if minlen > -1  and len(string) < minlen:
 		msg = "Validation Error - {0}: {1} is shorter than the minimum allowed length {2}! ({3})"
 		logging.error(msg.format(nTypes[nType], stringName, minlen, string))
 		return False
 
-	if minlen > -1  && len(string) > maxlen:
+	if minlen > -1  and len(string) > maxlen:
 		msg = "Validation Error - {0}: {1} is longer than the maximum allowed length {2}! ({3})"
 		logging.error(msg.format(nTypes[nType], stringName, maxlen, string))
 		return False
@@ -99,10 +94,13 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
 	return True
 
 def validateDate(dateS, dateName, nType):
-	if dateS[0] == " ":
-		dateS = "0" + dateS[1:]
-	if dateS[2] == " ":
-		dateS = dateS[:2] + "0" + dateS[3:]
+	if dateS == "":
+		return True
+
+	if dateS[5] == " ":
+		dateS = dateS[:5] + "0" + dateS[6:]
+	if dateS[5] == " ":
+		dateS = dateS[:8] + "0" + dateS[9:]
 
 	try:
 		date(year=int(dateS[:4]), month=int(dateS[5:7]), day=int(dateS[8:]))
