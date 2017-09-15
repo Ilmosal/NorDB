@@ -29,6 +29,7 @@ else:
 from nordb.database import initNorDB
 from nordb.io import nordic2sql
 from nordb.io import sql2nordic
+from nordb.io import sql2quakeml
 from nordb.core import resetDB
 
 def print_help():
@@ -74,7 +75,7 @@ elif sys.argv[1] == "-g":
 			if (sys.argv[3] == "-n"):
 				sql2nordic.writeNordicEvent(sys.argv[2])
 			elif (sys.argv[3] == "-q"):
-				pass #TODO
+				sql2quakeml.writeQuakeML(sys.argv[2])
 		else:
 			print("Give event the format as an argument!")
 	else:

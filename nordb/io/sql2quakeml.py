@@ -1,13 +1,25 @@
 from lxml import etree
+
 import math
 import sys
 import time
+import os
+import logging
 
-sys.path.insert(0, '../nordic')
-import nordicHandler
+MODULE_PATH = os.path.realpath(__file__)[:-len("sql2quakeml.py")]
+
+try:
+	f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
+	username = f_user.readline().strip()
+	f_user.close()
+except:
+	logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
+	sys.exit(-1)
+
+from nordb.core import nordicHandler
 import psycopg2
 
-QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
+QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
 
 AUTHORITY_ID = "wh.atis.ids"
 NETWORK_CODE = "netcode"
@@ -45,12 +57,12 @@ def addEvent(eventParameters, nordic, long_quakeML):
 			event_comment_txt.text = header_comment.h_comment
 
 	#Creating the all elements and their subelement
-	for i in xrange(0,len(nordic.headers[1])):
+	for i in range(0,len(nordic.headers[1])):
 		addOrigin(event, nordic, i)
 		if long_quakeML:
 			addMagnitude(event, nordic, i)
 	
-	for i in xrange(0, len(nordic.headers[5])):
+	for i in range(0, len(nordic.headers[5])):
 		addFocalMech(event, nordic.headers[5][i])
 
 	if long_quakeML:
@@ -320,19 +332,20 @@ def validateQuakeMlFile(test, parser, xmlschema):
 		etree.fromstring(test, parser)
 		return True
 	except:
-		fErr = open("errorlogs/xml_error_" + str(time.time()) + ".log", 'w')
+		fErr = open(MODULE_PATH + "/errorlogs/xml_error_" + str(time.time()) + ".log", 'w')
 		log = xmlschema.error_log
 		fErr.write(str(log))
-		print "Error with XML validation. Check error log file " + fErr.name + " for more info!"	
+		print("Error with XML validation. Check error log file " + fErr.name + " for more info!")	
 		fErr.close()
 		sys.exit(-1)
 
 def nordicEventToQuakeMl(nordicEvent, long_quakeML):
-	f = open("QuakeML-1.2.xsd")
+	f = open(MODULE_PATH + "QuakeML-1.2.xsd")
 	xmlschema_doc = etree.parse(f)
 	f.close()
 
-	quakeml = etree.XML(QUAKEML_ROOT_STRING)
+	utf8_parser = etree.XMLParser(encoding='utf-8')
+	quakeml = etree.fromstring(QUAKEML_ROOT_STRING.encode('utf-8'), utf8_parser)
 
 	addEventParameters(quakeml, nordicEvent, long_quakeML)
 
@@ -346,6 +359,43 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
 	validateQuakeMlFile(test, parser, xmlschema)
 
 	return quakeml
+
+def writeQuakeML(nordicEventId):
+	try:
+		int(nordicEventId)
+	except:
+		logging.error("Argument {0} is not a valid event id!".format(nordicEventId))
+		return False
+
+	try:
+		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+	except:
+		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
+		return
+
+	cur = conn.cursor()
+
+	nordic = nordicHandler.getNordicEvent(nordicEventId, cur)
+	
+	if nordic == None:
+		return False
+
+	filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".xml"
+
+	quakeMLString = etree.tostring(nordicEventToQuakeMl(nordic, True), pretty_print=True)	
+
+	print(filename + " has been created!")
+	
+	f = open(filename, 'wb')
+	
+	f.write(quakeMLString)
+
+	f.close()
+	conn.commit()
+	conn.close()
+
+	return True
+
 
 if __name__ == '__main__':
 	nordic = nordicHandler.getNordicEvent(183)
