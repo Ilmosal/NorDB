@@ -1,6 +1,21 @@
+import logging
+import os
+import sys
+import psycopg2
+
+MODULE_PATH = os.path.realpath(__file__)[:-len("sql2nordic.py")]
+
+try:
+	f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
+	username = f_user.readline().strip()
+	f_user.close()
+except:
+	logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
+	sys.exit(-1)
+	
 from nordb.core import nordicHandler
 
-def nordic_event_to_nordic(nordic):
+def nordicEventToNordic(nordic):
 	nordic_string = []
 
 	nordic_string.append(create_main_header_string(nordic.headers[1][0]))
@@ -121,7 +136,7 @@ def create_phase_data_string(pd):
 	phase_string += " "
 	phase_string += add_float_to_string(pd.max_amplitude, 6, 2, '>')
 	phase_string += " "
-	phase_string += add_float_to_string(pd.max_amplitude_period, 4, 1, '>')
+	phase_string += add_float_to_string(pd.max_amplitude_period, 4, 2, '>')
 	phase_string += " "
 	phase_string += add_float_to_string(pd.back_azimuth, 5, 1, '>')
 	phase_string += " "
@@ -166,16 +181,41 @@ def add_float_to_string(value, val_len, decimal_len, front):
 		for x in range(0, val_len):
 			string += " "
 	return string
+
+def writeNordicEvent(nordicEventId):
+	try:
+		int(nordicEventId)
+	except:
+		logging.error("Argument {0} is not a valid event id!".format(nordicEventId))
+		return False
+
+	try:
+		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+	except:
+		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
+		return
+
+	cur = conn.cursor()
+
+	nordic = nordicHandler.getNordicEvent(nordicEventId, cur)
 	
-if __name__ == '__main__':
-	nordic = nordicHandler.getNordicEvent(183)
-	nordic_string = nordic_event_to_nordic(nordic)
+	if nordic == None:
+		return False
+	
+	nordicString = nordicEventToNordic(nordic)
 
 	filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".nordic"
-	print(filename)
+	
+	print(filename + " has been created!")
+	
 	f = open(filename, 'w')
 	
-	for line in nordic_string:	
+	for line in nordicString:	
 		f.write(line)
 
 	f.close()
+	conn.commit()
+	conn.close()
+
+	return True
+	

@@ -288,7 +288,7 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 		while (sayToAll != "yes") :
 			print("Same event found with id {0}. Do you wish to replace the file: ".format(e_id))
 			print("New: " + headers[0].getHeaderString(), end='')
-			print("Old: " + sql2nordic.nordic_event_to_nordic(nordicHandler.getNordicEvent(e_id, cur))[0], end='')
+			print("Old: " + sql2nordic.nordicEventToNordic(nordicHandler.getNordicEvent(e_id, cur))[1], end='')
 			i_ans = input("Answer(y/n): ")
 
 			if (i_ans == "n"):

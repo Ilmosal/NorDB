@@ -1,3 +1,4 @@
+import logging
 import psycopg2
 
 #class for the whole event 
@@ -242,6 +243,13 @@ def readNordicEvent(cur, event_id):
 	headers = {}
 	phase_data = []
 
+	cur.execute("SELECT id from nordic_event WHERE id = %s", (event_id,))
+	ans = cur.fetchone()
+
+	if not ans:
+		logging.error("Event with id {0} does not exist!".format(event_id))
+		return None
+	
 	headers[1] = queryNordicEventMainHeaders(cur, event_id)
 	headers[2] = queryNordicEventMacroseismicHeaders(cur, event_id)
 	headers[3] = queryNordicEventCommentHeaders(cur, event_id)

@@ -28,8 +28,9 @@ else:
 
 from nordb.database import initNorDB
 from nordb.io import nordic2sql
+from nordb.io import sql2nordic
 from nordb.core import resetDB
-#TODO
+
 def print_help():
 	print("")
 	print("NORDB - Version: {0}".format(version))
@@ -56,11 +57,10 @@ def print_help():
 	print("-reset              | Reset database from all entries                ")
 	print("---------------------------------------------------------------------")
 	print("-g <id>             | Get event with id in <format> format.          ")
-	print("   <format>         | n - nordic, q - quakeml                        ")
+	print("   <format>         | -n - nordic, -q - quakeml                      ")
 	print("---------------------------------------------------------------------")
 	print("-h                  | Print help")
 	print("")
-
 
 if sys.argv[1] == "-reset":
 	resetDB.reset_database()
@@ -71,7 +71,10 @@ elif sys.argv[1] == "-init":
 elif sys.argv[1] == "-g":
 	if len(sys.argv) > 2:
 		if len(sys.argv) > 3:
-			pass
+			if (sys.argv[3] == "-n"):
+				sql2nordic.writeNordicEvent(sys.argv[2])
+			elif (sys.argv[3] == "-q"):
+				pass #TODO
 		else:
 			print("Give event the format as an argument!")
 	else:
