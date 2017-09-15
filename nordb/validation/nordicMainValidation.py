@@ -19,10 +19,13 @@ def validateMainHeader(nordic_main):
 												mheader):
 		validation = False
 	
+	validationTools.fixDate(nordic_main)
+
 	if not validationTools.validateDate(nordic_main.date,
 												"date",
 												mheader):
 		validation = False
+
 	
 	if not validationTools.validateInteger(nordic_main.hour,
 												"hour",

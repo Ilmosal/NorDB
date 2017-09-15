@@ -96,22 +96,20 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
 def validateDate(dateS, dateName, nType):
 	if dateS == "":
 		return True
-
-	if dateS[5] == " ":
-		msg = "Validation Error - {0}: Empty gap in month! {1}"
-		logging.error(msg.format(nTypes[nType], dateS))
-		return False
-	if dateS[7] == " ":
-		msg = "Validation Error - {0}: Empty gap in day! {1}"
-		logging.error(msg.format(nTypes[nType], dateS))
-
-		return False
-
+	
 	try:
-		date(year=int(dateS[:4]), month=int(dateS[5:7]), day=int(dateS[8:]))
+		date(year=int(dateS[:4].strip()), month=int(dateS[5:7].strip()), day=int(dateS[8:].strip()))
 	except:
 		msg = "Validation Error - {0}: {1} is not parsable into date!({2})"
 		logging.error(msg.format(nTypes[nType], dateName, dateS))
 		return False
 
 	return True
+
+
+def fixDate(nordic):
+	if nordic.date[5] == " ":
+		nordic.date = nordic.date[:5] + "0" + nordic.date[6:]
+	if nordic.date[8] == " ":
+		nordic.date = nordic.date[:8] + "0" + nordic.date[9:]
+

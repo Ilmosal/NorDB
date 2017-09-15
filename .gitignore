@@ -102,3 +102,5 @@ ENV/
 
 #nordicFile_
 *.*n
+*.nordic*
+

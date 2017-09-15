@@ -28,6 +28,7 @@ def validateNordic(nordic_event, cur):
 		logging.error(msg.format(nordic_event.headers[0].tpe))
 		validation_error = True
 
+
 	for header in nordic_event.headers:
 		if (header.tpe == 1):
 			if not nordicMainValidation.validateMainHeader(header):
