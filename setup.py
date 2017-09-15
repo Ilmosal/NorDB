@@ -5,7 +5,7 @@ setup(
 	version="0.1.0",
 	author="Ilmo Salmenperä",
 	author_email="ilmo.salmenpera@helsinki.fi",
-	packages=["nordb", "nordb/database", "nordb/io", "nordb/validation", "nordb/nordsql"],
+	packages=["nordb", "nordb/database", "nordb/io", "nordb/validation", "nordb/sql"],
 	scripts=["bin/run.py"],
 	url="http://github.com/MrCubanfrog/NorDB",
 	licence="LICENSE",

@@ -1,5 +1,4 @@
-from __future__ import print_function
-import nordicHandler
+from nordb.core import nordicHandler
 
 def nordic_event_to_nordic(nordic):
 	nordic_string = []
@@ -15,7 +14,7 @@ def nordic_event_to_nordic(nordic):
 	for hd in nordic.headers[3]:
 		nordic_string.append(create_comment_header_string(hd))
 
-	for i in xrange(1,len(nordic.headers[1])):
+	for i in range(1,len(nordic.headers[1])):
 		nordic_string.append(create_main_header_string(nordic.headers[1][i]))
 
 	nordic_string.append(create_help_header_string())
@@ -144,7 +143,7 @@ def add_string_to_string(value, val_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in xrange(0, val_len):
+		for x in range(0, val_len):
 			string += " "
 	return string
 
@@ -154,7 +153,7 @@ def add_integer_to_string(value, val_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in xrange(0, val_len):
+		for x in range(0, val_len):
 			string += " "
 	return string
 
@@ -164,11 +163,9 @@ def add_float_to_string(value, val_len, decimal_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in xrange(0, val_len):
+		for x in range(0, val_len):
 			string += " "
 	return string
-
-
 	
 if __name__ == '__main__':
 	nordic = nordicHandler.getNordicEvent(183)

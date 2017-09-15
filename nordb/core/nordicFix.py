@@ -7,10 +7,33 @@ import string
 def read_fix_nordicp_file(f, old_nordic):
 	nordics = []
 	whitespace = "                                                                                \n"
+
+	data_reached = False
+	i = 0
+
+	nordics.append([])
+	for line in f:
+		if not line.strip() == "":
+			i += 1;
+			nordics.append([])
+		elif (line[79] == "7"):
+			pass
+		elif (line[79] == " "):
+			nordics[i].append(line)
+		else:
+			nordic[i].append(line)
+
+
 	if not old_nordic:
 		i = 0
 		data_reached = False
-		nordics.append([])
+		if not line[79] == "7":
+			nordics.append(line)
+		else:
+			data_reached = True
+
+
+
 		for line in f:	
 			for char in range(0, len(line)):
 				if line[char] == '\xc4':

@@ -60,12 +60,12 @@ def validateFloat(val, valueName, low, high, limits, nType):
 
 	if float(val) < low and limits:
 		msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
-		logging.error(msg.format(nTypes[nType], valuename, low, val))
+		logging.error(msg.format(nTypes[nType], valueName, low, val))
 		return False
 
 	if float(val) > high and limits:
 		msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
-		logging.error(msg.format(nTypes[nType], valuename, high, val))
+		logging.error(msg.format(nTypes[nType], valueName, high, val))
 		return False
 
 	return True
@@ -75,7 +75,7 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
 		return True
 
 	if string not in listOfAllowed and isList:
-		msg = "Validation Error - {0}: {1} not int the list of allowed strings! ({2})\nAllowed:\n"
+		msg = "Validation Error - {0}: {1} not in the list of allowed strings! ({2})\nAllowed:\n"
 		for allowed in listOfAllowed:
 			msg += "  -" + allowed + "\n"
 		logging.error(msg.format(nTypes[nType], stringName, string))
@@ -98,9 +98,14 @@ def validateDate(dateS, dateName, nType):
 		return True
 
 	if dateS[5] == " ":
-		dateS = dateS[:5] + "0" + dateS[6:]
-	if dateS[5] == " ":
-		dateS = dateS[:8] + "0" + dateS[9:]
+		msg = "Validation Error - {0}: Empty gap in month! {1}"
+		logging.error(msg.format(nTypes[nType], dateS))
+		return False
+	if dateS[7] == " ":
+		msg = "Validation Error - {0}: Empty gap in day! {1}"
+		logging.error(msg.format(nTypes[nType], dateS))
+
+		return False
 
 	try:
 		date(year=int(dateS[:4]), month=int(dateS[5:7]), day=int(dateS[8:]))

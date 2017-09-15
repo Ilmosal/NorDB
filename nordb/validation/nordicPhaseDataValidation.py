@@ -19,8 +19,8 @@ def validatePhaseData(phase_data):
 
 	if not validationTools.validateString(phase_data.station_code,
 												"station code",
-												3,
-												3,
+												0,
+												4,
 												"",
 												False,
 												phname):	
@@ -30,7 +30,7 @@ def validatePhaseData(phase_data):
 												"instrument type",
 												0,
 												1,
-												"LSB ",
+												"LSBEH ",
 												True,
 												phname):
 		validation = False
@@ -39,7 +39,7 @@ def validatePhaseData(phase_data):
 												"component",
 												0,
 												1,
-												"ZNE ",
+												"ZNEH ",
 												True,
 												phname):
 		validation = False
@@ -139,7 +139,7 @@ def validatePhaseData(phase_data):
 	if not validationTools.validateFloat(phase_data.back_azimuth,
 												"back azimuth",
 												0.0,
-												359.99,
+												359.9,
 												True,
 												phname):
 		validation = False

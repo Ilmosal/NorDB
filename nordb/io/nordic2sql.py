@@ -19,10 +19,11 @@ except:
 	sys.exit(-1)
 
 from nordb.core.nordicStringClass import *
-from nordb.core import nordicFix
+from nordb.core import nordicRead
+from nordb.core import nordicHandler
 from nordb.validation import nordicValidation
-
-authorDict = {"ilmosalm": "---"}
+from nordb.validation import nordicFindOld
+from nordb.io import sql2nordic
 
 #getting the query information for the nordic data object anf inserting them to its query_info object
 def get_data_query_info(data):
@@ -211,9 +212,8 @@ def read_headers(nordic, event_id):
 
 	return headers
 	
-#TODO: DO THIS AGAIN!!!
 #function for reading one event and pushing it to the database
-def read_event(nordic, cur, event_type, nordic_filename):
+def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 	#Getting the nordic_event id from the database
 	if not nordic:
 		return False
@@ -276,12 +276,30 @@ def read_event(nordic, cur, event_type, nordic_filename):
 
 	#VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
 	if not nordicValidation.validateNordic(nordic_event, cur):
-		logging.error("Nordic validation failed!!!")
+		logging.error("Nordic validation failed with event: \n" + headers[0].getHeaderString())
 		return False
-	else:
+	
+	e_id = nordicFindOld.checkForSameEvents(nordic_event, cur)
+	i_ans = ""
+	if (e_id != 0):
+		if (sayToAll == "no"):
+			return False
+			
+		while (sayToAll != "yes") :
+			print("Same event found with id {0}. Do you wish to replace the file: ".format(e_id))
+			print("New: " + headers[0].getHeaderString(), end='')
+			print("Old: " + sql2nordic.nordic_event_to_nordic(nordicHandler.getNordicEvent(e_id, cur))[0], end='')
+			i_ans = input("Answer(y/n): ")
+
+			if (i_ans == "n"):
+				return False
+			if (i_ans == "y"):
+				break
+
+	try:
 		if ans is None:
 			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES;")
-
+	
 		if filename_id == -1:
 			cur.execute("SELECT COUNT(*) FROM nordic_file")
 			filename_id = 1 + cur.fetchone()[0]
@@ -294,7 +312,7 @@ def read_event(nordic, cur, event_type, nordic_filename):
 					str(filename_id), 
 					nordic_event.author_id)
 					)
-	
+		
 		if update_this_event != -1:
 			cur.execute("INSERT INTO nordic_modified (event_id, replacement_event_id, old_event_type, replaced) VALUES (%s, %s, %s, %s)", 
 						(str(update_this_event), 
@@ -303,8 +321,8 @@ def read_event(nordic, cur, event_type, nordic_filename):
 						'{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()),)
 						)
 			cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(update_this_event),))
-
-		#Add all the headers to the database
+	
+			#Add all the headers to the database
 		for header in nordic_event.headers:
 			if (header.tpe == 1):
 				get_main_header_query_info(header)
@@ -328,14 +346,16 @@ def read_event(nordic, cur, event_type, nordic_filename):
 				get_waveform_header_query_info(header)
 				command = "INSERT INTO nordic_header_waveform (" + header.query_info.query_parameters + ") VALUES (" + header.query_info.query_values + ");"
 				execute_command(cur, command, nordic)
-
-		#Adding the data to the database
+			#Adding the data to the database
 		for phase_data in nordic_event.data:
 			get_data_query_info(phase_data)		
 			command = "INSERT INTO nordic_phase_data (" + phase_data.query_info.query_parameters + ") VALUES (" + phase_data.query_info.query_values + ");"
 			execute_command(cur, command, nordic)
 
 		return True
+
+	except:
+		logging.error("Some error happened with sql-querys that was not detected by validation layer!")
 
 #function for performing the sql commands
 def execute_command(cur, command, nordic):
@@ -346,8 +366,8 @@ def execute_command(cur, command, nordic):
 			sys.exit()
 
 #function for reading a nordicp file
-def read_nordicp(f, event_type, old_nordic):
-	nordics = nordicFix.read_fix_nordicp_file(f, old_nordic)
+def read_nordicp(f, event_type, old_nordic, sayToAll):
+	nordics = nordicRead.readNordicFile(f)
 
 	try:
 		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -358,9 +378,9 @@ def read_nordicp(f, event_type, old_nordic):
 	cur = conn.cursor()
 
 	for nordic in nordics:
-		if not read_event(nordic, cur, event_type, f.name):
+		if not read_event(nordic, cur, event_type, f.name, sayToAll):
 			if len(nordic) > 0:
-				logging.error("Problem in nordic: " + nordic[0][1:20])
+				logging.info("Problem in nordic: " + nordic[0][1:20])
 	
 	conn.commit()
 	conn.close()

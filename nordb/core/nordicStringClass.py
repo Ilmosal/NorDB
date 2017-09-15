@@ -52,6 +52,7 @@ class NordicData:
 class NordicHeaderMain(NordicHeader):
 	def __init__(self, header, event_id):
 		NordicHeader.__init__(self, 1)
+		self.o_string = header
 		self.event_id = str(event_id).strip()
 		self.date = header[1:5] + "-" + header[6:8] + "-" + header[8:10]
 		self.hour = header[11:13].strip()
@@ -77,6 +78,8 @@ class NordicHeaderMain(NordicHeader):
 		self.magnitude_3 = header[72:75].strip()
 		self.type_of_magnitude_3 = header[75].strip()
 		self.magnitude_reporting_agency_3 = header[76:79].strip()
+	def getHeaderString(self):
+		return self.o_string
 
 #Class for the nordic header line of type 2. Contains macroseismic information of the event
 class NordicHeaderMacroseismic(NordicHeader):
