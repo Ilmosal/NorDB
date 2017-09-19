@@ -8,25 +8,24 @@ def checkForSameEvents(nordic_event, cur):
 		if h.tpe == 6:
 			data = h.waveform_info
 
-	
-
 	if data != "":
 		cur.execute(cmd, (data,))
-		ans = cur.fetchone()
+		ans = cur.fetchall()
 
-		if ans:
-			return ans[0]
-		else:
-			return 0
+		for a in ans:
+			cur.execute("SELECT event_type FROM nordic_event WHERE id = %s", (a[0],))
+			tpe = cur.fetchone()[0]
+			if tpe == nordic_event.event_type:
+				return a[0]
 
 	if nordic_event.headers[0].hour == "":
-		return 0
+		return -1
 	if nordic_event.headers[0].minute == "":
-		return 0
+		return -1
 	if nordic_event.headers[0].second == "":
-		return 0
+		return -1
 	
-	cmd = "SELECT id FROM nordic_header_main WHERE date=%s"
+	cmd = "SELECT event_id FROM nordic_header_main WHERE date=%s"
 	cmd += "AND hour = %s "
 	cmd += "AND minute = %s "
 	cmd += "AND second = %s "
@@ -40,22 +39,14 @@ def checkForSameEvents(nordic_event, cur):
 					nordic_event.headers[0].epicenter_latitude,
 					nordic_event.headers[0].epicenter_longitude))
 
-	ans = cur.fetchone()
+	ans = cur.fetchall()
+	for a in ans:
+		cur.execute("SELECT event_type FROM nordic_event WHERE id = %s", (a[0],))
+		tpe = cur.fetchone()[0]
+		if tpe == nordic_event.event_type:
+			return a[0]
 
-	if not ans:
-		return 0
-
-	cmd = "SELECT event_type FROM nordic_event WHERE event_id=%s"
-	cur.execute(cmd, (ans[1]))
-	eType = cur.fetchone()
-
-	if not eType:
-		return 0
-
-	if eType[0] == nordic_event.event_type:
-		return ans[0]
-	else:
-		return 0
+	return -1
 
 def checkForSimilarEvents(nordic_event, cur): 
 	hour_error = 1

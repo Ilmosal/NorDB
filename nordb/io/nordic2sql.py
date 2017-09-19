@@ -21,6 +21,7 @@ except:
 from nordb.core.nordicStringClass import *
 from nordb.core import nordicRead
 from nordb.core import nordicHandler
+from nordb.core import nordicFix
 from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
 from nordb.io import sql2nordic
@@ -194,7 +195,7 @@ def read_headers(nordic, event_id):
 			break
 		i+=1
 
-	if (len(nordic) > 1):
+	if (len(nordic) != i):
 		i-=1
 
 	#read the header lines
@@ -229,27 +230,6 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 	headers = read_headers(nordic, event_id)
 	data = []
 
-	#Reading the waveform info for searching for same nordics in the database
-	waveform_info = ""
-	for header in headers:
-		if header.tpe == 6:
-			waveform_info = header.waveform_info.strip()
-
-	cur.execute("SELECT root_id FROM nordic_event, nordic_header_waveform WHERE nordic_event.id = nordic_header_waveform.event_id AND nordic_header_waveform.waveform_info LIKE %s", (waveform_info,))
-	ans = cur.fetchone()
-
-	if ans is not None:
-		root_id = ans[0]
-
-	#Check if there is a event that shares the event event_type if this event could replace the old event
-	cur.execute("SELECT event_type, id FROM nordic_event WHERE root_id = %s", (str(root_id),))
-	common_events = cur.fetchall()
-	
-	update_this_event = -1
-	for event in common_events:
-		if event[0] == event_type and nordicValidation.eventTypeValues[event_type] > 3:
-			update_this_event = event[1]
-
 	author_id = "---"
 	
 	#Get the author_id from the comment header
@@ -272,57 +252,78 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 		data.append(NordicData(nordic[x], event_id))
 
 	#Generate the event
-	nordic_event = NordicEvent(event_id, root_id, headers, data, event_type, author_id, "NOPROGRAM")
+	nordic_event = NordicEvent(event_id, -1, headers, data, event_type, author_id, "NOPROGRAM")
+
+	nordicFix.fixNordicEvent(nordic_event)
 
 	#VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
 	if not nordicValidation.validateNordic(nordic_event, cur):
 		logging.error("Nordic validation failed with event: \n" + headers[0].getHeaderString())
 		return False
+
 	
 	e_id = nordicFindOld.checkForSameEvents(nordic_event, cur)
 	i_ans = ""
-	if (e_id != 0):
+	if (e_id != -1):
 		if (sayToAll == "no"):
 			return False
 			
 		while (sayToAll != "yes") :
-			print("Same event found with id {0}. Do you wish to replace the file: ".format(e_id))
+			print("Same event found with id {0}. Is it the same event: ".format(e_id))
 			print("New: " + headers[0].getHeaderString(), end='')
 			print("Old: " + sql2nordic.nordicEventToNordic(nordicHandler.getNordicEvent(e_id, cur))[0], end='')
 			i_ans = input("Answer(y/n): ")
 
 			if (i_ans == "n"):
-				return False
-			if (i_ans == "y"):
 				break
+			if (i_ans == "y"):
+				while True:
+					print("Do you want to replace the file in the root?")
+					i_ans = input("Answer(y/n): ")
+					if (i_ans == "y"):
+						break
+					elif (i_ans == "n"):
+						return False
+				if (i_ans == "y"):
+					break
+	
+	root_id = -1
+	#GET THE ROOT ID HERE
+	if i_ans == "y":
+		cur.execute("SELECT root_id from nordic_event WHERE id = %s", (e_id,))
+		root_id = cur.fetchone()[0]
 
 	try:
-		if ans is None:
+		if i_ans != "y":
+			cur.execute("SELECT COUNT(*) FROM nordic_event_root;")
+			root_id = 1 + cur.fetchone()[0]
 			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES;")
-	
+
 		if filename_id == -1:
 			cur.execute("SELECT COUNT(*) FROM nordic_file")
 			filename_id = 1 + cur.fetchone()[0]
 			cur.execute("INSERT INTO nordic_file (file_location) VALUES (%s)", (nordic_filename,))
 
+
 		#Add a new nordic_event to the db
 		cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id) VALUES (%s, %s, %s, %s)", 
 					(nordic_event.event_type, 
-					root_id, 
+					str(root_id), 
 					str(filename_id), 
 					nordic_event.author_id)
 					)
-		
-		if update_this_event != -1:
+			
+		if e_id != -1 and i_ans == "y" and event_type not in "OA":
 			cur.execute("INSERT INTO nordic_modified (event_id, replacement_event_id, old_event_type, replaced) VALUES (%s, %s, %s, %s)", 
-						(str(update_this_event), 
+						(str(e_id), 
 						str(event_id), 
 						event_type, 
 						'{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()),)
 						)
-			cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(update_this_event),))
+			cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(e_id),))
+
 	
-			#Add all the headers to the database
+		#Add all the headers to the database
 		for header in nordic_event.headers:
 			if (header.tpe == 1):
 				get_main_header_query_info(header)
@@ -355,7 +356,7 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 		return True
 
 	except:
-		logging.error("Some error happened with sql-querys that was not detected by validation layer!")
+		logging.error("Some error happened with sql-queries that was not detected by validation layer!")
 
 #function for performing the sql commands
 def execute_command(cur, command, nordic):
