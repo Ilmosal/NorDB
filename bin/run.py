@@ -73,9 +73,9 @@ elif sys.argv[1] == "-g":
 	if len(sys.argv) > 2:
 		if len(sys.argv) > 3:
 			if (sys.argv[3] == "-n"):
-				sql2nordic.writeNordicEvent(sys.argv[2])
+				sql2nordic.writeNordicEvent(sys.argv[2], USER_PATH)
 			elif (sys.argv[3] == "-q"):
-				sql2quakeml.writeQuakeML(sys.argv[2])
+				sql2quakeml.writeQuakeML(sys.argv[2], USER_PATH)
 		else:
 			print("Give event the format as an argument!")
 	else:

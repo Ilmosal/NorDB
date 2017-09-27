@@ -1,0 +1,181 @@
+<q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1">
+  <eventParameters publicID="smi:wh.atis.ids/path/to/event/parameter">
+    <event publicID="smi:wh.atis.ids/path/to/event/">
+      <type>explosion</type>
+      <comment>
+        <text>SWEDEN</text>
+      </comment>
+      <origin publicID="smi:wh.atis.ids/path/to/origin">
+        <time>
+          <value>2011-01-01T00:19:22Z</value>
+        </time>
+        <latitude>
+          <value>67.847</value>
+        </latitude>
+        <longitude>
+          <value>20.156</value>
+        </longitude>
+        <depth>
+          <value>0.0</value>
+        </depth>
+        <quality>
+          <standardError>0.1</standardError>
+        </quality>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/1">
+          <pickID>smi:wh.atis.ids/path/to/pick/1</pickID>
+          <phase>P</phase>
+          <azimuth>11</azimuth>
+          <timeResidual>-0.1</timeResidual>
+          <distance>136</distance>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/2">
+          <pickID>smi:wh.atis.ids/path/to/pick/2</pickID>
+          <phase>S</phase>
+          <timeResidual>0.3</timeResidual>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/3">
+          <pickID>smi:wh.atis.ids/path/to/pick/3</pickID>
+          <phase>P</phase>
+          <azimuth>65</azimuth>
+          <timeResidual>0.1</timeResidual>
+          <distance>159</distance>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/4">
+          <pickID>smi:wh.atis.ids/path/to/pick/4</pickID>
+          <phase>S</phase>
+          <timeResidual>0.0</timeResidual>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/5">
+          <pickID>smi:wh.atis.ids/path/to/pick/5</pickID>
+          <phase>P</phase>
+          <azimuth>47</azimuth>
+          <timeResidual>-0.1</timeResidual>
+          <distance>288</distance>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/6">
+          <pickID>smi:wh.atis.ids/path/to/pick/6</pickID>
+          <phase>S</phase>
+          <timeResidual>1.5</timeResidual>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/7">
+          <pickID>smi:wh.atis.ids/path/to/pick/7</pickID>
+          <phase>P</phase>
+          <azimuth>49</azimuth>
+          <timeResidual>-1.2</timeResidual>
+          <distance>349</distance>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/8">
+          <pickID>smi:wh.atis.ids/path/to/pick/8</pickID>
+          <phase>S</phase>
+          <timeResidual>0.1</timeResidual>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/9">
+          <pickID>smi:wh.atis.ids/path/to/pick/9</pickID>
+          <phase>MSG</phase>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/10">
+          <pickID>smi:wh.atis.ids/path/to/pick/10</pickID>
+          <phase>P</phase>
+          <azimuth>167</azimuth>
+          <timeResidual>0.2</timeResidual>
+          <distance>549</distance>
+        </arrival>
+        <arrival publicID="smi:wh.atis.ids/path/to/arrival/11">
+          <pickID>smi:wh.atis.ids/path/to/pick/11</pickID>
+          <phase>S</phase>
+          <timeResidual>-0.1</timeResidual>
+        </arrival>
+      </origin>
+      <magnitude publicID="smi:wh.atis.ids/path/to/magnitude">
+        <mag>
+          <value>2.2</value>
+        </mag>
+        <type>ML</type>
+        <stationCount>5</stationCount>
+        <creationInfo>
+          <agencyID>HEL</agencyID>
+          <agencyURI>smi:wh.atis.ids/path/to/agency</agencyURI>
+        </creationInfo>
+        <originID>smi:wh.atis.ids/path/to/origin</originID>
+      </magnitude>
+      <focalMechanism publicID="smi:wh.atis.ids/path/to/focalMech">
+        <azimuthalGap>204</azimuthalGap>
+      </focalMechanism>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/1">
+        <time>
+          <value>2011-01-01T00:19:44Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="KIF" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/2">
+        <time>
+          <value>2011-01-01T00:20:00Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="KIF" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/3">
+        <time>
+          <value>2011-01-01T00:19:48Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="HEF" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/4">
+        <time>
+          <value>2011-01-01T00:20:06Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="HEF" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/5">
+        <time>
+          <value>2011-01-01T00:20:05Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="ARE0" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/6">
+        <time>
+          <value>2011-01-01T00:20:38Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="ARE0" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/7">
+        <time>
+          <value>2011-01-01T00:20:12Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="KEV" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/8">
+        <time>
+          <value>2011-01-01T00:20:50Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="KEV" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/9">
+        <time>
+          <value>2011-01-01T00:21:08Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="KEV" channelCode="BHZ"/>
+      </pick>
+      <amplitude publicID="smi:wh.atis.ids/path/to/amplitude/9">
+        <genericAmplitude>
+          <value>9.92290301275212e-08</value>
+        </genericAmplitude>
+        <period>
+          <value>0.3</value>
+        </period>
+        <unit>m</unit>
+      </amplitude>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/10">
+        <time>
+          <value>2011-01-01T00:20:38Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="VAF" channelCode="BHZ"/>
+      </pick>
+      <pick publicID="smi:wh.atis.ids/path/to/pick/11">
+        <time>
+          <value>2011-01-01T00:21:33Z</value>
+        </time>
+        <waveformID networkCode="netcode" stationCode="VAF" channelCode="BHZ"/>
+      </pick>
+    </event>
+  </eventParameters>
+</q:quakeml>

@@ -182,7 +182,7 @@ def add_float_to_string(value, val_len, decimal_len, front):
 			string += " "
 	return string
 
-def writeNordicEvent(nordicEventId):
+def writeNordicEvent(nordicEventId, usr_path):
 	try:
 		int(nordicEventId)
 	except:
@@ -208,7 +208,7 @@ def writeNordicEvent(nordicEventId):
 	
 	print(filename + " has been created!")
 	
-	f = open(filename, 'w')
+	f = open(usr_path + '/' + filename, 'w')
 	
 	for line in nordicString:	
 		f.write(line)

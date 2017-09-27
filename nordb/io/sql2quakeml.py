@@ -31,14 +31,14 @@ INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH'}
 
 def addEventParameters(quakeml, nordic, long_quakeML):
 	eventParameters = etree.SubElement(quakeml, "eventParameters")
-	eventParameters.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/event/parameter"
+	eventParameters.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/eventParameter"
 	
 	addEvent(eventParameters, nordic, long_quakeML)
 
 def addEvent(eventParameters, nordic, long_quakeML):
 	#Add event
 	event = etree.SubElement(eventParameters, "event")
-	event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/event/"
+	event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/"
 
 	#Adding event type	
 	event_type_txt = " "
@@ -56,9 +56,17 @@ def addEvent(eventParameters, nordic, long_quakeML):
 			event_comment_txt = etree.SubElement(event_comment, "text")
 			event_comment_txt.text = header_comment.h_comment
 
+	#Adding preferred Magnitude ID
+	
+	#Adding preferred Focal Mechanism ID
+
 	#Creating the all elements and their subelement
 	for i in range(0,len(nordic.headers[1])):
 		addOrigin(event, nordic, i)
+	
+		#Adding preferred OriginID	
+		
+
 		if long_quakeML:
 			addMagnitude(event, nordic, i)
 	
@@ -360,7 +368,7 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
 
 	return quakeml
 
-def writeQuakeML(nordicEventId):
+def writeQuakeML(nordicEventId, usr_path):
 	try:
 		int(nordicEventId)
 	except:
@@ -386,7 +394,7 @@ def writeQuakeML(nordicEventId):
 
 	print(filename + " has been created!")
 	
-	f = open(filename, 'wb')
+	f = open(usr_path + "/" + filename, 'wb')
 	
 	f.write(quakeMLString)
 

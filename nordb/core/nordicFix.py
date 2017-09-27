@@ -1,5 +1,5 @@
 def fixMainData(header):
-	
+	pass
 
 def fixPhaseData(data):
 	if data.epicenter_to_station_azimuth == "360":
