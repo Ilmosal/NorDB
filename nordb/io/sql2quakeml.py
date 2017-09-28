@@ -24,7 +24,7 @@ QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 AUTHORITY_ID = "wh.atis.ids"
 NETWORK_CODE = "netcode"
 
-EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthquake", 'E':"explosion", 'P':"explosion" ,'I':"induced or triggered event" ,'V': "volcanic eruption", 'X':"landslide" }
+EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthquake", 'E':"explosion", 'P':"explosion" ,'I':"induced or triggered event" ,'V': "volcanic eruption", 'X':"landslide", 'A':"not reported" }
 PICK_POLARITY_CONVERSION = {'C': "positive", 'D': "negative", "+": "undecidable", "-": "undecidable"}
 MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'MW'}
 INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH'}
@@ -334,21 +334,18 @@ def addTime(container, time_value, time_uncertainty):
 		uncertainty = etree.SubElement(time, "uncertainty")
 		uncertainty.text = str(time_uncertainty)
 
-def validateQuakeMlFile(test, parser, xmlschema):
-	xmlschema.validate(etree.XML(test))
+def validateQuakeMlFile(test, xmlschema):
 	try:
-		etree.fromstring(test, parser)
+		xmlschema.assertValid(test)
 		return True
 	except:
-		fErr = open(MODULE_PATH + "/errorlogs/xml_error_" + str(time.time()) + ".log", 'w')
-		log = xmlschema.error_log
-		fErr.write(str(log))
-		print("Error with XML validation. Check error log file " + fErr.name + " for more info!")	
-		fErr.close()
-		sys.exit(-1)
+		log = xmlschema.error_log.last_error
+		logging.error("QuakeML file did not go through the validation:")
+		logging.error(log.domain_name + ": " + log.type_name)
+		return False
 
 def nordicEventToQuakeMl(nordicEvent, long_quakeML):
-	f = open(MODULE_PATH + "QuakeML-1.2.xsd")
+	f = open(MODULE_PATH + "../xml/QuakeML-1.2.xsd")
 	xmlschema_doc = etree.parse(f)
 	f.close()
 
@@ -358,13 +355,13 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
 	addEventParameters(quakeml, nordicEvent, long_quakeML)
 
 	xmlschema = etree.XMLSchema(xmlschema_doc)
-	parser = etree.XMLParser(schema=xmlschema)
 
 	#Parse the tree to a string and back to the object because of a weird bug on validating the tree...
 	test = etree.tostring(quakeml)
 	quakeml = etree.XML(test)
 
-	validateQuakeMlFile(test, parser, xmlschema)
+	if not validateQuakeMlFile(quakeml, xmlschema):
+		sys.exit(-1)
 
 	return quakeml
 
@@ -379,7 +376,7 @@ def writeQuakeML(nordicEventId, usr_path):
 		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
 	except:
 		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
-		return
+		return False
 
 	cur = conn.cursor()
 
@@ -399,7 +396,6 @@ def writeQuakeML(nordicEventId, usr_path):
 	f.write(quakeMLString)
 
 	f.close()
-	conn.commit()
 	conn.close()
 
 	return True

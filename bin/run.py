@@ -30,6 +30,7 @@ from nordb.database import initNorDB
 from nordb.io import nordic2sql
 from nordb.io import sql2nordic
 from nordb.io import sql2quakeml
+from nordb.io import sql2sc3
 from nordb.core import resetDB
 
 def print_help():
@@ -58,7 +59,7 @@ def print_help():
 	print("-reset              | Reset database from all entries                ")
 	print("---------------------------------------------------------------------")
 	print("-g <id>             | Get event with id in <format> format.          ")
-	print("   <format>         | -n - nordic, -q - quakeml                      ")
+	print("   <format>         | -n - nordic, -q - quakeml -s - sc3ml           ")
 	print("---------------------------------------------------------------------")
 	print("-h                  | Print help")
 	print("")
@@ -76,6 +77,8 @@ elif sys.argv[1] == "-g":
 				sql2nordic.writeNordicEvent(sys.argv[2], USER_PATH)
 			elif (sys.argv[3] == "-q"):
 				sql2quakeml.writeQuakeML(sys.argv[2], USER_PATH)
+			elif (sys.argv[3] == "-s"):
+				sql2sc3.writeSC3(sys.argv[2], USER_PATH)
 		else:
 			print("Give event the format as an argument!")
 	else:
