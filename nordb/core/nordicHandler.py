@@ -1,6 +1,8 @@
 import logging
 import psycopg2
 
+from datetime import date
+
 #class for the whole event 
 class NordicEvent:
 	def __init__(self, headers, phase_data):
@@ -170,7 +172,7 @@ class NordicHeaderWaveform(NordicHeader):
 def addIntToData(data, int_string):
 	try:
 		int(int_string)
-		data += (int_string, )
+		data += (int(int_string), )
 	except:
 		data += (None, )
 
@@ -179,7 +181,7 @@ def addIntToData(data, int_string):
 def addFloatToData(data, float_string):
 	try:
 		float(float_string)
-		data += (float_string, )
+		data += (float(float_string), )
 	except:
 		data += (None, )
 
@@ -195,16 +197,22 @@ def addStringToData(data, string):
 	
 def addDateToData(data, date_string):
 	try:
+		date(year=int(date_string[:4].strip()), 
+					month=int(date_string[5:7].strip()), 
+					day=int(date_string[8:].strip()))
+
 		data += (date(year=int(date_string[:4].strip()), 
 					month=int(date_string[5:7].strip()), 
 					day=int(date_string[8:].strip())), )
+		
 	except:
+
 		data += (None,)
 	
 	return data
 
 def createPhaseDataList(phase_data_string):
-	phaseData = (,)
+	phaseData = ()
 
 	phaseData = addIntToData(phaseData, phase_data_string.event_id)
 	phaseData = addStringToData(phaseData, phase_data_string.station_code)
@@ -233,7 +241,7 @@ def createPhaseDataList(phase_data_string):
 	return phaseData
 
 def createMainHeaderList(main_header_string):
-	mainData = (,)
+	mainData = ()
 
 	mainData = addIntToData(mainData, main_header_string.event_id)
 	mainData = addDateToData(mainData, main_header_string.date)
@@ -264,7 +272,7 @@ def createMainHeaderList(main_header_string):
 	return mainData
 
 def createMacroseismicHeaderList(macroseismic_header_string):
-	macroData = (,)
+	macroData = ()
 
 	macroData = addIntToData(macroData, macroseismic_header_string.event_id)
 	macroData = addStringToData(macroData, macroseismic_header_string.description)
@@ -291,7 +299,7 @@ def createMacroseismicHeaderList(macroseismic_header_string):
 	return macroData
 
 def createCommentHeaderList(comment_header_string):
-	commentData = (,) 
+	commentData = () 
 
 	commentData = addIntToData(commentData, comment_header_string.event_id)
 	commentData = addStringToData(commentData, comment_header_string.h_comment)
@@ -299,7 +307,7 @@ def createCommentHeaderList(comment_header_string):
 	return commentData
 
 def createErrorHeaderList(error_header_string):
-	errorData = (,)
+	errorData = ()
 
 	errorData = addIntToData(errorData, error_header_string.header_id)
 	errorData = addIntToData(errorData, error_header_string.gap)
@@ -312,7 +320,7 @@ def createErrorHeaderList(error_header_string):
 	return errorData
 
 def createWaveformHeaderList(waveform_header_string):
-	waveData = (,)
+	waveData = ()
 
 	waveData = addIntToData(waveData, waveform_header_string.event_id)
 	waveData = addStringToData(waveData, waveform_header_string.waveform_info)

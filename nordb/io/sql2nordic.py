@@ -158,8 +158,8 @@ def add_string_to_string(value, val_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in range(0, val_len):
-			string += " "
+		string = val_len * " "
+
 	return string
 
 def add_integer_to_string(value, val_len, front):
@@ -168,8 +168,8 @@ def add_integer_to_string(value, val_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in range(0, val_len):
-			string += " "
+		string = val_len * " "
+
 	return string
 
 def add_float_to_string(value, val_len, decimal_len, front):
@@ -178,8 +178,7 @@ def add_float_to_string(value, val_len, decimal_len, front):
 	if value is not None:
 		string += parser.format(value)
 	else:
-		for x in range(0, val_len):
-			string += " "
+		string = val_len * " "
 	return string
 
 def writeNordicEvent(nordicEventId, usr_path):

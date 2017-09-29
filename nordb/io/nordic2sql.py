@@ -27,12 +27,12 @@ from nordb.validation import nordicFindOld
 from nordb.io import sql2nordic
 
 INSERT_COMMANDS = {
-1:"INSERT INTO nordic_headers_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-2:"INSERT INTO nordic_headers_macroseismic (event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-3:"INSERT INTO nordic_headers_comment (event_id, h_comment) VALUES (%s %s);",
-5:"INSERT INTO nordic_headers_error (header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error) VALUES (%s, %s, %s, %s, %s, %s, %s);",
-6:"INSERT INTO nordic_headers_waveform (event_id, waveform_info) VALUES (%s, %s);",
-7:"INSERT INTO nordic_phase_data (event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth FROM nordic_phase_data) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+1:"INSERT INTO nordic_header_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+2:"INSERT INTO nordic_header_macroseismic (event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+3:"INSERT INTO nordic_header_comment (event_id, h_comment) VALUES (%s, %s);",
+5:"INSERT INTO nordic_header_error (header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error) VALUES (%s, %s, %s, %s, %s, %s, %s);",
+6:"INSERT INTO nordic_header_waveform (event_id, waveform_info) VALUES (%s, %s);",
+7:"INSERT INTO nordic_phase_data (event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
 }
 
 #getting the query information for the nordic data object anf inserting them to its query_info object
@@ -212,15 +212,18 @@ def read_headers(nordic, event_id, cur):
 	#read the header lines
 	for x in range(0, i):
 		if (nordic[x][79] == '1'):
-			cur.execute("SELECT COUNT(*) FROM nordic_headers_main";)
-			mheader_id = cur.fetchone()[0]
+			if mheader_id == -1:
+				cur.execute("SELECT COUNT(*) FROM nordic_header_main;")
+				mheader_id = cur.fetchone()[0] + 1
+			else:
+				mheader_id += 1
 			headers.append(NordicHeaderMain(nordic[x], event_id))
 		elif (nordic[x][79] == '2'):
 			headers.append(NordicHeaderMacroseismic(nordic[x], event_id))
 		elif (nordic[x][79] == '3'):
 			headers.append(NordicHeaderComment(nordic[x], event_id))
 		elif (nordic[x][79] == '5'):
-			headers.append(NordicHeaderError(nordic[x]), mheader_id)
+			headers.append(NordicHeaderError(nordic[x], mheader_id))
 		elif (nordic[x][79] == '6'):
 			headers.append(NordicHeaderWaveform(nordic[x], event_id))
 
@@ -240,7 +243,7 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 	header_id = -1
 	
 	#Reading headers and data 
-	headers = read_headers(nordic, event_id)
+	headers = read_headers(nordic, event_id, cur)
 	data = []
 
 	author_id = "---"
@@ -332,8 +335,7 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 						e_id, 
 						event_id, 
 						event_type, 
-						'{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()),)
-						)
+						'{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()))
 			cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(e_id),))
 
 		#Add all headeers to the database
@@ -352,20 +354,22 @@ def read_event(nordic, cur, event_type, nordic_filename, sayToAll):
 
 		#Adding the data to the database
 		for phase_data in nordic_event.data:
-			execute_command(cur, INSERT_COMMANDS[7], nordicHandler.createPhaseDataList(d), nordic)
+			execute_command(cur, INSERT_COMMANDS[7], nordicHandler.createPhaseDataList(phase_data), nordic)
 
 		return True
 
-	except:
+	except psycopg2.Error as e:
 		logging.error("Some error happened with sql-queries that was not detected by validation layer!")
+		logging.error(e.pgerror)
 		return False
 
 #function for performing the sql commands
 def execute_command(cur, command, vals,  nordic):
 		try:
 			cur.execute(command, vals)
-		except:
+		except psycopg2.Error as e:
 			logging.error("Error in sql command: " + command)
+			logging.error(e.pgerror)
 			sys.exit()
 
 #function for reading a nordicp file
