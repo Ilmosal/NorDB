@@ -18,26 +18,26 @@ def checkForSameEvents(nordic_event, cur):
 			if tpe == nordic_event.event_type:
 				return a[0]
 
-	if nordic_event.headers[0].hour == "":
-		return -1
-	if nordic_event.headers[0].minute == "":
-		return -1
-	if nordic_event.headers[0].second == "":
-		return -1
-	
 	cmd = "SELECT event_id FROM nordic_header_main WHERE date=%s"
-	cmd += "AND hour = %s "
-	cmd += "AND minute = %s "
-	cmd += "AND second = %s "
-	cmd += "AND epicenter_latitude = %s "
-	cmd += "AND epicenter_longitude = %s;"
+	vls = (nordic_event.headers[0].date,)
 
-	cur.execute(cmd, (nordic_event.headers[0].date,
-					nordic_event.headers[0].hour,
-					nordic_event.headers[0].minute,
-					nordic_event.headers[0].second,
-					nordic_event.headers[0].epicenter_latitude,
-					nordic_event.headers[0].epicenter_longitude))
+	if nordic_event.headers[0].hour != "":
+		cmd += "AND hour = %s"
+		vls += (nordic_event.headers[0].hour,)
+	if nordic_event.headers[0].minute != "":
+		cmd += "AND minute = %s"
+		vls += (nordic_event.headers[0].minute,)
+	if nordic_event.headers[0].second != "":
+		cmd += "AND second = %s"
+		vls += (nordic_event.headers[0].second,)
+	if nordic_event.headers[0].epicenter_latitude != "":
+		cmd += "AND epicenter_latitude = %s"
+		vls += (nordic_event.headers[0].epicenter_latitude,)
+	if nordic_event.headers[0].epicenter_longitude != "":
+		cmd += "AND epicenter_longitude = %s"
+		vls += (nordic_event.headers[0].epicenter_longitude,)
+
+	cur.execute(cmd, vls)
 
 	ans = cur.fetchall()
 	for a in ans:

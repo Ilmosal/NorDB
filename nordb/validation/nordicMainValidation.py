@@ -107,7 +107,7 @@ def validateMainHeader(nordic_main):
 												"depth control",
 												0,
 												1,
-												"FS",
+												"FSG",
 												True,
 												mheader):
 		validation = False

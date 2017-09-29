@@ -380,7 +380,7 @@ def writeQuakeML(nordicEventId, usr_path):
 
 	cur = conn.cursor()
 
-	nordic = nordicHandler.getNordicEvent(nordicEventId, cur)
+	nordic = nordicHandler.readNordicEvent(cur, nordicEventId)
 	
 	if nordic == None:
 		return False
@@ -399,10 +399,3 @@ def writeQuakeML(nordicEventId, usr_path):
 	conn.close()
 
 	return True
-
-
-if __name__ == '__main__':
-	nordic = nordicHandler.getNordicEvent(183)
-	qkjuttu = nordicEventToQuakeMl(nordic, False)
-
-	print(etree.tostring(qkjuttu, pretty_print=True))

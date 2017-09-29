@@ -116,7 +116,7 @@ class NordicHeaderComment(NordicHeader):
 
 #Class for the nordic header line of type 5. Contains error information of the main header
 class NordicHeaderError(NordicHeader):
-	def __init__(self, header):
+	def __init__(self, header, header_id):
 		NordicHeader.__init__(self, 5)
 		self.gap = header[5:8].strip()
 		self.second_error = header[16:20].strip()
@@ -124,7 +124,7 @@ class NordicHeaderError(NordicHeader):
 		self.epicenter_longitude_error = header[31:38].strip()
 		self.depth_error = header[40:43].strip()
 		self.magnitude_error = header[56:59].strip()
-		self.header_id = '-1'
+		self.header_id = str(header_id)
 
 #Class for the nordic header line of type 6. Contains the waveform information of the header file
 class NordicHeaderWaveform(NordicHeader):

@@ -123,7 +123,7 @@ def validatePhaseData(phase_data):
 	if not validationTools.validateFloat(phase_data.max_amplitude,
 												"max amplitude",
 												0.0,
-												999.99,
+												9999.9,
 												True,
 												phname):
 		validation = False

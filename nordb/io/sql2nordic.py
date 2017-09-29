@@ -197,7 +197,7 @@ def writeNordicEvent(nordicEventId, usr_path):
 
 	cur = conn.cursor()
 
-	nordic = nordicHandler.getNordicEvent(nordicEventId, cur)
+	nordic = nordicHandler.readNordicEvent(cur, nordicEventId)
 	
 	if nordic == None:
 		return False
