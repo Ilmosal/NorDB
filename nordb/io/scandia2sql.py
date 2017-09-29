@@ -8,6 +8,8 @@ from nordic2sql import add_to_query_float
 from nordic2sql import add_to_query_int
 from nordic2sql import execute_command
 
+SCANDIA_INSERT = "INSERT INTO () VALUES ();"
+
 class Scandia:
 	def __init__(self, scandia_line, scandia_id, cur):
 		self.scandia_id = scandia_id

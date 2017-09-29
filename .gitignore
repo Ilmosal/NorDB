@@ -104,3 +104,5 @@ ENV/
 *.*n
 *.nordic*
 
+.user.config
+
