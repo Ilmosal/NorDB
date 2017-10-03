@@ -6,7 +6,6 @@ CREATE TABLE scandia_header(
 	year INTEGER,
 	month INTEGER,
 	day INTEGER,
-	event_desc VARCHAR(1),
 	hour INTEGER,
 	minute INTEGER,
 	second FLOAT,

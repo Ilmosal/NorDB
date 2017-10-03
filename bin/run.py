@@ -28,6 +28,7 @@ else:
 
 from nordb.database import initNorDB
 from nordb.io import nordic2sql
+from nordb.io import scandia2sql
 from nordb.io import sql2nordic
 from nordb.io import sql2quakeml
 from nordb.io import sql2sc3
@@ -91,7 +92,6 @@ elif len(sys.argv) > 2:
 		sys.exit()
 	else:
 		event_id = sys.argv[2]
-	print 
 	if (fnmatch.fnmatch(sys.argv[1], "*.nordic") 
 	or fnmatch.fnmatch(sys.argv[1], "*.nordicp") 
 	or fnmatch.fnmatch(sys.argv[1], "*n")):
@@ -107,5 +107,15 @@ elif len(sys.argv) > 2:
 
 		nordic2sql.read_nordicp(f_nordic, event_id, True, sayToAll)
 		f_nordic.close()
+	if (fnmatch.fnmatch(sys.argv[1], "*.catalog")):
+		try:
+			f_scandia = open(USER_PATH + "/" + sys.argv[1], 'r')
+		except:
+			print("No such file in current folder")
+			sys.exit()
+		
+		
+		scandia2sql.read_scandia_file(f_scandia)
+		f_scandia.close()
 else:
 	print("Not a valid command! Type -h for help.")

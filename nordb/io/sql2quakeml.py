@@ -191,7 +191,7 @@ def addOrigin(event, nordic, i):
 		time_value = time_value + "00Z"
 
 	#time uncertainty	
-	time_uncertainty = 0
+	time_uncertainty = 1
 	for h_error in nordic.headers[5]:
 		if h_error.header_main_id == nordic.headers[1][i]:
 			time_uncertainty = h_error.second_error

@@ -18,7 +18,7 @@ except:
 	logging.error("No .user.config file!! Run the program with -conf flag to initialize the .user.conf")
 	sys.exit(-1)
 
-SCANDIA_INSERT = "INSERT INTO scandia_header (event_id, source_ref, origin_questionability, year, month, day, hour, minute, second, epicenter_latitude, epicenter_longitude, origin_time_uncertainty, location_uncertainty, focal_depth, depth_identification_code, magnitude_1, magnitude_scale_1, magnitude_2, magnitude_scale_2, magnitude_3, magnitude_scale_3, maximum_intensity, macroseismic_observation_flag, macroseismic_reference, mean_radius_of_area_percetibility, region_code, number_of_stations_used, max_azimuth_gap, min_epicenter_to_station_distance) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+SCANDIA_INSERT = "INSERT INTO scandia_event (event_id, source_ref, origin_questionability, date, event_desc, hour, minute, second, epicenter_latitude, epicenter_longitude, origin_time_uncertainty, location_uncertainty, focal_depth, depth_identification_code, magnitude_1, magnitude_scale_1, magnitude_2, magnitude_scale_2, magnitude_3, magnitude_scale_3, maximum_intensity, macroseismic_observation_flag, macroseismic_reference, mean_radius_of_area_percetibility, region_code, number_of_stations_used, max_azimuth_gap, min_epicenter_to_station_distance) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
 SCANDIA_SELECT = "SELECT event_id FROM nordic_header_main, nordic_event WHERE nordic_event.id = nordic_header_main.event_id AND nordic_event.event_type = 'F' AND nordic_header_main.date = %s AND nordic_header_main.hour = %s AND nordic_header_main.minute = %s AND nordic_header_main.second = %s AND nordic_header_main.epicenter_latitude = %s AND nordic_header_main.epicenter_longitude = %s"
 
@@ -26,10 +26,7 @@ class Scandia:
 	def __init__(self, scandia_line, cur):
 		self.source_ref = return_string(scandia_line[0:3])
 		self.origin_questionability = return_string(scandia_line[3]) 
-		self.year = return_int(scandia_line[4:8])
-		self.month = return_int(scandia_line[8:10])
-		self.day = return_int(scandia_line[10:12])
-		#self.date = return_date(scandia_line[4:8] + "-" + scandia_line[8:10] + "-" + scandia_line[10:12])
+		self.date = return_date(scandia_line[4:8] + "-" + scandia_line[8:10] + "-" + scandia_line[10:12])
 		self.event_desc = return_string(scandia_line[12]) 
 		self.hour = return_int(scandia_line[13:15])
 		self.minute = return_int(scandia_line[15:17])
@@ -54,7 +51,7 @@ class Scandia:
 		self.number_of_stations_used =return_int(scandia_line[78:82])
 		self.max_azimuth_gap = return_string(scandia_line[83:86]) 
 		self.min_epicenter_to_station_distance = return_string(scandia_line[86:90])
-		values = (return_date(scandia_line[4:8] + "-" + scandia_line[8:10] + "-" + scandia_line[10:12]), self.hour, self.minute, self.second, self.epicenter_latitude, self.epicenter_longitude)
+		values = (self.date, self.hour, self.minute, self.second, self.epicenter_latitude, self.epicenter_longitude)
 
 		cur.execute("SELECT event_id FROM nordic_header_main, nordic_event WHERE nordic_event.id = nordic_header_main.event_id AND nordic_event.event_type = 'F' AND nordic_header_main.date = %s AND nordic_header_main.hour = %s AND nordic_header_main.minute = %s AND nordic_header_main.second = %s AND nordic_header_main.epicenter_latitude = %s AND nordic_header_main.epicenter_longitude = %s", values)	
 		ans = cur.fetchone()
@@ -98,6 +95,7 @@ def return_string(s):
 		return s.strip()
 
 def return_date(s):
+	print(s)
 	try:
 		d = date(year=int(s[:4].strip()), 
 				month=int(s[5:7].strip()), 
@@ -115,9 +113,7 @@ def createScandiaList(scandia):
 	scandData += (scandia.event_id,)
 	scandData += (scandia.source_ref,)
 	scandData += (scandia.origin_questionability,)
-	scandData += (scandia.year,)
-	scandData += (scandia.month,)
-	scandData += (scandia.day,)
+	scandData += (scandia.date,)
 	scandData += (scandia.hour,)
 	scandData += (scandia.minute,)
 	scandData += (scandia.second,)
@@ -141,6 +137,7 @@ def createScandiaList(scandia):
 	scandData += (scandia.number_of_stations_used,)
 	scandData += (scandia.max_azimuth_gap,)
 	scandData += (scandia.min_epicenter_to_station_distance,)
+	scandData += (scandia.event_id,)
 
 	return scandData
 
@@ -188,6 +185,7 @@ def read_scandia_file(f):
 				#If you want to change the header type then uncomment
 				#cur.execute("UPDATE nordic_event SET event_type = 'S' WHERE id = %s", (str(scandia.event_id),))
 			vals = createScandiaList(scandia)
+			print (len(vals))
 			execute_command(cur, SCANDIA_INSERT, vals, scandia)
 	
 	conn.commit()
