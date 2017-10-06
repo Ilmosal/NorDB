@@ -168,8 +168,8 @@ def validateMacroseismicHeader(nordic_event):
                                             "reporting agency",
                                             3,
                                             3,
-                                            "",
-                                            True,
+                                            None,
+                                            False,
                                             mheader):
         validation = False
 

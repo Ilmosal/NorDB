@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import sys
 import os 
 import logging
@@ -26,13 +27,14 @@ else:
     print("No flags given for nordb. Type -h for help!")
     sys.exit()
 
-from nordb.database import initNorDB
 from nordb.io import nordic2sql
 from nordb.io import scandia2sql
 from nordb.io import sql2nordic
 from nordb.io import sql2quakeml
 from nordb.io import sql2sc3
-from nordb.core import resetDB
+from nordb.database import resetDB
+from nordb.database import undoRead
+from nordb.database import initNorDB
 
 def print_help():
     print("")
@@ -62,6 +64,9 @@ def print_help():
     print("-g <id>             | Get event with id in <format> format.          ")
     print("   <format>         | -n - nordic, -q - quakeml -s - sc3ml           ")
     print("---------------------------------------------------------------------")
+    print("-u <creation_id>    | Undo the last file insert. If creation_id is   ")
+    print("                    | given undo that insert instead                 ")
+    print("---------------------------------------------------------------------")
     print("-h                  | Print help")
     print("")
 
@@ -84,6 +89,8 @@ elif sys.argv[1] == "-g":
             print("Give event the format as an argument!")
     else:
         print("Give event id as an argument!")
+elif sys.argv[1] == "-u":
+    undoRead.undoMostRecent()    
 elif sys.argv[1] == "-h":
     print_help()
 elif len(sys.argv) > 2:
@@ -92,6 +99,7 @@ elif len(sys.argv) > 2:
         sys.exit()
     else:
         event_id = sys.argv[2]
+
     if (fnmatch.fnmatch(sys.argv[1], "*.nordic") 
     or fnmatch.fnmatch(sys.argv[1], "*.nordicp") 
     or fnmatch.fnmatch(sys.argv[1], "*n")):

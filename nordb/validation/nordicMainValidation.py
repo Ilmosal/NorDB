@@ -140,7 +140,7 @@ def validateMainHeader(nordic_main):
 
     if not validationTools.validateFloat(nordic_main.magnitude_1,
                                                 "magnitude 1",
-                                                0.0,
+                                                -1.0,
                                                 9.9,
                                                 True,
                                                 mheader):
@@ -166,7 +166,7 @@ def validateMainHeader(nordic_main):
 
     if not validationTools.validateFloat(nordic_main.magnitude_2,
                                                 "magnitude 2",
-                                                0.0,
+                                                -1.0,
                                                 9.9,
                                                 True,
                                                 mheader):
@@ -192,7 +192,7 @@ def validateMainHeader(nordic_main):
 
     if not validationTools.validateFloat(nordic_main.magnitude_3,
                                                 "magnitude 3",
-                                                0.0,
+                                                -1.0,
                                                 9.9,
                                                 True,
                                                 mheader):

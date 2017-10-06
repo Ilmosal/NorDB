@@ -74,7 +74,7 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
     if string is "":
         return True
 
-    if string not in listOfAllowed and isList:
+    if isList and string not in listOfAllowed:
         msg = "Validation Error - {0}: {1} not in the list of allowed strings! ({2})\nAllowed:\n"
         for allowed in listOfAllowed:
             msg += "  -" + allowed + "\n"

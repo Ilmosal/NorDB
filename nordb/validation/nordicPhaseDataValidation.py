@@ -114,7 +114,7 @@ def validatePhaseData(phase_data):
 
     if not validationTools.validateFloat(phase_data.max_amplitude,
                                                 "max amplitude",
-                                                0.0,
+                                                -1.0,
                                                 9999.9,
                                                 True,
                                                 phname):
@@ -122,7 +122,7 @@ def validatePhaseData(phase_data):
 
     if not validationTools.validateFloat(phase_data.max_amplitude_period,
                                                 "max amplitude period",
-                                                0.0,
+                                                -1.0,
                                                 99.9,
                                                 True,
                                                 phname):

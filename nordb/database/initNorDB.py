@@ -40,6 +40,7 @@ def init_database():
     
     cur.execute(open("nordb/sql/nordic_event_root.sql", "r").read())
     cur.execute(open("nordb/sql/nordic_file.sql", "r").read())
+    cur.execute(open("nordb/sql/creation_info.sql", "r").read())
     cur.execute(open("nordb/sql/nordic_event.sql", "r").read())
     cur.execute(open("nordb/sql/scandia_header.sql", "r").read())
     cur.execute(open("nordb/sql/nordic_modified.sql", "r").read())

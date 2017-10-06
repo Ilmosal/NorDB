@@ -32,8 +32,10 @@ INSERT_COMMANDS = {
 3:"INSERT INTO nordic_header_comment (event_id, h_comment) VALUES (%s, %s);",
 5:"INSERT INTO nordic_header_error (header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error) VALUES (%s, %s, %s, %s, %s, %s, %s);",
 6:"INSERT INTO nordic_header_waveform (event_id, waveform_info) VALUES (%s, %s);",
-7:"INSERT INTO nordic_phase_data (event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+7:"INSERT INTO nordic_phase_data (event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+8:"INSERT INTO creation_info DEFAULT VALUES RETURNING id"
 }
+
 
 #function for reading all the headers
 def read_headers(nordic):
@@ -65,14 +67,14 @@ def read_headers(nordic):
     return headers
     
 #function for reading one event and pushing it to the database
-def read_event(nordic, event_type, nordic_filename, sayToAll):
+def read_event(nordic, event_type, nordic_filename, sayToAll, creation_id):
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except:
         logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
         return  False
 
-    fixNordic = False
+    fixNordic = True
     cur = conn.cursor()
 
     #Getting the nordic_event id from the database
@@ -163,11 +165,12 @@ def read_event(nordic, event_type, nordic_filename, sayToAll):
 
 
         #Add a new nordic_event to the db
-        cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id) VALUES (%s, %s, %s, %s) RETURNING id", 
+        cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id, creation_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", 
                     (nordic_event.event_type, 
                     root_id, 
                     filename_id, 
-                    nordic_event.author_id)
+                    nordic_event.author_id,
+                    creation_id)
                     )
         event_id = cur.fetchone()[0]
             
@@ -213,6 +216,43 @@ def read_event(nordic, event_type, nordic_filename, sayToAll):
         conn.close()
         return False
 
+def create_creation_info():
+    creation_id = -1
+    try:
+        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
+        return creation_id
+
+    cur = conn.cursor()
+
+    cur.execute(INSERT_COMMANDS[8])
+    creation_id = cur.fetchone()[0]
+    
+    conn.commit()
+    conn.close()
+
+    return creation_id
+
+def delete_creation_info_if_unnecessary(creation_id):
+    try:
+        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
+        return creation_id
+
+    cur = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) from nordic_event, creation_info WHERE nordic_event.creation_id = creation_info.id AND creation_info.id = %s;", (creation_id,))
+
+    if cur.fetchone()[0] == 0:
+        cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
+    
+    conn.commit()
+    conn.close()
+
+    return creation_id
+
 #function for performing the sql commands
 def execute_command(cur, command, vals, returnValue):
         try:
@@ -227,17 +267,23 @@ def execute_command(cur, command, vals, returnValue):
             return None
 #function for reading a nordicp file
 def read_nordicp(f, event_type, old_nordic, sayToAll):
+    creation_id = create_creation_info()
     try:
         nordics = nordicRead.readNordicFile(f)
 
         for nordic in nordics:
-            if not read_event(nordic, event_type, f.name, sayToAll):
+            if not read_event(nordic, event_type, f.name, sayToAll, creation_id):
                 if len(nordic) > 0:
                     logging.info("Problem in nordic: " + nordic[0][1:20])
     except KeyboardInterrupt:
         print("\n")
         logging.error("Keyboard interrupt by user")
+        delete_creation_info_if_unnecessary(creation_id)
         return False
+
+    delete_creation_info_if_unnecessary(creation_id)
+    return True
+
 #function for getting the authorID of the last person who edited the file
 def get_author(filename):
     try:
