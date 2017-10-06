@@ -27,7 +27,7 @@ from nordb.validation import nordicFindOld
 from nordb.io import sql2nordic
 
 INSERT_COMMANDS = {
-1:"INSERT INTO nordic_header_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+1:"INSERT INTO nordic_header_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;",
 2:"INSERT INTO nordic_header_macroseismic (event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
 3:"INSERT INTO nordic_header_comment (event_id, h_comment) VALUES (%s, %s);",
 5:"INSERT INTO nordic_header_error (header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error) VALUES (%s, %s, %s, %s, %s, %s, %s);",
@@ -36,7 +36,7 @@ INSERT_COMMANDS = {
 }
 
 #function for reading all the headers
-def read_headers(nordic, event_id, cur):
+def read_headers(nordic):
 	i = 1
 	headers = []
 	#find where the data starts 
@@ -49,36 +49,30 @@ def read_headers(nordic, event_id, cur):
 	if (len(nordic) != i):
 		i-=1
 
-	mheader_id = -1
-
 	#read the header lines
 	for x in range(0, i):
 		if (nordic[x][79] == '1'):
-			if mheader_id == -1:
-				cur.execute("SELECT COUNT(*) FROM nordic_header_main;")
-				mheader_id = cur.fetchone()[0] + 1
-			else:
-				mheader_id += 1
-			headers.append(NordicHeaderMain(nordic[x], event_id))
+			headers.append(NordicHeaderMain(nordic[x]))
 		elif (nordic[x][79] == '2'):
-			headers.append(NordicHeaderMacroseismic(nordic[x], event_id))
+			headers.append(NordicHeaderMacroseismic(nordic[x]))
 		elif (nordic[x][79] == '3'):
-			headers.append(NordicHeaderComment(nordic[x], event_id))
+			headers.append(NordicHeaderComment(nordic[x]))
 		elif (nordic[x][79] == '5'):
-			headers.append(NordicHeaderError(nordic[x], mheader_id))
+			headers.append(NordicHeaderError(nordic[x]))
 		elif (nordic[x][79] == '6'):
-			headers.append(NordicHeaderWaveform(nordic[x], event_id))
+			headers.append(NordicHeaderWaveform(nordic[x]))
 
 	return headers
 	
 #function for reading one event and pushing it to the database
-def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
+def read_event(nordic, event_type, nordic_filename, sayToAll):
 	try:
 		conn = psycopg2.connect("dbname = nordb user={0}".format(username))
 	except:
 		logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
 		return  False
 
+	fixNordic = False
 	cur = conn.cursor()
 
 	#Getting the nordic_event id from the database
@@ -86,15 +80,8 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 		conn.close()
 		return False
 
-	#Getting the root_id and event_id 
-	cur.execute("SELECT COUNT(*) FROM nordic_event_root;")
-	root_id = 1 + cur.fetchone()[0]
-	cur.execute("SELECT COUNT(*) FROM nordic_event;")
-	event_id = 1 + cur.fetchone()[0]
-	header_id = -1
-	
 	#Reading headers and data 
-	headers = read_headers(nordic, event_id, cur)
+	headers = read_headers(nordic)
 	data = []
 
 	author_id = "---"
@@ -107,6 +94,7 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 					if header.h_comment[x] == '(' and header.h_comment[x+4] == ')':
 						author_id = header.h_comment[x+1:x+4]
 
+	
 	#See if the filename already exists in the database
 	filename_id = -1
 	cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
@@ -116,10 +104,10 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 
 	#Read the data
 	for x in range(len(headers), len(nordic)):
-		data.append(NordicData(nordic[x], event_id))
+		data.append(NordicData(nordic[x]))
 
 	#Generate the event
-	nordic_event = NordicEvent(event_id, -1, headers, data, event_type, author_id, "NOPROGRAM")
+	nordic_event = NordicEvent(headers, data, event_type, author_id, "NOPROGRAM")
 	
 	if fixNordic:
 		nordicFix.fixNordicEvent(nordic_event)
@@ -132,7 +120,6 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 
 	e_id = nordicFindOld.checkForSameEvents(nordic_event, cur)
 	i_ans = ""
-
 
 	if (e_id != -1):
 		if (sayToAll == "no"):
@@ -167,24 +154,24 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 
 	try:
 		if i_ans != "y":
-			cur.execute("SELECT COUNT(*) FROM nordic_event_root;")
-			root_id = 1 + cur.fetchone()[0]
-			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES;")
+			cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES RETURNING id;")
+			root_id = cur.fetchone()[0]
 
 		if filename_id == -1:
-			cur.execute("SELECT COUNT(*) FROM nordic_file")
-			filename_id = 1 + cur.fetchone()[0]
-			cur.execute("INSERT INTO nordic_file (file_location) VALUES (%s)", (nordic_filename,))
+			cur.execute("INSERT INTO nordic_file (file_location) VALUES (%s) RETURNING id", (nordic_filename,))
+			filename_id = cur.fetchone()[0]
 
 
 		#Add a new nordic_event to the db
-		cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id) VALUES (%s, %s, %s, %s)", 
+		cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id) VALUES (%s, %s, %s, %s) RETURNING id", 
 					(nordic_event.event_type, 
 					root_id, 
 					filename_id, 
 					nordic_event.author_id)
 					)
+		event_id = cur.fetchone()[0]
 			
+
 		if e_id != -1 and i_ans == "y" and event_type not in "OA":
 			cur.execute("INSERT INTO nordic_modified (event_id, replacement_event_id, old_event_type, replaced) VALUES (%s, %s, %s, %s)", 
 						(e_id, 
@@ -193,23 +180,28 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 						'{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())))
 			cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(e_id),))
 
-		#Add all headeers to the database
-	
+		#Add all headers to the database
 		for h in nordic_event.headers:
 			if h.tpe == 1:
-				execute_command(cur, INSERT_COMMANDS[1], nordicHandler.createMainHeaderList(h), nordic)
+				h.event_id = str(event_id)
+				mheader_id = execute_command(cur, INSERT_COMMANDS[1], nordicHandler.createMainHeaderList(h), True)[0]
 			elif h.tpe == 2:
-				execute_command(cur, INSERT_COMMANDS[2], nordicHandler.createMacroseismicHeaderList(h), nordic)
+				h.event_id = str(event_id)
+				execute_command(cur, INSERT_COMMANDS[2], nordicHandler.createMacroseismicHeaderList(h), False)
 			elif h.tpe == 3:
-				execute_command(cur, INSERT_COMMANDS[3], nordicHandler.createCommentHeaderList(h), nordic)
+				h.event_id = str(event_id)
+				execute_command(cur, INSERT_COMMANDS[3], nordicHandler.createCommentHeaderList(h), False)
 			elif h.tpe == 5:
-				execute_command(cur, INSERT_COMMANDS[5], nordicHandler.createErrorHeaderList(h), nordic)
+				h.header_id = str(mheader_id)
+				execute_command(cur, INSERT_COMMANDS[5], nordicHandler.createErrorHeaderList(h), False)
 			elif h.tpe == 6:
-				execute_command(cur, INSERT_COMMANDS[6], nordicHandler.createWaveformHeaderList(h), nordic)
+				h.event_id = str(event_id)
+				execute_command(cur, INSERT_COMMANDS[6], nordicHandler.createWaveformHeaderList(h), False)
 
 		#Adding the data to the database
 		for phase_data in nordic_event.data:
-			execute_command(cur, INSERT_COMMANDS[7], nordicHandler.createPhaseDataList(phase_data), nordic)
+			phase_data.event_id = str(event_id)
+			execute_command(cur, INSERT_COMMANDS[7], nordicHandler.createPhaseDataList(phase_data), False)
 
 		conn.commit()
 		conn.close()
@@ -222,14 +214,17 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, fixNordic):
 		return False
 
 #function for performing the sql commands
-def execute_command(cur, command, vals,  nordic):
+def execute_command(cur, command, vals, returnValue):
 		try:
 			cur.execute(command, vals)
 		except psycopg2.Error as e:
 			logging.error("Error in sql command: " + command)
 			logging.error(e.pgerror)
 			sys.exit()
-
+		if returnValue:
+			return cur.fetchone()
+		else:
+			return None
 #function for reading a nordicp file
 def read_nordicp(f, event_type, old_nordic, sayToAll):
 	try:

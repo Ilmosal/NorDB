@@ -11,14 +11,6 @@ def validateMainHeader(nordic_main):
 	validation = True
 	mheader = 1
 
-	if not validationTools.validateInteger(nordic_main.event_id,
-												"event id",
-												0,
-												values.maxInt,
-												True,
-												mheader):
-		validation = False
-	
 	validationTools.fixDate(nordic_main)
 
 	if not validationTools.validateDate(nordic_main.date,

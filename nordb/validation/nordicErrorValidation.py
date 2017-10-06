@@ -59,12 +59,4 @@ def validateErrorHeader(header):
 										mheader):
 		validation = False
 
-	if not validationTools.validateInteger(header.header_id,
-										"header id",
-										-1,
-										values.maxInt,
-										True,
-										mheader):
-		validation = False
-	
 	return validation	

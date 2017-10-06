@@ -9,14 +9,6 @@ def validatePhaseData(phase_data):
 	validation = True
 	phname = 8
 
-	if not validationTools.validateInteger(phase_data.event_id,
-												"event id",
-												0,
-												values.maxInt,
-												True,
-												phname):
-		validation = False
-
 	if not validationTools.validateString(phase_data.station_code,
 												"station code",
 												0,

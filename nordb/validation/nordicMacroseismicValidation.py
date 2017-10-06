@@ -11,14 +11,6 @@ def validateMacroseismicHeader(nordic_event):
 	validation = True
 	mheader = 2
 
-	if not validationTools.validateInteger(nordic_event.event_id,
-											"event id", 
-											0,
-											values.maxInt,
-											True,
-											mheader):
-		validation = False
-
 	if not validationTools.validateString(nordic_event.description,
 											"description",
 											0,

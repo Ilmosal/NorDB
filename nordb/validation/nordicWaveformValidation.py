@@ -11,14 +11,6 @@ def validateWaveformHeader(header):
 	validation = True
 	mheader = 6
 
-	if not validationTools.validateInteger(header.event_id,
-											"event id",
-											0,
-											values.maxInt,
-											False,
-											mheader):
-		validation = False
-
 	if not validationTools.validateString(header.waveform_info,
 									"waveform string",
 									0,

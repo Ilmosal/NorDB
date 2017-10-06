@@ -1,7 +1,7 @@
 class NordicEvent:
-	def __init__(self, event_id, root_id, headers, data, event_type, author_id, locating_program):
-		self.event_id = str(event_id).strip()
-		self.root_id = str(root_id).strip()
+	def __init__(self, headers, data, event_type, author_id, locating_program):
+		self.event_id = "-1"
+		self.root_id = "-1"
 		self.headers = headers
 		self.data = data
 		self.event_type = event_type.strip()
@@ -12,7 +12,6 @@ class NordicEvent:
 class NordicHeader:
 	def __init__(self, tpe):
 		self.tpe = tpe
-		self.query_info = QueryInfo()
 
 	#function for getting the header type
 	def get_header_type(self):
@@ -20,8 +19,8 @@ class NordicHeader:
 
 #Class for nordic data lines of the nordic file.
 class NordicData:
-	def __init__(self, data, event_id):
-		self.event_id = str(event_id).strip()
+	def __init__(self, data):
+		self.event_id = "-1"
 		self.station_code = data[1:5].strip()
 		self.sp_instrument_type = data[6].strip()
 		self.sp_component = data[7].strip()
@@ -45,15 +44,12 @@ class NordicData:
 		self.epicenter_distance = data[70:75].strip()
 		self.epicenter_to_station_azimuth = data[76:79].strip()
 
-		#Creating the query information object for the class
-		self.query_info = QueryInfo()
-
 #Class for nordic header line of type 1. Contains main information from the event.
 class NordicHeaderMain(NordicHeader):
-	def __init__(self, header, event_id):
+	def __init__(self, header):
 		NordicHeader.__init__(self, 1)
 		self.o_string = header
-		self.event_id = str(event_id).strip()
+		self.event_id = "-1"
 		self.date = header[1:5] + "-" + header[6:8] + "-" + header[8:10]
 		self.hour = header[11:13].strip()
 		self.minute = header[13:15].strip()
@@ -83,7 +79,7 @@ class NordicHeaderMain(NordicHeader):
 
 #Class for the nordic header line of type 2. Contains macroseismic information of the event
 class NordicHeaderMacroseismic(NordicHeader):
-	def __init__(self, header, event_id):
+	def __init__(self, header):
 		NordicHeader.__init__(self, 2)	
 		self.description = header[5:20].strip()
 		self.diastrophism_code = header[22].strip()
@@ -105,18 +101,18 @@ class NordicHeaderMacroseismic(NordicHeader):
 		self.bordering_intensity_2 = header[68:70].strip()
 		self.quality_rank = header[72].strip()
 		self.reporting_agency = header[72:75].strip()
-		self.event_id = str(event_id).strip()
+		self.event_id = "-1"
 
 #Class for the nordic header line of type 3. Contains comments of the header file
 class NordicHeaderComment(NordicHeader):
-	def __init__(self, header, event_id):
+	def __init__(self, header):
 		NordicHeader.__init__(self, 3)
 		self.h_comment = header[1:79].strip()
-		self.event_id = str(event_id).strip()
+		self.event_id = "-1"
 
 #Class for the nordic header line of type 5. Contains error information of the main header
 class NordicHeaderError(NordicHeader):
-	def __init__(self, header, header_id):
+	def __init__(self, header):
 		NordicHeader.__init__(self, 5)
 		self.gap = header[5:8].strip()
 		self.second_error = header[16:20].strip()
@@ -124,23 +120,12 @@ class NordicHeaderError(NordicHeader):
 		self.epicenter_longitude_error = header[31:38].strip()
 		self.depth_error = header[40:43].strip()
 		self.magnitude_error = header[56:59].strip()
-		self.header_id = str(header_id)
+		self.header_id = "-1"
 
 #Class for the nordic header line of type 6. Contains the waveform information of the header file
 class NordicHeaderWaveform(NordicHeader):
-	def __init__(self, header, event_id):
+	def __init__(self, header):
 		NordicHeader.__init__(self, 6)
-		self.event_id = str(event_id)
+		self.event_id = "-1"
 		self.waveform_info = header[1:79].strip()
-
-#Class containing the sql query information of the for sql inserts.
-class QueryInfo:
-	def __init__(self):
-		self.query_parameters = ""
-		self.query_values = ""
-	
-	#method for stripping the last two letters from the query string. Useful for getting rid of additional ", " after parsing the information
-	def strip_info(self):
-		self.query_parameters = self.query_parameters[:-2]
-		self.query_values = self.query_values[:-2]
 
