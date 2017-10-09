@@ -4,13 +4,7 @@ import os
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("undoRead.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("database/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conif")
-    sys.exit(-1)
+from nordb.core import usernameUtilities
 
 def removeEvent(event_id, cur):
     cur.execute("SELECT id FROM nordic_header_main WHERE event_id = %s", (event_id,))
@@ -68,6 +62,7 @@ def removeEventsWithCreationId(creation_id):
     return True
 
 def undoMostRecent():
+    username = usernameUtilities.readUsername()
     try:
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))
     except:

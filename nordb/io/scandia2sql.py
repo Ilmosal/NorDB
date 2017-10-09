@@ -7,16 +7,11 @@ from datetime import date
 
 from nordb.core.nordicHandler import addStringToData, addIntToData, addFloatToData, addDateToData
 from nordb.io.nordic2sql import execute_command
+from nordb.core import usernameUtilities
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("scandia2sql.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the .user.conf")
-    sys.exit(-1)
+username = ""
 
 SCANDIA_INSERT = "INSERT INTO scandia_header (event_id, source_ref, origin_questionability, year, month, day, hour, minute, second, epicenter_latitude, epicenter_longitude, origin_time_uncertainty, location_uncertainty, focal_depth, depth_identification_code, magnitude_1, magnitude_scale_1, magnitude_2, magnitude_scale_2, magnitude_3, magnitude_scale_3, maximum_intensity, macroseismic_observation_flag, macroseismic_reference, mean_radius_of_area_percetibility, region_code, number_of_stations_used, max_azimuth_gap, min_epicenter_to_station_distance) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
@@ -154,6 +149,7 @@ def execute_command(cur, command, vals, scandia):
         sys.exit(-1)
 
 def read_scandia_file(f):
+    username = username.readUsername()
     scandias = []
     validation = True
 

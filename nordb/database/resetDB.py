@@ -7,17 +7,14 @@ import psycopg2
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("resetDB.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("database/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
-    sys.exit(-1)
+from nordb.core import usernameUtilities
 
+username = ""
 
 #Clearing the database
 def reset_database():
+    username = usernameUtilities.readUsername()
+
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except:

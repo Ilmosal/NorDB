@@ -8,15 +8,10 @@ import logging
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2quakeml.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
-    sys.exit(-1)
+username = ""
 
 from nordb.core import nordicHandler
+from nordb.core import usernameUtilities
 import psycopg2
 
 QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
@@ -366,6 +361,7 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
     return quakeml
 
 def writeQuakeML(nordicEventId, usr_path):
+    username = usernameUtilities.readUsername()
     try:
         int(nordicEventId)
     except:

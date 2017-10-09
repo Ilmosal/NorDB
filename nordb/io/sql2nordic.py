@@ -5,15 +5,10 @@ import psycopg2
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2nordic.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
-    sys.exit(-1)
-    
+username = ""
+   
 from nordb.core import nordicHandler
+from nordb.core import usernameUtilities
 
 def nordicEventToNordic(nordic):
     nordic_string = []
@@ -182,6 +177,8 @@ def add_float_to_string(value, val_len, decimal_len, front):
     return string
 
 def writeNordicEvent(nordicEventId, usr_path):
+    username = usernameUtilities.readUsername()
+
     try:
         int(nordicEventId)
     except:

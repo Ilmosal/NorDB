@@ -7,18 +7,14 @@ import psycopg2
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2sc3.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the .user.conf")
-
+username = ""
 
 from nordb.core import nordicHandler
+from nordb.core import usernameUtilities
 from nordb.io import sql2quakeml
 
 def writeSC3(nordicEventId, usr_path):
+    username = usernameUtilities.readUsername()
     try:
         int(nordicEventId)
     except:
@@ -56,8 +52,6 @@ def writeSC3(nordicEventId, usr_path):
     sc3doc = qml2sc3_transform(qml)
 
     filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".xml"
-
-
 
     print(filename + " has been created")
 

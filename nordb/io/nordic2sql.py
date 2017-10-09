@@ -10,18 +10,13 @@ import logging
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
-try:
-    f_user = open(MODULE_PATH[:-len("io/")] + ".user.config")
-    username = f_user.readline().strip()
-    f_user.close()
-except:
-    logging.error("No .user.config file!! Run the program with -conf flag to initialize the user.conf")
-    sys.exit(-1)
+username = ""
 
 from nordb.core.nordicStringClass import *
 from nordb.core import nordicRead
 from nordb.core import nordicHandler
 from nordb.core import nordicFix
+from nordb.core import usernameUtilities
 from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
 from nordb.io import sql2nordic
@@ -267,6 +262,7 @@ def execute_command(cur, command, vals, returnValue):
             return None
 #function for reading a nordicp file
 def read_nordicp(f, event_type, old_nordic, sayToAll):
+    username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
     try:
         nordics = nordicRead.readNordicFile(f)

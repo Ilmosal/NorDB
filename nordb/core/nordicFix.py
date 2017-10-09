@@ -21,15 +21,12 @@ def fixMainData(header):
 
     if header.second == "60.0":
         header.second = "0.0"
+        header.minute = str(int(header.minute) + 1)
         if header.minute == "60":
-            header.minute = 0
+            header.minute = "0"
+            header.hour = str(int(header.hour) + 1)
             if header.hour == "23":
                 logging.error("Fix Nordic error - rounding error with second 60.0")
-                    
-            else:
-                header.hour = str(int(header.hour) + 1)
-        else:
-            header.minute = str(int(header.minute) + 1)
 
 
 def fixErrorData(header):
