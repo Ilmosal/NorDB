@@ -149,7 +149,7 @@ def execute_command(cur, command, vals, scandia):
         sys.exit(-1)
 
 def read_scandia_file(f):
-    username = username.readUsername()
+    username = usernameUtilities.readUsername()
     scandias = []
     validation = True
 

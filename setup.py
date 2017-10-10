@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="NorDB",
-    version="0.1.1",
+    version="0.1.2",
     author="Ilmo Salmenperä",
     author_email="ilmo.salmenpera@helsinki.fi",
     packages=find_packages(),

@@ -129,9 +129,9 @@ def create_phase_data_string(pd):
     phase_string += " "
     phase_string += add_integer_to_string(pd.signal_duration, 4, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.max_amplitude, 6, 2, '>')
+    phase_string += add_float_to_string(pd.max_amplitude, 6, 1, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.max_amplitude_period, 4, 2, '>')
+    phase_string += add_float_to_string(pd.max_amplitude_period, 4, 1, '>')
     phase_string += " "
     phase_string += add_float_to_string(pd.back_azimuth, 5, 1, '>')
     phase_string += " "

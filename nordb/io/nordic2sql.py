@@ -62,14 +62,13 @@ def read_headers(nordic):
     return headers
     
 #function for reading one event and pushing it to the database
-def read_event(nordic, event_type, nordic_filename, sayToAll, creation_id):
+def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except:
         logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
         return  False
 
-    fixNordic = True
     cur = conn.cursor()
 
     #Getting the nordic_event id from the database
@@ -117,31 +116,26 @@ def read_event(nordic, event_type, nordic_filename, sayToAll, creation_id):
 
     e_id = nordicFindOld.checkForSameEvents(nordic_event, cur)
     i_ans = ""
-
-    if (e_id != -1):
-        if (sayToAll == "no"):
-            conn.close()
-            return False
-            
-        while (sayToAll != "yes") :
+    
+    if no_duplicates:
+        pass
+    elif ignore_duplicates:
+        conn.close()
+        return False
+    elif (e_id != -1):
+        while i_ans != "n" and i_ans != "y":
             print("Same event found with id {0}. Is it the same event: ".format(e_id))
             print("New: " + headers[0].getHeaderString(), end='')
             print("Old: " + sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, e_id))[0], end='')
             i_ans = input("Answer(y/n): ")
 
-            if (i_ans == "n"):
-                break
             if (i_ans == "y"):
-                while True:
+                while i_ans != "y":
                     print("Do you want to replace the file in the root?")
                     i_ans = input("Answer(y/n): ")
-                    if (i_ans == "y"):
-                        break
-                    elif (i_ans == "n"):
+                    if (i_ans == "n"):
                         conn.close()
                         return False
-                if (i_ans == "y"):
-                    break
     
     root_id = -1
     #GET THE ROOT ID HERE
@@ -261,14 +255,14 @@ def execute_command(cur, command, vals, returnValue):
         else:
             return None
 #function for reading a nordicp file
-def read_nordicp(f, event_type, old_nordic, sayToAll):
+def read_nordicp(f, event_type, fix, ignore_duplicates, no_duplicates):
     username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
     try:
         nordics = nordicRead.readNordicFile(f)
 
         for nordic in nordics:
-            if not read_event(nordic, event_type, f.name, sayToAll, creation_id):
+            if not read_event(nordic, event_type, f.name, fix, ignore_duplicates, no_duplicates, creation_id):
                 if len(nordic) > 0:
                     logging.info("Problem in nordic: " + nordic[0][1:20])
     except KeyboardInterrupt:

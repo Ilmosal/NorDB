@@ -10,8 +10,6 @@ import click
 MODULE_PATH = os.path.realpath(__file__)[:-len("bin/NorDB.py")]
 USER_PATH = os.getcwd()
 
-print (MODULE_PATH)
-
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
@@ -41,22 +39,27 @@ def conf(repo, username):
 @cli.command()
 @click.argument('tag', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.option('--fix', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
-@click.option('--ignore-duplicates', is_flag=True, help="In case of a duplicate event, ignore the nwe event")
-@click.argument('filename', type=click.Path(exists=True, readable=True))
+@click.option('--ignore-duplicates', is_flag=True, help="In case of a duplicate event, ignore the new event")
+@click.option('--no-duplicates', is_flag=True, help="Inform the program that there are no duplicate events, add all the new events")
+@click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, tag, fix, ignore_duplicates, filename):
+def insert(repo, tag, fix, ignore_duplicates, no_duplicates, filenames):
     """This command adds an nordic file to the Database. The TAG tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
-    if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
-        f_nordic = open(filename, 'r')
-        nordic2sql.read_nordicp(f_nordic, tag, fix, ignore_duplicates)
-        f_nordic.close()
-    elif (fnmatch.fnmatch(filename, "*.catalog")):
-        f_scandic = open(filename, 'r')
-        scandia2sql.read_scandia_file(f_scandia)
-        f_scandia.close()
-    else:
-        click.echo("File not in a valid format! See insert --help for information about valid formats")
-    
+    if ignore_duplicates and no_duplicates:
+        click.echo("--ignore-duplicates and --no-duplicates cannot be on at the same time!")
+        return
+    for filename in filenames:
+        click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
+        if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
+            f_nordic = open(filename, 'r')
+            nordic2sql.read_nordicp(f_nordic, tag, fix, ignore_duplicates, no_duplicates)
+            f_nordic.close()
+        elif (fnmatch.fnmatch(filename, "*.catalog")):
+            f_scandia = open(filename, 'r')
+            scandia2sql.read_scandia_file(f_scandia)
+            f_scandia.close()
+        else:
+            click.echo("File not in a valid format! See insert --help for information about valid formats")
 
 @cli.command()
 @click.pass_obj
