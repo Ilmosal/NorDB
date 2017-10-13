@@ -15,7 +15,7 @@ sys.path = sys.path + [""]
 
 from nordb.io import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3
 from nordb.database import resetDB, undoRead, norDBManagement
-from nordb.core import usernameUtilities
+from nordb.core import usernameUtilities, nordicSearch
 
 os.chdir(USER_PATH)
 
@@ -35,6 +35,34 @@ def cli(ctx):
 def conf(repo, username):
     """Configures the userfile for the database. Give the username option your postgres username so the program can use your postgres-databased."""
     usernameUtilities.confUser(username) 
+
+@cli.command()
+@click.option('--date', default="-999")
+@click.option('--hour', default="-999")
+@click.option('--minute', default="-999")
+@click.option('--second', default="-999")
+@click.option('--latitude', default="-999")
+@click.option('--longitude', default="-999")
+@click.option('--magnitude', default="-999")
+@click.pass_obj
+def search(repo, date, hour, minute, second, latitude, longitude, magnitude):
+    criteria = {}
+    if date != "-999":
+        criteria["date"] = date
+    if hour != "-999":
+        criteria["hour"] = hour
+    if minute != "-999":
+        criteria["minute"] = minute
+    if second != "-999":
+        criteria["second"] = second
+    if latitude != "-999":
+        criteria["latitude"] = latitude
+    if longitude != "-999":
+        criteria["longitude"] = longitude
+    if magnitude != "-999":
+        criteria["magnitude"] = magnitude
+
+    nordicSearch.searchNordic(criteria)
 
 @cli.command()
 @click.argument('tag', type=click.Choice(["A", "R", "P", "F", "S", "O"]))

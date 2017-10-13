@@ -122,7 +122,7 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
     elif ignore_duplicates:
         conn.close()
         return False
-    elif (e_id != -1):
+    elif e_id != -1:
         while i_ans != "n" and i_ans != "y":
             print("Same event found with id {0}. Is it the same event: ".format(e_id))
             print("New: " + headers[0].getHeaderString(), end='')
@@ -136,7 +136,29 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
                     if (i_ans == "n"):
                         conn.close()
                         return False
-    
+   
+    if e_id != -1:
+        e_id = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+        if no_duplicates:
+            pass
+        elif ignore_duplicates:
+            conn.close()
+            return False
+        elif e_id != -1:
+            print("Similar event found with id {0}. Is it the same event: ".format(e_id))
+            print("New: " + headers[0].getHeaderString(), end='')
+            print("Old: " + sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, e_id))[0], end='')
+            i_ans = input("Answer(y/n): ")
+
+            if (i_ans == "y"):
+                while i_ans != "y":
+                    print("Do you want to replace the file in the root?")
+                    i_ans = input("Answer(y/n): ")
+                    if (i_ans == "n"):
+                        conn.close()
+                        return False
+
+ 
     root_id = -1
     #GET THE ROOT ID HERE
     if i_ans == "y":

@@ -55,33 +55,28 @@ def checkForSimilarEvents(nordic_event, cur):
     epicenter_latitude_error = 0.1
     epicenter_longitude_error = 0.1
 
-    if nordic_event.headers[0].hour == "":
-        return 0
-    if nordic_event.headers[0].minute == "":
-        return 0
-    if nordic_event.headers[0].second == "":
-        return 0
-    
     cmd = "SELECT id, event_id FROM nordic_header_main WHERE date = %s "
-    cmd += "AND hour - %s < %s "
-    cmd += "AND minute - %s < %s "
-    cmd += "AND second - %s < %s "
-    cmd += "AND epicenter_latitude - %s < %s "
-    cmd += "AND epicenter_longitude - %s < %s;"
- 
-    cur.execute(cmd, (nordic_event.headers[0].date,
-                    nordic_event.headers[0].hour,
-                    hour_error,
-                    nordic_event.headers[0].minute,
-                    minute_error,
-                    nordic_event.headers[0].second,
-                    second_error,
-                    nordic_event.headers[0].epicenter_latitude,
-                    epicenter_latitude_error,
-                    nordic_event.headers[0].epicenter_longitude,
-                    epicenter_longitude_error))
+    vals = (nordic_event.headers[0].date,)
 
-    ans = cur.fetchone()
+    if nordic_event.headers[0].hour != "":
+        cmd += "AND hour - %s < %s "
+        vls += (nordic_event.headers[0].hour, hour_error)
+    if nordic_event.headers[0].minute != "":
+        cmd += "AND minute - %s < %s"
+        vls += (nordic_event.headers[0].minute, minute_error)
+    if nordic_event.headers[0].second != "":
+        cmd += "AND second - %s < %s"
+        vls += (nordic_event.headers[0].second, second_error)
+    if nordic_event.headers[0].epicenter_latitude != "":
+        cmd += "AND epicenter_latitude - %s < %s"
+        vls += (nordic_event.headers[0].epicenter_latitude, epicenter_latitude_error)
+    if nordic_event.headers[0].epicenter_longitude != "":
+        cmd += "AND epicenter_longitude - %s < %s"
+        vls += (nordic_event.headers[0].epicenter_longitude, epicenter_longitude_error)
+
+    cur.execute(cmd, vals)
+
+    ans = cur.fetchall()
 
     if not ans:
         return 0

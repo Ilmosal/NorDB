@@ -118,7 +118,7 @@ def create_phase_data_string(pd):
     phase_string += " "
     phase_string += add_string_to_string(pd.quality_indicator, 1, '<')  
     phase_string += add_string_to_string(pd.phase_type, 4, '<')
-    phase_string += add_string_to_string(pd.weight, 1, '<')
+    phase_string += add_integer_to_string(pd.weight, 1, '<')
     phase_string += " "
     phase_string += add_string_to_string(pd.first_motion, 1, '<')
     phase_string += add_string_to_string(pd.time_info, 1, '<')
