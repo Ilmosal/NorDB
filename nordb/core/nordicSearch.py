@@ -15,7 +15,10 @@ SEARCH_IDS = {"date":1,
                 "second":4,
                 "latitude":5, 
                 "longitude":6, 
-                "magnitude":7}
+                "magnitude":7,
+                "event_type":8,
+                "distance_indicator":9,
+                "event_desc_id":10}
 
 SEARCH_IDS_REV = {1:"date", 
                 2:"hour",
@@ -23,7 +26,10 @@ SEARCH_IDS_REV = {1:"date",
                 4:"second",
                 5:"latitude", 
                 6:"longitude", 
-                7:"magnitude"}
+                7:"magnitude",
+                8:"event_type",
+                9:"distance_indicator",
+                10:"event_desc_id"}
 
 SEARCH_TYPES = { 1:date, 
                 2:int,
@@ -31,7 +37,17 @@ SEARCH_TYPES = { 1:date,
                 4:float,
                 5:float, 
                 6:float, 
-                7:float}
+                7:float,
+                8:str,
+                9:str,
+                10:str}
+
+EVENT_TYPE_VALS = {'O':1,
+                    'A':2,
+                    'R':3,
+                    'P':4,
+                    'F':5,
+                    'S':6}
 
 class Command:
     """
@@ -230,10 +246,13 @@ def returnValueFromString(value):
         return float(value)
     except ValueError:
         pass
-   
+  
+    if len(value) == 1:
+        return value
+ 
     return False
 
-def string2Command(sCommand):
+def string2Command(sCommand, cmd_type):
     """
     Generate a command from a string.
     
@@ -244,6 +263,11 @@ def string2Command(sCommand):
         Command that can be used for comparisons.
     """
     parts = sCommand.split('-')
+
+    if cmd_type == "distance_indicator" or cmd_type == "event_desc_id":
+        if len(sCommand) != 1:
+            raise ValueError
+
     if len(parts) == 2 and parts[1] != "": 
         val1 = returnValueFromString(parts[0])
         val2 = returnValueFromString(parts[1])
@@ -258,14 +282,16 @@ def string2Command(sCommand):
     elif sCommand.endswith('+'):
         val = returnValueFromString(sCommand[:-1])
         if val is False:
-            print("asdasd")
             raise ValueError
         command = OverValue(val)
     else:
-        val = returnValueFromString(sCommand)
+        if (cmd_type == "distance_indicator" or cmd_type == "event_desc_id") and sCommand == " ":
+            val = None
+        else:
+            val = returnValueFromString(sCommand)
         if val is False:
             raise ValueError
-        command = ExactlyValue(sCommand)
+        command = ExactlyValue(val)
 
     return command
 
@@ -281,6 +307,10 @@ def validateCommand(command, searchId):
         True or False
     """
 
+
+    if (searchId == 9 or searchId == 10) and command.value == None:
+        return True
+
     if command.command_tpe == 2:
         if isinstance(command.valueLower, SEARCH_TYPES[searchId]) and isinstance(command.valueUpper, SEARCH_TYPES[searchId]):
             return True
@@ -289,6 +319,28 @@ def validateCommand(command, searchId):
             return True
 
     return False
+
+def rangeOfEventType(eveb, evet):
+    """
+    Method for getting all event types in range as a string.
+
+    Args:
+        eveb: Bottom limit of event types
+        evet: Top limit of event types
+
+    Returns:
+        String of all event types
+    """
+    bot = EVENT_TYPE_VALS[eveb]
+    top = EVENT_TYPE_VALS[evet]
+
+    events = ""
+
+    for key in EVENT_TYPE_VALS.keys():
+        if EVENT_TYPE_VALS[key] >= bot and EVENT_TYPE_VALS[key] <= top:
+            events += key     
+
+    return events
 
 def createSearchQuery(commands):
     """
@@ -300,7 +352,7 @@ def createSearchQuery(commands):
     Returns:
         An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
     """
-    query = "SELECT DISTINCT event_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
+    query = "SELECT DISTINCT ON (event_id) event_id, event_type, distance_indicator, event_desc_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
 
     vals = ()
 
@@ -308,21 +360,40 @@ def createSearchQuery(commands):
         value = SEARCH_IDS_REV[c]
         if value == "magnitude":
             value += "_1"
+        
+        if value == "event_type":
+            if commands[c].command_tpe == 1:
+                query += " AND nordic_event." + value + " LIKE %s"
+                vals += (commands[c].value,)
+            elif commands[c].command_tpe == 2:
+                query += " AND nordic_event." + value + " LIKE [%s]"
+                vals += (rangeOfEventType(commands[c].valueLower, commands[c].valueUpper),)
+            elif commands[c].command_tpe == 3:
+                query += " AND nordic_event." + value + " LIKE [%s]"
+                vals += (rangeOfEventType(commands[c].value), 'S')
+            elif commands[c].command_tpe == 4:
+                query += " AND nordic_event." + value + " LIKE [%s]"
+                vals += ('O',rangeOfEventType(commands[c].value))
+        else:     
+            if commands[c].command_tpe == 1:
+                if commands[c].value == None:
+                    query += " AND nordic_header_main." + value + " is %s"
+                else:
+                    query += " AND nordic_header_main." + value + " = %s"
+                vals += (commands[c].value,)
+            elif commands[c].command_tpe == 2:
+                query += " AND nordic_header_main." + value + " >= %s"
+                query += " AND nordic_header_main." + value + " <= %s"
+                vals += (commands[c].valueLower,)
+                vals += (commands[c].valueUpper,)
+            elif commands[c].command_tpe == 3:
+                query += " AND nordic_header_main." + value + " >= %s"
+                vals += (commands[c].value,)
+            elif commands[c].command_tpe == 4:
+                query += " AND nordic_header_main." + value + " <= %s"
+                vals += (commands[c].value,)
 
-        if commands[c].command_tpe == 1:
-            query += " AND nordic_header_main." + value + " = %s"
-            vals += (commands[c].value,)
-        if commands[c].command_tpe == 2:
-            query += " AND nordic_header_main." + value + " >= %s"
-            query += " AND nordic_header_main." + value + " <= %s"
-            vals += (commands[c].valueLower,)
-            vals += (commands[c].valueUpper,)
-        if commands[c].command_tpe == 3:
-            query += " AND nordic_header_main." + value + " >= %s"
-            vals += (commands[c].value,)
-        if commands[c].command_tpe == 4:
-            query += " AND nordic_header_main." + value + " <= %s"
-            vals += (commands[c].value,)
+    query += " ORDER BY event_id"
 
     search = [query, vals]
 
@@ -353,11 +424,14 @@ def searchNordic(criteria):
     commands = {}
 
     for arg in criteria.keys():
-        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg])
+        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
+
 
     for c in commands.keys():
         if not validateCommand(commands[c], c):
             return -2
+
+    print("asd")
 
     search = createSearchQuery(commands)
 
@@ -366,7 +440,6 @@ def searchNordic(criteria):
     except:
         logging.error("Couldn't connect to database!!")
         return -1
-   
  
     cur = conn.cursor()
 
@@ -381,5 +454,4 @@ def searchNordic(criteria):
             largest = len(str(a[0]))
 
     for a in ans:
-        print(("event id: {0:<" + str(largest) +"} - {1}").format(a[0], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a))[0][:-1]))
-
+        print(a)

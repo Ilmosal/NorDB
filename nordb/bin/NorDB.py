@@ -44,8 +44,12 @@ def conf(repo, username):
 @click.option('--latitude', default="-999")
 @click.option('--longitude', default="-999")
 @click.option('--magnitude', default="-999")
+@click.option('--event-type', default="-999")
+@click.option('--distance-indicator', default="-999")
+@click.option('--event-desc-id', default="-999")
 @click.pass_obj
-def search(repo, date, hour, minute, second, latitude, longitude, magnitude):
+def search(repo, date, hour, minute, second, latitude, longitude, 
+            magnitude, event_type, distance_indicator, event_desc_id):
     criteria = {}
     if date != "-999":
         criteria["date"] = date
@@ -61,18 +65,24 @@ def search(repo, date, hour, minute, second, latitude, longitude, magnitude):
         criteria["longitude"] = longitude
     if magnitude != "-999":
         criteria["magnitude"] = magnitude
+    if event_type != "-999":
+        criteria["event_type"] = event_type
+    if event_desc_id != "-999":
+        criteria["event_desc_id"] = event_desc_id
+    if distance_indicator != "-999":
+        criteria["distance_indicator"] = distance_indicator
 
     nordicSearch.searchNordic(criteria)
 
 @cli.command()
-@click.argument('tag', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
+@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.option('--fix', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
 @click.option('--ignore-duplicates', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', is_flag=True, help="Inform the program that there are no duplicate events, add all the new events")
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, tag, fix, ignore_duplicates, no_duplicates, filenames):
-    """This command adds an nordic file to the Database. The TAG tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
+def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames):
+    """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
     if ignore_duplicates and no_duplicates:
         click.echo("--ignore-duplicates and --no-duplicates cannot be on at the same time!")
         return
@@ -80,7 +90,7 @@ def insert(repo, tag, fix, ignore_duplicates, no_duplicates, filenames):
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
             f_nordic = open(filename, 'r')
-            nordic2sql.read_nordicp(f_nordic, tag, fix, ignore_duplicates, no_duplicates)
+            nordic2sql.read_nordicp(f_nordic, event_type, fix, ignore_duplicates, no_duplicates)
             f_nordic.close()
         elif (fnmatch.fnmatch(filename, "*.catalog")):
             f_scandia = open(filename, 'r')
