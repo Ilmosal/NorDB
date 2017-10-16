@@ -18,7 +18,8 @@ SEARCH_IDS = {"date":1,
                 "magnitude":7,
                 "event_type":8,
                 "distance_indicator":9,
-                "event_desc_id":10}
+                "event_desc_id":10,
+                "event_id":11}
 
 SEARCH_IDS_REV = {1:"date", 
                 2:"hour",
@@ -29,7 +30,8 @@ SEARCH_IDS_REV = {1:"date",
                 7:"magnitude",
                 8:"event_type",
                 9:"distance_indicator",
-                10:"event_desc_id"}
+                10:"event_desc_id",
+                11:"event_id"}
 
 SEARCH_TYPES = { 1:date, 
                 2:int,
@@ -399,7 +401,7 @@ def createSearchQuery(commands):
 
     return search
 
-def searchNordic(criteria):
+def searchNordic(criteria, verbose):
     """
     Function for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
 
@@ -421,6 +423,25 @@ def searchNordic(criteria):
         return -1
 
     username = usernameUtilities.readUsername()
+
+    if "event_id" in criteria.keys():
+        try:
+            conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+        except:
+            logging.error("Couldn't connect to database!!")
+            return -1
+ 
+        cur = conn.cursor()
+      
+        if verbose:
+            nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, criteria["event_id"]))
+            for line in nordic:
+                print(line, end='')
+        else:
+            print(sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, criteria["event_id"]))[0])
+        conn.close()
+        return 1
+
     commands = {}
 
     for arg in criteria.keys():
@@ -430,8 +451,6 @@ def searchNordic(criteria):
     for c in commands.keys():
         if not validateCommand(commands[c], c):
             return -2
-
-    print("asd")
 
     search = createSearchQuery(commands)
 
@@ -447,11 +466,23 @@ def searchNordic(criteria):
     ans = cur.fetchall()
 
     print("Events found with criteria:")
-    print("---------------------------")
+    for key in criteria.keys():
+        print(key + ": " + criteria[key] + " ", end='')
+    print("\n---------------------------")
     largest = -1
     for a in ans:
         if len(str(a[0])) > largest:
             largest = len(str(a[0]))
-
+    if not verbose:
+        print("EID  YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
     for a in ans:
-        print(a)
+        if verbose:
+            nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))
+            print("Event ID: {0}".format(a[0]))
+            for line in nordic:
+                print(line, end='')
+            print(80*"-")
+        else:
+            print(("{0:< " + str(largest) +"}  {1}").format(a[0], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))[0]), end='')
+
+    conn.close()

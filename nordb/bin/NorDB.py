@@ -37,19 +37,37 @@ def conf(repo, username):
     usernameUtilities.confUser(username) 
 
 @cli.command()
-@click.option('--date', default="-999")
-@click.option('--hour', default="-999")
-@click.option('--minute', default="-999")
-@click.option('--second', default="-999")
-@click.option('--latitude', default="-999")
-@click.option('--longitude', default="-999")
-@click.option('--magnitude', default="-999")
-@click.option('--event-type', default="-999")
-@click.option('--distance-indicator', default="-999")
-@click.option('--event-desc-id', default="-999")
+@click.option('--date', default="-999", help="Search with date. Example:\n--date=12.01.2010")
+@click.option('--hour', default="-999", help="Search with hour. Example:\n--hour=14")
+@click.option('--minute', default="-999", help="Search with minute. Example:\n--minute=14")
+@click.option('--second', default="-999",  help="Search with second. Example:\n--second=59.02")
+@click.option('--latitude', default="-999", help="Search with latitude. Example:\n--latitude=69.09")
+@click.option('--longitude', default="-999", help="Search with longitude. Example:\n--longitude=69.09")
+@click.option('--magnitude', default="-999", help="Search with magnitude. Example:\n--magnitude=69.09")
+@click.option('--event-type', default="-999", help="Search with event-type. Example:\n--event-type=F")
+@click.option('--distance-indicator', default="-999", help="Search with distance-indicator. Example:\n--distance-indicator=R")
+@click.option('--event-desc-id', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
+@click.option('--event-id', default="-999", help="\b Search with event-id. Example:\n--event-id=123")
+@click.option('--verbose', is_flag=True, help="Print the whole nordic file instead of the main header.")
 @click.pass_obj
-def search(repo, date, hour, minute, second, latitude, longitude, 
-            magnitude, event_type, distance_indicator, event_desc_id):
+def search(repo, date, hour, minute, second, latitude, longitude, event_id,
+            magnitude, event_type, distance_indicator, event_desc_id, verbose):
+    """
+This command searches for events by given criteria and prints them to the screen. Output works in a following way:
+
+\b
+    --parameter=A   -> Parameter has to be exactly A
+    --parameter=A+  -> Parameter has to be over or equal to A
+    --parameter=A-  -> Parameter has to be under or equal to A
+    --parameter=A-B -> Parameter has to be equal to or in between of A and B
+
+WARNING: Do not use --verbose flag when there are serveral search results. The output will clog your terminal. You can pipeline them into a file with > in following way:
+
+\b    
+    NorDB search --verbose -date=01.01.2009+ > outputfile
+
+This will print all nordic events from date 01.01.2009 onwards into the outputfile. Better way of getting files from the database is get command.
+    """
     criteria = {}
     if date != "-999":
         criteria["date"] = date
@@ -71,8 +89,13 @@ def search(repo, date, hour, minute, second, latitude, longitude,
         criteria["event_desc_id"] = event_desc_id
     if distance_indicator != "-999":
         criteria["distance_indicator"] = distance_indicator
+    if event_id != "-999":
+        criteria["event_id"] = event_id
 
-    nordicSearch.searchNordic(criteria)
+    ans = nordicSearch.searchNordic(criteria, verbose)
+
+    if ans == -1:
+        click.echo("No criteria given to program!!")
 
 @cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))

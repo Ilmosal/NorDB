@@ -99,7 +99,7 @@ class NordicHeaderMain(NordicHeader):
 
     
 class NordicHeaderMacroseismic(NordicHeader):
-    def __init__(self):
+    def __init__(self, header_data):
         NordicHeader.__init__(self, 2)
         self.header_id = header_data[0]
         self.event_id = header_data[1]
