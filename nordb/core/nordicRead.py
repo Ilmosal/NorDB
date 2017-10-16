@@ -2,6 +2,12 @@ import logging
 import sys
 
 def readNordicFile(f):
+    """
+    Method for reading a nordic file and parsing it to a string array while also checking the integrity of the file(Will give errors when lines are too long). It also wil parse empty space on the file if it is too short.
+
+    Args:
+        f FILE: python file object for the Nordic File
+    """
     nordics = []
     emsg = "Nordic Read: The following line is too short: {0}\n{1}"
     i = 0

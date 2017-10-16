@@ -5,34 +5,70 @@ from datetime import date
 
 #class for the whole event 
 class NordicEvent:
+    """
+    Class that represents the Nordic event. It cannot contain false information as it has been created either from database data or validated Nordic String Event object.
+
+    Args:
+        headers (NordicHeader[][]): All the headers in an array where the type of the header determines on which index of the array the headers lie
+        data (NordicData[]): Array of Phase Data objects
+
+    Attributes:
+        headers (NordicHeader[][]): All the headers in an array where the type of the header determines on which index of the array the headers lie
+        data (NordicData[]): Array of Phase Data objects
+
+    """
     def __init__(self, headers, phase_data):
         self.headers = headers
         self.phase_data = phase_data    
     
-    def get_main_headers(self):
-        return self.headers[1]
-
-    def get_macroseismic_header(self):
-        return self.headers[2]
-
-    def get_comment_headers(self):
-        return self.headers[3]
-
-    def get_error_headers(self):
-        return self.headers[5]
-
-    def get_waveform_headers(self):
-        return self.headers[6]
-
 #Parent class for the header
 class NordicHeader:
+    """
+    Parent class for all the header classes in this file. Contains only the type of the header.
+
+    Args:
+        header_type (int): type of the header. 1 - main header, 2 - macroseismic header, 3 - comment header, 5 - error header, 6 - waveform header
+
+    Attributes:
+         header_type (int): type of the header. 1 - main header, 2 - macroseismic header, 3 - comment header, 5 - error header, 6 - waveform header
+       
+    """
     def __init__(self, header_type):
         self.header_type = header_type
-    
-    def get_header_type(self):
-        return self.header_type
 
 class NordicPhaseData:
+    """
+    Class for nordic phase data. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        phase_data (tuple): phase data from the query in tuple from which all data is taken from.
+       
+    Attributes:
+        phase_id (int): the id of the phase data in db
+        event_id (int): event id of the relevant Nordic Event
+        station_code (str): station code for the station that observed this line
+        sp_instrument_type (str): type of the observing instrument
+        quality_indicator (str): quality indicator of the phase data line
+        phase_type (str): the type of the phase 
+        weight (int): the actual weight of the observation
+        first motion (str): the direction of the wave
+        time_info (str): str that tells which day the observation was made
+        hour (int): the hour when the observation was made
+        minute (int): the minute when the observation was made
+        second (float): the second when the observation was made
+        signal_duration (int): the duration of the signal
+        max_amplitude (float): maximum amplitude of the signal during its duration
+        max_amplitude_period (float): period for the maximum amplitude of the signal
+        back_azimuth (float): the back azimuth of the observation
+        apparent_velocity (float): apparent velocity for the signal
+        signal_to_noise (float): signal to noise ratio of the signal
+        azimuth_residual (int): residual of the azimuth of the location
+        travel_time_residual (float): the travel time residual of the signal
+        location_weight (str): the weight of the location for calculations
+        epicenter_distance (int): distance from the epicenter to the station
+        epicenter_to_station_azimuth (int): the azimuth of the epicenter to station
+    """
+
     def __init__(self, phase_data):
         self.phase_id = phase_data[0]
         self.event_id = phase_data[1]
@@ -59,11 +95,42 @@ class NordicPhaseData:
         self.epicenter_distance = phase_data[22] 
         self.epicenter_to_station_azimuth = phase_data[23]
 
-    def return_as_string(self):
-        output_string = ""
-        return output_string
-
 class NordicHeaderMain(NordicHeader):
+    """
+    Class for nordic main header. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        header_data (tuple): header data tuple from the database query from which all data is taken from
+
+    Attributes:
+        header_id(int): header id of the main header in the database
+        event_id(int): event id of the event of the main header
+        date (date): date of the event
+        hour (minute): hour when the event occurred
+        minute (minute): minute when the event occurred
+        second (float): seconc when the event occurred
+        location_model (str): location model used in locating the event
+        distance_indicator (str): distance indicator of the event
+        event_desc_id (str): the description id of the event
+        epicenter_latitude (float): latitude of the event
+        epicenter_longitude (float): longitude of the event
+        depth (float): depth of the event
+        depth_control (str): depth cotrol flag
+        locating_indicator (str): locating indicator of the event
+        epicenter_reporting_agency (str): agency that reported the event
+        stations_used (int): stations used in the locating process
+        rms_time_residuals (float): rms of time residuals
+        magnitude_1 (float): magnitude from the first magnitude reporting agency
+        type_of_magnitude_1 (str): type of first magnitude 
+        magnitude_reporting_agency_1 (str): the reporting agency of the first magnitude
+        magnitude_2 (float): magnitude from the second magnitude reporting agency
+        type_of_magnitude_2 (str): type of the second magnitude 
+        magnitude_reporting_agency_2 (str):  the reporting agency of the second magnitude
+        magnitude_3 (float): magnitude from the third magnitude reporting agency
+        type_of_magnitude_3 (str): type of the second magnitude
+        magnitude_reporting_agency_3 (str): the reporting agency of the third magnitude
+    """
+
     def __init__(self, header_data):
         NordicHeader.__init__(self, 1)
         self.header_id = header_data[0]

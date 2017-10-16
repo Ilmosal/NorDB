@@ -1,6 +1,12 @@
 import math
 
 def fixMainData(header):
+    """
+    Method for fixing some of the common errors in main header.
+
+    Args:
+        header: main header that needs to be fixed
+    """
     try:
         if math.isnan(float(header.magnitude_1)):
             header.magnitude_1 = ""
@@ -30,6 +36,12 @@ def fixMainData(header):
 
 
 def fixErrorData(header):
+    """
+    Method for fixing some of the common errors in error header.
+   
+    Args:
+        header: error header that need to be fixed
+    """
     if header.gap.strip() == "t":
         header.gap = ""
 
@@ -41,6 +53,13 @@ def fixErrorData(header):
 
 
 def fixPhaseData(data):
+    """
+    Method for fixing some of the common errors in phase data.
+   
+    Args:
+        data: phase data that need to be fixed
+    """
+
     if data.epicenter_to_station_azimuth == "360":
         data.epicenter_to_station_azimuth = "0"
 
@@ -68,6 +87,13 @@ def fixPhaseData(data):
         data.travel_time_residual = ""
 
 def fixNordicEvent(nordicEvent):
+    """
+    Method for fixing an whole nordic event before validation. Only fixes couple of common errors like rounding errors with angles or seconds and such.
+
+    Args:
+        nordicEvent: Nordic String Class object before validation.
+
+    """
     for h in nordicEvent.headers:
         if h.tpe == 1:
             fixMainData(h)
@@ -76,5 +102,3 @@ def fixNordicEvent(nordicEvent):
 
     for data in nordicEvent.data:
         fixPhaseData(data)
-
-    return True

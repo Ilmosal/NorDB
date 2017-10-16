@@ -367,6 +367,7 @@ def createSearchQuery(commands):
             if commands[c].command_tpe == 1:
                 query += " AND nordic_event." + value + " LIKE %s"
                 vals += (commands[c].value,)
+
             elif commands[c].command_tpe == 2:
                 query += " AND nordic_event." + value + " LIKE [%s]"
                 vals += (rangeOfEventType(commands[c].valueLower, commands[c].valueUpper),)
@@ -378,20 +379,32 @@ def createSearchQuery(commands):
                 vals += ('O',rangeOfEventType(commands[c].value))
         else:     
             if commands[c].command_tpe == 1:
+                if value == "latitude" or value == "longitude":
+                    value = "epicenter_" + value
+
                 if commands[c].value == None:
                     query += " AND nordic_header_main." + value + " is %s"
                 else:
                     query += " AND nordic_header_main." + value + " = %s"
                 vals += (commands[c].value,)
             elif commands[c].command_tpe == 2:
+                if value == "latitude" or value == "longitude":
+                    value = "epicenter_" + value
+
                 query += " AND nordic_header_main." + value + " >= %s"
                 query += " AND nordic_header_main." + value + " <= %s"
                 vals += (commands[c].valueLower,)
                 vals += (commands[c].valueUpper,)
             elif commands[c].command_tpe == 3:
+                if value == "latitude" or value == "longitude":
+                    value = "epicenter_" + value
+
                 query += " AND nordic_header_main." + value + " >= %s"
                 vals += (commands[c].value,)
             elif commands[c].command_tpe == 4:
+                if value == "latitude" or value == "longitude":
+                    value = "epicenter_" + value
+
                 query += " AND nordic_header_main." + value + " <= %s"
                 vals += (commands[c].value,)
 
