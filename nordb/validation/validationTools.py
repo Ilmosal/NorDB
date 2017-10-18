@@ -9,7 +9,8 @@ nTypes = {0: "Nordic Event",
         5: "Nordic Error Header",
         6: "Nordic Waveform Header",
         8: "Nordic Phase Data",
-        9: "Scandic Header"}
+        9: "Scandic Header",
+        10:"Station Data"}
 
 class values():
     maxInt = 9223372036854775807 

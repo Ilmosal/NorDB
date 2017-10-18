@@ -13,7 +13,7 @@ USER_PATH = os.getcwd()
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
-from nordb.io import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3
+from nordb.io import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql
 from nordb.database import resetDB, undoRead, norDBManagement
 from nordb.core import usernameUtilities, nordicSearch
 
@@ -96,6 +96,18 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
 
     if ans == -1:
         click.echo("No criteria given to program!!")
+
+@cli.command()
+@click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def insertStation(repo, station_file):
+    """
+    This command adds a site table to the database
+    """
+    if fnmatch.fnmatch(station_file, "*.site"):
+        station2sql.readStations(open(station_file, 'rb'))
+    else:
+        click.echo("Filename must be in format *.sites")
 
 @cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
