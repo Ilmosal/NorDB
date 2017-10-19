@@ -1,5 +1,5 @@
 from nordb.validation import validationTools
-import nordb.io.station2sql
+import nordb.database.station2sql
 
 def validateStation(station):
     """

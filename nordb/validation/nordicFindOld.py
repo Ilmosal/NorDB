@@ -1,94 +1,116 @@
 import logging
 import psycopg2
+from datetime import date
+from nordb.core import nordicSearch, nordicHandler
+from nordb.database import sql2nordic
 
 def checkForSameEvents(nordic_event, cur):
-    cmd = "SELECT event_id FROM nordic_header_waveform WHERE waveform_info = %s;"
-    data = ""
-    for h in nordic_event.headers:
-        if h.tpe == 6:
-            data = h.waveform_info
+    """
 
-    if data != "":
-        cur.execute(cmd, (data,))
-        ans = cur.fetchall()
+    """
 
-        for a in ans:
-            cur.execute("SELECT event_type FROM nordic_event WHERE id = %s", (a[0],))
-            tpe = cur.fetchone()[0]
-            if tpe == nordic_event.event_type:
-                return a[0]
+    criteria = {
+        "date":nordic_event.headers[0].date,
+        "hour":nordic_event.headers[0].hour,
+        "minute":nordic_event.headers[0].minute,
+        "second":nordic_event.headers[0].second,
+        "magnitude":nordic_event.headers[0].magnitude_1,
+        "latitude":nordic_event.headers[0].epicenter_latitude,
+        "longitude":nordic_event.headers[0].epicenter_longitude
+    }
 
-    cmd = "SELECT event_id FROM nordic_header_main WHERE date=%s"
-    vls = (nordic_event.headers[0].date,)
+    for key in criteria.keys():
+        if criteria[key] is None:
+            criteria.pop(key, None)
 
-    if nordic_event.headers[0].hour != "":
-        cmd += "AND hour = %s"
-        vls += (nordic_event.headers[0].hour,)
-    if nordic_event.headers[0].minute != "":
-        cmd += "AND minute = %s"
-        vls += (nordic_event.headers[0].minute,)
-    if nordic_event.headers[0].second != "":
-        cmd += "AND second = %s"
-        vls += (nordic_event.headers[0].second,)
-    if nordic_event.headers[0].epicenter_latitude != "":
-        cmd += "AND epicenter_latitude = %s"
-        vls += (nordic_event.headers[0].epicenter_latitude,)
-    if nordic_event.headers[0].epicenter_longitude != "":
-        cmd += "AND epicenter_longitude = %s"
-        vls += (nordic_event.headers[0].epicenter_longitude,)
+    e_info = nordicSearch.getAllNordics(criteria)
 
-    cur.execute(cmd, vls)
+    if e_info is None or e_info == []:
+        return -1
 
-    ans = cur.fetchall()
-    for a in ans:
-        cur.execute("SELECT event_type FROM nordic_event WHERE id = %s", (a[0],))
-        tpe = cur.fetchone()[0]
-        if tpe == nordic_event.event_type:
-            return a[0]
+    if len(e_info) == 1:
+        return e_info[0][0]
 
-    return -1
+    print("Nordics with same information found! Does one of following events represent the same event?")
+    largest = -1
+    for e_i in e_info:
+        if len(str(e_i[0])) > largest:
+            largest = len(str(e_i[0]))
+
+    print("EID ETPE YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+    for e_i in e_info:
+        n_event = nordicHandler.readNordicEvent(cur, e_i[0])
+        print(("{0:< " + str(largest) +"}   {1}  {2}").format(e_i[0], e_i[1], sql2nordic.nordicEventToNordic(n_event)[0][:-2]))
+    
+    print ("Your event:")
+    print (nordic_event.headers[0].o_string[:-2])
+
+    while True:
+        ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
+        try:
+            if int(ans) > -2 or int(ans) == -9:
+                print("")
+                return int(ans)
+        except:
+            pass
+
+    return -9
+
+    return int(ans)
 
 def checkForSimilarEvents(nordic_event, cur): 
+    """
+    
+    """
     hour_error = 1
-    minute_error = 1
-    second_error = 10.0
-    epicenter_latitude_error = 0.1
-    epicenter_longitude_error = 0.1
+    magnitude_error = 1.0
+    latitude_error = 0.5
+    longitude_error = 0.5
 
-    cmd = "SELECT id, event_id FROM nordic_header_main WHERE date = %s "
-    vals = (nordic_event.headers[0].date,)
+    criteria = {
+        "date":nordic_event.headers[0].date,
+        "hour":str(int(nordic_event.headers[0].hour)-hour_error) + "-" + str(int(nordic_event.headers[0].hour)+hour_error),
+        "magnitude":str(float(nordic_event.headers[0].magnitude_1)-magnitude_error) + "-" + str(float(nordic_event.headers[0].magnitude_1)+magnitude_error),
+        "latitude":str(float(nordic_event.headers[0].epicenter_latitude)-latitude_error) + "-" + str(float(nordic_event.headers[0].epicenter_latitude)+latitude_error),
+        "longitude":str(float(nordic_event.headers[0].epicenter_longitude)-longitude_error) + "-" + str(float(nordic_event.headers[0].epicenter_longitude)+longitude_error)
+    }
 
-    if nordic_event.headers[0].hour != "":
-        cmd += "AND hour - %s < %s "
-        vls += (nordic_event.headers[0].hour, hour_error)
-    if nordic_event.headers[0].minute != "":
-        cmd += "AND minute - %s < %s"
-        vls += (nordic_event.headers[0].minute, minute_error)
-    if nordic_event.headers[0].second != "":
-        cmd += "AND second - %s < %s"
-        vls += (nordic_event.headers[0].second, second_error)
-    if nordic_event.headers[0].epicenter_latitude != "":
-        cmd += "AND epicenter_latitude - %s < %s"
-        vls += (nordic_event.headers[0].epicenter_latitude, epicenter_latitude_error)
-    if nordic_event.headers[0].epicenter_longitude != "":
-        cmd += "AND epicenter_longitude - %s < %s"
-        vls += (nordic_event.headers[0].epicenter_longitude, epicenter_longitude_error)
+    if int(nordic_event.headers[0].hour) == 0:
+        criteria["hour"] = "00-01"
+    elif int(nordic_event.headers[0].hour) == 23:
+        criteria["hour"] = "22-23"
 
-    cur.execute(cmd, vals)
+    for key in criteria.keys():
+        if criteria[key] is None:
+            criteria.pop(key, None)
 
-    ans = cur.fetchall()
+    e_info = nordicSearch.getAllNordics(criteria)
 
-    if not ans:
-        return 0
+    if e_info is None or e_info == []:
+        return -1
 
-    cmd = "SELECT event_type FROM nordic_event WHERE event_id=%s"
-    cur.execute(cmd, (ans[1]))
-    eType = cur.fetchone()
+    if len(e_info) == 1:
+        return e_info[0][0]
 
-    if not eType:
-        return 0
+    print("Nordics with similiar information found! Does one of following events represent the same event?")
+    largest = -1
+    for e_i in e_info:
+        if len(str(e_i[0])) > largest:
+            largest = len(str(e_i[0]))
 
-    if eType[0] == nordic_event.event_type:
-        return ans[0]
-    else:
-        return 0
+    print("EID ETPE YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+    for e_i in e_info:
+        n_event = nordicHandler.readNordicEvent(cur, e_i[0])
+        print(("{0:< " + str(largest) +"}   {1}  {2}").format(e_i[0], e_i[1], sql2nordic.nordicEventToNordic(n_event)[0][:-2]))
+    
+    print ("Your event:")
+    print (nordic_event.headers[0].o_string[:-2])
+    while True:
+        ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
+        try:
+            if int(ans) > -2 or int(ans) == -9:
+                return int(ans)
+        except:
+            pass
+
+    return -9

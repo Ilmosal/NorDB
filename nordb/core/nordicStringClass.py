@@ -38,8 +38,6 @@ class NordicHeader:
     Attributes:
         tpe (int): type of the header: 1 - main header, 2 - macroseismic header, 3 - comment header, 5 - error header, 6 - waveform header
 
-
-
     """
     def __init__(self, tpe):
         self.tpe = tpe

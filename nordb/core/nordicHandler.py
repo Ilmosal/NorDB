@@ -100,7 +100,7 @@ class NordicHeaderMain(NordicHeader):
     Class for nordic main header. Contains the data of the database query and it's quaranteed that the data is valid.
 
     Args:
-        header_data (tuple): header data tuple from the database query from which all data is taken from
+        header_data ([]): header data tuple from the database query from which all data is taken from
 
     Attributes:
         header_id(int): header id of the main header in the database
@@ -160,12 +160,37 @@ class NordicHeaderMain(NordicHeader):
         self.type_of_magnitude_3 = header_data[24]
         self.magnitude_reporting_agency_3 = header_data[25]
 
-    def return_as_string(self):
-        output_string = ""
-        return output_string
-
-    
 class NordicHeaderMacroseismic(NordicHeader):
+    """
+    Class for nordic macroseismic header. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        header_data ([]): header data array from which all data is taken from
+
+    Attributes:
+        header_id(int): header id of the main header in the database
+        event_id(int): event id of the event of the main header
+        description (str): description of the event
+        diastrophism_code (str): diastrophism code of the event
+        tsunami_code (str): tsunami code of the event
+        seiche_code (str): seiche code of the event
+        cultural_effects (str): cultural effetcs code of the event
+        unusual_effects (str): unusual effetcs code of the event
+        maximum_observed_intensity (float): maximum observed intensity of the event
+        maximum_intensity_qualifier (str): maximum intensity qualifier of the event
+        intensity_scale (str): intensity scale of the event
+        macroseismic_latitude (float): macroseismic latitude of the event
+        macroseismic_longitude (float): macroseismic longitude of the event
+        macroseismic_magnitude (float): macroseismic magnitude of the event
+        type_of_magnitude (str): type of magnitude
+        logarithm_of_radius (float): logarithm of radius
+        logarithm_of_area_1 (float): logarithm of area 1 
+        bordering_intensity_1 (float): bordering intensity 1
+        logarithm_of_area_2 (float): logarithm of area 2
+        bordering_intensity_2 (float): bordering intensity 2
+        quality_rank (str): quality rank of the header
+        reporting_agency (str): reporting agency
+    """
     def __init__(self, header_data):
         NordicHeader.__init__(self, 2)
         self.header_id = header_data[0]
@@ -191,24 +216,43 @@ class NordicHeaderMacroseismic(NordicHeader):
         self.quality_rank = header_data[20]
         self.reporting_agency = header_data[21]
 
-    def return_as_string(self):
-        output_string = ""
-        return output_string
-
-
 class NordicHeaderComment(NordicHeader):
+    """
+    Class for nordic comment header. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        header_data ([]): header data array from which all data is taken from
+
+    Attributes:
+        h_comment (str): the comment in the header
+        event_id (int): event id of relevant nordic event
+        header_id (int): header id of this header in database
+    """
+
     def __init__(self, header_data):
         NordicHeader.__init__(self, 3)
         self.header_id = header_data[0]
         self.event_id = header_data[1]
         self.h_comment = header_data[2]
 
-    def return_as_string(self):
-        output_string = ""
-        return output_string
-
-
 class NordicHeaderError(NordicHeader):
+    """
+    Class for nordic error header. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        header_data ([]): header data array from which all data is taken from
+
+    Attributes:
+        gap (int): Azimuthal gap of the event
+        second_error (float): margin of error in the main headers second
+        epicenter_latitude_error (float): margin of error in epicenter latitude 
+        epicenter_longitude_error (float): margin of error in epicenter longitude
+        depth_error (float): margin of error in depth evaluation
+        magnitude_error (float): margin of error in magnitude
+        header_id (int): id of this header in database
+        header_main_id (int): id of the main header where this error header refers to
+    """
+
     def __init__(self, header_data):
         NordicHeader.__init__(self, 5)
         self.header_id = header_data[0]
@@ -226,17 +270,35 @@ class NordicHeaderError(NordicHeader):
 
 
 class NordicHeaderWaveform(NordicHeader):
+    """
+    Class for nordic waveform header. Contains the data of the database query and it's quaranteed that the data is valid.
+
+    Args:
+        header_data ([]): header data string from which all data is cut from
+
+    Attributes:
+        waveform_info (str): the waveform location of the event
+        event_id (int): event id of relevant nordic event
+        header_id (int): id of this header in database
+    """
+
     def __init__(self, header_data):
         NordicHeader.__init__(self, 6)
         self.header_id = header_data[0]
         self.event_id = header_data[1]  
         self.waveform_info = header_data[2]
 
-    def return_as_string(self):
-        output_string = ""
-        return output_string
-
 def addIntToData(data, int_string):
+    """
+    This method adds int_string as a int to the data array if the int_string is a valid integer. Otherwise it will add None to the data array
+
+    Args:
+        data ([]): data array where the data needs to be added
+        int_string (str): the value that needs to be converted to integer if possible
+
+    Returns:
+        the data array with int_string in it as a integer or None
+    """
     try:
         int(int_string)
         data += (int(int_string), )
@@ -246,6 +308,17 @@ def addIntToData(data, int_string):
     return data
 
 def addFloatToData(data, float_string):
+    """
+    This method adds float_string as a float to the data array if the float_string is a valid float. Otherwise it will add None to the data array
+
+    Args:
+        data ([]): data array where the data needs to be added
+        float_string (str): the value that needs to be converted to float if possible
+
+    Returns:
+        the data array with float_string in it as a float or None
+    """
+
     try:
         float(float_string)
         data += (float(float_string), )
@@ -255,6 +328,17 @@ def addFloatToData(data, float_string):
     return data
 
 def addStringToData(data, string):
+    """
+    This method adds string to the dataarray if the string is not empty. Otherwise it will add None to the data array
+
+    Args:
+        data ([]): data array where the data needs to be added
+       _string (str): the value that needs to be put to data
+
+    Returns:
+        the data array with string in it as a string or None
+    """
+
     if (string.strip() == ""):
         data += (None,)
     else:
@@ -263,6 +347,17 @@ def addStringToData(data, string):
     return data
     
 def addDateToData(data, date_string):
+    """
+    This method adds date_string as a date to the data array if the date_string is a valid date. Otherwise it will add None to the data array
+
+    Args:
+        data ([]): data array where the data needs to be added
+        date_string (str): the value that needs to be converted to date if possible
+
+    Returns:
+        the data array with datee_string in it as a date or None
+    """
+
     try:
         date(year=int(date_string[:4].strip()), 
                     month=int(date_string[5:7].strip()), 
@@ -279,6 +374,15 @@ def addDateToData(data, date_string):
     return data
 
 def createPhaseDataList(phase_data_string):
+    """ 
+    Method that creates Phase Data list from phase data string object.
+
+    Args:
+        phase_data_string: Phase data string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
     phaseData = ()
 
     phaseData = addIntToData(phaseData, phase_data_string.event_id)
@@ -308,6 +412,16 @@ def createPhaseDataList(phase_data_string):
     return phaseData
 
 def createMainHeaderList(main_header_string):
+    """ 
+    Method that creates Main Header list from main header string object.
+
+    Args:
+        main_header_string: Main header string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
+
     mainData = ()
 
     mainData = addIntToData(mainData, main_header_string.event_id)
@@ -339,6 +453,16 @@ def createMainHeaderList(main_header_string):
     return mainData
 
 def createMacroseismicHeaderList(macroseismic_header_string):
+    """ 
+    Method that creates Macroseismic Heder list from macroseismic header string object.
+
+    Args:
+        macroseismic_header_string: macroseismic header string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
+
     macroData = ()
 
     macroData = addIntToData(macroData, macroseismic_header_string.event_id)
@@ -366,6 +490,16 @@ def createMacroseismicHeaderList(macroseismic_header_string):
     return macroData
 
 def createCommentHeaderList(comment_header_string):
+    """ 
+    Method that creates comment header list from comment header string object.
+
+    Args:
+        comment_header_string: comment header string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
+
     commentData = () 
 
     commentData = addIntToData(commentData, comment_header_string.event_id)
@@ -374,6 +508,16 @@ def createCommentHeaderList(comment_header_string):
     return commentData
 
 def createErrorHeaderList(error_header_string):
+    """ 
+    Method that creates Error header list from error header string object.
+
+    Args:
+        error_header_string: Error header string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
+
     errorData = ()
 
     errorData = addIntToData(errorData, error_header_string.header_id)
@@ -387,6 +531,16 @@ def createErrorHeaderList(error_header_string):
     return errorData
 
 def createWaveformHeaderList(waveform_header_string):
+    """ 
+    Method that creates waveform header list from waveform header string object.
+
+    Args:
+        waveform_header_string: Waveform header string object from nordicStringClassModule
+
+    Returns:
+        The generated list
+    """
+
     waveData = ()
 
     waveData = addIntToData(waveData, waveform_header_string.event_id)
@@ -395,6 +549,16 @@ def createWaveformHeaderList(waveform_header_string):
     return waveData
 
 def queryNordicEventPhaseData(cur, event_id):
+    """
+    Method that creates the NordicEventPhaseData object from the database with event id of event_id
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Phase data object 
+    """
     phase_data = []
 
     cur.execute("SELECT id, event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth FROM nordic_phase_data WHERE event_id = %s", (event_id,))
@@ -407,6 +571,17 @@ def queryNordicEventPhaseData(cur, event_id):
     return phase_data
 
 def queryNordicEventMainHeaders(cur, event_id):
+    """
+    Method that creates the NordicEventMainHeader object from the database with event id of event_id
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Main header object
+    """
+
     headers = []
 
     cur.execute("SELECT id, event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3 FROM nordic_header_main WHERE event_id = %s", (event_id,))
@@ -419,6 +594,17 @@ def queryNordicEventMainHeaders(cur, event_id):
     return headers
 
 def queryNordicEventMacroseismicHeaders(cur, event_id):
+    """
+    Method that creates the NordicMacroseimicHeader object from the database with event id of event_id
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Macroseismic header object
+    """
+
     headers = []
 
     cur.execute("SELECT id, event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency FROM nordic_header_macroseismic WHERE event_id = %s", (event_id,))
@@ -431,6 +617,17 @@ def queryNordicEventMacroseismicHeaders(cur, event_id):
     return headers
 
 def queryNordicEventCommentHeaders(cur, event_id):
+    """
+    Method that creates the NordicCommentHeader object from the database with event id of event_id
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Comment header object 
+    """
+
     headers = []
 
     cur.execute("SELECT id, event_id, h_comment FROM nordic_header_comment WHERE event_id = %s", (event_id,))
@@ -443,6 +640,18 @@ def queryNordicEventCommentHeaders(cur, event_id):
     return headers
 
 def queryNordicEventErrorHeaders(cur, event_id):
+    """
+    Method that creates the NordicErrorHeader object from the database with event id of event_id
+
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Error Header object 
+    """
+
     headers = []
 
     cur.execute("SELECT nordic_header_error.id, nordic_header_error.header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error FROM nordic_header_error INNER JOIN nordic_header_main ON nordic_header_main.id = nordic_header_error.header_id WHERE nordic_header_main.event_id = %s", (event_id,))
@@ -454,6 +663,17 @@ def queryNordicEventErrorHeaders(cur, event_id):
     return headers
 
 def queryNordicEventWaveformHeaders(cur, event_id):
+    """
+    Method that creates the NordicWaveformHeader object from the database with event id of event_id
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        Waveform header object
+    """
+
     headers = []
 
     cur.execute("SELECT id, event_id, waveform_info FROM nordic_header_waveform WHERE event_id = %s", (event_id,))
@@ -466,6 +686,15 @@ def queryNordicEventWaveformHeaders(cur, event_id):
     return headers
 
 def createNordicEvent(nordic_string_event):
+    """
+    Method that creates a nordicEvent object from nordicEventString object
+
+    Args:
+        nordic_string_event: NordicEventString object
+
+    returns:
+        A NordicEvent object
+    """
     headers = {}
     phase_data = []
 
@@ -489,6 +718,16 @@ def createNordicEvent(nordic_string_event):
     return nordic_event
 
 def readNordicEvent(cur, event_id):
+    """
+    Method that reads the nordic event from the database and creates a NordicEvent object from the queries.
+
+    Args:
+        cur (psycopg2.connect.cursor): cursor object that makes the queries
+        event_id (int): event id of the event that needs to be made
+
+    Returns:
+        A NordicEvent object
+    """
     headers = {}
     phase_data = []
 

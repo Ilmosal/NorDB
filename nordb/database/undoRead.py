@@ -7,6 +7,13 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("undoRead.py")]
 from nordb.core import usernameUtilities
 
 def removeEvent(event_id, cur):
+    """
+    Method for removing a event from the database.
+
+    Args:
+        event_id(int): the id of the event that needs to be removed
+        cur(psycopg2.connect.cursor): cursor object that executes the operations
+    """
     cur.execute("SELECT id FROM nordic_header_main WHERE event_id = %s", (event_id,))
     mheader_ids = cur.fetchall()
 
@@ -38,6 +45,15 @@ def removeEvent(event_id, cur):
 
 
 def removeEventsWithCreationId(creation_id):
+    """
+    Method that removes all the events that correspond to a creation id. Operation also destroys the creation info of the creation_id.
+
+    Args:
+        creation_id(int): creation id that needs to be cleared
+
+    Returns:
+        True or False depending on if the operation was succesful
+    """
     print("Removing events with creation_id {0}".format(creation_id))
     try:
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))
@@ -62,6 +78,9 @@ def removeEventsWithCreationId(creation_id):
     return True
 
 def undoMostRecent():
+    """
+    Method that destroys the most recent additions to the database based on creation_info table
+    """
     username = usernameUtilities.readUsername()
     try:
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))

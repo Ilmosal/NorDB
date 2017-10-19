@@ -13,6 +13,12 @@ username = ""
 
 #Clearing the database
 def reset_database():
+    """
+    Function for clearing the database from all of its data
+
+    Returns:
+        True or False depending on if the operation is succesful or not
+    """
     username = usernameUtilities.readUsername()
 
     try:

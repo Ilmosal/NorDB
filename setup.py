@@ -13,6 +13,7 @@ setup(
     install_requires=[
         "psycopg2",
         "Click",
+        "lxml",
     ],
     long_description=open("README.md").read(),
     entry_points='''

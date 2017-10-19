@@ -3,7 +3,7 @@ import logging
 import psycopg2
 
 from nordb.core import nordicHandler, usernameUtilities
-from nordb.io import sql2nordic
+from nordb.database import sql2nordic
 
 username = ""
 
@@ -240,6 +240,11 @@ def returnValueFromString(value):
         pass
 
     try:
+        return date(day=int(value[8:]), month=int(value[5:7]), year=int(value[:4]))
+    except ValueError:
+        pass
+
+    try:
         return int(value)
     except ValueError:
         pass
@@ -252,6 +257,8 @@ def returnValueFromString(value):
     if len(value) == 1:
         return value
  
+    print (value)
+
     return False
 
 def string2Command(sCommand, cmd_type):
@@ -291,6 +298,7 @@ def string2Command(sCommand, cmd_type):
             val = None
         else:
             val = returnValueFromString(sCommand)
+
         if val is False:
             raise ValueError
         command = ExactlyValue(val)
@@ -414,11 +422,52 @@ def createSearchQuery(commands):
 
     return search
 
+def getAllNordics(criteria):
+    """
+    Method that returns all nordic events that fulfil the given crieria.
+
+    Args:
+        criteria: All criteria for search
+
+    Returns:
+        Array of event_ids that fulfil the criteria
+    """
+    if not criteria:
+        return None
+
+    username = usernameUtilities.readUsername()
+
+    commands = {}
+
+    for arg in criteria.keys():
+        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
+
+    for c in commands.keys():
+        if not validateCommand(commands[c], c):
+            return -2
+
+    search = createSearchQuery(commands)
+
+    try:
+        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to database!!")
+        return -1
+ 
+    cur = conn.cursor()
+
+    cur.execute(search[0], search[1])
+    ans = cur.fetchall()
+
+    if ans is None:
+        return None
+
+    return ans
+
 def searchNordic(criteria, verbose):
     """
-    Function for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
+    Method for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
 
-    |b
     Arguments must be given in following format:
         criterion="Value" -> Checks if the event's value is exactly of value
         criterion="Value1-Value2" -> Checks if the event's value is higher or equal to Value1 and lower or equal to Value2

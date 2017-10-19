@@ -11,6 +11,9 @@ username = ""
 from nordb.core import usernameUtilities
 
 def create_database():
+    """
+    Method for creating the database if the database doesn't exist.
+    """
     username = usernameUtilities.readUsername()
     try:
         conn = psycopg2.connect("dbname=postgres user={0}".format(username))
@@ -53,6 +56,9 @@ def create_database():
     conn.close()
 
 def destroy_database():
+    """
+    Method for destroying the database if the database exists
+    """
     username = usernameUtilities.readUsername()
 
     conn = psycopg2.connect("dbname=postgres user={0}".format(username))
@@ -84,5 +90,3 @@ def destroy_database():
 
     conn.commit()
     conn.close()
-
-    pass

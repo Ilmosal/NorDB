@@ -3,7 +3,6 @@
 import os
 import sys
 import logging
-import inspect
 import fnmatch
 import click
 
@@ -13,8 +12,7 @@ USER_PATH = os.getcwd()
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
-from nordb.io import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql
-from nordb.database import resetDB, undoRead, norDBManagement
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement
 from nordb.core import usernameUtilities, nordicSearch
 
 os.chdir(USER_PATH)
@@ -55,7 +53,7 @@ def search(repo, date, hour, minute, second, latitude, longitude, event_id,
     """
 This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
-\b
+\
     --parameter=A   -> Parameter has to be exactly A
     --parameter=A+  -> Parameter has to be over or equal to A
     --parameter=A-  -> Parameter has to be under or equal to A
