@@ -21,6 +21,15 @@ from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
 from nordb.database import sql2nordic
 
+EVENT_TYPE_VALUES = {
+    "O":1,
+    "A":2,
+    "R":3,
+    "P":4,
+    "F":5,
+    "S":6
+}
+
 INSERT_COMMANDS = {
 1:"INSERT INTO nordic_header_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;",
 2:"INSERT INTO nordic_header_macroseismic (event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
@@ -113,10 +122,12 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
         conn.close()
         return False
 
-    e_id = nordicFindOld.checkForSameEvents(nordic_event, cur)
+    ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
+    e_id = ans[0]
 
     if e_id == -1:
-        e_id = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+        ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+        e_id = ans[0]
 
     if e_id == -9:
         return False
@@ -146,9 +157,8 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
                     creation_id)
                     )
         event_id = cur.fetchone()[0]
-            
-
-        if e_id != -1 and event_type not in "OA":
+        
+        if e_id != -1 and EVENT_TYPE_VALUES[event_type] == EVENT_TYPE_VALUES[ans[1]] and event_type not in "AO":
             cur.execute("INSERT INTO nordic_modified (event_id, replacement_event_id, old_event_type, replaced) VALUES (%s, %s, %s, %s)", 
                         (e_id, 
                         event_id, 

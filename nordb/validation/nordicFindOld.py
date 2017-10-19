@@ -6,7 +6,14 @@ from nordb.database import sql2nordic
 
 def checkForSameEvents(nordic_event, cur):
     """
+    Method for finding same events compared to validated nordic string object and asking.
 
+    Args:
+        nordic_event(): nordic event string class
+        cur(psycopg2.connect.cursor): psycopg cursor class
+    
+    Returns:
+        The id of the chosen same event
     """
 
     criteria = {
@@ -26,10 +33,10 @@ def checkForSameEvents(nordic_event, cur):
     e_info = nordicSearch.getAllNordics(criteria)
 
     if e_info is None or e_info == []:
-        return -1
+        return [-1, None]
 
     if len(e_info) == 1:
-        return e_info[0][0]
+        return [e_info[0][0], e_info[0][1]]
 
     print("Nordics with same information found! Does one of following events represent the same event?")
     largest = -1
@@ -50,8 +57,15 @@ def checkForSameEvents(nordic_event, cur):
         try:
             if int(ans) > -2 or int(ans) == -9:
                 print("")
-                return int(ans)
-        except:
+                if int(ans) < 0:
+                    return [int(ans), None]
+                cur.execute("SELECT event_type FROM nordic_event where id = %s", (int(ans),))
+                e_type = cur.fetchone()
+                if e_type is None:
+                    return [int(ans), None]
+                else:
+                    return [int(ans), e_type[0]]
+        except ValueError:
             pass
 
     return -9
@@ -60,8 +74,16 @@ def checkForSameEvents(nordic_event, cur):
 
 def checkForSimilarEvents(nordic_event, cur): 
     """
+    Method for finding similar events compared to validated nordic string object and asking.
+
+    Args:
+        nordic_event(): nordic event string class
+        cur(psycopg2.connect.cursor): psycopg cursor class
     
+    Returns:
+        The id of the chosen same event
     """
+
     hour_error = 1
     magnitude_error = 1.0
     latitude_error = 0.5
@@ -80,17 +102,10 @@ def checkForSimilarEvents(nordic_event, cur):
     elif int(nordic_event.headers[0].hour) == 23:
         criteria["hour"] = "22-23"
 
-    for key in criteria.keys():
-        if criteria[key] is None:
-            criteria.pop(key, None)
-
     e_info = nordicSearch.getAllNordics(criteria)
 
     if e_info is None or e_info == []:
-        return -1
-
-    if len(e_info) == 1:
-        return e_info[0][0]
+        return [-1, None]
 
     print("Nordics with similiar information found! Does one of following events represent the same event?")
     largest = -1
@@ -109,8 +124,16 @@ def checkForSimilarEvents(nordic_event, cur):
         ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
         try:
             if int(ans) > -2 or int(ans) == -9:
-                return int(ans)
-        except:
+                if int(ans) < 0:
+                    return [int(ans), None]
+                cur.execute("SELECT event_type FROM nordic_event where id = %s", (int(ans),))
+                e_type = cur.fetchone()
+
+                if e_type is None:
+                    return [int(ans), None]
+                else:
+                    return [int(ans), e_type[0]]
+        except ValueError:
             pass
 
     return -9
