@@ -482,7 +482,7 @@ def searchNordic(criteria, verbose):
     """
 
     if not criteria:
-        return -1
+        return None
 
     username = usernameUtilities.readUsername()
 
@@ -535,8 +535,9 @@ def searchNordic(criteria, verbose):
     for a in ans:
         if len(str(a[0])) > largest:
             largest = len(str(a[0]))
+    
     if not verbose:
-        print("EID  YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+        print("EID" +" "*(largest+1) + "YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
     for a in ans:
         if verbose:
             nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))
@@ -545,6 +546,7 @@ def searchNordic(criteria, verbose):
                 print(line, end='')
             print(80*"-")
         else:
-            print(("{0:< " + str(largest) +"}  {1}").format(a[0], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))[0]), end='')
+            print(("{0:< " + str(largest+1) +"}  {1}").format(a[0], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))[0][:-2]))
 
     conn.close()
+    return ans

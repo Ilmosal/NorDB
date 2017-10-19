@@ -118,19 +118,26 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
 
     #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
     if not nordicValidation.validateNordic(nordic_event, cur):
-        logging.error("Nordic validation failed with event: \n" + headers[0].getHeaderString())
+        logging.error("Nordic validation failed with event: \n" + headers[0].o_string)
         conn.close()
         return False
 
-    ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
-    e_id = ans[0]
+    e_id = -1
 
-    if e_id == -1:
-        ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+    if not no_duplicates:
+        ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
         e_id = ans[0]
 
-    if e_id == -9:
-        return False
+        if e_id == -1:
+            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+            e_id = ans[0]
+
+        if e_id == -9:
+            return False
+
+        if ignore_duplicates and e_id > -1:
+            return False
+            
 
     root_id = -1
     #GET THE ROOT ID HERE

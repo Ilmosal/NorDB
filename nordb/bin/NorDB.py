@@ -24,7 +24,7 @@ class Repo(object):
 @click.group()
 @click.pass_context
 def cli(ctx):
-    """This is a command line tool for NorDB database. If this is your first time running the program remember to first configure your .user.config file with conf and then create the database using create."""
+    """This is a command line tool for NorDB database. If this is your first time running the program remember to first configure your .user.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database"""
     ctx.obj = Repo()
 
 @cli.command()
@@ -47,9 +47,10 @@ def conf(repo, username):
 @click.option('--event-desc-id', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
 @click.option('--event-id', default="-999", help="\b Search with event-id. Example:\n--event-id=123")
 @click.option('--verbose', is_flag=True, help="Print the whole nordic file instead of the main header.")
+@click.option('--output', type=click.Path(readable=True), help="file to which all events found are appended")
 @click.pass_obj
 def search(repo, date, hour, minute, second, latitude, longitude, event_id,
-            magnitude, event_type, distance_indicator, event_desc_id, verbose):
+            magnitude, event_type, distance_indicator, event_desc_id, verbose, output):
     """
 This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -62,7 +63,7 @@ This command searches for events by given criteria and prints them to the screen
 WARNING: Do not use --verbose flag when there are serveral search results. The output will clog your terminal. You can pipeline them into a file with > in following way:
 
 \b    
-    NorDB search --verbose -date=01.01.2009+ > outputfile
+    NorDB search --verbose -date=01.01.2009+
 
 This will print all nordic events from date 01.01.2009 onwards into the outputfile. Better way of getting files from the database is get command.
     """
@@ -92,8 +93,16 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
 
     ans = nordicSearch.searchNordic(criteria, verbose)
 
-    if ans == -1:
+    
+    if ans is None:
         click.echo("No criteria given to program!!")
+
+    if output is None:
+        return
+
+    foutput = open(output, "w")
+    for a in ans:
+        foutput.write(str(a[0]) + "\n")
 
 @cli.command()
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))

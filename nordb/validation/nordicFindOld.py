@@ -119,7 +119,7 @@ def checkForSimilarEvents(nordic_event, cur):
         print(("{0:< " + str(largest) +"}   {1}  {2}").format(e_i[0], e_i[1], sql2nordic.nordicEventToNordic(n_event)[0][:-2]))
     
     print ("Your event:")
-    print (nordic_event.headers[0].o_string[:-2])
+    print ("        " + nordic_event.headers[0].o_string[:-2])
     while True:
         ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
         try:
