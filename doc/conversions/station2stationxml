@@ -1,0 +1,14 @@
+
+
+Conversions from station2stationxml
+-----------------------------------
+station_code -     FDSNStationxml.Station.BaseNodeType.Site.Name
+network_id   -     FDSNStationxml.RootType.Source
+on_date      -     FDSNStationxml.Station.BaseNodeType.CreationDate
+off_date     -     FDSNStationxml.Station.BaseNodeType.TerminationDate
+latitude     -     FDSNStationxml.Station.BaseNodeType.Latitude.value
+longitude    -     FDSNStationxml.Station.BaseNodeType.Longitude.value
+elevation    -     FDSNStationxml.Station.BaseNodeType.Elevation.value
+station_name -     FDSNStationxml.Station.BaseNodeType.Site.Description
+
+

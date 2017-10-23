@@ -12,7 +12,7 @@ USER_PATH = os.getcwd()
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station
 from nordb.core import usernameUtilities, nordicSearch
 
 os.chdir(USER_PATH)
@@ -42,14 +42,16 @@ def conf(repo, username):
 @click.option('--latitude', default="-999", help="Search with latitude. Example:\n--latitude=69.09")
 @click.option('--longitude', default="-999", help="Search with longitude. Example:\n--longitude=69.09")
 @click.option('--magnitude', default="-999", help="Search with magnitude. Example:\n--magnitude=69.09")
+@click.option('--depth', default="-999", help="Search with depth. Example:\n--depth=9.9")
 @click.option('--event-type', default="-999", help="Search with event-type. Example:\n--event-type=F")
 @click.option('--distance-indicator', default="-999", help="Search with distance-indicator. Example:\n--distance-indicator=R")
 @click.option('--event-desc-id', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
 @click.option('--event-id', default="-999", help="\b Search with event-id. Example:\n--event-id=123")
 @click.option('--verbose', is_flag=True, help="Print the whole nordic file instead of the main header.")
 @click.option('--output', type=click.Path(readable=True), help="file to which all events found are appended")
+@click.option('--output-format', default="n", type = click.Choice(["n", "q", "sc3"]))
 @click.pass_obj
-def search(repo, date, hour, minute, second, latitude, longitude, event_id,
+def search(repo, date, hour, minute, second, latitude, longitude, depth, event_id, output_format,
             magnitude, event_type, distance_indicator, event_desc_id, verbose, output):
     """
 This command searches for events by given criteria and prints them to the screen. Output works in a following way:
@@ -82,6 +84,8 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
         criteria["longitude"] = longitude
     if magnitude != "-999":
         criteria["magnitude"] = magnitude
+    if depth != "-999":
+        criteria["depth"] = depth
     if event_type != "-999":
         criteria["event_type"] = event_type
     if event_desc_id != "-999":
@@ -92,7 +96,6 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
         criteria["event_id"] = event_id
 
     ans = nordicSearch.searchNordic(criteria, verbose)
-
     
     if ans is None:
         click.echo("No criteria given to program!!")
@@ -100,9 +103,13 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
     if output is None:
         return
 
-    foutput = open(output, "w")
     for a in ans:
-        foutput.write(str(a[0]) + "\n")
+        if output_format == "n":
+            sql2nordic.writeNordicEvent(a[0], USER_PATH, output)
+        elif output_format == "q":
+            sql2quakeml.writeQuakeML(a[0], USER_PATH, output)
+        elif output_format == "sc3":
+            sql2sc3.writeSC3(a[0], USER_PATH, output)
 
 @cli.command()
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
@@ -115,6 +122,15 @@ def insertStation(repo, station_file):
         station2sql.readStations(open(station_file, 'rb'))
     else:
         click.echo("Filename must be in format *.sites")
+
+@cli.command()
+@click.argument('output', default="stations.site" ,type=click.Path(exists=False))
+@click.pass_obj
+def getStation(repo, output):
+    """
+    This command fetches the stations that match the criteria given by user.
+    """
+    sql2station.writeAllStations(output)
 
 @cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
@@ -164,18 +180,46 @@ def reset(repo):
     resetDB.reset_database()
 
 @cli.command()
-@click.argument('event_id', click.INT)
-@click.argument('output-format', type = click.Choice(["n", "q", "sc3"]))
-@click.argument("output-name", required=False)
+@click.option('--output-format', default="n", type = click.Choice(["n", "q", "sc3"]))
+@click.option('--event-id', type=click.INT)
+@click.option('--event-id-file', type=click.Path(exists=True, readable=True))
+@click.option('--output', type=click.Path(exists=False))
 @click.pass_obj
-def get(repo, event_id, output_format, output_name):
+def get(repo, event_id, event_id_file, output_format, output):
     """Command for getting files out from the database. ID tells which event you want, FORMAT tells the program that in what format you want the file(n - nordic, q - quakeml, sc3 - seiscomp3) and output-name tells the output file's name if you want to specify it."""
-    if output_format == "n":
-        sql2nordic.writeNordicEvent(event_id, USER_PATH)
-    elif output_format == "q":
-        sql2quakeml.writeQuakeML(event_id, USER_PATH)
-    elif output_format == "sc3":
-        sql2sc3.writeSC3(event_id, USER_PATH)
+
+    if event_id is None and event_id_file is None:
+        click.echo("event-id and event-id-file cannot both be None")
+        return
+
+    if output is not None:
+        click.echo(output + "has been created!")
+
+    if isinstance(event_id, int):
+        e_id = int(event_id) 
+        if output_format == "n":
+            sql2nordic.writeNordicEvent(event_id, USER_PATH, output)
+        elif output_format == "q":
+            sql2quakeml.writeQuakeML(event_id, USER_PATH, output)
+        elif output_format == "sc3":
+            sql2sc3.writeSC3(event_id, USER_PATH, output)
+        return
+
+    f = open(event_id_file, 'r')
+
+    for line in f:
+        try:
+            e_id = int(line.strip())
+        except:
+            click.echo("Error parsing event-id-file. Problem with line: " + line)
+            return
+
+        if output_format == "n":
+            sql2nordic.writeNordicEvent(e_id, USER_PATH, output)
+        elif output_format == "q":
+            sql2quakeml.writeQuakeML(e_id, USER_PATH, output)
+        elif output_format == "sc3":
+            sql2sc3.writeSC3(e_id, USER_PATH, output)
 
 @cli.command()
 @click.pass_obj

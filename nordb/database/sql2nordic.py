@@ -176,7 +176,7 @@ def add_float_to_string(value, val_len, decimal_len, front):
         string = val_len * " "
     return string
 
-def writeNordicEvent(nordicEventId, usr_path):
+def writeNordicEvent(nordicEventId, usr_path, output):
     username = usernameUtilities.readUsername()
 
     try:
@@ -200,16 +200,27 @@ def writeNordicEvent(nordicEventId, usr_path):
     
     nordicString = nordicEventToNordic(nordic)
 
-    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".nordic"
-    
-    print(filename + " has been created!")
-    
-    f = open(usr_path + '/' + filename, 'w')
-    
-    for line in nordicString:   
-        f.write(line)
+    if output is None:
 
-    f.close()
+        filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".nordic"
+        
+        print(filename + " has been created!")
+    
+        f = open(usr_path + '/' + filename, 'w')
+        
+        for line in nordicString:   
+            f.write(line)
+
+        f.close()
+    else:
+        f = open(usr_path + "/" + output, "a")
+
+        for line in nordicString:
+            f.write(line)
+
+
+        f.close()
+
     conn.commit()
     conn.close()
 

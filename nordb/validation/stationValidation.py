@@ -14,7 +14,7 @@ def validateStation(station):
     validation = True
     mstat = 10
  
-    s2s = nordb.io.station2sql
+    s2s = nordb.database.station2sql
 
     if not validationTools.validateString(station[s2s.Station.STATION_CODE],
                                             "station code",

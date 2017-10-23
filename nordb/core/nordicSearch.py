@@ -19,7 +19,8 @@ SEARCH_IDS = {"date":1,
                 "event_type":8,
                 "distance_indicator":9,
                 "event_desc_id":10,
-                "event_id":11}
+                "event_id":11,
+                "depth":12}
 
 SEARCH_IDS_REV = {1:"date", 
                 2:"hour",
@@ -31,7 +32,8 @@ SEARCH_IDS_REV = {1:"date",
                 8:"event_type",
                 9:"distance_indicator",
                 10:"event_desc_id",
-                11:"event_id"}
+                11:"event_id",
+                12:"depth"}
 
 SEARCH_TYPES = { 1:date, 
                 2:int,
@@ -42,7 +44,8 @@ SEARCH_TYPES = { 1:date,
                 7:float,
                 8:str,
                 9:str,
-                10:str}
+                10:str,
+                12:float}
 
 EVENT_TYPE_VALS = {'O':1,
                     'A':2,
@@ -537,7 +540,7 @@ def searchNordic(criteria, verbose):
             largest = len(str(a[0]))
     
     if not verbose:
-        print("EID" +" "*(largest+1) + "YEAR D MO H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+        print("EID" +" "*(largest+1) + "YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
     for a in ans:
         if verbose:
             nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))

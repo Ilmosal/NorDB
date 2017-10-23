@@ -102,6 +102,9 @@ def checkForSimilarEvents(nordic_event, cur):
     elif int(nordic_event.headers[0].hour) == 23:
         criteria["hour"] = "22-23"
 
+    if float(nordic_event.headers[0].magnitude_1) < 1.0:
+        criteria["magnitude"] = "0.0" + criteria["magnitude"][4:]
+
     e_info = nordicSearch.getAllNordics(criteria)
 
     if e_info is None or e_info == []:

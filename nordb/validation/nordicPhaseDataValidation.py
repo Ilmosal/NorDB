@@ -22,7 +22,7 @@ def validatePhaseData(phase_data):
                                                 "instrument type",
                                                 0,
                                                 1,
-                                                "LSBEH ",
+                                                "LSBHE ",
                                                 True,
                                                 phname):
         validation = False

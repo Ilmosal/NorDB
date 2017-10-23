@@ -13,7 +13,7 @@ from nordb.core import nordicHandler
 from nordb.core import usernameUtilities
 from nordb.database import sql2quakeml
 
-def writeSC3(nordicEventId, usr_path):
+def writeSC3(nordicEventId, usr_path, output):
     username = usernameUtilities.readUsername()
     try:
         int(nordicEventId)

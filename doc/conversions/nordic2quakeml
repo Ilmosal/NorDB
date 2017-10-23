@@ -1,0 +1,17 @@
+Nordic2Quakeml
+--------------
+Main Header:
+------------
+nordic               -      Quakeml
+----------------------------------------------
+main.event_desc_id   - event.type.text
+
+
+
+
+Comment Header:
+---------------
+nordic               -      Quakeml
+----------------------------------------------
+comment.h_comment    - event.comment.text
+

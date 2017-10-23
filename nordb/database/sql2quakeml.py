@@ -22,7 +22,7 @@ NETWORK_CODE = "netcode"
 EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthquake", 'E':"explosion", 'P':"explosion" ,'I':"induced or triggered event" ,'V': "volcanic eruption", 'X':"landslide", 'A':"not reported" }
 PICK_POLARITY_CONVERSION = {'C': "positive", 'D': "negative", "+": "undecidable", "-": "undecidable"}
 MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'MW'}
-INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH'}
+INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH', 'H': '?H', 'E':'?E'}
 
 def addEventParameters(quakeml, nordic, long_quakeML):
     eventParameters = etree.SubElement(quakeml, "eventParameters")
@@ -37,7 +37,7 @@ def addEvent(eventParameters, nordic, long_quakeML):
 
     #Adding event type  
     event_type_txt = " "
-    for header in nordic.get_main_headers():
+    for header in nordic.headers[1]:
         if header.event_desc_id is not None:
             event_type_txt = header.event_desc_id
 
@@ -45,15 +45,11 @@ def addEvent(eventParameters, nordic, long_quakeML):
     event_type.text = EVENT_TYPE_CONVERSION[event_type_txt]
 
     #Adding event comments
-    for header_comment in nordic.get_comment_headers():
+    for header_comment in nordic.headers[3]:
         if header_comment.h_comment is not None:
             event_comment = etree.SubElement(event, "comment")
             event_comment_txt = etree.SubElement(event_comment, "text")
             event_comment_txt.text = header_comment.h_comment
-
-    #Adding preferred Magnitude ID
-    
-    #Adding preferred Focal Mechanism ID
 
     #Creating the all elements and their subelement
     for i in range(0,len(nordic.headers[1])):
@@ -360,7 +356,7 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
 
     return quakeml
 
-def writeQuakeML(nordicEventId, usr_path):
+def writeQuakeML(nordicEventId, usr_path, output):
     username = usernameUtilities.readUsername()
     try:
         int(nordicEventId)
