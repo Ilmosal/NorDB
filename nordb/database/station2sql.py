@@ -24,7 +24,7 @@ MONTH_CONV = {  "Jan": "01",
 
 }
 
-STATION_INSERT = "INSERT INTO station (station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+STATION_INSERT = "INSERT INTO station (station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date, network_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
 class Station:
     """
@@ -46,6 +46,7 @@ class Station:
         NORTH_OFFSET (int): if the station is a part of an array, this is the offset of the north to the main station in km. Value 9
         EAST_OFFSET (int): if the station is a part of an array, this is the offset of the east to the main station in km. Value 10
         LOAD_DATE (int): date of the time when this information was created. Value 11
+        NETWORK_ID (int): 
 
     """
     STATION_CODE = 0
@@ -60,6 +61,7 @@ class Station:
     NORTH_OFFSET = 9
     EAST_OFFSET = 10
     LOAD_DATE = 11
+    NETWORK_ID = 12
 
 def stringToDate(sDate):
     """
@@ -133,7 +135,7 @@ def insert2Database(station):
 
     return True
 
-def strStat2Stat(station):
+def strStat2Stat(station, network_id):
     """
     Method for creating a proper station list from station string array
 
@@ -166,10 +168,40 @@ def strStat2Stat(station):
     nstation.append(date(   year=int(station[Station.LOAD_DATE][:4]), 
                             month=int(station[Station.LOAD_DATE][5:7]),
                             day=int(station[Station.LOAD_DATE][8:])))   
+    nstation.append(network_id)
 
     return nstation
 
-def readStations(f_stations):
+def getNetworkID(network):
+    """
+    Method for inserting the information to the database.
+
+    Args:
+        station([]): Array of all station related information in their correct spaces
+
+    Returns:
+        True or False depending on if the operation was succesful
+    """
+    try:
+        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    except:
+        logging.error("error connecting to database")
+        return -1
+    cur = conn.cursor()
+
+    cur.execute("SELECT id FROM network WHERE network = %s", (network.strip(),))
+    ans = cur.fetchone()
+
+    if ans is None:
+        cur.execute("INSERT INTO network (network) VALUES (%s) RETURNING id", (network.strip(),))
+        ans = cur.fetchone()
+
+    conn.commit()
+    conn.close()
+
+    return ans[0]
+
+def readStations(f_stations, network):
     """
     Method for reading stations in css format and inserting them to the database.
 
@@ -193,10 +225,9 @@ def readStations(f_stations):
     
     nStations = []
 
-    for stat in stations:
-        nStations.append(strStat2Stat(stat))
+    network_id = getNetworkID(network) 
 
-    for stat in nStations:
-        insert2Database(stat)
+    for stat in stations:
+        insert2Database(strStat2Stat(stat, network_id))
 
     return True

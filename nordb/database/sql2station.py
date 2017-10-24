@@ -99,6 +99,9 @@ def sql2station(station_ids, output_path):
 def writeAllStations(output_path):
     """
     Method for writing all stations to a site file.
+
+    Args:
+        output_path(str): path to output file
     """
     username = usernameUtilities.readUsername() 
 

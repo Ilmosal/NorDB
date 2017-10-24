@@ -1,7 +1,7 @@
 CREATE TABLE station(
     id SERIAL PRIMARY KEY,
     station_code VARCHAR(6),
-    network_id INTEGER,
+    network_id INTEGER REFERENCES network(id), 
     on_date DATE,
     off_date DATE,
     latitude FLOAT,

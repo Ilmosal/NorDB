@@ -12,7 +12,7 @@ USER_PATH = os.getcwd()
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml
 from nordb.core import usernameUtilities, nordicSearch
 
 os.chdir(USER_PATH)
@@ -113,24 +113,30 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
 
 @cli.command()
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
+@click.argument('network', default="HEL")
 @click.pass_obj
-def insertStation(repo, station_file):
+def insertStation(repo, station_file, network):
     """
     This command adds a site table to the database
     """
     if fnmatch.fnmatch(station_file, "*.site"):
-        station2sql.readStations(open(station_file, 'rb'))
+        station2sql.readStations(open(station_file, 'rb'), network)
     else:
         click.echo("Filename must be in format *.sites")
 
 @cli.command()
-@click.argument('output', default="stations.site" ,type=click.Path(exists=False))
+@click.argument('output', default="stations" ,type=click.Path(exists=False))
+@click.option('--o-format', default="site", type=click.Choice(["site", "stationxml"]))
+@click.option('--network', default="HEL")
 @click.pass_obj
-def getStation(repo, output):
+def getStation(repo, output, o_format, network):
     """
     This command fetches the stations that match the criteria given by user.
     """
-    sql2station.writeAllStations(output)
+    if o_format == "site":
+        sql2station.writeAllStations(output + ".site")
+    elif o_format == "stationxml":
+        sql2stationxml.writeNetworkToStationXML(network, output + ".xml")
 
 @cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
@@ -174,10 +180,16 @@ def destroy(repo):
 
 @cli.command()
 @click.confirmation_option()
+@click.option("--reset-type", required=True, type=click.Choice(["all", "events", "stations"]))
 @click.pass_obj
-def reset(repo):
+def reset(repo, reset_type):
     """Resets the database to it's orginal form but keeps the tables intact. WARNING: this command will delete all information in the database"""
-    resetDB.reset_database()
+    if reset_type == "all":
+        resetDB.resetDatabase()
+    elif reset_type == "events":
+        resetDB.resetEvents()
+    elif reset_type == "stations":
+        resetDB.resetStations()
 
 @cli.command()
 @click.option('--output-format', default="n", type = click.Choice(["n", "q", "sc3"]))
