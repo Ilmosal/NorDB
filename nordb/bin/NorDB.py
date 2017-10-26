@@ -50,9 +50,12 @@ def conf(repo, username):
 @click.option('--verbose', is_flag=True, help="Print the whole nordic file instead of the main header.")
 @click.option('--output', type=click.Path(readable=True), help="file to which all events found are appended")
 @click.option('--output-format', default="n", type = click.Choice(["n", "q", "sc3"]))
+@click.option('--event-root', is_flag=True)
+@click.option('--no-outprint', is_flag=True)
 @click.pass_obj
 def search(repo, date, hour, minute, second, latitude, longitude, depth, event_id, output_format,
-            magnitude, event_type, distance_indicator, event_desc_id, verbose, output):
+            magnitude, event_type, distance_indicator, event_desc_id, verbose, output, event_root,
+            no_outprint):
     """
 This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -95,21 +98,11 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
     if event_id != "-999":
         criteria["event_id"] = event_id
 
-    ans = nordicSearch.searchNordic(criteria, verbose)
-    
-    if ans is None:
-        click.echo("No criteria given to program!!")
-
-    if output is None:
-        return
-
-    for a in ans:
-        if output_format == "n":
-            sql2nordic.writeNordicEvent(a[0], USER_PATH, output)
-        elif output_format == "q":
-            sql2quakeml.writeQuakeML(a[0], USER_PATH, output)
-        elif output_format == "sc3":
-            sql2sc3.writeSC3(a[0], USER_PATH, output)
+    nordicSearch.searchNordic(  criteria, verbose, 
+                                output, event_root, 
+                                USER_PATH, output_format, 
+                                no_outprint
+                                )
 
 @cli.command()
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))

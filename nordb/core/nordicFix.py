@@ -42,9 +42,6 @@ def fixErrorData(header):
     Args:
         header: error header that need to be fixed
     """
-    if header.gap.strip() == "t":
-        header.gap = ""
-
     try:
         if math.isnan(float(header.magnitude_error)):
             header.magnitude_error = ""
@@ -82,9 +79,6 @@ def fixPhaseData(data):
         data.epicenter_distance = str(int(float(data.epicenter_distance)))
     except:
         pass
-
-    if data.travel_time_residual == "*****":
-        data.travel_time_residual = ""
 
 def fixNordicEvent(nordicEvent):
     """

@@ -462,12 +462,183 @@ def getAllNordics(criteria):
     cur.execute(search[0], search[1])
     ans = cur.fetchall()
 
-    if ans is None:
-        return None
-
     return ans
 
-def searchNordic(criteria, verbose):
+def searchEventRoot(criteria, verbose):
+    """
+
+    """
+    if "event_id" in criteria.keys():
+        events = searchWithEventId(criteria["event_id"])
+    else:
+        events = searchWithCriteria(criteria)
+    e_ids = ()
+    for e in events:
+        e_ids += (e[0],)
+
+    try:
+        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to database!!")
+        return -1
+
+    cur = conn.cursor()
+
+    e_roots_tmp = ()
+
+    for eid in e_ids:
+        cur.execute("SELECT root_id FROM nordic_event WHERE id = %s", (eid,)) 
+        e_roots_tmp += tuple(cur.fetchall())
+
+    e_tmp = ()
+
+    for e in e_roots_tmp:
+        e_tmp  += (e[0],)
+
+    e_set = set(e_tmp)
+    e_all_roots = ()
+
+    for e in e_set:
+
+        cur.execute("SELECT DISTINCT ON (nordic_event.id) nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id, root_id FROM nordic_event, nordic_header_main WHERE nordic_event.root_id = %s AND nordic_header_main.event_id = nordic_event.id;", (e,))
+        e_all_roots += (tuple(cur.fetchall()),)
+    
+    largest = -1
+    for e_roots_list in e_all_roots:
+        for e in e_roots_list:
+            if len(str(e[0])) > largest:
+                largest = len(str(e[0]))
+
+    for e_roots_list in e_all_roots:
+        print ("Event root: {0}".format(e_roots_list[0][4]))
+        print("EID" +" "*(largest+1) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+
+        for event in e_roots_list:
+            if verbose:
+                nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))
+                print("Event ID: {0}".format(a[0]))
+                for line in nordic:
+                    print(line, end='')
+                print(80*"-")
+            else:
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))[0][:-2]))
+
+
+    return 
+
+def searchWithEventId(event_id):
+    """
+    Method for searching if a event_id exists on the database
+
+
+    Returns:
+        Relevant information from the event: (event_id, event_type, distance_indicator, event_desc_id)
+    """
+    try:
+        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to database!!")
+        return -1
+
+    cur = conn.cursor()
+ 
+    cur.execute("SELECT nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = %s AND nordic_header_main.event_id = nordic_event.id;", (event_id)) 
+    event = cur.fetchall()
+
+    conn.close()
+  
+    return event
+
+def printNordic(events, criteria, verbose):
+    """
+    Method for printing out a list of event_ids.
+
+    Args:
+        event_ids (int[]): list of event_ids that need to be printed
+        verbose (bool): flag if all info from events need to be printed or just the main headers
+    """
+    if len(events) == 0:
+        print("No events found with criteria!")
+    else:
+        if len(criteria.keys()) == 0:
+            print("Events in database:")
+            print("---------------------------")
+        else:
+            print("Events found with criteria:")
+            for key in criteria.keys():
+                print(key + ": " + criteria[key] + " ", end='')
+            print("\n---------------------------")
+
+        try:
+            conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+        except:
+            logging.error("Couldn't connect to database!!")
+            return None
+ 
+        cur = conn.cursor()
+
+        if verbose:
+            for event in events:
+                nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))
+                print("Event ID: {0}".format(a[0]))
+                for line in nordic:
+                    print(line, end='')
+                print(80*"-")
+
+        else:
+            largest = -1
+            for event in events:
+                if len(str(event[0])) > largest:
+                    largest = len(str(event[0]))
+
+            print("EID" +" "*(largest+1) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+            for event in events:
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))[0][:-2]))
+
+        conn.close()
+def searchWithCriteria(criteria):
+    """
+    Method for searching events with given criteria. Description for the criteria is given in the documentation of searchNordic.
+
+    Args:
+        criteria({}): dictionary of the criteria
+        verbose (bool): flag if all info from events need to be printed or just the main headers
+
+    Returns:
+        list of events found with criteria
+    """
+    commands = {}
+
+    for arg in criteria.keys():
+        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
+
+    for c in commands.keys():
+        if not validateCommand(commands[c], c):
+            return None
+
+    search = createSearchQuery(commands)
+
+    try:
+        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    except:
+        logging.error("Couldn't connect to database!!")
+        return None
+ 
+    cur = conn.cursor()
+
+    cur.execute(search[0], search[1])
+    ans = cur.fetchall()
+
+    conn.close()
+
+    largest = -1
+    event_ids = ()
+    for a in ans:
+        event_ids += (a[0],)
+    
+    return ans
+
+def searchNordic(criteria, verbose, output, event_root, user_path, output_format, no_outprint):
     """
     Method for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
 
@@ -478,78 +649,32 @@ def searchNordic(criteria, verbose):
         criterion="Value-" -> Checks if the event's value is lower or equal to value
     
     Args:
-        criteria: All the criteria for search given by user.
+        criteria ({}): All the criteria for search given by user.
+        verbose (bool): flag if all info from events need to be printed or just the main headers
     
     Returns:
-        Function returns the id for the event that was wanted.
+        list of event ids or none
     """
-
-    if not criteria:
-        return None
-
     username = usernameUtilities.readUsername()
 
-    if "event_id" in criteria.keys():
-        try:
-            conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-        except:
-            logging.error("Couldn't connect to database!!")
-            return -1
- 
-        cur = conn.cursor()
-      
-        if verbose:
-            nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, criteria["event_id"]))
-            for line in nordic:
-                print(line, end='')
-        else:
-            print(sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, criteria["event_id"]))[0])
-        conn.close()
-        return 1
+    event_ids = ()
 
-    commands = {}
+    if event_root:
+        events = searchEventRoot(criteria, verbose)
+        return
+    elif "event_id" in criteria.keys():
+        events = searchWithEventId(criteria["event_id"])
+    else:
+        events = searchWithCriteria(criteria)
 
-    for arg in criteria.keys():
-        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
+    if not no_outprint:
+        printNordic(events, criteria, verbose)
 
-
-    for c in commands.keys():
-        if not validateCommand(commands[c], c):
-            return -2
-
-    search = createSearchQuery(commands)
-
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return -1
- 
-    cur = conn.cursor()
-
-    cur.execute(search[0], search[1])
-    ans = cur.fetchall()
-
-    print("Events found with criteria:")
-    for key in criteria.keys():
-        print(key + ": " + criteria[key] + " ", end='')
-    print("\n---------------------------")
-    largest = -1
-    for a in ans:
-        if len(str(a[0])) > largest:
-            largest = len(str(a[0]))
-    
-    if not verbose:
-        print("EID" +" "*(largest+1) + "YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
-    for a in ans:
-        if verbose:
-            nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))
-            print("Event ID: {0}".format(a[0]))
-            for line in nordic:
-                print(line, end='')
-            print(80*"-")
-        else:
-            print(("{0:< " + str(largest+1) +"}  {1}").format(a[0], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, a[0]))[0][:-2]))
-
-    conn.close()
-    return ans
+    if output is not None:
+        for event in events:
+            if output_format == "n":
+                sql2nordic.writeNordicEvent(event[0], user_path, output)
+            elif output_format == "q":
+                sql2quakeml.writeQuakeML(event[0], user_path, output)
+            elif output_format == "sc3":
+                sql2sc3.writeSC3(event[0], user_path, output)
