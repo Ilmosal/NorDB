@@ -523,6 +523,7 @@ def searchEventRoot(criteria, verbose):
             else:
                 print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))[0][:-2]))
 
+    conn.close()
 
     return 
 

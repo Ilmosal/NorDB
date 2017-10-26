@@ -13,7 +13,7 @@ os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
 from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml
-from nordb.core import usernameUtilities, nordicSearch
+from nordb.core import usernameUtilities, nordicSearch, nordicModify
 
 os.chdir(USER_PATH)
 
@@ -132,10 +132,20 @@ def getStation(repo, output, o_format, network):
         sql2stationxml.writeNetworkToStationXML(network, output + ".xml")
 
 @cli.command()
+@click.option('--root-id', default=-999, type=click.INT)
+@click.argument('event-id', type=click.INT)
+@click.pass_obj
+def changerootid(repo, root_id, event_id):
+    """
+    This command changes the root id of a event to root id given by user or creates a new root for the event.
+    """
+    nordicModify.changeEventRoot(event_id, root_id)
+
+@cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.option('--fix', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
 @click.option('--ignore-duplicates', is_flag=True, help="In case of a duplicate event, ignore the new event")
-@click.option('--no-duplicates', is_flag=True, help="Inform the program that there are no duplicate events, add all the new events")
+@click.option('--no-duplicates', default=True, is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames):
