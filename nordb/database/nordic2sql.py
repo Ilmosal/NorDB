@@ -17,6 +17,8 @@ from nordb.core import nordicRead
 from nordb.core import nordicHandler
 from nordb.core import nordicFix
 from nordb.core import usernameUtilities
+from nordb.core import nordic
+from nordb.core.nordic import NordicData, NordicMain, NordicMacroseismic, NordicComment, NordicError, NordicWaveform
 from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
 from nordb.database import sql2nordic
@@ -40,7 +42,7 @@ INSERT_COMMANDS = {
 8:"INSERT INTO creation_info DEFAULT VALUES RETURNING id"
 }
 
-def read_headers(nordic):
+def read_headers(nordic_string):
     """
     Method for reading all the header files from the nordic file and returning them
 
@@ -53,37 +55,37 @@ def read_headers(nordic):
     i = 1
     headers = []
     #find where the data starts 
-    while (i < len(nordic)):
-        if (nordic[i][79] == ' '):
+    while (i < len(nordic_string)):
+        if (nordic_string[i][79] == ' '):
             i+=1
             break
         i+=1
 
-    if (len(nordic) != i):
+    if (len(nordic_string) != i):
         i-=1
 
     #read the header lines
     for x in range(0, i):
-        if (nordic[x][79] == '1'):
-            headers.append(NordicHeaderMain(nordic[x]))
+        if (nordic_string[x][79] == '1'):
+            headers.append(nordic.createStringMainHeader(nordic_string[x]))
         elif (nordic[x][79] == '2'):
-            headers.append(NordicHeaderMacroseismic(nordic[x]))
+            headers.append(nordic.createStringMacroseismicHeader(nordic_string[x]))
         elif (nordic[x][79] == '3'):
-            headers.append(NordicHeaderComment(nordic[x]))
+            headers.append(nordic.createStringCommentHeader(nordic_string[x]))
         elif (nordic[x][79] == '5'):
-            headers.append(NordicHeaderError(nordic[x]))
+            headers.append(nordic.createStringErrorHeader(nordic_string[x]))
         elif (nordic[x][79] == '6'):
-            headers.append(NordicHeaderWaveform(nordic[x]))
+            headers.append(nordic.createStringWaveformHeader(nordic_string[x]))
 
     return headers
     
 #function for reading one event and pushing it to the database
-def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
+def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
     """
     Method for reading one event and pushing it to the database
 
     Args:
-        nordic (str []): nordic file in string array form
+        nordic_string (str []): nordic file in string array form
         event_type (int): event type id of the nordic event
         nordic_filename (str): filename of the read nordic file
         fixNordic (bool): flag for if fixNordic library needs to be used
@@ -102,12 +104,12 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
     cur = conn.cursor()
 
     #Getting the nordic_event id from the database
-    if not nordic:
+    if not nordic_string:
         conn.close()
         return False
 
     #Reading headers and data 
-    headers = read_headers(nordic)
+    headers = read_headers(nordic_string)
     data = []
 
     author_id = "---"
@@ -130,13 +132,13 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
 
     #Read the data
     for x in range(len(headers), len(nordic)):
-        data.append(NordicData(nordic[x]))
+        data.append(nordic.createPhaseDataList(nordic_string[x]))
 
     #Generate the event
-    nordic_event = NordicEvent(headers, data, event_type, author_id, "NOPROGRAM")
+    nordic_event = NordicEvent(headers, data)
     
-    if fixNordic:
-        nordicFix.fixNordicEvent(nordic_event)
+  #  if fixNordic:
+  #      nordicFix.fixNordicEvent(nordic_event)
 
     #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
     if not nordicValidation.validateNordic(nordic_event, cur):
@@ -146,20 +148,21 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
 
     e_id = -1
 
-    if not no_duplicates:
-        ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
-        e_id = ans[0]
+ #   if not no_duplicates:
+ #       ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
+#        e_id = ans[0]
 
-        if e_id == -1:
-            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
-            e_id = ans[0]
+#        if e_id == -1:
+#            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+#            e_id = ans[0]
 
-        if e_id == -9:
-            return False
+#        if e_id == -9:
+#            return False
 
-        if ignore_duplicates and e_id > -1:
-            return False
+#        if ignore_duplicates and e_id > -1:
+#            return False
             
+    sys.exit()
 
     root_id = -1
     #GET THE ROOT ID HERE
@@ -179,10 +182,10 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
 
         #Add a new nordic_event to the db
         cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id, creation_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", 
-                    (nordic_event.event_type, 
+                    (event_type, 
                     root_id, 
                     filename_id, 
-                    nordic_event.author_id,
+                    author_id,
                     creation_id)
                     )
         event_id = cur.fetchone()[0]
@@ -293,16 +296,16 @@ def execute_command(cur, command, vals, returnValue):
     Returns:
         Values returned by the query
     """
-        try:
-            cur.execute(command, vals)
-        except psycopg2.Error as e:
-            logging.error("Error in sql command: " + command)
-            logging.error(e.pgerror)
-            sys.exit()
-        if returnValue:
-            return cur.fetchone()
-        else:
-            return None
+    try:
+        cur.execute(command, vals)
+    except psycopg2.Error as e:
+        logging.error("Error in sql command: " + command)
+        logging.error(e.pgerror)
+        sys.exit()
+    if returnValue:
+        return cur.fetchone()
+    else:
+        return None
 #function for reading a nordicp file
 def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
     """

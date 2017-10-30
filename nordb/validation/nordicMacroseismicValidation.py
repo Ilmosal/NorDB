@@ -6,12 +6,12 @@ if __name__=="__main__":
 
 from nordb.validation import validationTools 
 from nordb.validation.validationTools import values
-
-def validateMacroseismicHeader(nordic_event):
+from nordb.core.nordic import NordicMacroseismic
+def validateMacroseismicHeader(header):
     validation = True
     mheader = 2
 
-    if not validationTools.validateString(nordic_event.description,
+    if not validationTools.validateString(header[NordicMacroseismic.DESCRIPTION],
                                             "description",
                                             0,
                                             15,
@@ -20,7 +20,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.diastrophism_code,
+    if not validationTools.validateString(header[NordicMacroseismic.DIASTROPHISM_CODE],
                                             "diastrophism code",
                                             0,
                                             1,
@@ -29,7 +29,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.tsunami_code,
+    if not validationTools.validateString(header[NordicMacroseismic.TSUNAMI_CODE],
                                             "tsunami code",
                                             0,
                                             1,
@@ -38,7 +38,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.seiche_code,
+    if not validationTools.validateString(header[NordicMacroseismic.SEICHE_CODE],
                                             "seiche code",
                                             0,
                                             1,
@@ -47,7 +47,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.cultural_effects,
+    if not validationTools.validateString(header[NordicMacroseismic.CULTURAL_EFFECTS],
                                             "cultural effects",
                                             0,
                                             1,
@@ -56,7 +56,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.unusual_effects,
+    if not validationTools.validateString(header[NordicMacroseismic.UNUSUAL_EFFECTS],
                                             "unusual effects",
                                             0,
                                             1,
@@ -65,7 +65,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateInteger(nordic_event.maximum_observed_intensity,
+    if not validationTools.validateInteger(header[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY],
                                             "maximum observed intensity",
                                             0,
                                             20,
@@ -73,7 +73,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.maximum_intensity_qualifier,
+    if not validationTools.validateString(header[NordicMacroseismic.MAXIMUM_INTENSITY_QUALIFIER],
                                             "maximum intensity qualifier",
                                             0,
                                             1,
@@ -82,7 +82,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.intensity_scale,
+    if not validationTools.validateString(header[NordicMacroseismic.INTENSITY_SCALE],
                                             "intensity scale",
                                             0,
                                             2,
@@ -91,7 +91,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.macroseismic_latitude,
+    if not validationTools.validateFloat(header[NordicMacroseismic.MACROSEISMIC_LATITUDE],
                                             "macroseismic latitude",
                                             -90.0,
                                             90.0,
@@ -99,7 +99,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.macroseismic_longitude,
+    if not validationTools.validateFloat(header[NordicMacroseismic.MACROSEISMIC_LONGITUDE],
                                             "macroseismic longitude",
                                             -180.0,
                                             180.0,
@@ -107,7 +107,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.macroseismic_magnitude,
+    if not validationTools.validateFloat(header[NordicMacroseismic.MACROSEISMIC_MAGNITUDE],
                                             "macroseismic magnitude",
                                             0.0,
                                             20.0,
@@ -115,7 +115,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.type_of_magnitude,
+    if not validationTools.validateString(header[NordicMacroseismic.TYPE_OF_MAGNITUDE],
                                             "type of magnitude",
                                             0,
                                             1,
@@ -124,7 +124,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.logarithm_of_radius,
+    if not validationTools.validateFloat(header[NordicMacroseismic.LOGARITHM_OF_RADIUS],
                                             "logarithm of radius",
                                             0.0,
                                             99.9,
@@ -132,7 +132,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.logarithm_of_area_1,
+    if not validationTools.validateFloat(header[NordicMacroseismic.LOGARITHM_OF_AREA_1],
                                             "logarithm of area 1",
                                             0.0,
                                             99.99,
@@ -140,7 +140,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateInteger(nordic_event.bordering_intensity_1,
+    if not validationTools.validateInteger(header[NordicMacroseismic.BORDERING_INTENSITY_1],
                                             "bordering intensity 1",
                                             0,
                                             99,
@@ -148,7 +148,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_event.logarithm_of_area_2,
+    if not validationTools.validateFloat(header[NordicMacroseismic.LOGARITHM_OF_AREA_2],
                                             "logarithm of area 2",
                                             0.0,
                                             99.99,
@@ -156,7 +156,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateInteger(nordic_event.bordering_intensity_2,
+    if not validationTools.validateInteger(header[NordicMacroseismic.BORDERING_INTENSITY_2],
                                             "bordering intensity 2",
                                             0,
                                             99,
@@ -164,7 +164,7 @@ def validateMacroseismicHeader(nordic_event):
                                             mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_event.reporting_agency,
+    if not validationTools.validateString(header[NordicMacroseismic.REPORTING_AGENCY],
                                             "reporting agency",
                                             3,
                                             3,

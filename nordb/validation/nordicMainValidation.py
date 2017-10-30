@@ -7,19 +7,19 @@ if __name__=="__main__":
 from nordb.validation import validationTools 
 from nordb.validation.validationTools import values
 
-def validateMainHeader(nordic_main):
+def validateMainHeader(header):
     validation = True
     mheader = 1
 
-    validationTools.fixDate(nordic_main)
+    validationTools.fixDate(header[NordicMain.DATE])
 
-    if not validationTools.validateDate(nordic_main.date,
+    if not validationTools.validateDate(header[NordicMain.DATE],
                                                 "date",
                                                 mheader):
         validation = False
 
     
-    if not validationTools.validateInteger(nordic_main.hour,
+    if not validationTools.validateInteger(header[NordicMain.HOUR],
                                                 "hour",
                                                 0,
                                                 23,
@@ -27,7 +27,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateInteger(nordic_main.minute,
+    if not validationTools.validateInteger(header[NordicMain.MINUTE],
                                                 "minute",
                                                 0,
                                                 59,
@@ -35,7 +35,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.second,
+    if not validationTools.validateFloat(header[NordicMain.SECOND],
                                                 "second",
                                                 0.0,
                                                 59.9,
@@ -43,7 +43,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.location_model,
+    if not validationTools.validateString(header[NordicMain.LOCATION_MODEL],
                                                 "location model",
                                                 0,
                                                 1,
@@ -52,7 +52,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
     
-    if not validationTools.validateString(nordic_main.distance_indicator,
+    if not validationTools.validateString(header[NordicMain.DISTANCE_INDICATOR],
                                                 "distance indicator",
                                                 0,
                                                 1,
@@ -62,7 +62,7 @@ def validateMainHeader(nordic_main):
         validation = False
 
     #TODO these limitations
-    if not validationTools.validateString(nordic_main.event_desc_id,
+    if not validationTools.validateString(header[NordicMain.EVENT_DESC_ID],
                                                 "event description id",
                                                 0,
                                                 1,
@@ -71,7 +71,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.epicenter_latitude,
+    if not validationTools.validateFloat(header[NordicMain.EPICENTER_LATITUDE],
                                                 "epicenter latitude",
                                                 -90.0,
                                                 90.0,
@@ -79,7 +79,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.epicenter_longitude,
+    if not validationTools.validateFloat(header[NordicMain.EPICENTER_LONGITUDE],
                                                 "epicenter longitude",
                                                 -180.0,
                                                 180.0,
@@ -87,7 +87,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.depth,
+    if not validationTools.validateFloat(header[NordicMain.DEPTH],
                                                 "depth",
                                                 0.0,
                                                 999.9,
@@ -95,7 +95,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.depth_control,
+    if not validationTools.validateString(header[NordicMain.DEPTH_CONTROL],
                                                 "depth control",
                                                 0,
                                                 1,
@@ -104,7 +104,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.locating_indicator,
+    if not validationTools.validateString(header[NordicMain.LOCATING_INDICATOR],
                                                 "locating indicator",
                                                 0,
                                                 1,
@@ -113,7 +113,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.epicenter_reporting_agency,
+    if not validationTools.validateString(header[NordicMain.EPICENTER_REPORTING_AGENCY],
                                                 "epicenter reporting agency",
                                                 0,
                                                 3,
@@ -122,7 +122,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
     
-    if not validationTools.validateInteger(nordic_main.stations_used,
+    if not validationTools.validateInteger(header[NordicMain.STATIONS_USED],
                                                 "stations used",
                                                 0,
                                                 999,
@@ -130,7 +130,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.rms_time_residuals,
+    if not validationTools.validateFloat(header[NordicMain.RMS_TIME_RESIDUALS],
                                                 "rms time residuals",
                                                 -9.9,
                                                 99.9,
@@ -138,7 +138,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.magnitude_1,
+    if not validationTools.validateFloat(header[NordicMain.MAGNITUDE_1],
                                                 "magnitude 1",
                                                 -1.0,
                                                 9.9,
@@ -146,7 +146,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.type_of_magnitude_1,
+    if not validationTools.validateString(header[NordicMain.TYPE_OF_MAGNITUDE_1],
                                                 "type of magnitude 1",
                                                 0,
                                                 1,
@@ -155,7 +155,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
     
-    if not validationTools.validateString(nordic_main.magnitude_reporting_agency_1,
+    if not validationTools.validateString(header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1],
                                                 "magnitude reporting agency 1",
                                                 0,
                                                 3,
@@ -164,7 +164,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.magnitude_2,
+    if not validationTools.validateFloat(header[NordicMain.MAGNITUDE_2],
                                                 "magnitude 2",
                                                 -1.0,
                                                 9.9,
@@ -172,7 +172,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.type_of_magnitude_2,
+    if not validationTools.validateString(header[NordicMain.TYPE_OF_MAGNITUDE_2],
                                                 "type of magnitude 2",
                                                 0,
                                                 1,
@@ -181,7 +181,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
     
-    if not validationTools.validateString(nordic_main.magnitude_reporting_agency_2,
+    if not validationTools.validateString(header[NordicMain.MAGNITUDE_REPORTING_AGENCY_2],
                                                 "magnitude reporting agency 2",
                                                 0,
                                                 3,
@@ -190,7 +190,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateFloat(nordic_main.magnitude_3,
+    if not validationTools.validateFloat(header[NordicMain.MAGNITUDE_3],
                                                 "magnitude 3",
                                                 -1.0,
                                                 9.9,
@@ -198,7 +198,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
 
-    if not validationTools.validateString(nordic_main.type_of_magnitude_3,
+    if not validationTools.validateString(header[NordicMain.TYPE_OF_MAGNITUDE_3],
                                                 "type of magnitude 3",
                                                 0,
                                                 1,
@@ -207,7 +207,7 @@ def validateMainHeader(nordic_main):
                                                 mheader):
         validation = False
     
-    if not validationTools.validateString(nordic_main.magnitude_reporting_agency_3,
+    if not validationTools.validateString(header[NordicMain.MAGNITUDE_REPORTING_AGENCY_3],
                                                 "magnitude reporting agency 3",
                                                 0,
                                                 3,

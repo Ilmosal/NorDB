@@ -23,7 +23,7 @@ def validateNordic(nordic_event, cur):
     if not nordicEventValidation.validateEventHeader(nordic_event):
         validation_error = True
 
-    if nordic_event.headers[0].tpe != 1:
+    if nordic_event.headers[0].header_type != 1:
         msg = "Validation Error - Nordic Event: First Header is not of type 1! {0}"
         logging.error(msg.format(nordic_event.headers[0].tpe))
         validation_error = True
