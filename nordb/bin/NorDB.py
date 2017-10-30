@@ -51,11 +51,11 @@ def conf(repo, username):
 @click.option('--output', type=click.Path(readable=True), help="file to which all events found are appended")
 @click.option('--output-format', default="n", type = click.Choice(["n", "q", "sc3"]))
 @click.option('--event-root', is_flag=True)
-@click.option('--no-outprint', is_flag=True)
+@click.option('--silent', is_flag=True)
 @click.pass_obj
 def search(repo, date, hour, minute, second, latitude, longitude, depth, event_id, output_format,
             magnitude, event_type, distance_indicator, event_desc_id, verbose, output, event_root,
-            no_outprint):
+            silent):
     """
 This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -101,7 +101,7 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
     nordicSearch.searchNordic(  criteria, verbose, 
                                 output, event_root, 
                                 USER_PATH, output_format, 
-                                no_outprint
+                                silent
                                 )
 
 @cli.command()
@@ -132,14 +132,25 @@ def getStation(repo, output, o_format, network):
         sql2stationxml.writeNetworkToStationXML(network, output + ".xml")
 
 @cli.command()
-@click.option('--root-id', default=-999, type=click.INT)
+@click.option('--root-id', default=-999, type=click.INT, help="root to which the event is attached to")
 @click.argument('event-id', type=click.INT)
 @click.pass_obj
-def changerootid(repo, root_id, event_id):
+def changeroot(repo, root_id, event_id):
     """
-    This command changes the root id of a event to root id given by user or creates a new root for the event.
+    This command changes the root id of a event to root id given by user or creates a new root for the event. If no root-id is given to the command, it will attach the event to a new root.
     """
     nordicModify.changeEventRoot(event_id, root_id)
+
+@cli.command()
+@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
+@click.argument('event-id', type=click.INT)
+@click.pass_obj
+def changetype(repo, event_type, event_id):
+    """
+    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. 
+    """
+    nordicModify.changeEventType(event_id, event_type)
+
 
 @cli.command()
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))

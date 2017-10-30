@@ -18,6 +18,6 @@ setup(
     long_description=open("README.md").read(),
     entry_points='''
         [console_scripts] 
-        NorDB=nordb.bin.NorDB:cli
+        nordb=nordb.bin.NorDB:cli
     ''',
 )

@@ -42,7 +42,7 @@ def validateMacroseismicHeader(nordic_event):
                                             "seiche code",
                                             0,
                                             1,
-                                            "SQ ",
+                                            "SQF ",
                                             True,
                                             mheader):
         validation = False

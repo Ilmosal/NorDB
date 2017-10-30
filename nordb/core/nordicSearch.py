@@ -500,7 +500,7 @@ def searchEventRoot(criteria, verbose):
 
     for e in e_set:
 
-        cur.execute("SELECT DISTINCT ON (nordic_event.id) nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id, root_id FROM nordic_event, nordic_header_main WHERE nordic_event.root_id = %s AND nordic_header_main.event_id = nordic_event.id;", (e,))
+        cur.execute("SELECT DISTINCT ON (nordic_event.id) nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id, root_id FROM nordic_event, nordic_header_main WHERE nordic_event.root_id = %s AND nordic_header_main.event_id = nordic_event.id ORDER BY event_type;", (e,))
         e_all_roots += (tuple(cur.fetchall()),)
     
     largest = -1
@@ -543,7 +543,7 @@ def searchWithEventId(event_id):
 
     cur = conn.cursor()
  
-    cur.execute("SELECT nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = %s AND nordic_header_main.event_id = nordic_event.id;", (event_id)) 
+    cur.execute("SELECT nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MIN(event_type) from nordic_event GROUP BY root_id) AND nordic_event.id = %s AND nordic_header_main.event_id = nordic_event.id LIMIT 1;", (event_id,)) 
     event = cur.fetchall()
 
     conn.close()

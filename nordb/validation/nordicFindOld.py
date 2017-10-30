@@ -1,8 +1,11 @@
+import sys
 import logging
 import psycopg2
 from datetime import date
-from nordb.core import nordicSearch, nordicHandler
+from nordb.core import nordicSearch, nordicHandler, usernameUtilities
 from nordb.database import sql2nordic
+
+username = ""
 
 def checkForSameEvents(nordic_event, cur):
     """
@@ -26,17 +29,18 @@ def checkForSameEvents(nordic_event, cur):
         "longitude":nordic_event.headers[0].epicenter_longitude
     }
 
+    to_be_removed = ()
     for key in criteria.keys():
-        if criteria[key] is None:
-            criteria.pop(key, None)
+        if criteria[key] is None or criteria[key].strip() == "":
+            to_be_removed += (key,)
+
+    for key in to_be_removed:
+        criteria.pop(key, None)
 
     e_info = nordicSearch.getAllNordics(criteria)
 
     if e_info is None or e_info == []:
         return [-1, None]
-
-    if len(e_info) == 1:
-        return [e_info[0][0], e_info[0][1]]
 
     print("Nordics with same information found! Does one of following events represent the same event?")
     largest = -1
@@ -74,7 +78,7 @@ def checkForSameEvents(nordic_event, cur):
 
 def checkForSimilarEvents(nordic_event, cur): 
     """
-    Method for finding similar events compared to validated nordic string object and asking.
+    Method for finding similar events compared to validated nordic string object and asking. The closest event is determined by taking absolute values from the difference of seconds, latitude, longitude and magnitude of the event and summing it all together and ordering the values in ascending order.
 
     Args:
         nordic_event(): nordic event string class
@@ -84,30 +88,68 @@ def checkForSimilarEvents(nordic_event, cur):
         The id of the chosen same event
     """
 
-    hour_error = 1
-    magnitude_error = 1.0
-    latitude_error = 0.5
-    longitude_error = 0.5
+    username = usernameUtilities.readUsername()
 
-    criteria = {
-        "date":nordic_event.headers[0].date,
-        "hour":str(int(nordic_event.headers[0].hour)-hour_error) + "-" + str(int(nordic_event.headers[0].hour)+hour_error),
-        "magnitude":str(float(nordic_event.headers[0].magnitude_1)-magnitude_error) + "-" + str(float(nordic_event.headers[0].magnitude_1)+magnitude_error),
-        "latitude":str(float(nordic_event.headers[0].epicenter_latitude)-latitude_error) + "-" + str(float(nordic_event.headers[0].epicenter_latitude)+latitude_error),
-        "longitude":str(float(nordic_event.headers[0].epicenter_longitude)-longitude_error) + "-" + str(float(nordic_event.headers[0].epicenter_longitude)+longitude_error)
-    }
+    weight_string = "("
+    values = ()
 
-    if int(nordic_event.headers[0].hour) == 0:
-        criteria["hour"] = "00-01"
-    elif int(nordic_event.headers[0].hour) == 23:
-        criteria["hour"] = "22-23"
+    ev_seconds = ""
+    val_seconds = ""
+    if nordic_event.headers[0].hour is not None and nordic_event.headers[0].hour.strip() != "":
+        ev_seconds += "%s*3600.0"
+        val_seconds += "hour*3600.0"
+        values += (nordic_event.headers[0].hour,)
+    if nordic_event.headers[0].minute is not None and nordic_event.headers[0].minute.strip() != "":
+        if ev_seconds != "":
+            ev_seconds += "+"
+            val_seconds += "+"
+        ev_seconds += "%s*60.0"
+        val_seconds += "minute*60.0"
+        values += (nordic_event.headers[0].minute,)
+    if nordic_event.headers[0].second is not None and nordic_event.headers[0].second.strip() != "":
+        if ev_seconds != "":
+            ev_seconds += "+"
+            val_seconds += "+"
+        ev_seconds += "%s"
+        val_seconds += "second"
+        values += (nordic_event.headers[0].second,)
+    
+    if ev_seconds != "":
+        weight_string += "ABS(("+ev_seconds + ") - (" + val_seconds +"))/60.0"
 
-    if float(nordic_event.headers[0].magnitude_1) < 1.0:
-        criteria["magnitude"] = "0.0" + criteria["magnitude"][4:]
+    if weight_string != "(":
+        weight_string += " + " 
 
-    e_info = nordicSearch.getAllNordics(criteria)
+    if nordic_event.headers[0].epicenter_latitude is not None and nordic_event.headers[0].epicenter_latitude.strip() != "":
+        weight_string += "ABS(%s - epicenter_latitude)*100"
+        values += (nordic_event.headers[0].epicenter_latitude, )
 
-    if e_info is None or e_info == []:
+    if weight_string != "(":
+        weight_string += " + " 
+
+    if nordic_event.headers[0].epicenter_longitude is not None and nordic_event.headers[0].epicenter_longitude.strip() != "":
+        weight_string += "ABS(%s - epicenter_longitude)*100"
+        values += (nordic_event.headers[0].epicenter_longitude, )
+
+    if weight_string != "(":
+        weight_string += " + " 
+
+    if nordic_event.headers[0].magnitude_1 is not None and nordic_event.headers[0].magnitude_1.strip() != "":
+        weight_string += "ABS(%s - magnitude_1)*10"
+        values += (nordic_event.headers[0].magnitude_1, )
+    
+    if weight_string == "(":
+        return [-1, None]
+
+    weight_string += ")"
+    values += values
+    values += (nordic_event.headers[0].date,)
+
+    cur.execute("SELECT event_id, event_type FROM nordic_event, (SELECT event_id, " + weight_string + " as search_weight FROM nordic_header_main) AS header WHERE (event_id, search_weight) IN (SELECT event_id, MIN("+ weight_string +") AS search_weight FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MAX(event_type) as event_type FROM nordic_event GROUP BY root_id) AND date=%s AND nordic_header_main.event_id = nordic_event.id GROUP BY event_id) AND event_id = nordic_event.id ORDER BY search_weight", values)
+
+    e_info = cur.fetchall()
+   
+    if e_info == []:
         return [-1, None]
 
     print("Nordics with similiar information found! Does one of following events represent the same event?")
@@ -124,7 +166,11 @@ def checkForSimilarEvents(nordic_event, cur):
     print ("Your event:")
     print ("        " + nordic_event.headers[0].o_string[:-2])
     while True:
-        ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
+        ans = input("Event_id(-1 if none are, -9 if you want to skip event, enter to choose the first event): ")
+
+        if ans == "":
+            return [e_info[0][0], e_info[0][1]]
+
         try:
             if int(ans) > -2 or int(ans) == -9:
                 if int(ans) < 0:

@@ -40,8 +40,16 @@ INSERT_COMMANDS = {
 8:"INSERT INTO creation_info DEFAULT VALUES RETURNING id"
 }
 
-#function for reading all the headers
 def read_headers(nordic):
+    """
+    Method for reading all the header files from the nordic file and returning them
+
+    Args:
+        nordic (str[]): nordic file in string array form
+
+    Returns:
+        List of Header objects 
+    """
     i = 1
     headers = []
     #find where the data starts 
@@ -71,6 +79,20 @@ def read_headers(nordic):
     
 #function for reading one event and pushing it to the database
 def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
+    """
+    Method for reading one event and pushing it to the database
+
+    Args:
+        nordic (str []): nordic file in string array form
+        event_type (int): event type id of the nordic event
+        nordic_filename (str): filename of the read nordic file
+        fixNordic (bool): flag for if fixNordic library needs to be used
+        ignore_duplicates (bool): flag for if the event has no earlier events in the database
+        creation_id (int): creation id of the command. Used in the undo function
+
+    Returns:
+        True or False if the event has been successfully pushed to the database
+    """
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except:
@@ -207,6 +229,12 @@ def read_event(nordic, event_type, nordic_filename, fixNordic, ignore_duplicates
         return False
 
 def create_creation_info():
+    """
+    Function for creating the creation_info entry to the database.
+
+    Returns:
+        The creation id created
+    """
     creation_id = -1
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -225,6 +253,15 @@ def create_creation_info():
     return creation_id
 
 def delete_creation_info_if_unnecessary(creation_id):
+    """
+    Function for deleting an unnecessary creation info object
+    
+    Args:
+        creation_id(int): id of the creation_info that needs to be deleted
+
+    Returns:
+        creation_id of the deleted object
+    """
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except:
@@ -243,8 +280,19 @@ def delete_creation_info_if_unnecessary(creation_id):
 
     return creation_id
 
-#function for performing the sql commands
 def execute_command(cur, command, vals, returnValue):
+    """
+    Function for for executing a command with values and handling exceptions
+
+    Args:
+        cur (Cursor): cursor object from psycopg2 library
+        command (str): the sql command string
+        vals (list): list of values for the command
+'       returnValue(bool): boolean values for if the command returns a value
+        
+    Returns:
+        Values returned by the query
+    """
         try:
             cur.execute(command, vals)
         except psycopg2.Error as e:
@@ -256,14 +304,28 @@ def execute_command(cur, command, vals, returnValue):
         else:
             return None
 #function for reading a nordicp file
-def read_nordicp(f, event_type, fix, ignore_duplicates, no_duplicates):
+def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
+    """
+    Function for reading the whole file and all the events in it to the database.
+
+    Args:
+        f (File): File object of the nordic file
+        event_type (int): event type id of the nordic event
+        fixNordic (bool): flag for if fixNordic library needs to be used
+        ignore_duplicates (bool): flag for iignoring all events that already are in the database
+        no_duplicates(bool): flag for if there are no duplicate events in the file compared to dapabase
+
+    Returns:
+        True or False if the whole file has been successfully pushed to the database
+
+    """
     username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
     try:
         nordics = nordicRead.readNordicFile(f)
 
         for nordic in nordics:
-            if not read_event(nordic, event_type, f.name, fix, ignore_duplicates, no_duplicates, creation_id):
+            if not read_event(nordic, event_type, f.name, fixNordic, ignore_duplicates, no_duplicates, creation_id):
                 if len(nordic) > 0:
                     logging.info("Problem in nordic: " + nordic[0][1:20])
     except KeyboardInterrupt:
@@ -275,8 +337,16 @@ def read_nordicp(f, event_type, fix, ignore_duplicates, no_duplicates):
     delete_creation_info_if_unnecessary(creation_id)
     return True
 
-#function for getting the authorID of the last person who edited the file
 def get_author(filename):
+    """
+    Function for getting the owner of the file from the file. Not used currently
+
+    Args:
+        filename(str): Name of the file
+
+    Returns:
+        Predefined author id 
+    """
     try:
         author_id = pwd.getpwuid(os.stat(filename).st_uid).pw_name
         if author_id in authorDict:
