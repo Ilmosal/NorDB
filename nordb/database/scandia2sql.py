@@ -18,13 +18,22 @@ SCANDIA_INSERT = "INSERT INTO scandia_header (event_id, source_ref, origin_quest
 SCANDIA_SELECT = "SELECT event_id FROM nordic_header_main, nordic_event WHERE nordic_event.id = nordic_header_main.event_id AND nordic_event.event_type = 'F' AND nordic_header_main.date = %s AND nordic_header_main.hour = %s AND nordic_header_main.minute = %s AND nordic_header_main.second = %s AND nordic_header_main.epicenter_latitude = %s AND nordic_header_main.epicenter_longitude = %s"
 
 class Scandia:
+    """
+    Class for holding all information of a scandia line
+    
+    Args:
+        scandia_line(str): string from where all information is taken from
+        cur (Cursor): Cursor object of psycopg2
+
+    Attributes:
+        
+    """
     def __init__(self, scandia_line, cur):
         self.source_ref = return_string(scandia_line[0:3])
         self.origin_questionability = return_string(scandia_line[3]) 
         self.year = return_int(scandia_line[4:8])
         self.month = return_int(scandia_line[8:10])
         self.day = return_int(scandia_line[10:12])
-        #self.date = return_date(scandia_line[4:8] + "-" + scandia_line[8:10] + "-" + scandia_line[10:12])
         self.event_desc = return_string(scandia_line[12]) 
         self.hour = return_int(scandia_line[13:15])
         self.minute = return_int(scandia_line[15:17])

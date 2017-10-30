@@ -293,16 +293,16 @@ def execute_command(cur, command, vals, returnValue):
     Returns:
         Values returned by the query
     """
-        try:
-            cur.execute(command, vals)
-        except psycopg2.Error as e:
-            logging.error("Error in sql command: " + command)
-            logging.error(e.pgerror)
-            sys.exit()
-        if returnValue:
-            return cur.fetchone()
-        else:
-            return None
+    try:
+        cur.execute(command, vals)
+    except psycopg2.Error as e:
+        logging.error("Error in sql command: " + command)
+        logging.error(e.pgerror)
+        sys.exit()
+    if returnValue:
+        return cur.fetchone()
+    else:
+        return None
 #function for reading a nordicp file
 def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
     """
