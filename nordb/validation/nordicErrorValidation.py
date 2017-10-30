@@ -11,7 +11,7 @@ def validateErrorHeader(header):
     validation = True
     mheader = 5
 
-    if not validationTools.validateInteger(header[NordicError.GAP],
+    if not validationTools.validateInteger(header.header[NordicError.GAP],
                                             "gap",
                                             0,
                                             359,
@@ -19,7 +19,7 @@ def validateErrorHeader(header):
                                             mheader):
         validation = False
     
-    if not validationTools.validateFloat(header[NordicError.SECOND_ERROR],   
+    if not validationTools.validateFloat(header.header[NordicError.SECOND_ERROR],   
                                         "second error",
                                         0.0,
                                         99.9,
@@ -27,7 +27,7 @@ def validateErrorHeader(header):
                                         mheader):
         validation = False
 
-    if not validationTools.validateFloat(header[NordicError.EPICENTER_LATITUDE_ERROR],
+    if not validationTools.validateFloat(header.header[NordicError.EPICENTER_LATITUDE_ERROR],
                                         "epicenter latitude error",
                                         0.0,
                                         99.99,
@@ -35,7 +35,7 @@ def validateErrorHeader(header):
                                         mheader):
         validation = False
 
-    if not validationTools.validateFloat(header[NordicError.EPICENTER_LONGITUDE_ERROR],
+    if not validationTools.validateFloat(header.header[NordicError.EPICENTER_LONGITUDE_ERROR],
                                         "epicenter longitude error",
                                         0.0,
                                         99.99,
@@ -43,7 +43,7 @@ def validateErrorHeader(header):
                                         mheader):
         validation = False
 
-    if not validationTools.validateFloat(header[NordicError.DEPTH_ERROR],
+    if not validationTools.validateFloat(header.header[NordicError.DEPTH_ERROR],
                                         "depth error",
                                         0.0,
                                         999.9,
@@ -51,7 +51,7 @@ def validateErrorHeader(header):
                                         mheader):
         validation = False
     
-    if not validationTools.validateFloat(header[NordicError.MAGNITUDE_ERROR],
+    if not validationTools.validateFloat(header.header[NordicError.MAGNITUDE_ERROR],
                                         "magnitude error",
                                         0.0,
                                         9.9,

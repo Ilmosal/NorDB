@@ -1,5 +1,5 @@
 import math
-
+from nordb.core.nordic import NordicMain, NordicError, NordicData
 def fixMainData(header):
     """
     Method for fixing some of the common errors in main header.
@@ -8,30 +8,30 @@ def fixMainData(header):
         header: main header that needs to be fixed
     """
     try:
-        if math.isnan(float(header.magnitude_1)):
-            header.magnitude_1 = ""
+        if math.isnan(float(header.header[NordicMain.MAGNITUDE_1])):
+            header.header[NordicMain.MAGNITUDE_1] = ""
     except ValueError:
         pass
 
     try:
-        if math.isnan(float(header.magnitude_2)):
-            header.magnitude_2 = ""
+        if math.isnan(float(header.header[NordicMain.MAGNITUDE_2])):
+            header.header[NordicMain.MAGNITUDE_2] = ""
     except ValueError:
         pass
 
     try:
-        if math.isnan(float(header.magnitude_3)):
-            header.magnitude_3 = ""
+        if math.isnan(float(header.header[NordicMain.MAGNITUDE_3])):
+            header.header[NordicMain.MAGNITUDE_3] = ""
     except ValueError:
         pass
 
-    if header.second == "60.0":
-        header.second = "0.0"
-        header.minute = str(int(header.minute) + 1)
-        if header.minute == "60":
-            header.minute = "0"
-            header.hour = str(int(header.hour) + 1)
-            if header.hour == "23":
+    if header.header[NordicMain.SECOND] == "60.0":
+        header.header[NordicMain.SECOND] = "0.0"
+        header.header[NordicMain.MINUTE] = str(int(header.header[NordicMain.MINUTE]) + 1)
+        if header.header[NordicMain.MINUTE] == "60":
+            header.header[NordicMain.MINUTE] = "0"
+            header.header[NordicMain.HOUR] = str(int(header.header[NordicMain.HOUR]) + 1)
+            if header.header[NordicMain.HOUR] == "23":
                 logging.error("Fix Nordic error - rounding error with second 60.0")
 
 
@@ -43,8 +43,8 @@ def fixErrorData(header):
         header: error header that need to be fixed
     """
     try:
-        if math.isnan(float(header.magnitude_error)):
-            header.magnitude_error = ""
+        if math.isnan(float(header.header[NordicError.MAGNITUDE_ERROR])):
+            header.header[NordicError.MAGNITUDE_ERROR] = ""
     except ValueError:
         pass
 
@@ -57,26 +57,26 @@ def fixPhaseData(data):
         data: phase data that need to be fixed
     """
 
-    if data.epicenter_to_station_azimuth == "360":
-        data.epicenter_to_station_azimuth = "0"
+    if data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] == "360":
+        data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] = "0"
 
-    if data.back_azimuth == "360.0":
-        data.back_azimuth = "0.0"
+    if data.data[NordicData.BACK_AZIMUTH] == "360.0":
+        data.data[NordicData.BACK_AZIMUTH] = "0.0"
 
-    if data.second == "60.00":
-        data.second = "0.00"
-        if data.minute == "60":
-            data.minute = 0
-            if data.hour == "23":
-                data.hour = "0"
-                data.time_info = "+"
+    if data.data[NordicData.SECOND] == "60.00":
+        data.data[NordicData.SECOND] = "0.00"
+        if data.data[NordicData.MINUTE] == "60":
+            data.data[NordicData.MINUTE] = 0
+            if data.data[NordicData.HOUR] == "23":
+                data.data[NordicData.HOUR] = "0"
+                data.data[NordicData.TIME_INFO] = "+"
             else:
-                data.hour = str(int(data.hour) + 1)
+                data.data[NordicData.HOUR] = str(int(data.data[NordicData.HOUR]) + 1)
         else:
-            data.minute = str(int(data.minute) + 1)
+            data.data[NordicData.MINUTE] = str(int(data.data[NordicData.MINUTE]) + 1)
 
     try:
-        data.epicenter_distance = str(int(float(data.epicenter_distance)))
+        data.data[NordicData.EPICENTER_DISTANCE] = str(int(float(data.data[NordicData.EPICENTER_DISTANCE])))
     except:
         pass
 
@@ -85,13 +85,13 @@ def fixNordicEvent(nordicEvent):
     Method for fixing an whole nordic event before validation. Only fixes couple of common errors like rounding errors with angles or seconds and such.
 
     Args:
-        nordicEvent: Nordic String Class object before validation.
+        nordicEvent: Nordic Event Class object before validation.
 
     """
     for h in nordicEvent.headers:
-        if h.tpe == 1:
+        if h.header_type == 1:
             fixMainData(h)
-        elif h.tpe == 5:
+        elif h.header_type == 5:
             fixErrorData(h)
 
     for data in nordicEvent.data:

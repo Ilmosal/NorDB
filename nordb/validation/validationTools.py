@@ -1,7 +1,7 @@
 import math
 import logging
 from datetime import date
-
+from nordb.core.nordic import NordicMain
 nTypes = {0: "Nordic Event",
         1: "Nordic Main Header",
         2: "Nordic Macroseismic Header",
@@ -108,9 +108,9 @@ def validateDate(dateS, dateName, nType):
     return True
 
 
-def fixDate(nordic):
-    if nordic.date[5] == " ":
-        nordic.date = nordic.date[:5] + "0" + nordic.date[6:]
-    if nordic.date[8] == " ":
-        nordic.date = nordic.date[:8] + "0" + nordic.date[9:]
+def fixDate(nordic_main):
+    if nordic_main.header[NordicMain.DATE][5] == " ":
+        nordic_main.header[NordicMain.DATE] = nordic_main.header[NordicMain.DATE][:5] + "0" + nordic_main.header[NordicMain.DATE][6:]
+    if nordic_main.header[NordicMain.DATE][8] == " ":
+        nordic_main.header[NordicMain.DATE] = nordic_main.header[NordicMain.DATE][:8] + "0" + nordic_main.header[NordicMain.DATE][9:]
 

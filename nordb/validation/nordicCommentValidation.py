@@ -12,7 +12,7 @@ def validateCommentHeader(header):
     validation = True
     mheader = 3
 
-    if not validationTools.validateString(header[NordicComment.H_COMMENT],
+    if not validationTools.validateString(header.header[NordicComment.H_COMMENT],
                                     "comment",
                                     0,
                                     78,

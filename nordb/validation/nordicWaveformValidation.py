@@ -12,7 +12,7 @@ def validateWaveformHeader(header):
     validation = True
     mheader = 6
 
-    if not validationTools.validateString(header[NordicWaveform.WAVEFORM_INFO],
+    if not validationTools.validateString(header.header[NordicWaveform.WAVEFORM_INFO],
                                     "waveform string",
                                     0,
                                     78,

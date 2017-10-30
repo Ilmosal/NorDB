@@ -12,13 +12,12 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
 username = ""
 
-from nordb.core.nordicStringClass import *
 from nordb.core import nordicRead
 from nordb.core import nordicHandler
 from nordb.core import nordicFix
 from nordb.core import usernameUtilities
 from nordb.core import nordic
-from nordb.core.nordic import NordicData, NordicMain, NordicMacroseismic, NordicComment, NordicError, NordicWaveform
+from nordb.core.nordic import NordicData, NordicMain, NordicMacroseismic, NordicComment, NordicError, NordicWaveform, NordicEvent
 from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
 from nordb.database import sql2nordic
@@ -68,13 +67,13 @@ def read_headers(nordic_string):
     for x in range(0, i):
         if (nordic_string[x][79] == '1'):
             headers.append(nordic.createStringMainHeader(nordic_string[x]))
-        elif (nordic[x][79] == '2'):
+        elif (nordic_string[x][79] == '2'):
             headers.append(nordic.createStringMacroseismicHeader(nordic_string[x]))
-        elif (nordic[x][79] == '3'):
+        elif (nordic_string[x][79] == '3'):
             headers.append(nordic.createStringCommentHeader(nordic_string[x]))
-        elif (nordic[x][79] == '5'):
+        elif (nordic_string[x][79] == '5'):
             headers.append(nordic.createStringErrorHeader(nordic_string[x]))
-        elif (nordic[x][79] == '6'):
+        elif (nordic_string[x][79] == '6'):
             headers.append(nordic.createStringWaveformHeader(nordic_string[x]))
 
     return headers
@@ -116,11 +115,11 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     
     #Get the author_id from the comment header
     for header in headers:
-        if header.tpe == 3:
-            if fnmatch.fnmatch(header.h_comment, "*(???)*"):
-                for x in range(0, len(header.h_comment)-4):
-                    if header.h_comment[x] == '(' and header.h_comment[x+4] == ')':
-                        author_id = header.h_comment[x+1:x+4]
+        if header.header_type == 3:
+            if fnmatch.fnmatch(header.header[NordicComment.H_COMMENT], "*(???)*"):
+                for x in range(0, len(header.header[NordicComment.H_COMMENT])-4):
+                    if header.header[NordicComment.H_COMMENT][x] == '(' and header.header[NordicComment.H_COMMENT][x+4] == ')':
+                        author_id = header.header[NordicComment.H_COMMENT][x+1:x+4]
 
     
     #See if the filename already exists in the database
@@ -131,18 +130,18 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
         filename_id = filenameids[0]
 
     #Read the data
-    for x in range(len(headers), len(nordic)):
-        data.append(nordic.createPhaseDataList(nordic_string[x]))
+    for x in range(len(headers), len(nordic_string)):
+        data.append(nordic.createStringPhaseData(nordic_string[x]))
 
     #Generate the event
     nordic_event = NordicEvent(headers, data)
     
-  #  if fixNordic:
-  #      nordicFix.fixNordicEvent(nordic_event)
+    if fixNordic:
+         nordicFix.fixNordicEvent(nordic_event)
 
     #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
     if not nordicValidation.validateNordic(nordic_event, cur):
-        logging.error("Nordic validation failed with event: \n" + headers[0].o_string)
+        logging.error("Nordic validation failed with event: \n" + headers[0].header[NordicMain.O_STRING])
         conn.close()
         return False
 
