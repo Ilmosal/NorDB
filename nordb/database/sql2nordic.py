@@ -6,11 +6,21 @@ import psycopg2
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2nordic.py")]
 
 username = ""
-   
-from nordb.core import nordicHandler
+
+from nordb.core.nordic import NordicMain, NordicMacroseismic, NordicComment
+from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
 
 def nordicEventToNordic(nordic):
+    """
+    Method that converts a nordic event object to a nordic file string
+
+    Args:
+        nordic (NordicEvent): event data
+
+    Returns:
+        nordic file as a string array
+    """
     nordic_string = []
 
     nordic_string.append(create_main_header_string(nordic.headers[1][0]))
@@ -29,7 +39,7 @@ def nordicEventToNordic(nordic):
 
     nordic_string.append(create_help_header_string())
 
-    for pd in nordic.phase_data:
+    for pd in nordic.data:
         nordic_string.append(create_phase_data_string(pd))      
 
     nordic_string.append("\n")
@@ -37,112 +47,127 @@ def nordicEventToNordic(nordic):
     return nordic_string
 
 def create_help_header_string():
+    """
+    Function that returns the help header of type 7 as a string. 
+
+    Returns:
+        The help header as a string
+    """
     h_string = " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
     return h_string
 
 def create_main_header_string(hd):
+    """
+    Function that returns the main header of type 1 as a string.
+
+    Args:
+        hd (NordicMain): main header that will be converted
+
+    Returns
+    """
     h_string = " "
-    h_string += add_integer_to_string(hd.date.year, 4, '<')
+    h_string += add_integer_to_string(hd.header[NordicMain.DATE].year, 4, '<')
     h_string += " "
-    h_string += add_integer_to_string(hd.date.month, 2, '0')
-    h_string += add_integer_to_string(hd.date.day, 2, '0')
+    h_string += add_integer_to_string(hd.header[NordicMain.DATE].month, 2, '0')
+    h_string += add_integer_to_string(hd.header[NordicMain.DATE].day, 2, '0')
     h_string += " "
-    h_string += add_integer_to_string(hd.hour, 2, '0')
-    h_string += add_integer_to_string(hd.minute, 2, '0')
+    h_string += add_integer_to_string(hd.header[NordicMain.HOUR], 2, '0')
+    h_string += add_integer_to_string(hd.header[NordicMain.MINUTE], 2, '0')
     h_string += " "
-    h_string += add_float_to_string(hd.second, 4, 1, '>')
-    h_string += add_string_to_string(hd.location_model, 1, '<')
-    h_string += add_string_to_string(hd.distance_indicator, 1, '<')
-    h_string += add_string_to_string(hd.event_desc_id, 1, '<')
-    h_string += add_float_to_string(hd.epicenter_latitude, 7, 3, '>')
-    h_string += add_float_to_string(hd.epicenter_longitude, 8, 3, '>')
-    h_string += add_float_to_string(hd.depth, 5, 1, '>')
-    h_string += add_string_to_string(hd.depth_control, 1, '>')
-    h_string += add_string_to_string(hd.locating_indicator, 1, '>')
-    h_string += add_string_to_string(hd.epicenter_reporting_agency, 3, '<')
-    h_string += add_integer_to_string(hd.stations_used, 3, '>')
-    h_string += add_float_to_string(hd.rms_time_residuals, 4, 1, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.SECOND], 4, 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.LOCATION_MODEL], 1, '<')
+    h_string += add_string_to_string(hd.header[NordicMain.DISTANCE_INDICATOR], 1, '<')
+    h_string += add_string_to_string(hd.header[NordicMain.EVENT_DESC_ID], 1, '<')
+    h_string += add_float_to_string(hd.header[NordicMain.EPICENTER_LATITUDE], 7, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.EPICENTER_LONGITUDE], 8, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.DEPTH], 5, 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.DEPTH_CONTROL], 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.LOCATING_INDICATOR], 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.EPICENTER_REPORTING_AGENCY], 3, '<')
+    h_string += add_integer_to_string(hd.header[NordicMain.STATIONS_USED], 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.RMS_TIME_RESIDUALS], 4, 1, '>')
     h_string += " "
-    h_string += add_float_to_string(hd.magnitude_1, 3, 1, '>')
-    h_string += add_string_to_string(hd.type_of_magnitude_1, 1, '>')
-    h_string += add_string_to_string(hd.magnitude_reporting_agency_1, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.MAGNITUDE_1], 3, 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.TYPE_OF_MAGNITUDE_1], 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1], 3, '>')
     h_string += " "
-    h_string += add_float_to_string(hd.magnitude_2, 3, 1, '>')
-    h_string += add_string_to_string(hd.type_of_magnitude_2, 1, '>')
-    h_string += add_string_to_string(hd.magnitude_reporting_agency_2, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.MAGNITUDE_2], 3, 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.TYPE_OF_MAGNITUDE_2], 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_2], 3, '>')
     h_string += " "
-    h_string += add_float_to_string(hd.magnitude_3, 3, 1, '>')
-    h_string += add_string_to_string(hd.type_of_magnitude_3, 1, '>')
-    h_string += add_string_to_string(hd.magnitude_reporting_agency_3, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicMain.MAGNITUDE_3], 3, 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.TYPE_OF_MAGNITUDE_3], 1, '>')
+    h_string += add_string_to_string(hd.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_3], 3, '>')
     h_string += "1\n"
 
     return h_string
 
 def create_comment_header_string(hd):
+    """
+
+    """
     h_string = " "
-    h_string += add_string_to_string(hd.h_comment, 78, '<')
+    h_string += add_string_to_string(hd.header[NordicComment.H_COMMENT], 78, '<')
     h_string += "3\n"
 
     return h_string
 
-
-
 def create_error_header_string(hd):
     h_string = " "
     h_string += "GAP="
-    h_string += add_integer_to_string(hd.gap, 3, '>')
+    h_string += add_integer_to_string(hd.header[NordicError.GAP], 3,'>')
     h_string += "        "
-    h_string += add_float_to_string(hd.second_error, 4, 1, '>')
+    h_string += add_float_to_string(hd.header[NordicError.SECOND_ERROR], 4, 1, '>')
     h_string += "   "   
-    h_string += add_float_to_string(hd.epicenter_latitude_error, 7, 3, '>')
-    h_string += add_float_to_string(hd.epicenter_longitude_error, 8, 3, '>')
-    h_string += add_float_to_string(hd.depth_error, 5, 1, '>')
+    h_string += add_float_to_string(hd.header[NordicError.EPICENTER_LATITUDE_ERROR], 7, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicError.EPICENTER_LONGITUDE_ERROR], 8, 3, '>')
+    h_string += add_float_to_string(hd.header[NordicError.DEPTH_ERROR], 5, 1, '>')
     h_string += "             " 
-    h_string += add_float_to_string(hd.magnitude_error, 3, 1, '>')
+    h_string += add_float_to_string(hd.header[NordicError.MAGNITUDE_ERROR], 3, 1, '>')
     h_string += "                    5\n"
     return h_string
 
 def create_waveform_header_string(hd):
     h_string = " "
-    h_string += add_string_to_string(hd.waveform_info, 78, '<')
+    h_string += add_string_to_string(hd.header[NordicWaveform.WAVEFORM_INFO], 78, '<')
     h_string += "6\n"
 
     return h_string
 
 def create_phase_data_string(pd):
     phase_string = " "
-    phase_string += add_string_to_string(pd.station_code, 4, '<')
+    phase_string += add_string_to_string(pd.data[NordicData.STATION_CODE], 4, '<')
     phase_string += " "
-    phase_string += add_string_to_string(pd.sp_instrument_type, 1, '<') 
-    phase_string += add_string_to_string(pd.sp_component, 1, '<')
+    phase_string += add_string_to_string(pd.data[NordicData.SP_INSTRUMENT_TYPE], 1, '<') 
+    phase_string += add_string_to_string(pd.data[NordicData.SP_COMPONENT], 1, '<')
     phase_string += " "
-    phase_string += add_string_to_string(pd.quality_indicator, 1, '<')  
-    phase_string += add_string_to_string(pd.phase_type, 4, '<')
-    phase_string += add_integer_to_string(pd.weight, 1, '<')
+    phase_string += add_string_to_string(pd.data[NordicData.QUALITY_INDICATOR], 1, '<')  
+    phase_string += add_string_to_string(pd.data[NordicData.PHASE_TYPE], 4, '<')
+    phase_string += add_integer_to_string(pd.data[NordicData.WEIGHT], 1, '<')
     phase_string += " "
-    phase_string += add_string_to_string(pd.first_motion, 1, '<')
-    phase_string += add_string_to_string(pd.time_info, 1, '<')
-    phase_string += add_integer_to_string(pd.hour, 2, '0')
-    phase_string += add_integer_to_string(pd.minute, 2, '0')
+    phase_string += add_string_to_string(pd.data[NordicData.FIRST_MOTION], 1, '<')
+    phase_string += add_string_to_string(pd.data[NordicData.TIME_INFO], 1, '<')
+    phase_string += add_integer_to_string(pd.data[NordicData.HOUR], 2, '0')
+    phase_string += add_integer_to_string(pd.data[NordicData.MINUTE], 2, '0')
     phase_string += " "
-    phase_string += add_float_to_string(pd.second, 5, 2, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.SECOND], 5, 2, '>')
     phase_string += " "
-    phase_string += add_integer_to_string(pd.signal_duration, 4, '>')
+    phase_string += add_integer_to_string(pd.data[NordicData.SIGNAL_DURATION], 4, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.max_amplitude, 6, 1, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.MAX_AMPLITUDE], 6, 1, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.max_amplitude_period, 4, 1, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.MAX_AMPLITUDE_PERIOD], 4, 1, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.back_azimuth, 5, 1, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.BACK_AZIMUTH], 5, 1, '>')
     phase_string += " "
-    phase_string += add_float_to_string(pd.apparent_velocity, 4, 2, '>')
-    phase_string += add_float_to_string(pd.signal_to_noise, 4, 2, '>')
-    phase_string += add_integer_to_string(pd.azimuth_residual, 3, '>')
-    phase_string += add_float_to_string(pd.travel_time_residual, 5, 1, '>')
-    phase_string += add_integer_to_string(pd.location_weight, 2, '>')   
-    phase_string += add_integer_to_string(pd.epicenter_distance, 5, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.APPARENT_VELOCITY], 4, 2, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.SIGNAL_TO_NOISE], 4, 2, '>')
+    phase_string += add_integer_to_string(pd.data[NordicData.AZIMUTH_RESIDUAL], 3, '>')
+    phase_string += add_float_to_string(pd.data[NordicData.TRAVEL_TIME_RESIDUAL], 5, 1, '>')
+    phase_string += add_integer_to_string(pd.data[NordicData.LOCATION_WEIGHT], 2, '>')   
+    phase_string += add_integer_to_string(pd.data[NordicData.EPICENTER_DISTANCE], 5, '>')
     phase_string += " "
-    phase_string += add_integer_to_string(pd.epicenter_to_station_azimuth, 3, '>')
+    phase_string += add_integer_to_string(pd.data[NordicData.EPICENTER_TO_STATION_AZIMUTH], 3, '>')
     phase_string += " \n"
 
     return phase_string
@@ -202,7 +227,12 @@ def writeNordicEvent(nordicEventId, usr_path, output):
 
     if output is None:
 
-        filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".nordic"
+        filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(
+                        nordic.headers[1][0].header[NordicMain.DATE].year, 
+                        nordic.headers[1][0].header[NordicMain.DATE].timetuple().tm_yday, 
+                        nordic.headers[1][0].header[NordicMain.HOUR], 
+                        nordic.headers[1][0].header[NordicMain.MINUTE], 
+                        int(nordic.headers[1][0].header[NordicMain.SECOND])) + ".nordic"
         
         print(filename + " has been created!")
     

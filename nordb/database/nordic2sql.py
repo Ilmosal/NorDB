@@ -32,13 +32,65 @@ EVENT_TYPE_VALUES = {
 }
 
 INSERT_COMMANDS = {
-1:"INSERT INTO nordic_header_main (event_id, date, hour, minute, second, location_model, distance_indicator, event_desc_id, epicenter_latitude, epicenter_longitude, depth, depth_control, locating_indicator, epicenter_reporting_agency, stations_used, rms_time_residuals, magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;",
-2:"INSERT INTO nordic_header_macroseismic (event_id, description, diastrophism_code, tsunami_code, seiche_code, cultural_effects, unusual_effects, maximum_observed_intensity, maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, logarithm_of_area_2, bordering_intensity_2, quality_rank, reporting_agency) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-3:"INSERT INTO nordic_header_comment (event_id, h_comment) VALUES (%s, %s);",
-5:"INSERT INTO nordic_header_error (header_id, gap, second_error, epicenter_latitude_error, epicenter_longitude_error, depth_error, magnitude_error) VALUES (%s, %s, %s, %s, %s, %s, %s);",
-6:"INSERT INTO nordic_header_waveform (event_id, waveform_info) VALUES (%s, %s);",
-7:"INSERT INTO nordic_phase_data (event_id, station_code, sp_instrument_type, sp_component, quality_indicator, phase_type, weight, first_motion, time_info, hour, minute, second, signal_duration, max_amplitude, max_amplitude_period, back_azimuth, apparent_velocity, signal_to_noise, azimuth_residual, travel_time_residual, location_weight, epicenter_distance, epicenter_to_station_azimuth) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
-8:"INSERT INTO creation_info DEFAULT VALUES RETURNING id"
+                    1:  "INSERT INTO " +
+                           "nordic_header_main " +
+                           "(date, hour, minute, second, location_model, " +
+                            "distance_indicator, event_desc_id, epicenter_latitude, " +
+                            "epicenter_longitude, depth, depth_control, " +
+                            "locating_indicator, epicenter_reporting_agency, " +
+                            "stations_used, rms_time_residuals, magnitude_1, " +
+                            "type_of_magnitude_1, magnitude_reporting_agency_1, " +
+                            "magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " +
+                            "magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " +
+                            "event_id) " +
+                        "VALUES " +
+                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
+                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
+                        "RETURNING " +
+                           "id;",
+                    2:  "INSERT INTO " +
+                           "nordic_header_macroseismic " +
+                           "(description, diastrophism_code, tsunami_code, seiche_code, " +
+                            "cultural_effects, unusual_effects, maximum_observed_intensity, " +
+                            "maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, " +
+                            "macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " +
+                            "logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " +
+                            "logarithm_of_area_2, bordering_intensity_2, quality_rank, " +
+                            "reporting_agency, event_id) " +
+                        "VALUES " +
+                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
+                           " %s, %s, %s, %s, %s, %s);",
+                    3:  "INSERT INTO  " +
+                           "nordic_header_comment  " +
+                           "(h_comment, event_id)  " +
+                        "VALUES  " +
+                           "(%s, %s);",
+                    5:  "INSERT INTO  " +
+                           "nordic_header_error  " +
+                           "(gap, second_error, epicenter_latitude_error, " +
+                            "epicenter_longitude_error,  depth_error, " +
+                            "magnitude_error, header_id)  " +
+                        "VALUES  " +
+                           "(%s, %s, %s, %s, %s, %s, %s);",
+                    6:  "INSERT INTO  " +
+                           "nordic_header_waveform  " +
+                           "(waveform_info, event_id)  " +
+                        "VALUES  " +
+                           "(%s, %s);",
+                    7:  "INSERT INTO  " +
+                           "nordic_phase_data  " +
+                           "(station_code, sp_instrument_type, sp_component, quality_indicator, " +
+                            "phase_type, weight, first_motion, time_info, hour, minute, second, " +
+                            "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " +
+                            "apparent_velocity, signal_to_noise, azimuth_residual, " +
+                            "travel_time_residual, location_weight, epicenter_distance, " + 
+                            "epicenter_to_station_azimuth, event_id) " +
+                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
+                                 "%s, %s, %s, %s, %s, %s, %s, %s, %s);", 
+                    8:  "INSERT INTO  " +
+                           "creation_info  " +
+                        "DEFAULT VALUES  " +
+                        "RETURNING id"
 }
 
 def read_headers(nordic_string):
@@ -52,7 +104,8 @@ def read_headers(nordic_string):
         List of Header objects 
     """
     i = 1
-    headers = []
+    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
+    
     #find where the data starts 
     while (i < len(nordic_string)):
         if (nordic_string[i][79] == ' '):
@@ -63,22 +116,24 @@ def read_headers(nordic_string):
     if (len(nordic_string) != i):
         i-=1
 
+    mheader_pos = -1
+
     #read the header lines
     for x in range(0, i):
         if (nordic_string[x][79] == '1'):
-            headers.append(nordic.createStringMainHeader(nordic_string[x]))
+            headers[1].append(nordic.createStringMainHeader(nordic_string[x]))
+            mheader_pos = len(headers[1])-1
         elif (nordic_string[x][79] == '2'):
-            headers.append(nordic.createStringMacroseismicHeader(nordic_string[x]))
+            headers[2].append(nordic.createStringMacroseismicHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '3'):
-            headers.append(nordic.createStringCommentHeader(nordic_string[x]))
+            headers[3].append(nordic.createStringCommentHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '5'):
-            headers.append(nordic.createStringErrorHeader(nordic_string[x]))
+            headers[5].append(nordic.createStringErrorHeader(nordic_string[x], mheader_pos))
         elif (nordic_string[x][79] == '6'):
-            headers.append(nordic.createStringWaveformHeader(nordic_string[x]))
+            headers[6].append(nordic.createStringWaveformHeader(nordic_string[x]))
 
     return headers
     
-#function for reading one event and pushing it to the database
 def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
     """
     Method for reading one event and pushing it to the database
@@ -102,19 +157,17 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
 
     cur = conn.cursor()
 
-    #Getting the nordic_event id from the database
     if not nordic_string:
         conn.close()
         return False
 
-    #Reading headers and data 
     headers = read_headers(nordic_string)
     data = []
 
     author_id = "---"
     
     #Get the author_id from the comment header
-    for header in headers:
+    for header in headers[3]:
         if header.header_type == 3:
             if fnmatch.fnmatch(header.header[NordicComment.H_COMMENT], "*(???)*"):
                 for x in range(0, len(header.header[NordicComment.H_COMMENT])-4):
@@ -129,42 +182,40 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     if filenameids is not None:
         filename_id = filenameids[0]
 
-    #Read the data
     for x in range(len(headers), len(nordic_string)):
         data.append(nordic.createStringPhaseData(nordic_string[x]))
 
-    #Generate the event
     nordic_event = NordicEvent(headers, data)
     
     if fixNordic:
          nordicFix.fixNordicEvent(nordic_event)
-
-    #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
+    
     if not nordicValidation.validateNordic(nordic_event, cur):
-        logging.error("Nordic validation failed with event: \n" + headers[0].header[NordicMain.O_STRING])
+        logging.error("Nordic validation failed with event: \n" 
+                        + headers[0].header[NordicMain.O_STRING])
         conn.close()
         return False
 
+    #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. 
+    #DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
+
     e_id = -1
 
- #   if not no_duplicates:
- #       ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
-#        e_id = ans[0]
+    if not no_duplicates:
+        ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
+        e_id = ans[0]
 
-#        if e_id == -1:
-#            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
-#            e_id = ans[0]
+        if e_id == -1:
+            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+            e_id = ans[0]
 
-#        if e_id == -9:
-#            return False
-
-#        if ignore_duplicates and e_id > -1:
-#            return False
+        if e_id == -9:
+            return False
+        if ignore_duplicates and e_id > -1:
+            return False
             
-    sys.exit()
-
     root_id = -1
-    #GET THE ROOT ID HERE
+
     if e_id >= 0:
         cur.execute("SELECT root_id from nordic_event WHERE id = %s", (e_id,))
         root_id = cur.fetchone()[0]
@@ -179,8 +230,13 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
             filename_id = cur.fetchone()[0]
 
 
-        #Add a new nordic_event to the db
-        cur.execute("INSERT INTO nordic_event (event_type, root_id, nordic_file_id, author_id, creation_id) VALUES (%s, %s, %s, %s, %s) RETURNING id", 
+        cur.execute("INSERT INTO  " +
+                       "nordic_event  " +
+                       "(event_type, root_id, nordic_file_id, author_id, creation_id)  " +
+                    "VALUES  " +
+                       "(%s, %s, %s, %s, %s)  " +
+                    "RETURNING  " +
+                       "id", 
                     (event_type, 
                     root_id, 
                     filename_id, 
@@ -190,35 +246,52 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
         event_id = cur.fetchone()[0]
         
         if e_id != -1 and EVENT_TYPE_VALUES[event_type] == EVENT_TYPE_VALUES[ans[1]] and event_type not in "AO":
-            cur.execute("INSERT INTO nordic_modified (event_id, replacement_event_id, old_event_type, replaced) VALUES (%s, %s, %s, %s)", 
+            cur.execute("INSERT INTO  " +
+                           "nordic_modified " + 
+                           "(event_id, replacement_event_id, old_event_type, replaced)  " +
+                        "VALUES  " +
+                           "(%s, %s, %s, %s)", 
                         (e_id, 
                         event_id, 
                         event_type, 
                         '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())))
-            cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (str(e_id),))
+            cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (e_id,))
 
         #Add all headers to the database
-        for h in nordic_event.headers:
-            if h.tpe == 1:
-                h.event_id = str(event_id)
-                mheader_id = execute_command(cur, INSERT_COMMANDS[1], nordicHandler.createMainHeaderList(h), True)[0]
-            elif h.tpe == 2:
-                h.event_id = str(event_id)
-                execute_command(cur, INSERT_COMMANDS[2], nordicHandler.createMacroseismicHeaderList(h), False)
-            elif h.tpe == 3:
-                h.event_id = str(event_id)
-                execute_command(cur, INSERT_COMMANDS[3], nordicHandler.createCommentHeaderList(h), False)
-            elif h.tpe == 5:
-                h.header_id = str(mheader_id)
-                execute_command(cur, INSERT_COMMANDS[5], nordicHandler.createErrorHeaderList(h), False)
-            elif h.tpe == 6:
-                h.event_id = str(event_id)
-                execute_command(cur, INSERT_COMMANDS[6], nordicHandler.createWaveformHeaderList(h), False)
+        
+        header_ids = []
+        for h in nordic_event.headers[1]:
+            header_ids.append(execute_command(  cur, 
+                                                INSERT_COMMANDS[1], 
+                                                nordic.mainString2Main(h, event_id).header, 
+                                                True))
+        for h in nordic_event.headers[2]:
+            execute_command(    cur, 
+                                INSERT_COMMANDS[2], 
+                                nordic.macroseismicString2Macroseismic(h, event_id).header,   
+                                False)
+        for h in nordic_event.headers[3]:
+            execute_command(    cur, 
+                                INSERT_COMMANDS[3], 
+                                nordic.commentString2Comment(h, event_id).header,   
+                                False)
+        for h in nordic_event.headers[5]:       
+            execute_command(    cur, 
+                                INSERT_COMMANDS[5], 
+                                nordic.errorString2Error(h, header_ids[h.header_pos]).header, 
+                                False)
+        for h in nordic_event.headers[6]:
+            execute_command(    cur, 
+                                INSERT_COMMANDS[6], 
+                                nordic.waveformString2Waveform(h, event_id).header, 
+                                False)
 
         #Adding the data to the database
         for phase_data in nordic_event.data:
-            phase_data.event_id = str(event_id)
-            execute_command(cur, INSERT_COMMANDS[7], nordicHandler.createPhaseDataList(phase_data), False)
+            execute_command(    cur, 
+                                INSERT_COMMANDS[7], 
+                                nordic.dataString2Data(phase_data, event_id).data, 
+                                False)
 
         conn.commit()
         conn.close()
@@ -272,7 +345,14 @@ def delete_creation_info_if_unnecessary(creation_id):
 
     cur = conn.cursor()
 
-    cur.execute("SELECT COUNT(*) from nordic_event, creation_info WHERE nordic_event.creation_id = creation_info.id AND creation_info.id = %s;", (creation_id,))
+    cur.execute("SELECT  " +
+                   "COUNT(*)  " +
+                "FROM  " +
+                   "nordic_event, creation_info  " +
+                "WHERE  " +
+                   "nordic_event.creation_id = creation_info.id  " +
+                   "AND creation_info.id = %s;", 
+                (creation_id,))
 
     if cur.fetchone()[0] == 0:
         cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
@@ -302,10 +382,10 @@ def execute_command(cur, command, vals, returnValue):
         logging.error(e.pgerror)
         sys.exit()
     if returnValue:
-        return cur.fetchone()
+        return cur.fetchone()[0]
     else:
         return None
-#function for reading a nordicp file
+
 def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
     """
     Function for reading the whole file and all the events in it to the database.

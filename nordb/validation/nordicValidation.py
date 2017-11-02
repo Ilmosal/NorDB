@@ -23,26 +23,19 @@ def validateNordic(nordic_event, cur):
     if not nordicEventValidation.validateEventHeader(nordic_event):
         validation_error = True
 
-    if nordic_event.headers[0].header_type != 1:
-        msg = "Validation Error - Nordic Event: First Header is not of type 1! {0}"
-        logging.error(msg.format(nordic_event.headers[0].header_type))
-        validation_error = True
-
-
-    for header in nordic_event.headers:
-        if (header.header_type == 1):
+    for header in nordic_event.headers[1]:
             if not nordicMainValidation.validateMainHeader(header):
                 validation_error = True
-        elif (header.header_type == 2):
+    for header in nordic_event.headers[2]:
             if not nordicMacroseismicValidation.validateMacroseismicHeader(header):
                 validation_error = True
-        elif (header.header_type == 3):
+    for header in nordic_event.headers[3]:
             if not nordicCommentValidation.validateCommentHeader(header):
                 validation_error = True
-        elif (header.header_type == 5):
+    for header in nordic_event.headers[5]:
             if not nordicErrorValidation.validateErrorHeader(header):
                 validation_error = True
-        elif (header.header_type == 6):
+    for header in nordic_event.headers[6]:
             if not nordicWaveformValidation.validateWaveformHeader(header):
                 validation_error = True
 

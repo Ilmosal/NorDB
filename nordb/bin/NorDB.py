@@ -108,7 +108,7 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
 @click.argument('network', default="HEL")
 @click.pass_obj
-def insertStation(repo, station_file, network):
+def insertsta(repo, station_file, network):
     """
     This command adds a site table to the database
     """
@@ -122,7 +122,7 @@ def insertStation(repo, station_file, network):
 @click.option('--o-format', default="site", type=click.Choice(["site", "stationxml"]))
 @click.option('--network', default="HEL")
 @click.pass_obj
-def getStation(repo, output, o_format, network):
+def getsta(repo, output, o_format, network):
     """
     This command fetches the stations that match the criteria given by user.
     """
@@ -135,7 +135,7 @@ def getStation(repo, output, o_format, network):
 @click.option('--root-id', default=-999, type=click.INT, help="root to which the event is attached to")
 @click.argument('event-id', type=click.INT)
 @click.pass_obj
-def changeroot(repo, root_id, event_id):
+def chgroot(repo, root_id, event_id):
     """
     This command changes the root id of a event to root id given by user or creates a new root for the event. If no root-id is given to the command, it will attach the event to a new root.
     """
@@ -145,7 +145,7 @@ def changeroot(repo, root_id, event_id):
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.argument('event-id', type=click.INT)
 @click.pass_obj
-def changetype(repo, event_type, event_id):
+def chgtype(repo, event_type, event_id):
     """
     This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. 
     """
@@ -156,7 +156,7 @@ def changetype(repo, event_type, event_id):
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.option('--fix', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
 @click.option('--ignore-duplicates', is_flag=True, help="In case of a duplicate event, ignore the new event")
-@click.option('--no-duplicates', default=True, is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
+@click.option('--no-duplicates', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames):
