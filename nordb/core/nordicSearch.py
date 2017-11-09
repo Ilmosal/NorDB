@@ -2,7 +2,8 @@ from datetime import date
 import logging
 import psycopg2
 
-from nordb.core import nordicHandler, usernameUtilities
+from nordb.core import usernameUtilities
+from nordb.database import getNordic
 from nordb.database import sql2nordic
 
 username = ""
@@ -260,8 +261,6 @@ def returnValueFromString(value):
     if len(value) == 1:
         return value
  
-    print (value)
-
     return False
 
 def string2Command(sCommand, cmd_type):
@@ -280,7 +279,7 @@ def string2Command(sCommand, cmd_type):
         if len(sCommand) != 1:
             raise ValueError
 
-    if len(parts) == 2 and parts[1] != "": 
+    if len(parts) == 2 and parts[1] != "" and sCommand[0] != "-": 
         val1 = returnValueFromString(parts[0])
         val2 = returnValueFromString(parts[1])
         if val1 is False or val2 is False:
@@ -376,17 +375,17 @@ def createSearchQuery(commands):
         
         if value == "event_type":
             if commands[c].command_tpe == 1:
-                query += " AND nordic_event." + value + " LIKE %s"
+                query += " AND nordic_event." + value + " = %s"
                 vals += (commands[c].value,)
 
             elif commands[c].command_tpe == 2:
-                query += " AND nordic_event." + value + " LIKE [%s]"
+                query += " AND nordic_event." + value + " = %s"
                 vals += (rangeOfEventType(commands[c].valueLower, commands[c].valueUpper),)
             elif commands[c].command_tpe == 3:
-                query += " AND nordic_event." + value + " LIKE [%s]"
+                query += " AND nordic_event." + value + " = %s"
                 vals += (rangeOfEventType(commands[c].value), 'S')
             elif commands[c].command_tpe == 4:
-                query += " AND nordic_event." + value + " LIKE [%s]"
+                query += " AND nordic_event." + value + " = %s"
                 vals += ('O',rangeOfEventType(commands[c].value))
         else:     
             if commands[c].command_tpe == 1:
@@ -580,7 +579,7 @@ def printNordic(events, criteria, verbose):
 
         if verbose:
             for event in events:
-                nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))
+                nordic = sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))
                 print("Event ID: {0}".format(a[0]))
                 for line in nordic:
                     print(line, end='')
@@ -594,9 +593,10 @@ def printNordic(events, criteria, verbose):
 
             print("EID" +" "*(largest+1) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
             for event in events:
-                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))[0][:-2]))
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))[0][:-2]))
 
         conn.close()
+
 def searchWithCriteria(criteria):
     """
     Method for searching events with given criteria. Description for the criteria is given in the documentation of searchNordic.

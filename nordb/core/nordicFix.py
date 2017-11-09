@@ -88,11 +88,12 @@ def fixNordicEvent(nordicEvent):
         nordicEvent: Nordic Event Class object before validation.
 
     """
-    for h in nordicEvent.headers:
-        if h.header_type == 1:
-            fixMainData(h)
-        elif h.header_type == 5:
-            fixErrorData(h)
+    
+    for h in nordicEvent.headers[1]:
+        fixMainData(h)
+
+    for h in nordicEvent.headers[5]:
+        fixErrorData(h)
 
     for data in nordicEvent.data:
         fixPhaseData(data)

@@ -161,9 +161,6 @@ def chgtype(repo, event_type, event_id):
 @click.pass_obj
 def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames):
     """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
-    if ignore_duplicates and no_duplicates:
-        click.echo("--ignore-duplicates and --no-duplicates cannot be on at the same time!")
-        return
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
@@ -194,7 +191,7 @@ def destroy(repo):
 
 @cli.command()
 @click.confirmation_option()
-@click.option("--reset-type", required=True, type=click.Choice(["all", "events", "stations"]))
+@click.argument("reset-type", default="all", type=click.Choice(["all", "events", "stations"]))
 @click.pass_obj
 def reset(repo, reset_type):
     """Resets the database to it's orginal form but keeps the tables intact. WARNING: this command will delete all information in the database"""

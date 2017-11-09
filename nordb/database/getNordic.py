@@ -2,6 +2,7 @@ import psycopg2
 import logging
 
 from nordb.core import nordic
+from nordb.core.nordic import NordicWaveform
 
 SELECT_QUERY =   {
                   1:"SELECT " +
@@ -112,7 +113,7 @@ def readNordicEvent(cur, event_id):
     ans = cur.fetchall()
 
     for a in ans:
-        headers[nordic.NordicWaveform.header_type].append(NordicWaveform(nordic.a))
+        headers[nordic.NordicWaveform.header_type].append(NordicWaveform(a))
 
     cur.execute(SELECT_QUERY[nordic.NordicData.header_type], (event_id,))
     ans = cur.fetchall()

@@ -10,6 +10,7 @@ username = ""
 from nordb.core.nordic import NordicMain, NordicMacroseismic, NordicComment
 from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
+from nordb.database import getNordic
 
 def nordicEventToNordic(nordic):
     """
@@ -218,8 +219,8 @@ def writeNordicEvent(nordicEventId, usr_path, output):
 
     cur = conn.cursor()
 
-    nordic = nordicHandler.readNordicEvent(cur, nordicEventId)
-    
+    nordic = getNordic.readNordicEvent(cur, nordicEventId)
+   
     if nordic == None:
         return False
     

@@ -439,7 +439,7 @@ def macroseismicString2Macroseismic(macro_string, event_id):
     macro[NordicMacroseismic.REPORTING_AGENCY]              = returnString  (macro_string.header[NordicMacroseismic.REPORTING_AGENCY])
     macro[NordicMacroseismic.EVENT_ID]                      = event_id
 
-    return macro
+    return NordicMacroseismic(macro)
 
 def commentString2Comment(comment_string, event_id):
     """
@@ -495,7 +495,7 @@ def waveformString2Waveform(waveform_string, event_id):
     """
     waveform = [None]*2
 
-    waveform[NordicWaveform.WAVEFORM_INFO]  = returnString  (waveform_error[NordicWaveform.WAVEFORM_INFO])
+    waveform[NordicWaveform.WAVEFORM_INFO]  = returnString  (waveform_string.header[NordicWaveform.WAVEFORM_INFO])
     waveform[NordicWaveform.EVENT_ID]       = event_id
 
     return NordicWaveform(waveform)

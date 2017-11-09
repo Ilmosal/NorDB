@@ -9,13 +9,14 @@ from nordb.database import getNordic
 
 username = ""
 
-def checkForSameEvents(nordic_event, cur):
+def checkForSameEvents(nordic_event, cur, ignore_duplicates):
     """
     Method for finding same events compared to validated nordic string object and asking.
 
     Args:
         nordic_event(): nordic event string class
         cur(psycopg2.connect.cursor): psycopg cursor class
+        ignore_duplicates(bool): flag for if duplicate events need to be ignored
     
     Returns:
         The id of the chosen same event
@@ -43,6 +44,9 @@ def checkForSameEvents(nordic_event, cur):
 
     if e_info is None or e_info == []:
         return [-1, None]
+
+    if ignore_duplicates:
+        return e_info[0]
 
     print("Nordics with same information found! Does one of following events represent the same event?")
     largest = -1
@@ -143,12 +147,20 @@ def checkForSimilarEvents(nordic_event, cur):
     if weight_string == "(":
         return [-1, None]
 
+    if weight_string[-2] == "+":
+        weight_string = weight_string[:-2]
+
     weight_string += ")"
     values += values
     values += (nordic_event.headers[1][0].header[NordicMain.DATE],)
 
-    cur.execute("SELECT event_id, event_type FROM nordic_event, (SELECT event_id, " + weight_string + " as search_weight FROM nordic_header_main) AS header WHERE (event_id, search_weight) IN (SELECT event_id, MIN("+ weight_string +") AS search_weight FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MAX(event_type) as event_type FROM nordic_event GROUP BY root_id) AND date=%s AND nordic_header_main.event_id = nordic_event.id GROUP BY event_id) AND event_id = nordic_event.id ORDER BY search_weight", values)
-
+    try:
+        cur.execute("SELECT event_id, event_type FROM nordic_event, (SELECT event_id, " + weight_string + " as search_weight FROM nordic_header_main) AS header WHERE (event_id, search_weight) IN (SELECT event_id, MIN("+ weight_string +") AS search_weight FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MAX(event_type) as event_type FROM nordic_event GROUP BY root_id) AND date=%s AND nordic_header_main.event_id = nordic_event.id GROUP BY event_id) AND event_id = nordic_event.id ORDER BY search_weight", values)
+    except:
+        print(weight_string)
+        print(values)
+        raise ValueError
+    
     e_info = cur.fetchall()
    
     if e_info == []:

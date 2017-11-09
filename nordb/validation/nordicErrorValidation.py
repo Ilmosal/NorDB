@@ -10,14 +10,15 @@ from nordb.core.nordic import NordicError
 def validateErrorHeader(header):
     validation = True
     mheader = 5
-
-    if not validationTools.validateInteger(header.header[NordicError.GAP],
-                                            "gap",
-                                            0,
-                                            359,
-                                            True,
-                                            mheader):
-        validation = False
+    
+    if header.header[NordicError.GAP].strip() != "t":
+        if not validationTools.validateInteger(header.header[NordicError.GAP],
+                                                "gap",
+                                                0,
+                                                359,
+                                                True,
+                                                mheader):
+            validation = False
     
     if not validationTools.validateFloat(header.header[NordicError.SECOND_ERROR],   
                                         "second error",

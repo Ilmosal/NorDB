@@ -10,7 +10,8 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("sql2quakeml.py")]
 
 username = ""
 
-from nordb.core import nordicHandler
+from nordb.core.nordic import NordicEvent, NordicMain, NordicMacroseismic, NordicComment
+from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
 import psycopg2
 
@@ -25,12 +26,28 @@ MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'M
 INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH', 'H': '?H', 'E':'?E'}
 
 def addEventParameters(quakeml, nordic, long_quakeML):
+    """
+    Function that adds event parameters to a quakeml etree object.
+
+    Args:
+        quakeml(etree.XML): quakeml root object
+        nordic (NordicEvent): nordic event object
+        long_quakeML(bool): flag for if the required file is a long or a short one
+    """
     eventParameters = etree.SubElement(quakeml, "eventParameters")
     eventParameters.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/eventParameter"
     
     addEvent(eventParameters, nordic, long_quakeML)
 
 def addEvent(eventParameters, nordic, long_quakeML):
+    """
+    Function for adding a complete event etree object to a eventParameters object
+
+    Args:
+        eventParameters(etree.XML): eventParameters object
+        nordic (NordicEvent): nordic event_file
+        long_quakeML(bool): flag for if the required file is a long or a short one
+    """
     #Add event
     event = etree.SubElement(eventParameters, "event")
     event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/"
@@ -38,26 +55,24 @@ def addEvent(eventParameters, nordic, long_quakeML):
     #Adding event type  
     event_type_txt = " "
     for header in nordic.headers[1]:
-        if header.event_desc_id is not None:
-            event_type_txt = header.event_desc_id
+        if header.header[NordicMain.EVENT_DESC_ID] is not None:
+            event_type_txt = header.header[NordicMain.EVENT_DESC_ID]
 
     event_type = etree.SubElement(event, "type")
     event_type.text = EVENT_TYPE_CONVERSION[event_type_txt]
 
     #Adding event comments
     for header_comment in nordic.headers[3]:
-        if header_comment.h_comment is not None:
+        if header_comment.header[NordicComment.H_COMMENT] is not None:
             event_comment = etree.SubElement(event, "comment")
             event_comment_txt = etree.SubElement(event_comment, "text")
-            event_comment_txt.text = header_comment.h_comment
+            event_comment_txt.text = header_comment.header[NordicComment.H_COMMENT]
 
     #Creating the all elements and their subelement
     for i in range(0,len(nordic.headers[1])):
         addOrigin(event, nordic, i)
     
         #Adding preferred OriginID  
-        
-
         if long_quakeML:
             addMagnitude(event, nordic, i)
     
@@ -72,8 +87,16 @@ def addEvent(eventParameters, nordic, long_quakeML):
                 addArrival(origin, phase_data, nordic)
 
 def addPick(event, nordic, phase_data):
+    """
+    Function for adding a complete event etree object to a eventParameters object
+
+    Args:
+        evemt (etree.XML): event object
+        nordic (NordicEvent): nordic event_file
+        phase_data(NordicData): nordic phase data object
+    """
     pick = etree.SubElement(event, "pick")
-    pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/pick/" + str(phase_data.phase_id)
+    pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "event/pick/" + str(phase_data.data[NordicData.PHASE_ID])
 
     time_value = ""
     #time value for the pick    

@@ -101,7 +101,7 @@ def read_headers(nordic_string):
         nordic (str[]): nordic file in string array form
 
     Returns:
-        List of Header objects 
+        List of Header objects, amount of headers
     """
     i = 1
     headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
@@ -132,7 +132,7 @@ def read_headers(nordic_string):
         elif (nordic_string[x][79] == '6'):
             headers[6].append(nordic.createStringWaveformHeader(nordic_string[x]))
 
-    return headers
+    return headers, i
     
 def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
     """
@@ -161,7 +161,7 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
         conn.close()
         return False
 
-    headers = read_headers(nordic_string)
+    headers, headers_size = read_headers(nordic_string)
     data = []
 
     author_id = "---"
@@ -182,17 +182,17 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     if filenameids is not None:
         filename_id = filenameids[0]
 
-    for x in range(len(headers), len(nordic_string)):
+    for x in range(headers_size, len(nordic_string)):
         data.append(nordic.createStringPhaseData(nordic_string[x]))
-
-    nordic_event = NordicEvent(headers, data)
     
+    nordic_event = NordicEvent(headers, data)
+   
     if fixNordic:
          nordicFix.fixNordicEvent(nordic_event)
     
     if not nordicValidation.validateNordic(nordic_event, cur):
         logging.error("Nordic validation failed with event: \n" 
-                        + headers[0].header[NordicMain.O_STRING])
+                        + headers[1][0].header[NordicMain.O_STRING])
         conn.close()
         return False
 
@@ -200,9 +200,8 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     #DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
 
     e_id = -1
-
     if not no_duplicates:
-        ans = nordicFindOld.checkForSameEvents(nordic_event, cur)
+        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
         e_id = ans[0]
 
         if e_id == -1:
@@ -211,9 +210,14 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
 
         if e_id == -9:
             return False
-        if ignore_duplicates and e_id > -1:
+        if ignore_duplicates and e_id > 0:
             return False
-            
+    elif ignore_duplicates:
+        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
+        e_id = ans[0]
+
+        if e_id > 0:
+            return False
     root_id = -1
 
     if e_id >= 0:

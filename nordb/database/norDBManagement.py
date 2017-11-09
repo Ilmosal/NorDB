@@ -52,6 +52,7 @@ def create_database():
     cur.execute(open(MODULE_PATH + "../sql/nordic_phase_data.sql", "r").read())
     cur.execute(open(MODULE_PATH + "../sql/network.sql", "r").read())
     cur.execute(open(MODULE_PATH + "../sql/station.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "../sql/sitechan.sql", "r").read())
 
     conn.commit()
     conn.close()
