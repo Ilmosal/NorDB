@@ -37,6 +37,9 @@ def nordicEventToNordic(nordic):
 
     for i in range(1,len(nordic.headers[1])):
         nordic_string.append(create_main_header_string(nordic.headers[1][i]))
+        for h_error in nordic.headers[5]:
+            if h_error.header[NordicError.HEADER_ID] == nordic.headers[1][i].header[NordicMain.ID]:
+                nordic_string.append(create_error_header_string(h_error))
 
     nordic_string.append(create_help_header_string())
 

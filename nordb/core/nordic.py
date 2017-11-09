@@ -4,9 +4,10 @@ class NordicEvent:
     """
     Container object of nordic event information
     """
-    def __init__(self, headers, data):
+    def __init__(self, headers, data, event_id):
         self.headers = headers
         self.data = data
+        self.event_id = event_id
     
 class NordicData:
     header_type = 7
@@ -33,6 +34,7 @@ class NordicData:
     EPICENTER_DISTANCE = 20
     EPICENTER_TO_STATION_AZIMUTH = 21
     EVENT_ID = 22
+    ID = 23
 
     def __init__(self, data):
         self.data = data
@@ -64,7 +66,8 @@ class NordicMain:
     TYPE_OF_MAGNITUDE_3 = 22
     MAGNITUDE_REPORTING_AGENCY_3 = 23
     EVENT_ID = 24
-    O_STRING = 25
+    ID = 25
+    O_STRING = 26
 
     def __init__(self, header):
         self.header = header
@@ -92,6 +95,7 @@ class NordicMacroseismic:
     QUALITY_RANK = 18
     REPORTING_AGENCY = 19
     EVENT_ID = 20
+    ID = 21
 
     def __init__(self, header):
         self.header = header
@@ -100,6 +104,7 @@ class NordicComment:
     header_type = 3
     H_COMMENT = 0
     EVENT_ID = 1
+    ID = 2
 
     def __init__(self, header):
         self.header = header
@@ -113,6 +118,7 @@ class NordicError:
     DEPTH_ERROR = 4
     MAGNITUDE_ERROR = 5
     HEADER_ID = 6
+    ID = 7
 
     def __init__(self, header, header_pos):
         self.header = header
@@ -123,7 +129,7 @@ class NordicWaveform:
     header_type = 6
     WAVEFORM_INFO = 0
     EVENT_ID = 1
-
+    ID = 2
     def __init__(self, header):
         self.header = header
 
@@ -139,7 +145,7 @@ def createStringMainHeader(header):
         list of values parsed from header
     """
 
-    nordic_main = [None]*26
+    nordic_main = [None]*27
 
     nordic_main[NordicMain.DATE] = header[1:5] + "-" + header[6:8] + "-" + header[8:10]
     nordic_main[NordicMain.HOUR ] = header[11:13].strip()

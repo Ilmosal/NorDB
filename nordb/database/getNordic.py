@@ -25,26 +25,26 @@ SELECT_QUERY =   {
                        "macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " +
                        "logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " +
                        "logarithm_of_area_2, bordering_intensity_2, quality_rank,  " +
-                       "reporting_agency, event_id " +
+                       "reporting_agency, event_id, id " +
                    "FROM " +
                        "nordic_header_macroseismic " +
                    "WHERE " +
                        "event_id = %s",
                   3:"SELECT " +
-                       "h_comment, event_id " +
+                       "h_comment, event_id, id " +
                     "FROM " +
                        "nordic_header_comment " +
                     "WHERE " +
                        "event_id = %s",
                   5:"SELECT " +
                        "gap, second_error, epicenter_latitude_error, epicenter_longitude_error, " +
-                       "depth_error, magnitude_error, header_id " +
+                       "depth_error, magnitude_error, header_id, id " +
                     "FROM " +
                        "nordic_header_error " +
                     "WHERE " +
                        "header_id = %s",
                   6:"SELECT " +
-                       "waveform_info, event_id " +
+                       "waveform_info, event_id, id " +
                     "FROM " +
                        "nordic_header_waveform " +
                     "WHERE " +
@@ -55,7 +55,7 @@ SELECT_QUERY =   {
                         "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " +
                         "apparent_velocity, signal_to_noise, azimuth_residual, " +
                         "travel_time_residual, location_weight, epicenter_distance, " + 
-                        "epicenter_to_station_azimuth, event_id " +
+                        "epicenter_to_station_azimuth, event_id, id " +
                      "FROM " +
                         "nordic_phase_data " +
                      "WHERE " +
@@ -81,14 +81,14 @@ def readNordicEvent(cur, event_id):
     ans = cur.fetchone()
 
     if not ans:
-        logging.error("Event with id {0} deos not exists!".format(event_id))
+        logging.error("Event with id {0} does not exists!".format(event_id))
 
     cur.execute(SELECT_QUERY[nordic.NordicMain.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
         main_ids.append(a[-1])
-        headers[nordic.NordicMain.header_type].append(nordic.NordicMain(a[:-1]))
+        headers[nordic.NordicMain.header_type].append(nordic.NordicMain(a))
 
     cur.execute(SELECT_QUERY[nordic.NordicMacroseismic.header_type], (event_id,))
     ans = cur.fetchall()
@@ -121,5 +121,5 @@ def readNordicEvent(cur, event_id):
     for a in ans:
         data.append(nordic.NordicData(a))
 
-    return nordic.NordicEvent(headers, data)
+    return nordic.NordicEvent(headers, data, event_id)
 

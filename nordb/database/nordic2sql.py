@@ -185,7 +185,7 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     for x in range(headers_size, len(nordic_string)):
         data.append(nordic.createStringPhaseData(nordic_string[x]))
     
-    nordic_event = NordicEvent(headers, data)
+    nordic_event = NordicEvent(headers, data, -1)
    
     if fixNordic:
          nordicFix.fixNordicEvent(nordic_event)

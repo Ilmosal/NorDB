@@ -50,7 +50,7 @@ def addEvent(eventParameters, nordic, long_quakeML):
     """
     #Add event
     event = etree.SubElement(eventParameters, "event")
-    event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/"
+    event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/" + str(nordic.headers[1][0].header[NordicMain.ID])
 
     #Adding event type  
     event_type_txt = " "
@@ -96,31 +96,29 @@ def addPick(event, nordic, phase_data):
         phase_data(NordicData): nordic phase data object
     """
     pick = etree.SubElement(event, "pick")
-    pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "event/pick/" + str(phase_data.data[NordicData.PHASE_ID])
+    pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/pick/" + str(phase_data.data[NordicData.ID])
 
     time_value = ""
     #time value for the pick    
-    if (phase_data.time_info == '+'):
-        time_value = str(nordic.headers[1][0].date + datetime.timedelta(days=1)) + "T"
-    elif (phase_data.time_info == '-'):
-        time_value = str(nordic.headers[1][0].date - datetime.timedelta(days=1)) + "T"
+    if phase_data.data[NordicData.HOUR] < nordic.headers[1][0].header[NordicMain.HOUR]:
+        time_value = str(nordic.headers[1][0].header[NordicMain.DATE] + datetime.timedelta(days=1)) + "T"
     else:
-        time_value = str(nordic.headers[1][0].date) + "T"
+        time_value = str(nordic.headers[1][0].header[NordicMain.DATE]) + "T"
 
-    if phase_data.hour < 10:
-        time_value = time_value + "0" + str(phase_data.hour) + ":"
+    if phase_data.data[NordicData.HOUR] < 10:
+        time_value = time_value + "0" + str(phase_data.data[NordicData.HOUR]) + ":"
     else:
-        time_value = time_value + str(phase_data.hour) + ":"
+        time_value = time_value + str(phase_data.data[NordicData.HOUR]) + ":"
 
-    if phase_data.minute < 10:
-        time_value = time_value + "0" + str(phase_data.minute) + ":"
+    if phase_data.data[NordicData.MINUTE] < 10:
+        time_value = time_value + "0" + str(phase_data.data[NordicData.MINUTE]) + ":"
     else:
-        time_value = time_value + str(phase_data.minute) + ":"
+        time_value = time_value + str(phase_data.data[NordicData.MINUTE]) + ":"
 
-    if phase_data.second < 10:
-        time_value = time_value + "0" + str(int(phase_data.second)) + "Z"
+    if phase_data.data[NordicData.SECOND] < 10:
+        time_value = time_value + "0" + str(int(phase_data.data[NordicData.SECOND])) + "Z"
     else:
-        time_value = time_value + str(int(phase_data.second)) + "Z" 
+        time_value = time_value + str(int(phase_data.data[NordicData.SECOND])) + "Z" 
 
     addTime(pick, time_value, 0)
 
