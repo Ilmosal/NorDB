@@ -82,6 +82,7 @@ def readNordicEvent(cur, event_id):
 
     if not ans:
         logging.error("Event with id {0} does not exists!".format(event_id))
+        return None
 
     cur.execute(SELECT_QUERY[nordic.NordicMain.header_type], (event_id,))
     ans = cur.fetchall()

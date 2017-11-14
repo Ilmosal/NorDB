@@ -13,7 +13,6 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 username = ""
 
 from nordb.core import nordicRead
-from nordb.core import nordicHandler
 from nordb.core import nordicFix
 from nordb.core import usernameUtilities
 from nordb.core import nordic

@@ -9,8 +9,9 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("sql2sc3.py")]
 
 username = ""
 
-from nordb.core import nordicHandler
 from nordb.core import usernameUtilities
+from nordb.core.nordic import NordicMain
+from nordb.database import getNordic
 from nordb.database import sql2quakeml
 
 def writeSC3(nordicEventId, usr_path, output):
@@ -29,7 +30,7 @@ def writeSC3(nordicEventId, usr_path, output):
 
     cur = conn.cursor()
 
-    nordic = nordicHandler.readNordicEvent(cur, nordicEventId)
+    nordic = getNordic.readNordicEvent(cur, nordicEventId)
 
     if nordic == None:
         return False
@@ -51,7 +52,13 @@ def writeSC3(nordicEventId, usr_path, output):
 
     sc3doc = qml2sc3_transform(qml)
 
-    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".xml"
+    main = nordic.headers[1][0]
+
+    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(   main.header[NordicMain.DATE].year, 
+                                                        main.header[NordicMain.DATE].timetuple().tm_yday, 
+                                                        main.header[NordicMain.HOUR], 
+                                                        main.header[NordicMain.MINUTE], 
+                                                        int(main.header[NordicMain.SECOND])) + ".xml"
 
     print(filename + " has been created")
 

@@ -11,7 +11,7 @@ def createStationString(station):
     stationString = ""
     stationString += add_string_to_string(station[Station.STATION_CODE], 8, '<')
 
-    stationString += add_integer_to_string(station[Station.ON_DATE].year, 4, '<') 
+    stationString += add_integer_to_string(station[Station.ON_DATE].year, 5, '<') 
     stationString += add_integer_to_string(station[Station.ON_DATE].timetuple().tm_yday, 3, '0') 
     
     stationString += "  "
@@ -68,7 +68,7 @@ def readStation(station_id):
 
     cur = conn.cursor()
 
-    cur.execute("SELECT station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date FROM station WHERE id = %s", (station_id,))
+    cur.execute("SELECT station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date, id FROM station WHERE id = %s", (station_id,))
 
     ans = cur.fetchone()
 

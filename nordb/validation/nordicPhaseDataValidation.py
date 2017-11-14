@@ -3,7 +3,6 @@ import sys
 
 from nordb.validation import validationTools 
 from nordb.validation.validationTools import values
-from nordb.core import nordicStringClass
 from nordb.core.nordic import NordicData
 
 def validatePhaseData(phase_data):

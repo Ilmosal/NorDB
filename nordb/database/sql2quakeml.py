@@ -13,6 +13,7 @@ username = ""
 from nordb.core.nordic import NordicEvent, NordicMain, NordicMacroseismic, NordicComment
 from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
+from nordb.database import getNordic
 import psycopg2
 
 QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
@@ -70,17 +71,17 @@ def addEvent(eventParameters, nordic, long_quakeML):
 
     #Creating the all elements and their subelement
     for i in range(0,len(nordic.headers[1])):
-        addOrigin(event, nordic, i)
+        addOrigin(event, nordic, nordic.headers[1][i])
     
         #Adding preferred OriginID  
         if long_quakeML:
-            addMagnitude(event, nordic, i)
+            addMagnitude(event, nordic, nordic.headers[1][i])
     
     for i in range(0, len(nordic.headers[5])):
         addFocalMech(event, nordic.headers[5][i])
 
     if long_quakeML:
-        for phase_data in nordic.phase_data:
+        for phase_data in nordic.data:
             addPick(event, nordic, phase_data)
             addAmplitude(event, nordic, phase_data)
             for origin in event.iter("origin"):
@@ -125,217 +126,217 @@ def addPick(event, nordic, phase_data):
     #Pick waveform ID
     waveform_id = etree.SubElement(pick, "waveformID")
     waveform_id.attrib["networkCode"] = "" + NETWORK_CODE
-    waveform_id.attrib["stationCode"] = phase_data.station_code.strip()
-    if phase_data.sp_instrument_type is not None and phase_data.sp_component is not None:
-        waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.sp_instrument_type] + phase_data.sp_component.strip()
+    waveform_id.attrib["stationCode"] = phase_data.data[NordicData.STATION_CODE]
+    if phase_data.data[NordicData.SP_INSTRUMENT_TYPE] is not None and phase_data.data[NordicData.SP_COMPONENT] is not None:
+        waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.data[NordicData.SP_INSTRUMENT_TYPE]] + phase_data.data[NordicData.SP_COMPONENT]
 
     #Pick first motion
-    if phase_data.first_motion is not None and phase_data.first_motion in PICK_POLARITY_CONVERSION:
+    if phase_data.data[NordicData.FIRST_MOTION] is not None and phase_data.data[NordicData.FIRST_MOTION] in PICK_POLARITY_CONVERSION:
         pick_polarity = etree.SubElement(pick, "polarity")  
-        pick_polarity.text = PICK_POLARITY_CONVERSION[phase_data.first_motion]
+        pick_polarity.text = PICK_POLARITY_CONVERSION[phase_data.data[NordicData.FIRST_MOTION]]
 
     #Pick backazimuth
-    if phase_data.back_azimuth is not None:
+    if phase_data.data[NordicData.BACK_AZIMUTH] is not None:
         pick_back_azimuth = etree.SubElement(pick, "backazimuth")
         pick_back_azimuth_value = etree.SubElement(pick_back_azimuth, "value")
-        pick_back_azimuth_value.text = str(phase_data.back_azimuth)
+        pick_back_azimuth_value.text = str(phase_data.data[NordicData.BACK_AZIMUTH])
 
 def addAmplitude(event, nordic, phase_data):
-    if phase_data.max_amplitude is not None:
+    if phase_data.data[NordicData.MAX_AMPLITUDE] is not None:
         amplitude = etree.SubElement(event, "amplitude")
-        amplitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/amplitude/" + str(phase_data.phase_id)
+        amplitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/amplitude/" + str(phase_data.data[NordicData.ID])
 
         #adding generic amplitude
         generic_amplitude = etree.SubElement(amplitude, "genericAmplitude")
         generic_amplitude_value = etree.SubElement(generic_amplitude, "value")
-        generic_amplitude_value.text = str(math.pow(phase_data.max_amplitude, -9)) #Convert to meters from nanometers
+        generic_amplitude_value.text = str(math.pow(phase_data.data[NordicData.MAX_AMPLITUDE], -9)) #Convert to meters from nanometers
 
         #Adding amplitude period
-        if phase_data.max_amplitude_period is not None:
+        if phase_data.data[NordicData.MAX_AMPLITUDE_PERIOD] is not None:
             amplitude_period = etree.SubElement(amplitude, "period")
             amplitude_period_value = etree.SubElement(amplitude_period, "value")
-            amplitude_period_value.text = str(phase_data.max_amplitude_period)
+            amplitude_period_value.text = str(phase_data.data[NordicData.MAX_AMPLITUDE_PERIOD])
 
         #Adding amplitude unit
         amplitude_unit = etree.SubElement(amplitude, "unit")
         amplitude_unit.text = "m"
 
         #Adding time window
-        if phase_data.signal_duration is not None:
+        if phase_data.data[NordicData.SIGNAL_DURATION] is not None:
             time_window = etree.SubElement(amplitude, "timeWindow")
             time_window_value = etree.SubElement(time_window, "value")
-            time_window_value.text = str(phase_data.signal_duration)
+            time_window_value.text = str(phase_data.data[NordicData.SIGNAL_DURATION])
 
-        if phase_data.signal_to_noise is not None:
+        if phase_data.data[NordicData.SIGNAL_TO_NOISE] is not None:
             snr = etree.SubElement(amplitude, "snr")
-            snr.text = str(phase_data.signal_to_noise)
+            snr.text = str(phase_data.data[NordicMain.SIGNAL_TO_NOISE])
 
-def addOrigin(event, nordic, i):
+def addOrigin(event, nordic, main):
     origin = etree.SubElement(event, "origin")
-    origin.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/origin"
+    origin.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/origin/" + str(main.header[NordicMain.ID])
 
     #time value for the origin
     time_value = ""
-    time_value = str(nordic.headers[1][i].date) + "T"
+    time_value = str(main.header[NordicMain.DATE]) + "T"
 
-    if nordic.headers[1][i].hour is not None:
-        if nordic.headers[1][i].hour < 10:
-            time_value = time_value + "0" + str(nordic.headers[1][i].hour) + ":"
+    if main.header[NordicMain.HOUR] is not None:
+        if main.header[NordicMain.HOUR] < 10:
+            time_value = time_value + "0" + str(main.header[NordicMain.HOUR]) + ":"
         else:
-            time_value = time_value + str(nordic.headers[1][i].hour) + ":"
+            time_value = time_value + str(main.header[NordicMain.HOUR]) + ":"
     else:
         time_value = time_value + "00:"
 
-    if nordic.headers[1][i].minute is not None:
-        if nordic.headers[1][i].minute < 10:
-            time_value = time_value + "0" + str(nordic.headers[1][i].minute) + ":"
+    if main.header[NordicMain.MINUTE] is not None:
+        if main.header[NordicMain.MINUTE] < 10:
+            time_value = time_value + "0" + str(main.header[NordicMain.MINUTE]) + ":"
         else:
-            time_value = time_value + str(nordic.headers[1][i].minute) + ":"
+            time_value = time_value + str(main.header[NordicMain.MINUTE]) + ":"
     else:
         time_value = time_value + "00:"
     
-    if nordic.headers[1][i].second is not None:
-        if nordic.headers[1][i].second < 10:
-            time_value = time_value + "0" + str(int(nordic.headers[1][i].second)) + "Z"
+    if main.header[NordicMain.SECOND] is not None:
+        if main.header[NordicMain.SECOND] < 10:
+            time_value = time_value + "0" + str(int(main.header[NordicMain.SECOND])) + "Z"
         else:
-            time_value = time_value + str(int(nordic.headers[1][i].second)) + "Z" 
+            time_value = time_value + str(int(main.header[NordicMain.SECOND])) + "Z" 
     else:
         time_value = time_value + "00Z"
 
     #time uncertainty   
     time_uncertainty = 1
     for h_error in nordic.headers[5]:
-        if h_error.header_main_id == nordic.headers[1][i]:
+        if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
             time_uncertainty = h_error.second_error
             break
 
     addTime(origin, time_value, time_uncertainty)
 
     #Adding value for epicenter latitude
-    if nordic.headers[1][i].epicenter_latitude is not None:
+    if main.header[NordicMain.EPICENTER_LATITUDE] is not None:
         origin_latitude = etree.SubElement(origin, "latitude")
         origin_latitude_value = etree.SubElement(origin_latitude, "value")
-        origin_latitude_value.text = str(nordic.headers[1][i].epicenter_latitude)
+        origin_latitude_value.text = str(main.header[NordicMain.EPICENTER_LATITUDE])
         for h_error in nordic.headers[5]:
-            if h_error.header_main_id == nordic.headers[1][i]:
-                if h_error.epicenter_latitude_error is not None:
+            if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
+                if h_error.header[NordicError.EPICENTER_LATITUDE_ERROR] is not None:
                     origin_latitude_uncertainty = etree.SubElement(origin_latitude, "uncertainty")
-                    origin_latitude_uncertainty.text = str(h_error.epicenter_latitude_error)
+                    origin_latitude_uncertainty.text = str(h_error.header[NordicError.EPICENTER_LATITUDE_ERROR])
                 break
 
     #Adding value for epicenter longitude
-    if nordic.headers[1][i].epicenter_longitude is not None:
+    if main.header[NordicMain.EPICENTER_LONGITUDE] is not None:
         origin_longitude = etree.SubElement(origin, "longitude")
         origin_longitude_value = etree.SubElement(origin_longitude, "value")
-        origin_longitude_value.text = str(nordic.headers[1][i].epicenter_longitude)
+        origin_longitude_value.text = str(main.header[NordicMain.EPICENTER_LONGITUDE])
         for h_error in nordic.headers[5]:
-            if h_error.header_main_id == nordic.headers[1][i]:
-                if h_error.epicenter_longitude_error is not None:
+            if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
+                if h_error.header[NordicError.EPICENTER_LONGITUDE_ERROR] is not None:
                     origin_longitude_uncertainty = etree.SubElement(origin_longitude, "uncertainty")
-                    origin_longitude_uncertainty.text = str(h_error.epicenter_longitude_error)
+                    origin_longitude_uncertainty.text = str(h_error.header[NordicError.EPICENTER_LONGITUDE_ERROR])
                 break
 
     #Adding value for depth
-    if nordic.headers[1][i].depth is not None:
+    if main.header[NordicMain.DEPTH] is not None:
         origin_depth = etree.SubElement(origin, "depth")
         origin_depth_value = etree.SubElement(origin_depth, "value")
-        origin_depth_value.text = str(nordic.headers[1][i].depth * 1000)
+        origin_depth_value.text = str(main.header[NordicMain.DEPTH] * 1000)
         for h_error in nordic.headers[5]:
-            if h_error.header_main_id == nordic.headers[1][i]:
-                if h_error.depth_error is not None:
+            if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
+                if h_error.header[NordicError.DEPTH_ERROR] is not None:
                     origin_depth_uncertainty = etree.SubElement(origin_depth, "uncertainty")
-                    origin_depth_uncertainty.text = str(h_error.depth_error * 1000)
+                    origin_depth_uncertainty.text = str(h_error.header[NordicError.HEADER][NordicError.DEPTH_ERROR] * 1000)
                 break
 
     #Adding value for rms time residuals
-    if nordic.headers[1][i].rms_time_residuals is not None:
+    if main.header[NordicMain.RMS_TIME_RESIDUALS] is not None:
         origin_quality = etree.SubElement(origin, "quality")
         origin_quality_standard_error = etree.SubElement(origin_quality, "standardError")
-        origin_quality_standard_error.text = str(nordic.headers[1][i].rms_time_residuals)
+        origin_quality_standard_error.text = str(main.header[NordicMain.RMS_TIME_RESIDUALS])
 
-def addMagnitude(event, nordic, i):
-    if nordic.headers[1][i].magnitude_1 is not None:
+def addMagnitude(event, nordic, main):
+    if main.header[NordicMain.MAGNITUDE_1] is not None:
         magnitude = etree.SubElement(event, "magnitude")
-        magnitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/magnitude"
+        magnitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/magnitude/" + str(main.header[NordicMain.ID])
         
         #Adding a value for magnitude
         magnitude_mag = etree.SubElement(magnitude, "mag")
         magnitude_mag_value = etree.SubElement(magnitude_mag, "value")
-        magnitude_mag_value.text = str(nordic.headers[1][i].magnitude_1)
+        magnitude_mag_value.text = str(main.header[NordicMain.MAGNITUDE_1])
         if len(nordic.headers[5]) > 0:
             for h_error in nordic.headers[5]:
-                if h_error.header_id == nordic.headers[1][i].header_id:
-                    if h_error.magnitude_error is not None:
+                if h_error.header[NordicError.HEADER_ID] == main.header[NordicMain.ID]:
+                    if h_error.header[NordicError.MAGNITUDE_ERROR] is not None:
                         magnitude_mag_uncertainty = etree.SubElement(magnitude_mag, "uncertainty")
-                        magnitude_mag_uncertainty.text = str(h_error.magnitude_error)
+                        magnitude_mag_uncertainty.text = str(h_error.header[NordicError.MAGNITUDE_ERROR])
                     break
 
         #Adding magnitude type 
-        if nordic.headers[1][i].type_of_magnitude_1 is not None and nordic.headers[1][i].type_of_magnitude_1 in MAGNITUDE_TYPE_CONVERSION:
+        if main.header[NordicMain.TYPE_OF_MAGNITUDE_1] is not None and main.header[NordicMain.TYPE_OF_MAGNITUDE_1] in MAGNITUDE_TYPE_CONVERSION:
             magnitude_type = etree.SubElement(magnitude, "type")
-            magnitude_type.text = MAGNITUDE_TYPE_CONVERSION[nordic.headers[1][i].type_of_magnitude_1]
+            magnitude_type.text = MAGNITUDE_TYPE_CONVERSION[main.header[NordicMain.TYPE_OF_MAGNITUDE_1]]
         
         #Adding number of stations 
-        if nordic.headers[1][i].stations_used is not None:
+        if main.header[NordicMain.STATIONS_USED] is not None:
             magnitude_station_count = etree.SubElement(magnitude, "stationCount")
-            magnitude_station_count.text = str(nordic.headers[1][i].stations_used)
+            magnitude_station_count.text = str(main.header[NordicMain.STATIONS_USED])
 
-        if nordic.headers[1][i].magnitude_reporting_agency_1 is not None:
+        if main.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1] is not None:
             magnitude_creation_info = etree.SubElement(magnitude, "creationInfo")
             magnitude_creation_info_agency = etree.SubElement(magnitude_creation_info, "agencyID")
-            magnitude_creation_info_agency.text = nordic.headers[1][i].magnitude_reporting_agency_1
+            magnitude_creation_info_agency.text = main.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1]
             magnitude_creation_info_agency_uri = etree.SubElement(magnitude_creation_info, "agencyURI")
-            magnitude_creation_info_agency_uri.text = "smi:" + AUTHORITY_ID + "/path/to/agency"
+            magnitude_creation_info_agency_uri.text = "smi:" + AUTHORITY_ID + "/agency/"
 
         magnitude_origin_id = etree.SubElement(magnitude, "originID")
-        magnitude_origin_id.text =  "smi:" + AUTHORITY_ID + "/path/to/origin"
+        magnitude_origin_id.text =  "smi:" + AUTHORITY_ID + "/origin"
 
 def addArrival(origin, phase_data, nordic):
-    if phase_data.phase_type is not None:
+    if phase_data.data[NordicData.PHASE_TYPE] is not None:
         arrival = etree.SubElement(origin, "arrival")
-        arrival.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/arrival/" + str(phase_data.phase_id)
+        arrival.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/arrival/" + str(phase_data.data[NordicData.ID])
 
         #Adding pick reference
         arrival_pick_id = etree.SubElement(arrival, "pickID")
-        arrival_pick_id.text = "smi:" + AUTHORITY_ID + "/path/to/pick/" + str(phase_data.phase_id)
+        arrival_pick_id.text = "smi:" + AUTHORITY_ID + "/pick/" + str(phase_data.data[NordicData.ID])
 
         #Adding phase
         arrival_phase = etree.SubElement(arrival, "phase")
-        arrival_phase.text = phase_data.phase_type
+        arrival_phase.text = phase_data.data[NordicData.PHASE_TYPE]
     
         #Adding azimuth
-        if phase_data.epicenter_to_station_azimuth is not None:
+        if phase_data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] is not None:
             arrival_azimuth = etree.SubElement(arrival, "azimuth")
-            arrival_azimuth.text = str(phase_data.epicenter_to_station_azimuth)
+            arrival_azimuth.text = str(phase_data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH])
     
         #Adding time residual
-        if phase_data.travel_time_residual is not None:
+        if phase_data.data[NordicData.TRAVEL_TIME_RESIDUAL] is not None:
             arrival_time_residual = etree.SubElement(arrival, "timeResidual")
-            arrival_time_residual.text = str(phase_data.travel_time_residual)
+            arrival_time_residual.text = str(phase_data.data[NordicData.TRAVEL_TIME_RESIDUAL])
 
         #Adding arrival distance
-        if phase_data.epicenter_distance is not None:
+        if phase_data.data[NordicData.EPICENTER_DISTANCE] is not None:
             arrival_distance = etree.SubElement(arrival, "distance")
-            arrival_distance.text = str(phase_data.epicenter_distance)
+            arrival_distance.text = str(phase_data.data[NordicData.EPICENTER_DISTANCE])
 
 #TODO: See if station magnitude information can be found from somewhere. Without it stationMagnitude and staionMagnitudeContribution elements are useless.
 
 #TODO: addStationMag
-#def addStationMag(event, phase_data, nordic):
-#   if phase_data.max_amplitude is not None:
+#def addStationMag(event, phase_data.data[NordicData.] nordic):
+#   if phase_data.data[NordicData.MAX_AMPLITUDE] is not None:
 #       station_magnitude = etree.SubElement(event, "stationMagnitude")
 #       station_magnitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/stationmag/"
 #TODO: addStationMagContribution
 
 #TODO: addFocalMech
 def addFocalMech(event, h_error):
-    if (h_error.gap is not None):
+    if (h_error.header[NordicError.GAP] is not None):
         focal_mechanism = etree.SubElement(event, "focalMechanism")
         focal_mechanism.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/focalMech"
         
         #Adding Gap
         focal_mechanism_gap = etree.SubElement(focal_mechanism, "azimuthalGap")
-        focal_mechanism_gap.text = str(h_error.gap)
+        focal_mechanism_gap.text = str(h_error.header[NordicError.GAP])
 
 def addTime(container, time_value, time_uncertainty):
     time = etree.SubElement(container, "time")
@@ -393,12 +394,18 @@ def writeQuakeML(nordicEventId, usr_path, output):
 
     cur = conn.cursor()
 
-    nordic = nordicHandler.readNordicEvent(cur, nordicEventId)
-    
+    nordic = getNordic.readNordicEvent(cur, nordicEventId)
+ 
     if nordic == None:
         return False
 
-    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(nordic.headers[1][0].date.year, nordic.headers[1][0].date.timetuple().tm_yday, nordic.headers[1][0].hour, nordic.headers[1][0].minute, int(nordic.headers[1][0].second)) + ".xml"
+    main = nordic.headers[1][0]
+    
+    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(   main.header[NordicMain.DATE].year, 
+                                                        main.header[NordicMain.DATE].timetuple().tm_yday, 
+                                                        main.header[NordicMain.HOUR], 
+                                                        main.header[NordicMain.MINUTE], 
+                                                        int(main.header[NordicMain.SECOND])) + ".xml"
 
     quakeMLString = etree.tostring(nordicEventToQuakeMl(nordic, True), pretty_print=True)   
 

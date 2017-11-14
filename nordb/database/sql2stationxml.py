@@ -8,29 +8,43 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("sql2stationxml.py")]
 
 username = ""
 
-from nordb.database import sql2station
-from nordb.database.station2sql import Station
+from nordb.database import sql2station, sql2sitechan
+from nordb.database.station2sql import Station, SiteChan
 from nordb.core import usernameUtilities
 
 def station2stationxml(station):
     """
-    Method for converting a Station object to a stationxml lxml object
+    Method for converting a Station list, sitechan list and network_code to a stationxml lxml object
 
     CONVERSIONS:
     Station
     ------------------------------
-    Station.station_code - FDSNStationxml.Station.Site.Name 
-    Station.network_id   - FDSNStationxml.Source
-    Station.on_date      - FDSNStationxml.Station.CreationDate
-    Station.off_date     - FDSNStationxml.Station.TerminationDate
-    Station.latitude     - FDSNStationxml.Station.Latitude.value
-    Station.longitude    - FDSNStationxml.Station.Longitude.value  
-    Station.elevation    - FDSNStationxml.Station.Elevation.value
-    Station.station_name - FDSNStationxml.Station.Site.Description
-    Station.load_date    - FDSNStationxml.Station.loasdads
-    
+    Station.station_code    - FDSNStationxml.Station.Site.Name 
+    Station.network_id      - FDSNStationxml.Source
+                            - FDSNStationxml.Station.Channel.locationCode
+    Station.on_date         - FDSNStationxml.Station.CreationDate
+    Station.off_date        - FDSNStationxml.Station.TerminationDate
+    Station.latitude        - FDSNStationxml.Station.Latitude.value
+                                - FDSNStationxml.Station.Channel.Latitude.value
+    Station.longitude       - FDSNStationxml.Station.Longitude.value  
+                                - FDSNStationxml.Station.Channel.Longitude.value
+    Station.elevation       - FDSNStationxml.Station.Elevation.value
+                                - FDSNStationxml.Station.Channel.Elevation.value
+    Station.station_name    - FDSNStationxml.Station.Site.Description
+    Station.load_date       - FDSNStationxml.Station.load
+
+    Sitechan
+    ------------------------------
+    SiteChan.channel_code       - FDSNStationxml.Station.Channel.Code
+    SiteChan.on_date            - FDSNStationxml.Station.Channel.StartDate
+    SiteChan.off_date           - FDSNStationxml.Station.Channel.EndDate
+    SiteChan.emplacement_depth  - FDSNStationxml.Station.Channel.Depth.value
+    SiteChan.horizontal_angle   - FDSNStationxml.Station.Channel.Azimuth.value
+    SiteChan.vertical_angle     - FDSNStationxml.Station.Channel.Dip.value   
+   
     Args:
-        station (Station): station object that needs to be converted.
+        station (list): station list that needs to be converted.
+        channels (list): sitechan list
 
     Returns:
         StationXML etree object
@@ -58,8 +72,58 @@ def station2stationxml(station):
     if station[Station.OFF_DATE] is not None:
         terminationDate = etree.SubElement(stationXML, "TerminationDate")
         terminationDate.text = str(station[Station.OFF_DATE]) + "T" + "00:00:00+00:00"
-   
+
+    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    cur = conn.cursor()
+
+    cur.execute("SELECT sitechan.id FROM sitechan, station WHERE station_code = %s AND sitechan.station_id = station.id", (station[Station.STATION_CODE],))
+    channel_ids = cur.fetchall()
+
+    for cha in channel_ids:
+        channel = sql2sitechan.readSitechan(cha[0])
+        stationXML.append(channel2stationXML(channel, station))
+
+    conn.close()
+ 
     return stationXML
+
+def channel2stationXML(sitechan, station):
+    """
+    Create channel xml and return it
+
+    Args:
+        sitechan(list): sitechan object
+    
+    Returns:
+        lxml etree object of a channel defined by FNDS format
+    """
+    channelXML = etree.Element("Channel")
+    channelXML.attrib["code"] = sitechan[SiteChan.CHANNEL_CODE]
+    channelXML.attrib["locationCode"] = "HE"
+    channelXML.attrib["startDate"] = str(sitechan[SiteChan.ON_DATE]) + "T" + "00:00:00+00:00"
+    if sitechan[SiteChan.OFF_DATE] is not None:
+        channelXML.attrib["endDate"] = str(sitechan[SiteChan.OFF_DATE]) + "T" + "00:00:00+00:00"
+
+    
+    latitude = etree.SubElement(channelXML, "Latitude")
+    latitude.text = str(station[Station.LATITUDE])
+
+    longitude = etree.SubElement(channelXML, "Longitude")
+    longitude.text = str(station[Station.LONGITUDE])
+
+    elevation = etree.SubElement(channelXML, "Elevation")
+    elevation.text = str(station[Station.ELEVATION])
+
+    depth = etree.SubElement(channelXML, "Depth")
+    depth.text = str(sitechan[SiteChan.EMPLACEMENT_DEPTH])   
+
+    azimuth = etree.SubElement(channelXML, "Azimuth")
+    azimuth.text = str((int(sitechan[SiteChan.HORIZONTAL_ANGLE]) + 180) % 360)
+
+    dip = etree.SubElement(channelXML, "Dip")
+    dip.text = str(int(sitechan[SiteChan.VERTICAL_ANGLE]))
+
+    return channelXML
 
 def writeNetworkToStationXML(network, output_path):
     """
@@ -81,8 +145,6 @@ def writeNetworkToStationXML(network, output_path):
     cur.execute("SELECT station.id FROM station, network where network.id = station.network_id AND network.network = %s;", (network,))
 
     ans = cur.fetchall()
-
-    conn.close()
     
     station_ids = []
 
@@ -93,6 +155,8 @@ def writeNetworkToStationXML(network, output_path):
     for a in ans:
         station_ids.append(a[0])
   
+    conn.close()
+
     stations = []
 
     stationroot = etree.Element("FDSNStationXML")

@@ -1,11 +1,12 @@
 from datetime import date, timedelta
 import string
 import logging 
-
+import sys
 import psycopg2
 
 from nordb.core import usernameUtilities
 from nordb.validation.stationValidation import validateStation
+from nordb.validation.sitechanValidation import validateSiteChan
 
 username = ""
 
@@ -24,14 +25,62 @@ MONTH_CONV = {  "Jan": "01",
 
 }
 
-STATION_INSERT = "INSERT INTO station (station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date, network_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+STATION_INSERT = (  "INSERT INTO station " +
+                        "(   station_code, on_date, off_date, " +
+                            "latitude, longitude, elevation, " +
+                            "station_name, station_type," +
+                            "reference_station, north_offset, " +
+                            "east_offset, load_date, network_id) " +
+                    "VALUES " +
+                        "(   %s, %s, %s, %s, %s, %s, %s, %s," +
+                            "%s, %s, %s, %s, %s);" )
+
+CHANNEL_INSERT = (  "INSERT INTO sitechan" +
+                        "(      station_id, channel_code, on_date, off_date, " +
+                        "       channel_type, emplacement_depth, " +
+                        "       horizontal_angle, vertical_angle," +
+                        "       description, load_date)" + 
+                    "VALUES " +
+                        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "  +
+                    "RETURNING " +
+                    "   id" )
+
+class SiteChan:
+    """
+    Class for site channel information. Comes from css sitechan format.
+
+
+    Attributes:
+        STATION_ID(int): Id of the station to which sitechan refers to value 0
+        CHANNEL_CODE(int): channel code of the channel Value 1
+        ON_DATE(int): date when the station started working. Value 2
+        OFF_DATE(int): date when the station was closed. Value 3
+        CHANNEL_TYPE (int): type of the channel. Value 4
+        EMPLACEMENT_DEPTH (int): depth relative to station elevation. Value 5
+        HORIZONTAL_ANGLE (int): angle horizontally. Value 6
+        VERTICAL_ANGLE (int): angle verically. Value 7
+        DESCRIPTION (int): description of the channel. Value 8
+        LOAD_DATE (int): date of the time when this information was created. Value 9
+        ID (int): id of the sitechan in the database. Value 10
+        CSS_ID(int): id of the css id to which the sitechan is linked to. Value 11
+    """
+    STATION_ID = 0
+    CHANNEL_CODE = 1
+    ON_DATE = 2
+    OFF_DATE = 3
+    CHANNEL_TYPE = 4
+    EMPLACEMENT_DEPTH = 5
+    HORIZONTAL_ANGLE = 6
+    VERTICAL_ANGLE = 7
+    DESCRIPTION = 8
+    LOAD_DATE = 9
+    ID = 10
+    CSS_ID = 11
+    
 
 class Station:
     """
     Class for information in station. Comes from the css site format.
-
-    Args:
-        station_info(str[]): a list of strings that have been validated as working
   
     Attributes:
         STATION_CODE(int): code of the station. Value 0
@@ -46,7 +95,7 @@ class Station:
         NORTH_OFFSET (int): if the station is a part of an array, this is the offset of the north to the main station in km. Value 9
         EAST_OFFSET (int): if the station is a part of an array, this is the offset of the east to the main station in km. Value 10
         LOAD_DATE (int): date of the time when this information was created. Value 11
-        NETWORK_ID (int): 
+        NETWORK_ID (int): id of the network where the station belongs to
 
     """
     STATION_CODE = 0
@@ -82,7 +131,7 @@ def stringToDate(sDate):
     elif sDate == "-1":
         rdate = ""
     else:
-        rdate = None
+        rdate = ""
     return rdate
  
 def readStationInfoToString(stat_line):
@@ -111,7 +160,70 @@ def readStationInfoToString(stat_line):
 
     return station
 
-def insert2Database(station):
+def readSiteChanInfoToString(chan_line):
+    """
+    Function for reading channel info to string array from css sitechan string
+
+    Args:
+        chan_line(str): css sitechan string
+
+    Returns:
+        sitechan string array and css_id
+    """
+    channel = [None]*10
+
+    channel[SiteChan.STATION_ID]        = (chan_line[:7].strip().decode("ascii","ignore"))                  #STATION_ID
+    channel[SiteChan.CHANNEL_CODE]      = (chan_line[7:17].strip().decode("ascii", "ignore"))               #CHANNEL_CODE
+    channel[SiteChan.ON_DATE]           = stringToDate(chan_line[17:24].strip().decode("ascii", "ignore"))  #ON_DATE 
+    channel[SiteChan.OFF_DATE]          = stringToDate(chan_line[35:42].strip().decode("ascii", "ignore"))  #OFF_DATE
+    channel[SiteChan.CHANNEL_TYPE]      = (chan_line[43:48].strip().decode("ascii", "ignore"))              #CHANNEL_TYPE
+    channel[SiteChan.EMPLACEMENT_DEPTH] = (chan_line[49:57].strip().decode("ascii", "ignore"))              #EMPLACEMENT_DEPTH
+    channel[SiteChan.HORIZONTAL_ANGLE]  = (chan_line[57:64].strip().decode("ascii", "ignore"))              #HORIZONTAL_ANGLE
+    channel[SiteChan.VERTICAL_ANGLE]    = (chan_line[64:71].strip().decode("ascii", "ignore"))              #VERTICAL_ANGLE
+    channel[SiteChan.DESCRIPTION]       = (chan_line[72:122].strip().decode("ascii", "ignore"))             #DESCRIPTION 
+    channel[SiteChan.LOAD_DATE]         = stringToDate(chan_line[123:].strip().decode("ascii", "ignore"))   #LOAD_DATE 
+
+    try:
+        css_id = int(chan_line[25:33])
+    except:
+        logging.error("css_id not in a correct format: {0}".format(chan_line[25:33]))
+        return [None, None]
+
+    return [channel, css_id]
+
+def insertChan2Database(channel, css_id):
+    """
+    Method for inserting the sitechan information to the database.
+
+    Args:
+        channel([]): Array of all station related information in their correct spaces
+        css_id(int): id for the css format which is different from the id in the database. Stupid, I know.
+
+    Returns:
+        True or False depending on if the operation was succesful
+    """
+    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    cur = conn.cursor()
+
+    try:
+        cur.execute(CHANNEL_INSERT, channel)
+    except psycopg2.Error as e:
+        logging.error(e.pgerror)
+        return False
+ 
+    db_id = cur.fetchone()[0]
+
+    try:
+        cur.execute("INSERT INTO css_link (css_id, sitechan_id) VALUES (%s, %s)", (css_id, db_id))
+    except:
+        error.log("Link between table id {0} and css id {1} already exists".format(db_id, css_id))
+
+    conn.commit()
+    conn.close()
+
+    return True
+
+def insertStat2Database(station):
     """
     Method for inserting the information to the database.
 
@@ -129,11 +241,66 @@ def insert2Database(station):
     except psycopg2.Error as e:
         logging.error(e.pgerror)
         return False
-
     conn.commit()
     conn.close()
 
     return True
+
+def strChan2Chan(channel):
+    """
+    Method for creating a proper sitechan list from sitechan string array
+
+    Args:
+        channel (str[]): String array of all the data in sitechan file
+
+    Returns:
+        The sitechan array with info in correct format
+
+    """
+    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT id FROM station WHERE STATION_CODE = %s", (channel[SiteChan.STATION_ID],))
+    except psycopg2.Error as e:
+        logging.error(e.pgerror)
+        return None
+
+    ans = cur.fetchone()
+
+    if ans is None:
+        logging.error("No station for channel")
+        return None
+
+    station_id = ans[0]
+    
+    conn.commit()
+    conn.close()
+
+    nchannel = [None]*10
+
+    nchannel[SiteChan.STATION_ID] = station_id
+    nchannel[SiteChan.CHANNEL_CODE] = channel[SiteChan.CHANNEL_CODE]
+    nchannel[SiteChan.ON_DATE] = date(  year=int(channel[SiteChan.ON_DATE][:4]), 
+                                        month=int(channel[SiteChan.ON_DATE][5:7]),
+                                        day =int(channel[SiteChan.ON_DATE][8:]))
+    
+    
+    if channel[SiteChan.OFF_DATE] != "":
+        nchannel[SiteChan.OFF_DATE] =  (date(   year=int(channel[SiteChan.OFF_DATE][:4]), 
+                                                month=int(channel[SiteChan.OFF_DATE][5:7]),
+                                                day=int(channel[SiteChan.OFF_DATE][8:])))   
+    nchannel[SiteChan.CHANNEL_TYPE] = channel[SiteChan.CHANNEL_TYPE]
+    nchannel[SiteChan.EMPLACEMENT_DEPTH] = float(channel[SiteChan.EMPLACEMENT_DEPTH])
+    nchannel[SiteChan.HORIZONTAL_ANGLE]  = float(channel[SiteChan.HORIZONTAL_ANGLE])
+    nchannel[SiteChan.VERTICAL_ANGLE]    = float(channel[SiteChan.VERTICAL_ANGLE])
+    nchannel[SiteChan.DESCRIPTION]       = channel[SiteChan.DESCRIPTION]  
+   
+    if channel[SiteChan.LOAD_DATE] != "":
+        nchannel[SiteChan.LOAD_DATE]         = date(year=int(channel[SiteChan.LOAD_DATE][:4]), 
+                                                    month=int(channel[SiteChan.LOAD_DATE][5:7]),
+                                                    day =int(channel[SiteChan.LOAD_DATE][8:]))
+    return nchannel
 
 def strStat2Stat(station, network_id):
     """
@@ -201,6 +368,40 @@ def getNetworkID(network):
 
     return ans[0]
 
+def readChannels(f_channels):
+    """
+    Function for reading sitechan in css format and inserting them to the database
+
+    Args:
+        f_channels (file): the file that will be read into the database
+
+    Returns:
+        True or False depending if the sitechan was loaded into database succesfully
+    """
+    channels = []
+    
+    username = usernameUtilities.readUsername()
+    
+    for line in f_channels:
+        channels.append(readSiteChanInfoToString(line))
+
+    for chan in channels:
+        if chan[1] is None:
+            return("False")
+
+        if not validateSiteChan(chan[0]):
+            logging.error("Sitechan validation failed")
+            return False
+
+    for chan in channels:
+        tmp_chan = strChan2Chan(chan[0])
+        if tmp_chan is None:
+            logging.error("Problem parsing channel: \n{0}".format(chan))
+        else:    
+            insertChan2Database(tmp_chan, chan[1])
+
+    return True
+
 def readStations(f_stations, network):
     """
     Method for reading stations in css format and inserting them to the database.
@@ -223,11 +424,9 @@ def readStations(f_stations, network):
 
     username = usernameUtilities.readUsername()
     
-    nStations = []
-
     network_id = getNetworkID(network) 
 
     for stat in stations:
-        insert2Database(strStat2Stat(stat, network_id))
+        insertStat2Database(strStat2Stat(stat, network_id))
 
     return True

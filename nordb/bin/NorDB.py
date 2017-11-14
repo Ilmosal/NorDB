@@ -12,7 +12,7 @@ USER_PATH = os.getcwd()
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan
 from nordb.core import usernameUtilities, nordicSearch, nordicModify
 
 os.chdir(USER_PATH)
@@ -105,6 +105,18 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
                                 )
 
 @cli.command()
+@click.argument("channel-file", required=True, type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def insertcha(repo, channel_file):
+    """
+    This command adds a sitechan table to the database
+    """
+    if fnmatch.fnmatch(channel_file, "*.sitechan"):
+        station2sql.readChannels(open(channel_file, 'rb'))
+    else:
+        click.echo("Filename must be in format *.sitechan")
+
+@cli.command()
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
 @click.argument('network', default="HEL")
 @click.pass_obj
@@ -115,7 +127,7 @@ def insertsta(repo, station_file, network):
     if fnmatch.fnmatch(station_file, "*.site"):
         station2sql.readStations(open(station_file, 'rb'), network)
     else:
-        click.echo("Filename must be in format *.sites")
+        click.echo("Filename must be in format *.site")
 
 @cli.command()
 @click.argument('output', default="stations" ,type=click.Path(exists=False))
@@ -130,6 +142,16 @@ def getsta(repo, output, o_format, network):
         sql2station.writeAllStations(output + ".site")
     elif o_format == "stationxml":
         sql2stationxml.writeNetworkToStationXML(network, output + ".xml")
+
+@cli.command()
+@click.argument('output', default="sitechans" ,type=click.Path(exists=False))
+@click.pass_obj
+def getcha(repo, output):
+    """
+    This command fetches the sitechans that match the criteria given by user.
+    """
+    sql2sitechan.writeAllSitechans(output + ".sitechan")
+
 
 @cli.command()
 @click.option('--root-id', default=-999, type=click.INT, help="root to which the event is attached to")

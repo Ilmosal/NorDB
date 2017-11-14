@@ -5,7 +5,6 @@ import math
 import logging
 from datetime import date
 
-from nordb.core.nordicHandler import addStringToData, addIntToData, addFloatToData, addDateToData
 from nordb.database.nordic2sql import execute_command
 from nordb.core import usernameUtilities
 
