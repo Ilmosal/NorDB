@@ -8,6 +8,14 @@ from nordb.database.sql2nordic import add_float_to_string, add_integer_to_string
 username = ""
 
 def createStationString(station):
+    """
+    Function for creating a css stations string from a Station object.
+
+    Args:
+        station (Station): Station object that will be parsed into a string
+    Returns:
+        The station string in a css format
+    """
     stationString = ""
     stationString += add_string_to_string(station[Station.STATION_CODE], 8, '<')
 

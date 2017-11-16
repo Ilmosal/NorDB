@@ -38,7 +38,7 @@ def validateSiteChan(channel):
     if not validateFloat(   channel[s2s.SiteChan.EMPLACEMENT_DEPTH],
                             "emplacement depth",
                             0.0,
-                            1.0,
+                            5.0,
                             True,
                             mstat):
         validation = False
@@ -53,8 +53,8 @@ def validateSiteChan(channel):
 
     if not validateFloat(   channel[s2s.SiteChan.VERTICAL_ANGLE],
                             "vertical angle",
-                            -90.0,
-                            90.0,
+                            -1.0,
+                            180.0,
                             True,
                             mstat):
         validation = False

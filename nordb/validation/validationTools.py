@@ -2,6 +2,7 @@ import math
 import logging
 from datetime import date
 from nordb.core.nordic import NordicMain
+
 nTypes = {0: "Nordic Event",
         1: "Nordic Main Header",
         2: "Nordic Macroseismic Header",
@@ -17,6 +18,19 @@ class values():
     maxInt = 9223372036854775807 
 
 def validateInteger(val, valueName, low, high, limits, nType):
+    """
+    Function that determines if val is valid integer and falls between given parameters.
+    
+    Args:
+        val (str): value to be validated
+        valueName (str): name of the parameter for messaging purposes
+        low (int): lower limit of the val
+        high (int): upper limit of the val
+        limits (bool): bool for if the function needs to compare val against low and high
+        ntype (int): header name id. Used for messaging purposes
+    Returns:
+        true or False depending on if the val validates
+    """ 
     if val == "":
         return True
 
@@ -40,6 +54,19 @@ def validateInteger(val, valueName, low, high, limits, nType):
     return True
 
 def validateFloat(val, valueName, low, high, limits, nType):
+    """
+    Function that determines if val is valid float, falls between given parameters and is not nAn or inf.
+    
+    Args:
+        val (str): value to be validated
+        valueName (str): name of the parameter for messaging purposes
+        low (float): lower limit of the val
+        high (float): upper limit of the val
+        limits (bool): bool for if the function needs to compare val against low and high
+        ntype (int): header name id. Used for messaging purposes
+    Returns:
+        true or False depending on if the val validates
+    """
     if val == "":
         return True
 
@@ -73,6 +100,22 @@ def validateFloat(val, valueName, low, high, limits, nType):
     return True
 
 def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nType):   
+    """
+    Function that determines if val is empty, falls between given parameters or can be found from a given list.
+    
+    Args:
+        string (str): value to be validated
+        stringName (str): name of the parameter for messaging purposes
+        minlen (int): lower limit of the string length
+        maxlen (int): upper limit of the string length
+        listOfAllowed (list): list of valid string from where the string needs to be found
+        isList (bool): boolean value for determining if there is a list to which the string needs to be compared
+        ntype (int): header name id. Used for messaging purposes
+   
+    Returns:
+        true or False depending on if the string validates
+    """
+
     if string is "":
         return True
 
@@ -96,6 +139,17 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
     return True
 
 def validateDate(dateS, dateName, nType):
+    """
+    Function that determines if dateS is a valid date or empty.
+    
+    Args:
+        dateS (str): value to be validated
+        dateName (str): name of the parameter for messaging purposes
+        ntype (int): header name id. Used for messaging purposes
+   
+    Returns:
+        true or False depending on if the dateS validates
+    """
     if dateS == "":
         return True
     
@@ -110,6 +164,12 @@ def validateDate(dateS, dateName, nType):
 
 
 def fixDate(nordic_main):
+    """
+    Functoin for fixing a broken date string to a correct format in a NordicMain Object
+
+    Args:
+        nordic_main(NordicMain): nordic main object
+    """
     if nordic_main.header[NordicMain.DATE][5] == " ":
         nordic_main.header[NordicMain.DATE] = nordic_main.header[NordicMain.DATE][:5] + "0" + nordic_main.header[NordicMain.DATE][6:]
     if nordic_main.header[NordicMain.DATE][8] == " ":

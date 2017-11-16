@@ -3,6 +3,7 @@ from lxml import etree
 import math
 import sys
 import time
+import datetime
 import os
 import logging
 
@@ -89,10 +90,10 @@ def addEvent(eventParameters, nordic, long_quakeML):
 
 def addPick(event, nordic, phase_data):
     """
-    Function for adding a complete event etree object to a eventParameters object
+    Function for adding a pick etree object to a event object
 
     Args:
-        evemt (etree.XML): event object
+        event (etree.XML): event object
         nordic (NordicEvent): nordic event_file
         phase_data(NordicData): nordic phase data object
     """
@@ -172,6 +173,14 @@ def addAmplitude(event, nordic, phase_data):
             snr.text = str(phase_data.data[NordicMain.SIGNAL_TO_NOISE])
 
 def addOrigin(event, nordic, main):
+    """
+    Function for adding a origin etree object to a event object
+
+    Args:
+        event (etree.XML): event object
+        nordic (NordicEvent): nordic event_file
+        phase_data(NordicData): nordic phase data object
+    """
     origin = etree.SubElement(event, "origin")
     origin.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/origin/" + str(main.header[NordicMain.ID])
 
@@ -330,7 +339,15 @@ def addArrival(origin, phase_data, nordic):
 
 #TODO: addFocalMech
 def addFocalMech(event, h_error):
-    if (h_error.header[NordicError.GAP] is not None):
+    """
+    Function for adding a Focal Mechanism etree object to a event object
+
+    Args:
+        event (etree.XML): event object
+        h_error (NordicError): nordic error header object
+    """
+
+    if h_error.header[NordicError.GAP] is not None:
         focal_mechanism = etree.SubElement(event, "focalMechanism")
         focal_mechanism.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/focalMech"
         
@@ -338,7 +355,17 @@ def addFocalMech(event, h_error):
         focal_mechanism_gap = etree.SubElement(focal_mechanism, "azimuthalGap")
         focal_mechanism_gap.text = str(h_error.header[NordicError.GAP])
 
+
 def addTime(container, time_value, time_uncertainty):
+    """
+    Function for adding Time etree object to a container object
+
+    Args:
+        container (etree.XML): container object where the time is added to
+        time_value (str): value of the time as a string
+        time_uncertainty (str): value of the time_uncertainty as a string
+    """
+
     time = etree.SubElement(container, "time")
     value = etree.SubElement(time, "value")
     value.text = time_value
@@ -348,16 +375,36 @@ def addTime(container, time_value, time_uncertainty):
         uncertainty.text = str(time_uncertainty)
 
 def validateQuakeMlFile(test, xmlschema):
-    try:
-        xmlschema.assertValid(test)
+    """
+    Function that validates the created quakeml file against QuakeML-1.2.xsd schema.
+
+    Args:
+        test(etree.XML): finished quakeml etree object
+        xmlschema (etree.XMLSchema): schema loaded from QuakeML-1.2.xsd to which test is compared against to
+
+    Returns:
+        boolean depending on if the file is valid or not
+    """
+    
+    if xmlschema.validate(test):
         return True
-    except:
-        log = xmlschema.error_log.last_error
+    else:
         logging.error("QuakeML file did not go through the validation:")
-        logging.error(log.domain_name + ": " + log.type_name)
+        for error in xmlschema.error_log:
+            logging.error(error.message.encode("utf-8"))
         return False
 
 def nordicEventToQuakeMl(nordicEvent, long_quakeML):
+    """
+    Function that turns a NordicEvent Object into a quakeml etree object, validates it and returns it.
+
+    Args:
+        nordicEvent (NordicEvent): nordic event object to be transformed
+        long_quakeML (bool): Boolean value for if you want the file to be long
+
+    Returns:
+        validated etree object
+    """
     f = open(MODULE_PATH + "../xml/QuakeML-1.2.xsd")
     xmlschema_doc = etree.parse(f)
     f.close()
@@ -379,6 +426,17 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
     return quakeml
 
 def writeQuakeML(nordicEventId, usr_path, output):
+    """
+    A function for writing quakeml file based on a nordic event with id of nordicEventId.
+
+    Args:
+        nordicEventId (int): id of the file wanted
+        usr_path (str): path to where the file is written to
+        output (str): output file name
+
+    Returns:
+        True or False depending on if the write was succesful or not
+    """
     username = usernameUtilities.readUsername()
     try:
         int(nordicEventId)

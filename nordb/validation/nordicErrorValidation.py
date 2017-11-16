@@ -8,6 +8,16 @@ from nordb.validation import validationTools
 from nordb.validation.validationTools import values
 from nordb.core.nordic import NordicError
 def validateErrorHeader(header):
+    """
+    Function for validating that the error header line is in correct format.
+
+    Args:
+        header(NordicError): nordic error header to be validated
+
+    Returns:
+        True if the file is valid, false if not
+   
+    """
     validation = True
     mheader = 5
     

@@ -32,6 +32,8 @@ def resetDatabase():
     start =  time.time()
     print("Resetting database: ")
     print("-------------------")
+    print("Clearing css_link...")
+    cur.execute("DELETE FROM css_link")
     print("Clearing sitechan...")
     cur.execute("DELETE FROM sitechan")
     print("Clearing station...")
@@ -179,13 +181,15 @@ def resetStations():
 
     print("Resetting database: ")
     print("-------------------")
+    print("Clearing css_link...")
+    cur.execute("DELETE FROM css_link")
     print("Clearing sitechan...")
     cur.execute("DELETE FROM sitechan")
     print("Clearing station...")
     cur.execute("DELETE FROM station")
     print("Clearing network...")
     cur.execute("DELETE FROM network")
-
+   
     print("Altering Sequence ids")
     cur.execute("ALTER SEQUENCE sitechan_id_seq RESTART WITH 1")
     cur.execute("ALTER SEQUENCE station_id_seq RESTART WITH 1")

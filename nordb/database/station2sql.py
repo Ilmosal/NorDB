@@ -3,6 +3,7 @@ import string
 import logging 
 import sys
 import psycopg2
+import unidecode 
 
 from nordb.core import usernameUtilities
 from nordb.validation.stationValidation import validateStation
@@ -145,18 +146,18 @@ def readStationInfoToString(stat_line):
         station (str[]): station string array    
     """
     station = []
-    station.append(stat_line[0:6].strip().decode("ascii","ignore"))                 #STATION_CODE
-    station.append(stringToDate(stat_line[8:15].strip().decode("ascii","ignore")))  #ON_DATE
-    station.append(stringToDate(stat_line[17:24].strip().decode("ascii","ignore"))) #OFF_DATE
-    station.append(stat_line[26:34].strip().decode("ascii","ignore"))               #LATITUDE
-    station.append(stat_line[36:44].strip().decode("ascii","ignore"))               #LONGITUDE
-    station.append(stat_line[47:54].strip().decode("ascii","ignore"))               #ELEVATION
-    station.append(stat_line[55:106].strip().decode("ascii","ignore"))              #STATION_NAME
-    station.append(stat_line[106:108].strip().decode("ascii","ignore"))             #STATION_TYPE
-    station.append(stat_line[111:117].strip().decode("ascii","ignore"))             #REFERENCE_STATION
-    station.append(stat_line[119:127].strip().decode("ascii","ignore"))             #NORTH_OFFSET
-    station.append(stat_line[130:137].strip().decode("ascii","ignore"))             #EAST_OFFSET
-    station.append(stringToDate(stat_line[138:].strip().decode("ascii","ignore")))  #LOAD_DATE
+    station.append(unidecode.unidecode(stat_line[0:6].strip()))                 #STATION_CODE
+    station.append(unidecode.unidecode(stringToDate(stat_line[8:15].strip())))  #ON_DATE
+    station.append(unidecode.unidecode(stringToDate(stat_line[17:24].strip()))) #OFF_DATE
+    station.append(unidecode.unidecode(stat_line[26:34].strip()))               #LATITUDE
+    station.append(unidecode.unidecode(stat_line[36:44].strip()))               #LONGITUDE
+    station.append(unidecode.unidecode(stat_line[47:54].strip()))               #ELEVATION
+    station.append(unidecode.unidecode(stat_line[55:106].strip()))              #STATION_NAME
+    station.append(unidecode.unidecode(stat_line[106:108].strip()))             #STATION_TYPE
+    station.append(unidecode.unidecode(stat_line[111:117].strip()))             #REFERENCE_STATION
+    station.append(unidecode.unidecode(stat_line[119:127].strip()))             #NORTH_OFFSET
+    station.append(unidecode.unidecode(stat_line[130:137].strip()))             #EAST_OFFSET
+    station.append(unidecode.unidecode(stringToDate(stat_line[138:].strip())))  #LOAD_DATE
 
     return station
 
@@ -172,21 +173,22 @@ def readSiteChanInfoToString(chan_line):
     """
     channel = [None]*10
 
-    channel[SiteChan.STATION_ID]        = (chan_line[:7].strip().decode("ascii","ignore"))                  #STATION_ID
-    channel[SiteChan.CHANNEL_CODE]      = (chan_line[7:17].strip().decode("ascii", "ignore"))               #CHANNEL_CODE
-    channel[SiteChan.ON_DATE]           = stringToDate(chan_line[17:24].strip().decode("ascii", "ignore"))  #ON_DATE 
-    channel[SiteChan.OFF_DATE]          = stringToDate(chan_line[35:42].strip().decode("ascii", "ignore"))  #OFF_DATE
-    channel[SiteChan.CHANNEL_TYPE]      = (chan_line[43:48].strip().decode("ascii", "ignore"))              #CHANNEL_TYPE
-    channel[SiteChan.EMPLACEMENT_DEPTH] = (chan_line[49:57].strip().decode("ascii", "ignore"))              #EMPLACEMENT_DEPTH
-    channel[SiteChan.HORIZONTAL_ANGLE]  = (chan_line[57:64].strip().decode("ascii", "ignore"))              #HORIZONTAL_ANGLE
-    channel[SiteChan.VERTICAL_ANGLE]    = (chan_line[64:71].strip().decode("ascii", "ignore"))              #VERTICAL_ANGLE
-    channel[SiteChan.DESCRIPTION]       = (chan_line[72:122].strip().decode("ascii", "ignore"))             #DESCRIPTION 
-    channel[SiteChan.LOAD_DATE]         = stringToDate(chan_line[123:].strip().decode("ascii", "ignore"))   #LOAD_DATE 
+    channel[SiteChan.STATION_ID]        = unidecode.unidecode((chan_line[:7].strip()))                  #STATION_ID
+    channel[SiteChan.CHANNEL_CODE]      = unidecode.unidecode((chan_line[7:17].strip()))               #CHANNEL_CODE
+    channel[SiteChan.ON_DATE]           = unidecode.unidecode(stringToDate(chan_line[17:24].strip()))  #ON_DATE 
+    channel[SiteChan.OFF_DATE]          = unidecode.unidecode(stringToDate(chan_line[35:42].strip()))  #OFF_DATE
+    channel[SiteChan.CHANNEL_TYPE]      = unidecode.unidecode((chan_line[43:48].strip()))              #CHANNEL_TYPE
+    channel[SiteChan.EMPLACEMENT_DEPTH] = unidecode.unidecode((chan_line[49:57].strip()))              #EMPLACEMENT_DEPTH
+    channel[SiteChan.HORIZONTAL_ANGLE]  = unidecode.unidecode((chan_line[57:64].strip()))              #HORIZONTAL_ANGLE
+    channel[SiteChan.VERTICAL_ANGLE]    = unidecode.unidecode((chan_line[64:71].strip()))              #VERTICAL_ANGLE
+    channel[SiteChan.DESCRIPTION]       = unidecode.unidecode((chan_line[72:122].strip()))             #DESCRIPTION 
+    channel[SiteChan.LOAD_DATE]         = unidecode.unidecode(stringToDate(chan_line[123:].strip()))   #LOAD_DATE 
 
     try:
         css_id = int(chan_line[25:33])
     except:
         logging.error("css_id not in a correct format: {0}".format(chan_line[25:33]))
+        logging.error("Line: {0}".format(chan_line))
         return [None, None]
 
     return [channel, css_id]
@@ -332,9 +334,12 @@ def strStat2Stat(station, network_id):
     nstation.append(station[Station.REFERENCE_STATION])
     nstation.append(float(station[Station.NORTH_OFFSET]))
     nstation.append(float(station[Station.EAST_OFFSET]))
-    nstation.append(date(   year=int(station[Station.LOAD_DATE][:4]), 
+    try:
+        nstation.append(date(   year=int(station[Station.LOAD_DATE][:4]), 
                             month=int(station[Station.LOAD_DATE][5:7]),
                             day=int(station[Station.LOAD_DATE][8:])))   
+    except ValueError:
+        print(station)
     nstation.append(network_id)
 
     return nstation

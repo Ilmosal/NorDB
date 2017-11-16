@@ -70,9 +70,9 @@ def validateStation(station):
 
     if not validationTools.validateString(station[s2s.Station.STATION_TYPE],
                                             "station type",
-                                            2,  
+                                            1,  
                                             2,
-                                            ["ss","bb","ll", "ar"],
+                                            ["b", "ss","bb","ll", "ar"],
                                             True,
                                             mstat):
         validation = False
@@ -88,16 +88,16 @@ def validateStation(station):
 
     if not validationTools.validateFloat(station[s2s.Station.NORTH_OFFSET],
                                             "north offset",
-                                            -10.0,  
-                                            10.0,
+                                            -100.0,  
+                                            100.0,
                                             True,
                                             mstat):
         validation = False
 
     if not validationTools.validateFloat(station[s2s.Station.EAST_OFFSET],
                                             "east offset",
-                                            -10.0,  
-                                            10.0,
+                                            -100.0,  
+                                            100.0,
                                             True,
                                             mstat):
         validation = False

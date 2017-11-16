@@ -49,7 +49,7 @@ def fixErrorData(header):
         pass
 
 
-def fixPhaseData(data):
+def fixPhaseData(data, mhour):
     """
     Method for fixing some of the common errors in phase data.
    
@@ -80,6 +80,12 @@ def fixPhaseData(data):
     except:
         pass
 
+    try:
+        if int(mhour) > int(data.data[NordicData.HOUR]):
+            data.data[NordicData.TIME_INFO] = "+"
+    except:
+        pass
+
 def fixNordicEvent(nordicEvent):
     """
     Method for fixing an whole nordic event before validation. Only fixes couple of common errors like rounding errors with angles or seconds and such.
@@ -96,4 +102,4 @@ def fixNordicEvent(nordicEvent):
         fixErrorData(h)
 
     for data in nordicEvent.data:
-        fixPhaseData(data)
+        fixPhaseData(data, nordicEvent.headers[1][0].header[NordicMain.HOUR])

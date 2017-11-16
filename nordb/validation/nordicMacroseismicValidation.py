@@ -8,6 +8,17 @@ from nordb.validation import validationTools
 from nordb.validation.validationTools import values
 from nordb.core.nordic import NordicMacroseismic
 def validateMacroseismicHeader(header):
+    """
+    Function for validating that the macroseismic header line is in correct format.
+
+    Args:
+        header(NordicMacroseismic): nordic macroseismic header to be validated
+
+    Returns:
+        True if the file is valid, false if not
+   
+    """
+
     validation = True
     mheader = 2
 

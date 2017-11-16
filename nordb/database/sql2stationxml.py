@@ -185,9 +185,7 @@ def writeNetworkToStationXML(network, output_path):
     xmlstring = etree.tostring(stationroot, pretty_print=True)
     newSchema = etree.XML(xmlstring)
     
-    try:
-        xmlschema.assertValid(newSchema)
-    except:
+    if not xmlschema.validate(newSchema):
         log = xmlschema.error_log.last_error
         logging.error("StationXML file did not go through validation: ")
         logging.error(log)

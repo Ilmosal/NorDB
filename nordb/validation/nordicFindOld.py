@@ -78,9 +78,7 @@ def checkForSameEvents(nordic_event, cur, ignore_duplicates):
         except ValueError:
             pass
 
-    return -9
-
-    return int(ans)
+    return [-9, -9]
 
 def checkForSimilarEvents(nordic_event, cur): 
     """
@@ -199,4 +197,4 @@ def checkForSimilarEvents(nordic_event, cur):
         except ValueError:
             pass
 
-    return -9
+    return [-9, -9]

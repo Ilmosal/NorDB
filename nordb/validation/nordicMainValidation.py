@@ -9,6 +9,16 @@ from nordb.validation.validationTools import values
 from nordb.core.nordic import NordicMain
 
 def validateMainHeader(header):
+    """
+    Function for validating that the main header line is in correct format.
+
+    Args:
+        header(NordicMain): nordic main header to be validated
+
+    Returns:
+        True if the file is valid, false if not
+   
+    """
     validation = True
     mheader = 1
 

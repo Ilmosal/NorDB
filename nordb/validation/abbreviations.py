@@ -1,5 +1,9 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
+"""
+Some abbreviations for later use.
+"""
+
 
 source_reference = {"AHJ":["Ahjos et al., 1984-88, 1988-89, 1990", "FINLAND"],
                     "AMB":["Ambraseys, 1985a,b", "NORWAY"],

@@ -6,6 +6,17 @@ from nordb.validation.validationTools import values
 from nordb.core.nordic import NordicData
 
 def validatePhaseData(phase_data):
+    """
+    Function for validating that the phase data line is in correct format.
+
+    Args:
+        header(NordicData): nordic phase data to be validated
+
+    Returns:
+        True if the file is valid, false if not
+   
+    """
+
     validation = True
     phname = 8
 

@@ -10,6 +10,15 @@ class NordicEvent:
         self.event_id = event_id
     
 class NordicData:
+    """
+    A class that functions as a collection of enums. Contains the information of the phase data line of a nordic file. 
+
+    Attributes:
+        data(list): The data of a nordic phase in a list where each index of a value corresponds to NordicData's pseudo-enum.
+
+    Args:
+        data(list): list object that contains the values of the header file
+    """
     header_type = 7
     STATION_CODE = 0
     SP_INSTRUMENT_TYPE = 1
@@ -40,6 +49,15 @@ class NordicData:
         self.data = data
  
 class NordicMain:
+    """
+    A class that functions as a collection of enums. Contains the information of the main header line of a nordic file. 
+
+    Attributes:
+        header(list): The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum.
+
+    Args:
+        header(list): list object that contains the values of the header file
+    """
     header_type = 1
     DATE = 0
     HOUR = 1
@@ -73,6 +91,15 @@ class NordicMain:
         self.header = header
  
 class NordicMacroseismic:
+    """
+    A class that functions as a collection of enums. Contains the information of the macroseismic header line of a nordic file. 
+
+    Attributes:
+        header(list): The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
+
+    Args:
+        header(list): list object that contains the values of the header file
+    """
     header_type = 2
     DESCRIPTION = 0
     DIASTROPHISM_CODE = 1
@@ -101,6 +128,15 @@ class NordicMacroseismic:
         self.header = header
  
 class NordicComment:
+    """
+    A class that functions as a collection of enums. Contains the information of the comment header line of a nordic file. 
+
+    Attributes:
+        header(list): The header of a nordic comment in a list where each index of a value corresponds to NordicComment's pseudo-enum.
+
+    Args:
+        header(list): list object that contains the values of the header file
+    """
     header_type = 3
     H_COMMENT = 0
     EVENT_ID = 1
@@ -110,6 +146,15 @@ class NordicComment:
         self.header = header
 
 class NordicError:
+    """
+    A class that functions as a collection of enums. Contains the information of the error header line of a nordic file. 
+
+    Attributes:
+        header(list): The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
+
+    Args:
+        header(list): list object that contains the values of the header file
+    """
     header_type = 5
     GAP = 0
     SECOND_ERROR = 1
@@ -126,6 +171,15 @@ class NordicError:
 
     
 class NordicWaveform:
+    """
+    A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file. 
+
+    Attributes:
+        header(list): The header of a nordic waveform in a list where each index of a value corresponds to NordicWaveform's pseudo-enum.
+
+    Args:
+        header(list): list object that contains the values of the header file
+    """
     header_type = 6
     WAVEFORM_INFO = 0
     EVENT_ID = 1

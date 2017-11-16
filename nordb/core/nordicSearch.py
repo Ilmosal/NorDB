@@ -580,7 +580,7 @@ def printNordic(events, criteria, verbose):
         if verbose:
             for event in events:
                 nordic = sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))
-                print("Event ID: {0}".format(a[0]))
+                print("Event ID: {0}".format(event[0]))
                 for line in nordic:
                     print(line, end='')
                 print(80*"-")
