@@ -123,16 +123,19 @@ def stringToDate(sDate):
     Returns:
         The date in correct format as a string
     """
-    if len(sDate) == 7:
-        ndate = date(day=1, month=1, year=int(sDate[:4]))
-        ndate += timedelta(days= int(sDate[4:]) - 1)
-        rdate = ndate.strftime("%Y-%m-%d")
-    elif len(sDate) == 11:
-        rdate = sDate[:4] + "-" + MONTH_CONV[sDate[5:8]] + "-" + sDate[9:]
-    elif sDate == "-1":
-        rdate = ""
-    else:
-        rdate = ""
+    try:
+        if len(sDate) == 7:
+            ndate = date(day=1, month=1, year=int(sDate[:4]))
+            ndate += timedelta(days= int(sDate[4:]) - 1)
+            rdate = ndate.strftime("%Y-%m-%d")
+        elif len(sDate) == 11:
+            rdate = sDate[:4] + "-" + MONTH_CONV[sDate[5:8]] + "-" + sDate[9:]
+        elif sDate == "-1":
+            rdate = ""
+        else:
+            rdate = ""
+    except:
+        return sDate
     return rdate
  
 def readStationInfoToString(stat_line):
@@ -373,7 +376,7 @@ def getNetworkID(network):
 
     return ans[0]
 
-def readChannels(f_channels):
+def readChannels(f_channels, error_log):
     """
     Function for reading sitechan in css format and inserting them to the database
 
@@ -395,7 +398,7 @@ def readChannels(f_channels):
             return("False")
 
         if not validateSiteChan(chan[0]):
-            logging.error("Sitechan validation failed")
+            print("Sitechan validation failed! Check error log {0} for more details.".format(error_log))
             return False
 
     for chan in channels:
@@ -407,7 +410,7 @@ def readChannels(f_channels):
 
     return True
 
-def readStations(f_stations, network):
+def readStations(f_stations, network, error_log):
     """
     Method for reading stations in css format and inserting them to the database.
 
@@ -424,7 +427,7 @@ def readStations(f_stations, network):
 
     for stat in stations:
         if not validateStation(stat):
-            logging.error("Station Validation Failed!")
+            print("Station validation failed! Check error log {0} for more details.".format(error_log))
             return False
 
     username = usernameUtilities.readUsername()

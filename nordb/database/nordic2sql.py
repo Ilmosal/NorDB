@@ -189,7 +189,7 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
     if fixNordic:
          nordicFix.fixNordicEvent(nordic_event)
     
-    if not nordicValidation.validateNordic(nordic_event, cur):
+    if not nordicValidation.validateNordic(nordic_event):
         logging.error("Nordic validation failed with event: \n" 
                         + headers[1][0].header[NordicMain.O_STRING])
         conn.close()
@@ -389,7 +389,7 @@ def execute_command(cur, command, vals, returnValue):
     else:
         return None
 
-def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
+def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates, error_path):
     """
     Function for reading the whole file and all the events in it to the database.
 
@@ -409,10 +409,14 @@ def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates):
     try:
         nordics = nordicRead.readNordicFile(f)
 
+        validate = True
         for nordic in nordics:
             if not read_event(nordic, event_type, f.name, fixNordic, ignore_duplicates, no_duplicates, creation_id):
                 if len(nordic) > 0:
-                    logging.info("Problem in nordic: " + nordic[0][1:20])
+                    validate = False
+
+        if not validate:
+            print ("Some errors occurred with nordic file {0}. Check {1} for more details!".format(f.name, error_path.split("/")[-1]))
     except KeyboardInterrupt:
         print("\n")
         logging.error("Keyboard interrupt by user")
