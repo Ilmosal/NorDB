@@ -11,18 +11,19 @@ import click
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("bin/NorDB.py")]
 USER_PATH = os.getcwd()
-ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
-
-logging.basicConfig(filename=ERROR_PATH, level=logging.ERROR)
+ERROR_PATH = MODULE_PATH +"../errorlogs/{0}_error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
 
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 os.chdir(USER_PATH)
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan, sql2instrument
 from nordb.core import usernameUtilities, nordicSearch, nordicModify
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+def configError(filename):
+    logging.basicConfig(filename=ERROR_PATH.format(filename), level=logging.ERROR)
 
 class Repo(object):
     def __init__(self):
@@ -114,14 +115,53 @@ This will print all nordic events from date 01.01.2009 onwards into the outputfi
                                 silent
                                 )
 
+@cli.command('insertins', short_help='insert instrument file')
+@click.option('--verbose', '-v', is_flag=True, help="print all errors to screen")
+@click.argument('instrument-file', required=True, type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def insertins(repo, instrument_file, verbose):
+    """
+    This command adds a instrument css file to the database.
+    """
+    if verbose:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.ERROR)
+        logging.root.addHandler(ch)
+
+    if fnmatch.fnmatch(instrument_file, "*.instrument"):
+        station2sql.readInstruments(open(instrument_file, 'r'), ERROR_PATH.split("/")[-1])
+    else:
+        click.echo("Filename must be in format *.instrument")
+
+@cli.command('insertsen', short_help='insert sensor file')
+@click.option('verbose', '-v', is_flag=True, help="print all errors to screen")
+@click.argument('sensor-file', required=True, type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def insertsen(repo, sensor_file, verbose):
+    """
+    This command adds a sensor css file to the database. Insert the related instrument and sitechan files before inserting the sensor file.
+    """
+    if verbose:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.ERROR)
+        logging.root.addHandler(ch)
+
+    if fnmatch.fnmatch(sensor_file, "*.sensor"):
+        station2sql.readSensors(open(sensor_file, 'r'), ERROR_PATH.split("/")[-1])
+    else:
+        click.echo("Filename must be in format *.sensor")
+
+
+
 @cli.command('insertcha', short_help='insert sitechan file')
-@click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
+@click.option('--verbose', '-v', is_flag=True, help="print all errors to screen")
 @click.argument("channel-file", required=True, type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insertcha(repo, channel_file, verbose):
     """
-    This command adds a sitechan css file to the database
+    This command adds a sitechan css file to the database. Insert the related site files before inserting any sitechan files.
     """
+
     if verbose:
         ch = logging.StreamHandler()
         ch.setLevel(logging.ERROR)
@@ -164,6 +204,15 @@ def getsta(repo, output, o_format, network):
         sql2station.writeAllStations(output + ".site")
     elif o_format == "stationxml":
         sql2stationxml.writeNetworkToStationXML(network, output + ".xml")
+
+@cli.command('getins', short_help="get instrument")
+@click.argument('output', default='instruments', type=click.Path(exists=False))
+@click.pass_obj
+def getins(repo, output):
+    """
+    This command fetches the instruments that match the criteria given by user
+    """
+    sql2instrument.writeAllInstruments(output + ".instrument")
 
 @cli.command('getcha', short_help="get sitechans")
 @click.argument('output', default="sitechans" ,type=click.Path(exists=False))
@@ -220,7 +269,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
     """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
 
     if verbose:
-        ch = logging.StreamHandler()
+        ch = logging.StreamHandler(sys.stderr)
         ch.setLevel(logging.ERROR)
         logging.root.addHandler(ch)
 

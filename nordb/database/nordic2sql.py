@@ -19,7 +19,7 @@ from nordb.core import nordic
 from nordb.core.nordic import NordicData, NordicMain, NordicMacroseismic, NordicComment, NordicError, NordicWaveform, NordicEvent
 from nordb.validation import nordicValidation
 from nordb.validation import nordicFindOld
-from nordb.database import sql2nordic
+from nordb.database import sql2nordic, undoRead
 
 EVENT_TYPE_VALUES = {
     "O":1,
@@ -406,24 +406,38 @@ def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates, err
     """
     username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
+    validate = True
     try:
         nordics = nordicRead.readNordicFile(f)
-
-        validate = True
+        nordicsFailed = []
         for nordic in nordics:
             if not read_event(nordic, event_type, f.name, fixNordic, ignore_duplicates, no_duplicates, creation_id):
                 if len(nordic) > 0:
                     validate = False
+                    nordicsFailed.append(nordic)
 
         if not validate:
             print ("Some errors occurred with nordic file {0}. Check {1} for more details!".format(f.name, error_path.split("/")[-1]))
     except KeyboardInterrupt:
         print("\n")
         logging.error("Keyboard interrupt by user")
-        delete_creation_info_if_unnecessary(creation_id)
-        return False
 
+        if validate:
+            delete_creation_info_if_unnecessary(creation_id)
+        else:
+            undoRead.removeEventsWithCreationId(creation_id)            
+        return False
+    
     delete_creation_info_if_unnecessary(creation_id)
+
+    if len(nordicsFailed) > 0:
+        failed = open("f_" + os.path.basename(f.name), "w")
+
+        for n in nordicsFailed:
+            for line in n:
+                failed.write(line)  
+            failed.write("\n")
+
     return True
 
 def get_author(filename):

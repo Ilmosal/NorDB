@@ -110,7 +110,7 @@ def validateMainHeader(header):
                                                 "depth control",
                                                 0,
                                                 1,
-                                                "FSG",
+                                                "FSGA",
                                                 True,
                                                 mheader):
         validation = False

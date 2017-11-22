@@ -42,7 +42,7 @@ def validatePhaseData(phase_data):
                                                 "component",
                                                 0,
                                                 1,
-                                                "ZNEH ",
+                                                "ZNEH12VRT ",
                                                 True,
                                                 phname):
         validation = False

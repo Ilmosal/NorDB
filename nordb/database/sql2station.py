@@ -60,13 +60,13 @@ def createStationString(station):
 
 def readStation(station_id):
     """
-    Method for reading a station from database by id.
+    Function for reading a station from database by id.
 
     Args:
         station_id (int): id of the station wanted
     
     Returns:
-        station ((,)): station as a list 
+        station (list): station as a list 
     """
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -86,11 +86,11 @@ def readStation(station_id):
 
 def sql2station(station_ids, output_path):
     """
-    Method for reading stations from the database and dumping them to a stations.site file
+    Function for reading stations from the database and dumping them to a stations.site file
 
     Args:
         station_ids (int[]): Array of Integers
-        output_path (str): path to the outputfile
+        output_path (str): path to the output file
     """
     username = usernameUtilities.readUsername() 
 
@@ -106,7 +106,7 @@ def sql2station(station_ids, output_path):
 
 def writeAllStations(output_path):
     """
-    Method for writing all stations to a site file.
+    Function for writing all stations to a site file.
 
     Args:
         output_path(str): path to output file
@@ -117,7 +117,7 @@ def writeAllStations(output_path):
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
     except psycopg2.Error as e:
         logging.error(e.pgerror)
-        return None
+        return 
 
     cur = conn.cursor()
 
@@ -130,7 +130,7 @@ def writeAllStations(output_path):
     station_ids = []
 
     if not ans:
-        logging.error("No stations in the database!")
+        print("No stations in the database!")
         return
 
     for a in ans:

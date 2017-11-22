@@ -12,10 +12,30 @@ nTypes = {0: "Nordic Event",
         8: "Nordic Phase Data",
         9: "Scandic Header",
         10: "Station Data",
-        11: "Sitechan Data"}
+        11: "Sitechan Data",
+        12: "Instrument Data",
+        13: "Sensor Data"}
 
 class values():
     maxInt = 9223372036854775807 
+
+def validateId(str_id):
+    """
+    Function for validating a id in a string format. Id must be a whole number.
+
+    Args:
+        str_id(str): id in a strin format
+
+    Returns:
+        True depending on if str_id validates 
+    """
+    try:
+        if int(str_id) < 0:
+            return False
+        else:
+            return True
+    except:
+        return False
 
 def validateInteger(val, valueName, low, high, limits, nType):
     """
