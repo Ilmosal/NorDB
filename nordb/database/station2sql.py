@@ -48,6 +48,12 @@ CHANNEL_INSERT = (  "INSERT INTO sitechan" +
                     "RETURNING " +
                     "   id" )
 
+FAKE_CHANNEL_LINE = (
+                    "             -1 {0}       -1 n       0.0000    0.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
+                    "             -1 {0}       -1 n       0.0000   90.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
+                    "             -1 {0}       -1 n       0.0000   -1.0    0.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1"
+                    )
+
 SENSOR_INSERT = (   "INSERT INTO sensor " +
                         "(  time, endtime, jdate, calratio, " +
                         "   calper, tshift, instant, lddate, " +
@@ -288,7 +294,7 @@ def readSensorInfoToString(sen_line):
 '       sensor string array, channel id, instrument id
     """
     if sen_line[0] == "#":
-        return [None, None, None]
+        return [None, None, None, None]
 
     sensor = [None]*8
 
@@ -306,16 +312,18 @@ def readSensorInfoToString(sen_line):
     except:
         logging.error("instrument_id not in a correct format: {0}".format(sen_line[51:60].strip()))
         logging.error("Line: {0}".format(sen_line))
-        return [None, None, None]
+        return [None, None, None, None]
 
     try:
         channel_id = int(sen_line[62:69].strip())
     except:
         logging.error("channel_id not in a correct format: {0}".format(sen_line[51:60].strip()))
         logging.error("Line: {0}".format(sen_line))
-        return [None, None, None]
+        return [None, None, None, None]
 
-    return [sensor, instrument_id, channel_id]
+    station_info = sen_line[:9]
+
+    return [sensor, instrument_id, channel_id, station_info]
 
 def readInstrumentInfoToString(ins_line):
     """
@@ -446,7 +454,7 @@ def insertChan2Database(channel, css_id):
     try:
         cur.execute("INSERT INTO sitechan_css_link (css_id, sitechan_id) VALUES (%s, %s)", (css_id, db_id))
     except:
-        error.log("Link between table id {0} and css id {1} already exists".format(db_id, css_id))
+        logging.error("Link between table id {0} and css id {1} already exists".format(db_id, css_id))
 
     conn.commit()
     conn.close()
@@ -476,7 +484,7 @@ def insertStat2Database(station):
 
     return True
 
-def strSen2Sen(sensor, instrument_id, channel_id):
+def strSen2Sen(sensor, instrument_id, channel_id, station_code):
     """
     Function for creating a proper Sensor list from sensor string array
 
@@ -517,8 +525,11 @@ def strSen2Sen(sensor, instrument_id, channel_id):
     ans = cur.fetchone()
  
     if ans is None:
-        logging.error("No channel for sensor")
-        return None
+        logging.error("No channel for sensor. Generating a fake one.")
+        if not genFakeChannel(station_code, channel_id):
+            return None
+        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (channel_id, ))
+        ans = cur.fetchone()
 
     cha_id = ans[0]
 
@@ -608,9 +619,10 @@ def strChan2Chan(channel):
 
     nchannel[SiteChan.STATION_ID] = station_id
     nchannel[SiteChan.CHANNEL_CODE] = channel[SiteChan.CHANNEL_CODE]
-    nchannel[SiteChan.ON_DATE] = date(  year=int(channel[SiteChan.ON_DATE][:4]), 
-                                        month=int(channel[SiteChan.ON_DATE][5:7]),
-                                        day =int(channel[SiteChan.ON_DATE][8:]))
+    if channel[SiteChan.OFF_DATE] != "":
+        nchannel[SiteChan.ON_DATE] = date(  year=int(channel[SiteChan.ON_DATE][:4]), 
+                                            month=int(channel[SiteChan.ON_DATE][5:7]),
+                                            day =int(channel[SiteChan.ON_DATE][8:]))
     
     
     if channel[SiteChan.OFF_DATE] != "":
@@ -670,6 +682,41 @@ def strStat2Stat(station, network_id):
 
     return nstation
 
+def genFakeChannel(stat_code, chan_id):
+    """
+    Function for generating a fake sitechan obj to insert to the database to quarantee that all sensors can get in the database.
+
+    Args:
+        stat_id(int): id of the station to which the channel is inserted
+        chan_id(list()): list of related sensor information 
+    Returns:
+        True or False depending on if the operation was succesfull   
+    """
+    sitechanline = stat_code    
+
+    chan_id_str = ((8-len(str(chan_id))) * " ") + str(chan_id)
+
+    if stat_code[-1] == "n": 
+        sitechanline += FAKE_CHANNEL_LINE[0].format(chan_id_str)
+    elif stat_code[-1] == "e":
+        sitechanline += FAKE_CHANNEL_LINE[1].format(chan_id_str)
+    elif stat_code[-1] == "z":
+        sitechanline += FAKE_CHANNEL_LINE[2].format(chan_id_str)
+    else:
+        logging.error("No valid fake lines")
+        return False 
+
+    chan = readSiteChanInfoToString(sitechanline)
+
+    tmp_chan = strChan2Chan(chan[0])
+    if tmp_chan is None:
+        logging.error("Problem parsing channel: \n{0}".format(chan))
+        return False
+    else:    
+        insertChan2Database(tmp_chan, chan[1])
+
+    return True
+    
 def getNetworkID(network):
     """
     Function for inserting the information to the database.
@@ -726,7 +773,7 @@ def readSensors(f_sensors, error_log):
             return False
    
     for sen in sensors:
-        tmp_sen = strSen2Sen(sen[0], sen[1], sen[2])
+        tmp_sen = strSen2Sen(sen[0], sen[1], sen[2], sen[3])
 
         if tmp_sen is None:
             logging.error("Problem parsing sensor: \n {0}".format(sen))

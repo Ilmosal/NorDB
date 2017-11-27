@@ -12,7 +12,7 @@ CREATE TABLE sitechan(
     load_date DATE
 );
 
-CREATE TABLE css_link(
+CREATE TABLE sitechan_css_link(
     css_id INTEGER NOT NULL,
     sitechan_id INTEGER NOT NULL REFERENCES sitechan(id),
     PRIMARY KEY (css_id, sitechan_id)

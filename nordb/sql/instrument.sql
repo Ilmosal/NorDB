@@ -14,6 +14,6 @@ CREATE TABLE instrument(
 );
 
 CREATE TABLE instrument_css_link(
-    id INTEGER REFERENCES instrument(id),
+    instrument_id INTEGER REFERENCES instrument(id),
     css_id INTEGER
 );
