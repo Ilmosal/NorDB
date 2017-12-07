@@ -26,6 +26,7 @@ EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthqua
 PICK_POLARITY_CONVERSION = {'C': "positive", 'D': "negative", "+": "undecidable", "-": "undecidable"}
 MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'MW'}
 INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH', 'H': '?H', 'E':'?E'}
+PICK_ONSET_CONVERSION = {'I':"impulsive", 'E':"emergent"}
 
 def addEventParameters(quakeml, nordic, long_quakeML):
     """
@@ -33,7 +34,7 @@ def addEventParameters(quakeml, nordic, long_quakeML):
 
     Args:
         quakeml(etree.XML): quakeml root object
-        nordic (NordicEvent): nordic event object
+       nordic (NordicEvent): nordic event object
         long_quakeML(bool): flag for if the required file is a long or a short one
     """
     eventParameters = etree.SubElement(quakeml, "eventParameters")
@@ -54,6 +55,14 @@ def addEvent(eventParameters, nordic, long_quakeML):
     event = etree.SubElement(eventParameters, "event")
     event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/" + str(nordic.headers[1][0].header[NordicMain.ID])
 
+    #Add preferred OriginID
+    event_preferred_origin = etree.SubElement(event, "preferredOriginID")	
+    event_preferred_origin.text = "smi:" + AUTHORITY_ID + "/origin/" + str(nordic.headers[1][0].header[NordicMain.ID])
+
+    #Add preferred magnitudeID
+    event_preferred_magnitude = etree.SubElement(event, "preferredMagnitudeID")	
+    event_preferred_magnitude.text = "smi:" + AUTHORITY_ID + "/magnitude/" + str(nordic.headers[1][0].header[NordicMain.ID])
+
     #Adding event type  
     event_type_txt = " "
     for header in nordic.headers[1]:
@@ -63,6 +72,13 @@ def addEvent(eventParameters, nordic, long_quakeML):
     event_type = etree.SubElement(event, "type")
     event_type.text = EVENT_TYPE_CONVERSION[event_type_txt]
 
+    #Add event description
+    event_description = etree.SubElement(event, "description")
+    event_description_text = etree.SubElement(event_description, "text")
+    event_description_text.text =   (
+                                        nordic.headers[1][0].header[NordicMain.DISTANCE_INDICATOR]
+                                        + nordic.headers[1][0].header[NordicMain.EVENT_DESC_ID]
+                                    )
     #Adding event comments
     for header_comment in nordic.headers[3]:
         if header_comment.header[NordicComment.H_COMMENT] is not None:
@@ -75,6 +91,7 @@ def addEvent(eventParameters, nordic, long_quakeML):
         addOrigin(event, nordic, nordic.headers[1][i])
     
         #Adding preferred OriginID  
+    for i in range(0,len(nordic.headers[1])):
         if long_quakeML:
             addMagnitude(event, nordic, nordic.headers[1][i])
     
@@ -84,9 +101,14 @@ def addEvent(eventParameters, nordic, long_quakeML):
     if long_quakeML:
         for phase_data in nordic.data:
             addPick(event, nordic, phase_data)
+
+        for phase_data in nordic.data:
             addAmplitude(event, nordic, phase_data)
+
+        for phase_data in nordic.data:
             for origin in event.iter("origin"):
-                addArrival(origin, phase_data, nordic)
+                if origin.get("publicID") == event_preferred_origin.text:
+                    addArrival(origin, phase_data, nordic)
 
 def addPick(event, nordic, phase_data):
     """
@@ -130,6 +152,16 @@ def addPick(event, nordic, phase_data):
     waveform_id.attrib["stationCode"] = phase_data.data[NordicData.STATION_CODE]
     if phase_data.data[NordicData.SP_INSTRUMENT_TYPE] is not None and phase_data.data[NordicData.SP_COMPONENT] is not None:
         waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.data[NordicData.SP_INSTRUMENT_TYPE]] + phase_data.data[NordicData.SP_COMPONENT]
+	
+    #Quality indicator
+    if phase_data.data[NordicData.QUALITY_INDICATOR] is not None:
+        onset = etree.SubElement(pick, "onset")
+        onset.text = PICK_ONSET_CONVERSION[phase_data.data[NordicData.QUALITY_INDICATOR]]
+
+    #Phase_type
+    if phase_data.data[NordicData.PHASE_TYPE] is not None:
+        phaseHint = etree.SubElement(pick, "phaseHint")
+        phaseHint.text = phase_data.data[NordicData.PHASE_TYPE]
 
     #Pick first motion
     if phase_data.data[NordicData.FIRST_MOTION] is not None and phase_data.data[NordicData.FIRST_MOTION] in PICK_POLARITY_CONVERSION:
@@ -151,6 +183,9 @@ def addAmplitude(event, nordic, phase_data):
         generic_amplitude = etree.SubElement(amplitude, "genericAmplitude")
         generic_amplitude_value = etree.SubElement(generic_amplitude, "value")
         generic_amplitude_value.text = str(math.pow(phase_data.data[NordicData.MAX_AMPLITUDE], -9)) #Convert to meters from nanometers
+
+        amplitude_type = etree.SubElement(amplitude, "type")
+        amplitude_type.text = "A"
 
         #Adding amplitude period
         if phase_data.data[NordicData.MAX_AMPLITUDE_PERIOD] is not None:
@@ -216,7 +251,7 @@ def addOrigin(event, nordic, main):
     time_uncertainty = 1
     for h_error in nordic.headers[5]:
         if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
-            time_uncertainty = h_error.second_error
+            time_uncertainty = h_error.header[NordicError.SECOND_ERROR]
             break
 
     addTime(origin, time_value, time_uncertainty)
@@ -298,7 +333,8 @@ def addMagnitude(event, nordic, main):
             magnitude_creation_info_agency_uri.text = "smi:" + AUTHORITY_ID + "/agency/"
 
         magnitude_origin_id = etree.SubElement(magnitude, "originID")
-        magnitude_origin_id.text =  "smi:" + AUTHORITY_ID + "/origin"
+        magnitude_origin_id.text =  "smi:" + AUTHORITY_ID + "/origin/" + str(main.header[NordicMain.ID])
+
 
 def addArrival(origin, phase_data, nordic):
     if phase_data.data[NordicData.PHASE_TYPE] is not None:
