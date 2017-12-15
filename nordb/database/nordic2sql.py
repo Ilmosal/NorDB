@@ -373,8 +373,8 @@ def execute_command(cur, command, vals, returnValue):
         cur (Cursor): cursor object from psycopg2 library
         command (str): the sql command string
         vals (list): list of values for the command
-'       returnValue(bool): boolean values for if the command returns a value
-        
+        returnValue (bool): boolean values for if the command returns a value
+
     Returns:
         Values returned by the query
     """

@@ -12,15 +12,15 @@ SELECT_SITECHAN =  ("SELECT"                                                    
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             +
                     "   sitechan.horizontal_angle, sitechan.vertical_angle,"            +
                     "   sitechan.description, sitechan.load_date, sitechan.id, "        +
-                    "   css_link.css_id "                                               +
+                    "   sitechan_css_link.css_id "                                      +
                     "FROM "                                                             +
-                    "   sitechan, station, css_link "                                   +
+                    "   sitechan, station, sitechan_css_link "                          +
                     "WHERE "                                                            +
                     "   sitechan.id = %s "                                              +
                     "AND "                                                              +
                     "   station.id = sitechan.station_id "                              +
                     "AND "                                                              +
-                    "   css_link.sitechan_id = sitechan.id")
+                    "   sitechan_css_link.sitechan_id = sitechan.id")
 
 
 def createSiteChanString(channel):
@@ -38,8 +38,11 @@ def createSiteChanString(channel):
     sitechanString += add_string_to_string(channel[SiteChan.STATION_ID], 7, '<')
     sitechanString += add_string_to_string(channel[SiteChan.CHANNEL_CODE].strip(), 8, '<')
     sitechanString += "  "
-    sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].year, 4, '<') 
-    sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].timetuple().tm_yday, 3, '0') 
+    if channel[SiteChan.ON_DATE] is None:
+        sitechanString += add_integer_to_string(-1, 7, '>')
+    else:
+        sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].year, 4, '<') 
+        sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].timetuple().tm_yday, 3, '0') 
     
     sitechanString += "  "
 

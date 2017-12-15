@@ -7,6 +7,18 @@ from nordb.database.sql2nordic import add_float_to_string, add_integer_to_string
 
 username = ""
 
+SELECT_STATION =    (
+                        "SELECT " +
+                            "station_code, on_date, off_date, latitude, " +
+                            "longitude, elevation, station_name, station_type, " +
+                            "reference_station, north_offset, east_offset, " +
+                            "load_date, id " +
+                        "FROM " +
+                            "station " +
+                        "WHERE " +
+                            "id = %s" 
+                    )
+
 def createStationString(station):
     """
     Function for creating a css stations string from a Station object.
@@ -76,7 +88,7 @@ def readStation(station_id):
 
     cur = conn.cursor()
 
-    cur.execute("SELECT station_code, on_date, off_date, latitude, longitude, elevation, station_name, station_type, reference_station, north_offset, east_offset, load_date, id FROM station WHERE id = %s", (station_id,))
+    cur.execute(SELECT_STATION, (station_id,))
 
     ans = cur.fetchone()
 
@@ -121,7 +133,7 @@ def writeAllStations(output_path):
 
     cur = conn.cursor()
 
-    cur.execute("SELECT id FROM station;")
+    cur.execute("SELECT id FROM station ORDER BY station_code;")
 
     ans = cur.fetchall()
 

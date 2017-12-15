@@ -1,0 +1,5 @@
+====
+Core
+====
+.. automodule:: nordb.core
+

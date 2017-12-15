@@ -15,39 +15,17 @@ from nordb.core import usernameUtilities
 def station2stationxml(station):
     """
     Method for converting a Station list, sitechan list and network_code to a stationxml lxml object
+  
+    Arguments
+    ---------
+    station: 
+        list -- Station list that needs to be converted. 
+    channels: 
+        list -- Sitechan list
 
-    CONVERSIONS:
-    Station
-    ------------------------------
-    Station.station_code    - FDSNStationxml.Station.Site.Name 
-    Station.network_id      - FDSNStationxml.Source
-                            - FDSNStationxml.Station.Channel.locationCode
-    Station.on_date         - FDSNStationxml.Station.CreationDate
-    Station.off_date        - FDSNStationxml.Station.TerminationDate
-    Station.latitude        - FDSNStationxml.Station.Latitude.value
-                                - FDSNStationxml.Station.Channel.Latitude.value
-    Station.longitude       - FDSNStationxml.Station.Longitude.value  
-                                - FDSNStationxml.Station.Channel.Longitude.value
-    Station.elevation       - FDSNStationxml.Station.Elevation.value
-                                - FDSNStationxml.Station.Channel.Elevation.value
-    Station.station_name    - FDSNStationxml.Station.Site.Description
-    Station.load_date       - FDSNStationxml.Station.load
-
-    Sitechan
-    ------------------------------
-    SiteChan.channel_code       - FDSNStationxml.Station.Channel.Code
-    SiteChan.on_date            - FDSNStationxml.Station.Channel.StartDate
-    SiteChan.off_date           - FDSNStationxml.Station.Channel.EndDate
-    SiteChan.emplacement_depth  - FDSNStationxml.Station.Channel.Depth.value
-    SiteChan.horizontal_angle   - FDSNStationxml.Station.Channel.Azimuth.value
-    SiteChan.vertical_angle     - FDSNStationxml.Station.Channel.Dip.value   
-   
-    Args:
-        station (list): station list that needs to be converted.
-        channels (list): sitechan list
-
-    Returns:
-        StationXML etree object
+    Returns
+    -------
+    StationXML etree object
     """
 
     stationXML = etree.Element("Station")    

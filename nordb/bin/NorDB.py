@@ -11,19 +11,18 @@ import click
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("bin/NorDB.py")]
 USER_PATH = os.getcwd()
-ERROR_PATH = MODULE_PATH +"../errorlogs/{0}_error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
+ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
 
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
 os.chdir(USER_PATH)
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan, sql2instrument
+from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan, sql2instrument, sql2sensor
 from nordb.core import usernameUtilities, nordicSearch, nordicModify
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-def configError(filename):
-    logging.basicConfig(filename=ERROR_PATH.format(filename), level=logging.ERROR)
+logging.basicConfig(filename=ERROR_PATH, level=logging.ERROR)
 
 class Repo(object):
     def __init__(self):
@@ -32,7 +31,11 @@ class Repo(object):
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.pass_context
 def cli(ctx):
-    """This is the command line tool for NorDB database. If this is your first time running the program remember to first configure your .user.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database"""
+    """
+    This is the command line tool for NorDB database. If this is your first time running the program remember to first configure your .user.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database
+    
+    You can request help for all the commands with -h or --help flags.
+    """
     ctx.obj = Repo()
 
 @cli.command('conf', short_help='configure username')
@@ -151,8 +154,6 @@ def insertsen(repo, sensor_file, verbose):
     else:
         click.echo("Filename must be in format *.sensor")
 
-
-
 @cli.command('insertcha', short_help='insert sitechan file')
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen")
 @click.argument("channel-file", required=True, type=click.Path(exists=True, readable=True))
@@ -174,10 +175,11 @@ def insertcha(repo, channel_file, verbose):
 
 @cli.command('insertsta', short_help='insert site file')
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen in addition to error log")
+@click.option('--all_files', '-a', is_flag=True, help="add all four station files: .site, .sitechan, .instrument, .sensor to db")
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
 @click.argument('network', default="HEL")
 @click.pass_obj
-def insertsta(repo, station_file, network, verbose):
+def insertsta(repo, station_file, network, verbose, all_files):
     """
     This command adds a site table to the database
     """
@@ -185,6 +187,25 @@ def insertsta(repo, station_file, network, verbose):
         ch = logging.StreamHandler()
         ch.setLevel(logging.ERROR)
         logging.root.addHandler(ch)
+
+    if all_files:
+        if not os.path.isfile(station_file.split(".")[0] + ".sitechan"):
+            click.echo("File {0} does not exist".format(station_file.split(".")[0] + ".sitechan"))
+            return
+
+        if not os.path.isfile(station_file.split(".")[0] + ".instrument"):
+            click.echo("File {0} does not exist".format(station_file.split(".")[0] + ".instrument"))
+            return 
+
+        if not os.path.isfile(station_file.split(".")[0] + ".sensor"):
+            click.echo("File {0} does not exist".format(station_file.split(".")[0] + ".sensor"))
+            return 
+
+        station2sql.readStations    (open(station_file, 'r'), network, ERROR_PATH.split("/")[-1])
+        station2sql.readChannels    (open(station_file.split(".")[0] + ".sitechan", 'r'), ERROR_PATH.split("/")[-1])
+        station2sql.readInstruments (open(station_file.split(".")[0] + ".instrument", 'r'), ERROR_PATH.split("/")[-1])
+        station2sql.readSensors     (open(station_file.split(".")[0] + ".sensor", 'r'), ERROR_PATH.split("/")[-1])
+
 
     if fnmatch.fnmatch(station_file, "*.site"):
         station2sql.readStations(open(station_file, 'r'), network, ERROR_PATH.split("/")[-1])
@@ -223,6 +244,14 @@ def getcha(repo, output):
     """
     sql2sitechan.writeAllSitechans(output + ".sitechan")
 
+@cli.command('getsen', short_help="get sensors")
+@click.argument('output', default="sensors" ,type=click.Path(exists=False))
+@click.pass_obj
+def getsen(repo, output):
+    """
+    This command fetches the sensors that match the criteria given by user.
+    """
+    sql2sensor.writeAllSensors(output + ".sensor")
 
 @cli.command('chgroot', short_help='change root id')
 @click.option('--root-id', '-id', default=-999, type=click.INT, help="root to which the event is attached to")
@@ -342,30 +371,33 @@ def get(repo, event_id, event_id_file, output_format, output):
         click.echo(output + "has been created!")
 
     if isinstance(event_id, int):
-        e_id = int(event_id) 
+        e_ids = [int(event_id),]
         if output_format == "n":
-            sql2nordic.writeNordicEvent(event_id, USER_PATH, output)
+            sql2nordic.writeNordicEvent(e_ids[0], USER_PATH, output)
         elif output_format == "q":
-            sql2quakeml.writeQuakeML(event_id, USER_PATH, output)
+            sql2quakeml.writeQuakeML(e_ids, USER_PATH, output)
         elif output_format == "sc3":
-            sql2sc3.writeSC3(event_id, USER_PATH, output)
+            sql2sc3.writeSC3(e_ids, USER_PATH, output)
         return
 
     f = open(event_id_file, 'r')
+    
+    e_ids = []    
 
     for line in f:
         try:
-            e_id = int(line.strip())
+            e_ids.append(int(line))
         except:
-            click.echo("Error parsing event-id-file. Problem with line: " + line)
-            return
+            click.echo("Line given for program not a valid integer: {0}".format(line))
+            return False
 
-        if output_format == "n":
+    if output_format == "n":
+        for e_id in e_ids:
             sql2nordic.writeNordicEvent(e_id, USER_PATH, output)
-        elif output_format == "q":
-            sql2quakeml.writeQuakeML(e_id, USER_PATH, output)
-        elif output_format == "sc3":
-            sql2sc3.writeSC3(e_id, USER_PATH, output)
+    elif output_format == "q":
+        sql2quakeml.writeQuakeML(e_ids, USER_PATH, output)
+    elif output_format == "sc3":
+        sql2sc3.writeSC3(e_ids, USER_PATH, output)
 
 @cli.command('undo', short_help='undo last insert')
 @click.pass_obj

@@ -11,6 +11,7 @@ from nordb.validation.sitechanValidation import validateSiteChan
 from nordb.validation.instrumentValidation import validateInstrument
 from nordb.validation.sensorValidation import validateSensor
 from nordb.validation import validationTools
+
 username = ""
 
 MONTH_CONV = {  "Jan": "01",
@@ -49,9 +50,9 @@ CHANNEL_INSERT = (  "INSERT INTO sitechan" +
                     "   id" )
 
 FAKE_CHANNEL_LINE = (
-                    "             -1 {0}       -1 n       0.0000    0.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
-                    "             -1 {0}       -1 n       0.0000   90.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
-                    "             -1 {0}       -1 n       0.0000   -1.0    0.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1"
+                        "-1 {0}        -1 n       0.0000    0.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
+                        "-1 {0}        -1 n       0.0000   90.0   90.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1",
+                        "-1 {0}        -1 n       0.0000   -1.0    0.0 % AUTOMATICALLY GENERATED CHANNEL PROBABLY NOT OK           -1"
                     )
 
 SENSOR_INSERT = (   "INSERT INTO sensor " +
@@ -84,9 +85,11 @@ class Sensor:
         TSHIFT(int): correction to data processing time
         INSTANT(int): (y/n) discrete/continuing snapshot
         LDDATE (int):
-        ID(int): id of the sensor
         CHANNEL_ID(int): id of the channel to which sensor refers to. 
         INTRUMENT_ID(int): id of the instrument to which the sensor refers to. 
+        ID(int): id of the sensor
+        STATION_CODE(int): code of the station the sensor is attached to
+        CHANNEL_CODE(int): channel code of the sensor
     """
     TIME = 0
     ENDTIME = 1
@@ -99,6 +102,8 @@ class Sensor:
     CHANNEL_ID = 8
     INSTRUMENT_ID = 9
     ID = 10
+    STATION_CODE = 11
+    CHANNEL_CODE = 12
 
 class Instrument:
     """
@@ -304,7 +309,7 @@ def readSensorInfoToString(sen_line):
     sensor[Sensor.CALRATIO] = unidecode.unidecode(sen_line[78:96].strip())
     sensor[Sensor.CALPER]   = unidecode.unidecode(sen_line[95:112] .strip())
     sensor[Sensor.TSHIFT]   = unidecode.unidecode(sen_line[113:119].strip())
-    sensor[Sensor.INSTANT]  = unidecode.unidecode(sen_line[121].strip())
+    sensor[Sensor.INSTANT]  = unidecode.unidecode(sen_line[120].strip())
     sensor[Sensor.LDDATE]   = unidecode.unidecode(stringToDate(sen_line[122:].strip()))
 
     try:
@@ -321,7 +326,7 @@ def readSensorInfoToString(sen_line):
         logging.error("Line: {0}".format(sen_line))
         return [None, None, None, None]
 
-    station_info = sen_line[:9]
+    station_info = sen_line[:15].strip()
 
     return [sensor, instrument_id, channel_id, station_info]
 
@@ -525,7 +530,7 @@ def strSen2Sen(sensor, instrument_id, channel_id, station_code):
     ans = cur.fetchone()
  
     if ans is None:
-        logging.error("No channel for sensor. Generating a fake one.")
+        print("No channel for sensor. Generating a fake one. Sensor: {0} - {1}".format(station_code, sensor))
         if not genFakeChannel(station_code, channel_id):
             return None
         cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (channel_id, ))
@@ -692,19 +697,28 @@ def genFakeChannel(stat_code, chan_id):
     Returns:
         True or False depending on if the operation was succesfull   
     """
-    sitechanline = stat_code    
+    whitespace = " " * (22 - len(stat_code.strip()))
+
+    sitechanline = stat_code.strip() + whitespace
 
     chan_id_str = ((8-len(str(chan_id))) * " ") + str(chan_id)
+    
+    channel_line_str = ""
 
     if stat_code[-1] == "n": 
-        sitechanline += FAKE_CHANNEL_LINE[0].format(chan_id_str)
+        channel_line_str += FAKE_CHANNEL_LINE[0].format(chan_id_str)
     elif stat_code[-1] == "e":
-        sitechanline += FAKE_CHANNEL_LINE[1].format(chan_id_str)
+        channel_line_str += FAKE_CHANNEL_LINE[1].format(chan_id_str)
     elif stat_code[-1] == "z":
-        sitechanline += FAKE_CHANNEL_LINE[2].format(chan_id_str)
+        channel_line_str += FAKE_CHANNEL_LINE[2].format(chan_id_str)
     else:
         logging.error("No valid fake lines")
         return False 
+
+    if stat_code == 8:
+        sitechanline += channel_line_str
+    else:
+         sitechanline += channel_line_str[1:]
 
     chan = readSiteChanInfoToString(sitechanline)
 
@@ -773,6 +787,9 @@ def readSensors(f_sensors, error_log):
             return False
    
     for sen in sensors:
+        if sen[0] is None:
+            continue
+
         tmp_sen = strSen2Sen(sen[0], sen[1], sen[2], sen[3])
 
         if tmp_sen is None:

@@ -1,3 +1,7 @@
+"""
+This module contains all functions for reseting the database. Use the following commands with care as these operations are not reversible!
+"""
+
 import logging
 import time
 import os
@@ -16,8 +20,7 @@ def resetDatabase():
     """
     Function for clearing the database from all of its data
 
-    Returns:
-        True or False depending on if the operation is succesful or not
+    :returns: bool -- the return code, which tells if the operation was succesful or not
     """
     username = usernameUtilities.readUsername()
 
@@ -103,8 +106,7 @@ def resetEvents():
     """
     Function for clearing the database from all event data
 
-    Returns:
-        True or False depending on if the operation is succesful or not
+    :returns: bool -- the return code, which tells if the operation was successful or not
     """
     username = usernameUtilities.readUsername()
 
@@ -171,9 +173,7 @@ def resetStations():
     """
     Function for clearing the database from all station and networ kdata
 
-    Returns:
-        True or False depending on if the operation is succesful or not
-
+    :returns: bool -- the return code which tells the user if the operation was successful or not
     """
     username = usernameUtilities.readUsername()
 

@@ -1,0 +1,5 @@
+========
+Binaries
+========
+.. automodule:: nordb.bin
+    

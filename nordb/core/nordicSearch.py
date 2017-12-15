@@ -5,6 +5,8 @@ import psycopg2
 from nordb.core import usernameUtilities
 from nordb.database import getNordic
 from nordb.database import sql2nordic
+from nordb.database import sql2quakeml
+from nordb.database import sql2sc3
 
 username = ""
 
@@ -514,13 +516,13 @@ def searchEventRoot(criteria, verbose):
 
         for event in e_roots_list:
             if verbose:
-                nordic = sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))
+                nordic = sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))
                 print("Event ID: {0}".format(a[0]))
                 for line in nordic:
                     print(line, end='')
                 print(80*"-")
             else:
-                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(nordicHandler.readNordicEvent(cur, event[0]))[0][:-2]))
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))[0][:-2]))
 
     conn.close()
 
@@ -557,7 +559,7 @@ def printNordic(events, criteria, verbose):
         event_ids (int[]): list of event_ids that need to be printed
         verbose (bool): flag if all info from events need to be printed or just the main headers
     """
-    if len(events) == 0:
+    if events is None or len(events) == 0:
         print("No events found with criteria!")
     else:
         if len(criteria.keys()) == 0:
@@ -658,8 +660,6 @@ def searchNordic(criteria, verbose, output, event_root, user_path, output_format
     """
     username = usernameUtilities.readUsername()
 
-    event_ids = ()
-
     if event_root:
         events = searchEventRoot(criteria, verbose)
         return
@@ -671,11 +671,16 @@ def searchNordic(criteria, verbose, output, event_root, user_path, output_format
     if not no_outprint:
         printNordic(events, criteria, verbose)
 
+    event_ids = []
+
+    for e in events:
+        event_ids.append(e[0])
+
     if output is not None:
-        for event in events:
-            if output_format == "n":
-                sql2nordic.writeNordicEvent(event[0], user_path, output)
-            elif output_format == "q":
-                sql2quakeml.writeQuakeML(event[0], user_path, output)
-            elif output_format == "sc3":
-                sql2sc3.writeSC3(event[0], user_path, output)
+        if output_format == "n":
+            for e_id in event_ids:
+                sql2nordic.writeNordicEvent(e_id, user_path, output)
+        elif output_format == "q":
+            sql2quakeml.writeQuakeML(event_ids, user_path, output)
+        elif output_format == "sc3":
+            sql2sc3.writeSC3(event_ids, user_path, output)

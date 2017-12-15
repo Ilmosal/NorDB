@@ -28,19 +28,23 @@ MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'M
 INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH', 'H': '?H', 'E':'?E'}
 PICK_ONSET_CONVERSION = {'I':"impulsive", 'E':"emergent"}
 
-def addEventParameters(quakeml, nordic, long_quakeML):
+# Assuming the earth is a sphere with radius of 6371 km which is a totally valid assumption.
+MAGIC_KM2DEG_CONSTANT = 111.19
+
+def addEventParameters(quakeml, nordics, long_quakeML):
     """
     Function that adds event parameters to a quakeml etree object.
 
     Args:
         quakeml(etree.XML): quakeml root object
-       nordic (NordicEvent): nordic event object
+        nordics (NordicEvent): nordic event object
         long_quakeML(bool): flag for if the required file is a long or a short one
     """
     eventParameters = etree.SubElement(quakeml, "eventParameters")
     eventParameters.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/eventParameter"
-    
-    addEvent(eventParameters, nordic, long_quakeML)
+
+    for nordic in nordics:
+        addEvent(eventParameters, nordic, long_quakeML)
 
 def addEvent(eventParameters, nordic, long_quakeML):
     """
@@ -174,6 +178,9 @@ def addPick(event, nordic, phase_data):
         pick_back_azimuth_value = etree.SubElement(pick_back_azimuth, "value")
         pick_back_azimuth_value.text = str(phase_data.data[NordicData.BACK_AZIMUTH])
 
+    pick_evaluation_mode = etree.SubElement(pick, "evaluationMode")
+    pick_evaluation_mode.text = "manual"
+
 def addAmplitude(event, nordic, phase_data):
     if phase_data.data[NordicData.MAX_AMPLITUDE] is not None:
         amplitude = etree.SubElement(event, "amplitude")
@@ -289,7 +296,7 @@ def addOrigin(event, nordic, main):
             if h_error.header[NordicError.ID] == main.header[NordicMain.ID]:
                 if h_error.header[NordicError.DEPTH_ERROR] is not None:
                     origin_depth_uncertainty = etree.SubElement(origin_depth, "uncertainty")
-                    origin_depth_uncertainty.text = str(h_error.header[NordicError.HEADER][NordicError.DEPTH_ERROR] * 1000)
+                    origin_depth_uncertainty.text = str(h_error.header[NordicError.DEPTH_ERROR] * 1000)
                 break
 
     #Adding value for rms time residuals
@@ -362,7 +369,7 @@ def addArrival(origin, phase_data, nordic):
         #Adding arrival distance
         if phase_data.data[NordicData.EPICENTER_DISTANCE] is not None:
             arrival_distance = etree.SubElement(arrival, "distance")
-            arrival_distance.text = str(phase_data.data[NordicData.EPICENTER_DISTANCE])
+            arrival_distance.text = str(phase_data.data[NordicData.EPICENTER_DISTANCE]/MAGIC_KM2DEG_CONSTANT)
 
 #TODO: See if station magnitude information can be found from somewhere. Without it stationMagnitude and staionMagnitudeContribution elements are useless.
 
@@ -430,7 +437,7 @@ def validateQuakeMlFile(test, xmlschema):
             logging.error(error.message.encode("utf-8"))
         return False
 
-def nordicEventToQuakeMl(nordicEvent, long_quakeML):
+def nordicEventToQuakeMl(nordicEvents, long_quakeML):
     """
     Function that turns a NordicEvent Object into a quakeml etree object, validates it and returns it.
 
@@ -448,7 +455,7 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
     utf8_parser = etree.XMLParser(encoding='utf-8')
     quakeml = etree.fromstring(QUAKEML_ROOT_STRING.encode('utf-8'), utf8_parser)
 
-    addEventParameters(quakeml, nordicEvent, long_quakeML)
+    addEventParameters(quakeml, nordicEvents, long_quakeML)
 
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
@@ -461,12 +468,12 @@ def nordicEventToQuakeMl(nordicEvent, long_quakeML):
 
     return quakeml
 
-def writeQuakeML(nordicEventId, usr_path, output):
+def writeQuakeML(nordic_event_ids, usr_path, output):
     """
     A function for writing quakeml file based on a nordic event with id of nordicEventId.
 
     Args:
-        nordicEventId (int): id of the file wanted
+        nordic_event_ids (list): list of ids
         usr_path (str): path to where the file is written to
         output (str): output file name
 
@@ -474,11 +481,13 @@ def writeQuakeML(nordicEventId, usr_path, output):
         True or False depending on if the write was succesful or not
     """
     username = usernameUtilities.readUsername()
-    try:
-        int(nordicEventId)
-    except:
-        logging.error("Argument {0} is not a valid event id!".format(nordicEventId))
-        return False
+
+    for n_id in nordic_event_ids:
+        try:
+            int(n_id)
+        except:
+            logging.error("Argument {0} is not a valid event id!".format(n_id))
+            return False
 
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -488,23 +497,36 @@ def writeQuakeML(nordicEventId, usr_path, output):
 
     cur = conn.cursor()
 
-    nordic = getNordic.readNordicEvent(cur, nordicEventId)
- 
-    if nordic == None:
+    nordics = []
+
+    for n_id in nordic_event_ids:
+        nordics.append(getNordic.readNordicEvent(cur, n_id))
+
+    [n for n in nordics if n is not None]
+
+    if nordics == None or len(nordics) < 0:
+        print("Nordics with given ids do not exists: \n{0}".format(nordic_event_ids))
         return False
 
-    main = nordic.headers[1][0]
+    if len(nordics) == 1 and output is None:
+        nordic = nordics[0]
+        main = nordic.headers[1][0]
     
-    filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(   main.header[NordicMain.DATE].year, 
+        filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(   main.header[NordicMain.DATE].year, 
                                                         main.header[NordicMain.DATE].timetuple().tm_yday, 
                                                         main.header[NordicMain.HOUR], 
                                                         main.header[NordicMain.MINUTE], 
                                                         int(main.header[NordicMain.SECOND])) + ".xml"
+    else:
+        filename = output
 
-    quakeMLString = etree.tostring(nordicEventToQuakeMl(nordic, True), pretty_print=True)   
+    
+    qmls = nordicEventToQuakeMl(nordics, True)
+    
+    quakeMLString = etree.tostring(nordicEventToQuakeMl(nordics, True), pretty_print=True)   
 
     print(filename + " has been created!")
-    
+        
     f = open(usr_path + "/" + filename, 'wb')
     
     f.write(quakeMLString)

@@ -108,6 +108,12 @@ def create_main_header_string(hd):
 
 def create_comment_header_string(hd):
     """
+    Function for creating comment header string from a nordicComment list
+    
+    Args:
+        hd(list): comment header list
+    Returns:
+        comment header in a string format
 
     """
     h_string = " "
@@ -117,6 +123,14 @@ def create_comment_header_string(hd):
     return h_string
 
 def create_error_header_string(hd):
+    """
+    Function for creating error header string from a nordicError list
+    
+    Args:
+        hd(list): error header list
+    Returns:
+        error header in a string format
+    """
     h_string = " "
     h_string += "GAP="
     h_string += add_integer_to_string(hd.header[NordicError.GAP], 3,'>')
@@ -132,6 +146,15 @@ def create_error_header_string(hd):
     return h_string
 
 def create_waveform_header_string(hd):
+    """
+    Function for creating waveform header string from a nordicWaveform list
+    
+    Args:
+        hd(list): waveform header list
+    Returns:
+        waveform header in a string format
+    """
+
     h_string = " "
     h_string += add_string_to_string(hd.header[NordicWaveform.WAVEFORM_INFO], 78, '<')
     h_string += "6\n"
@@ -139,6 +162,14 @@ def create_waveform_header_string(hd):
     return h_string
 
 def create_phase_data_string(pd):
+    """
+    Function for creating data header string from a nordicData list
+    
+    Args:
+        hd(list): data header list
+    Returns:
+        data header in a string format
+    """
     phase_string = " "
     phase_string += add_string_to_string(pd.data[NordicData.STATION_CODE], 4, '<')
     phase_string += " "
@@ -177,6 +208,20 @@ def create_phase_data_string(pd):
     return phase_string
 
 def add_string_to_string(value, val_len, front):
+    """
+    Function for parsing a string into correct format. Front works as the parser character which tells some small details on how the string has to be formatted.
+    
+    >> add_string_to_string("test, 6, '<'")
+        "test  "
+    
+    Args:
+        value(str): string value that will be formatted
+        val_len(int): int on how long the string needs to be
+        front (str): formatting character
+
+    Returns:
+        formatted string
+    """
     string = ""
     parser = "{:" + front + str(val_len) + "s}"
     if value is not None:
@@ -203,6 +248,11 @@ def add_float_to_string(value, val_len, decimal_len, front):
         string += parser.format(value)
     else:
         string = val_len * " "
+    if value is None:
+        return string 
+    if float(value) < 0 and val_len == len(string) - 1:
+        string = string[0] + string[2:]
+        
     return string
 
 def writeNordicEvent(nordicEventId, usr_path, output):
@@ -251,7 +301,6 @@ def writeNordicEvent(nordicEventId, usr_path, output):
 
         for line in nordicString:
             f.write(line)
-
 
         f.close()
 
