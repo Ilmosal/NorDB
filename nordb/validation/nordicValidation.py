@@ -14,7 +14,6 @@ from nordb.validation import nordicCommentValidation
 from nordb.validation import nordicWaveformValidation
 from nordb.validation import nordicPhaseDataValidation
 
-from nordb.validation import nordicEventValidation
 from nordb.validation import scandiaValidation
 
 eventTypeValues = {"O":1, "A":2, "P":3, "R":4, "F":5, "S":6}
@@ -29,8 +28,6 @@ def validateNordic(nordic_event):
         True or False depending on if the file is valid or not
     """
     validation_error = False
-    if not nordicEventValidation.validateEventHeader(nordic_event):
-        validation_error = True
 
     for header in nordic_event.headers[1]:
             if not nordicMainValidation.validateMainHeader(header):

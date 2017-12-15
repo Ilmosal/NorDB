@@ -70,6 +70,9 @@ def readNordicEvent(cur, event_id):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
+    Args:
+        cur 
+
     :param: cur -- Psycopg2.Cursor Object for queries
     :type: Psycopg2.Cursor
     :param: event_id -- Event id of the event

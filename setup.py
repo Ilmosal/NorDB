@@ -14,6 +14,9 @@ setup(
         "psycopg2",
         "Click",
         "lxml",
+        "paramiko",
+        "Sphinx",
+        "alabaster",
     ],
     long_description=open("README.md").read(),
     entry_points='''

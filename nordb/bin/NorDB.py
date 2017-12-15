@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+This is the command line tool of the whole program. The command line tool is created with python library Click and that's why it's functions are not usable in same way compared to the others. If you have installed the Library correctly, you can use the command line tool by typing ``nordb`` into your terminal.
+"""
+
 import os
 import sys
 import datetime

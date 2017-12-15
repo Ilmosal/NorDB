@@ -1,3 +1,7 @@
+"""
+This module is for converting the station information from the database into stationxml format. The most important function of this module is writeNetworkToStationXML(network, output_path) which takes all stations from one network and dumps them to a single stationxml file.
+"""
+
 import os
 import logging
 import psycopg2
@@ -16,16 +20,11 @@ def station2stationxml(station):
     """
     Method for converting a Station list, sitechan list and network_code to a stationxml lxml object
   
-    Arguments
-    ---------
-    station: 
-        list -- Station list that needs to be converted. 
-    channels: 
-        list -- Sitechan list
+    **Args:**
+        * station (list) -- Station list that needs to be converted. 
 
-    Returns
-    -------
-    StationXML etree object
+    **Returns:**
+        * StationXML etree object
     """
 
     stationXML = etree.Element("Station")    
@@ -69,11 +68,11 @@ def channel2stationXML(sitechan, station):
     """
     Create channel xml and return it
 
-    Args:
-        sitechan(list): sitechan object
+    **Args:**
+        * sitechan(list) -- Sitechan object that will be converted into a xml etree object
     
-    Returns:
-        lxml etree object of a channel defined by FNDS format
+    **Returns:**
+        * Lxml etree object of a channel defined by FNDS format
     """
     channelXML = etree.Element("Channel")
     channelXML.attrib["code"] = sitechan[SiteChan.CHANNEL_CODE]
@@ -107,8 +106,9 @@ def writeNetworkToStationXML(network, output_path):
     """
     Method for writing all stations of a network in database into a stationXML file.
 
-    Args:
-        output_path(str): path to output file
+    **Args:**
+       * network (str) -- Network from which all the stations are taken from.
+       * output_path(str) -- Path to output file.
     """
     username = usernameUtilities.readUsername() 
 

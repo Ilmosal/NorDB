@@ -7,7 +7,7 @@ Documentation for the code
 .. toctree::
     :maxdepth: 4
 
-    modules/bin.rst
-    modules/core.rst
-    modules/database.rst
-    modules/validation.rst
+    modules/bin/bin.rst
+    modules/core/core.rst
+    modules/database/database.rst
+    modules/validation/validation.rst

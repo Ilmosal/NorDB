@@ -1,4 +1,0 @@
-==========
-Validation
-==========
-.. automodule:: nordb.validation

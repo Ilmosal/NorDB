@@ -1,9 +1,7 @@
 """
 This module contains all the modules that revolve around database.
 
-* :ref:`nordb.database.nordic2sql`
 """
-
 import nordb.database.getNordic
 import nordb.database.nordic2sql
 import nordb.database.norDBManagement
