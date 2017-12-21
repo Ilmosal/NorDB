@@ -1,11 +1,27 @@
+"""
+This module contains all the functions for fixing some common errors in nordic files before validating the Event. This happens when adding a nordic file into the database with "nordb insert" command using the --fix or -f flag. It wont fix everything, but it's still better than nothing.
+
+Errors that get fixed
+^^^^^^^^^^^^^^^^^^^^^
+    - When the magnitude of the main header is nAn which is not a possible value in a postgres database
+    - If the main headers second value is 60.0. This will be turned into a 00.0 and the time will be adjusted accordingly
+    - When the magnitude error of the error header is nAn which is not a possible value in a postgres database
+    - If the main headers second value is 60.0. This will be turned into a 00.0 and the time will be adjusted accordingly
+    - Turns epicenter_distance into a integer if it's currently a float
+    - Adds time_info sign to the nordic if there is need for it(The event has been observed the day after it has occurred)
+
+
+Functions and Classes
+---------------------
+"""
+
 import math
 from nordb.core.nordic import NordicMain, NordicError, NordicData
 def fixMainData(header):
     """
     Method for fixing some of the common errors in main header.
-
-    Args:
-        header: main header that needs to be fixed
+   
+    :param NordicMain header: main header that needs to be fixed
     """
     try:
         if math.isnan(float(header.header[NordicMain.MAGNITUDE_1])):
@@ -39,8 +55,7 @@ def fixErrorData(header):
     """
     Method for fixing some of the common errors in error header.
    
-    Args:
-        header: error header that need to be fixed
+    :param NordicError header: error header that need to be fixed
     """
     try:
         if math.isnan(float(header.header[NordicError.MAGNITUDE_ERROR])):
@@ -53,8 +68,8 @@ def fixPhaseData(data, mhour):
     """
     Method for fixing some of the common errors in phase data.
    
-    Args:
-        data: phase data that need to be fixed
+    :param NordicData data: phase data that need to be fixed
+    :param int mhour: The hour value of the main header
     """
 
     if data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] == "360":
@@ -90,9 +105,7 @@ def fixNordicEvent(nordicEvent):
     """
     Method for fixing an whole nordic event before validation. Only fixes couple of common errors like rounding errors with angles or seconds and such.
 
-    Args:
-        nordicEvent: Nordic Event Class object before validation.
-
+    :param NordicEvent nordicEvent: Nordic Event Class object before validation.
     """
     
     for h in nordicEvent.headers[1]:

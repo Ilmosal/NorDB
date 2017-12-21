@@ -1,3 +1,10 @@
+"""
+This module contains all functions for modifying meta-information of events that are in the database.
+
+Functions and Classes
+---------------------
+"""
+
 import logging
 import psycopg2
 
@@ -9,9 +16,8 @@ def changeEventType(event_id, event_type):
     """
     Method that changes the type of the event and modifies all event types accordingly.
 
-    Args:
-        event_id(int): id of the event
-        event_type(str): new event type
+    :param int event_id: id of the event
+    :param str event_type: new event type
     """
     username = usernameUtilities.readUsername()
 
@@ -48,9 +54,8 @@ def changeEventRoot(event_id, root_id):
     """
     Method that changes the root_id of the event and checks if there are any events with same event_type. If there is and the event_type is not A or O, it will change the event type of the old event to O. if roo_id of -999 is given to the method, it will generate a new root_id for the event.
 
-    Args:
-        event_id(int): id of the event that needs to be moved
-        root_id(int): new existiting root id for the event
+    :param int event_id: id of the event that needs to be moved
+    :param int root_id: new existiting root id for the event
     """
     username = usernameUtilities.readUsername()
 

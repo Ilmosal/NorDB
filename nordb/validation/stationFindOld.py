@@ -34,7 +34,7 @@ FIND_STATION_QUERY =    (
                             "AND " +
                                 "east_offset = %s " +
                             "AND " +
-                                "load_date= %s " +
+                                "load_date= %s " 
                         )
 
 def checkForSameStation(site):

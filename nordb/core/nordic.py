@@ -1,3 +1,15 @@
+"""
+This module contains all classes surrounding the representation of events in the program. The classes are usually actually just a containers for lists that have all the information of the event and the information concerning what index in the list contains what info. This has been chosen as the representation because of how psycopg2 handles data. It takes lists as arguments during execution of commands which means that these database operations are easier to make due to the nature of these classes. Though this makes handling these classes more cubersome as you have to use the enumerations that the classes themselves contain to get the correct info out of the lists.
+
+Examples::
+
+    hour = nordicData.data[nordicData.HOUR]
+    cur.execute(insert_query, nordicData.data)
+
+Functions and Classes
+---------------------
+"""
+
 from datetime import date
 
 class NordicEvent:
@@ -13,11 +25,32 @@ class NordicData:
     """
     A class that functions as a collection of enums. Contains the information of the phase data line of a nordic file. 
 
-    Attributes:
-        data(list): The data of a nordic phase in a list where each index of a value corresponds to NordicData's pseudo-enum.
-
-    Args:
-        data(list): list object that contains the values of the header file
+    :ivar data(list): The data of a nordic phase in a list where each index of a value corresponds to NordicData's pseudo-enum. The data easily accessed with the enums provided by the class
+    :ivar int header_type: This value tells that this is a NordicData object Value of 7
+    :ivar int STATION_CODE: The location of the unique station code. Value of 0
+    :ivar int SP_INSTRUMENT_TYPE: The location of the type of the instrument that observed the event. Value of 1
+    :ivar int SP_COMPONENT: The location of the component of the observation. Value of 2
+    :ivar int QUALITY_INDICATOR: The location of the quality of the observation. Value of 3 
+    :ivar int PHASE_TYPE: The location of the type of the phase observed. Value of 4
+    :ivar int WEIGHT: The location of the weight value. Value of 5
+    :ivar int FIRST_MOTION: The location of the direction of the first motion. Value of 6
+    :ivar int TIME_INFO: The location of the information on which day the event was observed relative the the day it actually happened. Value of 7
+    :ivar int HOUR: The location of the hour time of the observation. Value of 8
+    :ivar int MINUTE: The location of the minute time of the observation.  Value of 9 
+    :ivar int SECOND: The location of the second time of the observation.Value of 10
+    :ivar int SIGNAL_DURATION: The location of the signal duration of the observation. Value of 11
+    :ivar int MAX_AMPLITUDE: The location of the maximum amplitude of the observation. Value of 12 
+    :ivar int MAX_AMPLITUDE_PERIOD: The location of the maximum amplitude period of the observation. Value of 13
+    :ivar int BACK_AZIMUTH: The location of the back azimuth of the observation. Value of 14
+    :ivar int APPARENT_VELOCITY: The location of the apparent velocity of the observation. Value of 15
+    :ivar int SIGNAL_TO_NOISE: The location of the signal to noise ratio of the observation. Value of 16
+    :ivar int AZIMUTH_RESIDUAL: The location of the azimuth residual of the observation. Value of 17
+    :ivar int TRAVEL_TIME_RESIDUAL: The location of the travel time residual of the observation. Value of 18
+    :ivar int LOCATION_WEIGHT: The location of the actual weight of the observation. Value of 19
+    :ivar int EPICENTER_DISTANCE: The location of the epicenter distance of the observation. Value of 20
+    :ivar int EPICENTER_TO_STATION_AZIMUTH: The location of the epicenter to station azimuth of the observation. Value of 21
+    :ivar int EVENT_ID: The location of the event id of the observation. Value of 22
+    :ivar int ID: The location of the id of the observation. Value of 23
     """
     header_type = 7
     STATION_CODE = 0
@@ -52,12 +85,37 @@ class NordicMain:
     """
     A class that functions as a collection of enums. Contains the information of the main header line of a nordic file. 
 
-    Attributes:
-        header(list): The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum.
-
-    Args:
-        header(list): list object that contains the values of the header file
+    :ivar list header: The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum. This data is easily accessed by it's enums.
+    :ivar int header_type: This value tells that this is a NordicData object Value of 1
+    :ivar int DATE: Location of the date of the event. Value of 0
+    :ivar int HOUR: Location of the hour of the event. Value of 1
+    :ivar int MINUTE: Location of the minute of the event. Value of 2
+    :ivar int SECOND: Location of the second of the event. Value of 3
+    :ivar int LOCATION_MODEL: Location of the location model sign of the event. Value of 4
+    :ivar int DISTANCE_INDICATOR: Location of the distance indicator sign of the event. Value of 5
+    :ivar int EVENT_DESC_ID: Location of the event description id of the event. Value of 6
+    :ivar int EPICENTER_LATITUDE: Location of the epicenter latitude of the event. Value of 7
+    :ivar int EPICENTER_LONGITUDE: Location of the epicenter longitude of the event. Value of 8
+    :ivar int DEPTH: Location of the depth of the event. Value of 9 
+    :ivar int DEPTH_CONTROL: Location of the depth control sign of the event. Value of 10
+    :ivar int LOCATING_INDICATOR: Location of the locating indicator sign of the event. Value of 11
+    :ivar int EPICENTER_REPORTING_AGENCY: Location of the epicenter reporting agency of the event. Value of 12
+    :ivar int STATIONS_USED: Location of the number of stations used of the event. Value of 13
+    :ivar int RMS_TIME_RESIDUALS: Location of the rms time residuals of the event. Value of 14
+    :ivar int MAGNITUDE_1: Location of the magnitude 1 of the event. Value of 15
+    :ivar int TYPE_OF_MAGNITUDE_1: Location of the type of magnitude 1 of the event. Value of 16
+    :ivar int MAGNITUDE_REPORTING_AGENCY_1: Location of the magnitude reporting agency 1 of the event. Value of 17
+    :ivar int MAGNITUDE_2: Location of the magnitude 2 of the event. Value of 18
+    :ivar int TYPE_OF_MAGNITUDE_2: Location of the type of magnitude 2 of the event. Value of 19
+    :ivar int MAGNITUDE_REPORTING_AGENCY_2: Location of the magnitude reporting agency 2 of the event. Value of 20
+    :ivar int MAGNITUDE_3: Location of the magnitude 3 of the event. Value of 21
+    :ivar int TYPE_OF_MAGNITUDE_3: Location of the type of magnitude 3 of the event. Value of 22
+    :ivar int MAGNITUDE_REPORTING_AGENCY_3: Location of the magnitude reporting agency 3 of the event. Value of 23
+    :ivar int EVENT_ID: Location of the event id of the event. Value of 24
+    :ivar int ID: Location of the id of the event. Value of 25
+    :ivar int O_STRING: Location of the old string from which the event was created. Value of 26
     """
+
     header_type = 1
     DATE = 0
     HOUR = 1
@@ -94,11 +152,30 @@ class NordicMacroseismic:
     """
     A class that functions as a collection of enums. Contains the information of the macroseismic header line of a nordic file. 
 
-    Attributes:
-        header(list): The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
-
-    Args:
-        header(list): list object that contains the values of the header file
+    :param list header: The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
+    :ivar int header_type: This value tells that this is a NordicData object Value of 2
+    :ivar int DESCRIPTION: Location of the description of the event. Value of 0
+    :ivar int DIASTROPHISM_CODE: Location of the diastrophism code of the event. Value of 1
+    :ivar int TSUNAMI_CODE: Location of the tsunami code of the event. Value of 2
+    :ivar int SEICHE_CODE: Location of the seiche_code of the event. Value of 3 
+    :ivar int CULTURAL_EFFECTS: Location of the cultural effects of the event. Value of 4
+    :ivar int UNUSUAL_EFFECTS: Location of the unusual effects of the event. Value of 5
+    :ivar int MAXIMUM_OBSERVED_INTENSITY: Location of the maximum observed intensity of the event. Value of 6
+    :ivar int MAXIMUM_INTENSITY_QUALIFIER: Location of the maximum intensity qualifier of the event. Value of 7
+    :ivar int INTENSITY_SCALE: Location of the intensity scale of the event. Value of 8
+    :ivar int MACROSEISMIC_LATITUDE: Location of the macroseismic latitude of the event. Value of 9
+    :ivar int MACROSEISMIC_LONGITUDE: Location of the macroseismic longitude of the event. Value of 10
+    :ivar int MACROSEISMIC_MAGNITUDE: Location of the macroseismic magnitude of the event. Value of 11
+    :ivar int TYPE_OF_MAGNITUDE: Location of the type of magnitude of the event. Value of 12
+    :ivar int LOGARITHM_OF_RADIUS: Location of the logarithm of radius of the event. Value of 13
+    :ivar int LOGARITHM_OF_AREA_1: Location of the logarithm of area 1 of the event. Value of 14
+    :ivar int BORDERING_INTENSITY_1: Location of the bordering intensity 1 of the event. Value of 15
+    :ivar int LOGARITHM_OF_AREA_2: Location of the logarithm of area 2 of the event. Value of 16
+    :ivar int BORDERING_INTENSITY_2: Location of the bordering intensity 2 of the event. Value of 17
+    :ivar int QUALITY_RANK: Location of the quality rank of the event. Value of 18
+    :ivar int REPORTING_AGENCY: Location of the reporting agency of the event. Value of 19
+    :ivar int EVENT_ID: Location of the event id of the event. Value of 20
+    :ivar int ID: Location of the id of the event. Value of 21
     """
     header_type = 2
     DESCRIPTION = 0
@@ -131,11 +208,11 @@ class NordicComment:
     """
     A class that functions as a collection of enums. Contains the information of the comment header line of a nordic file. 
 
-    Attributes:
-        header(list): The header of a nordic comment in a list where each index of a value corresponds to NordicComment's pseudo-enum.
-
-    Args:
-        header(list): list object that contains the values of the header file
+    :param list header: The header of a nordic comment in a list where each index of a value corresponds to NordicComment's pseudo-enum.
+    :ivar int header_type: This value tells that this is a NordicData object Value of 3
+    :ivar int H_COMMENT: Location of the comment int the event. Value of 0
+    :ivar int EVENT_ID: Location of the event id of the event. Value of 1
+    :ivar int ID: Location of the id of the event. Value of 2
     """
     header_type = 3
     H_COMMENT = 0
@@ -149,11 +226,16 @@ class NordicError:
     """
     A class that functions as a collection of enums. Contains the information of the error header line of a nordic file. 
 
-    Attributes:
-        header(list): The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
-
-    Args:
-        header(list): list object that contains the values of the header file
+    :param list header: The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
+    :ivar int header_type: This value tells that this is a NordicData object Value of 5
+    :ivar int GAP: Location of the gap of the event. Value of 0
+    :ivar int SECOND_ERROR: Location of the second error of the event. Value of 1
+    :ivar int EPICENTER_LATITUDE_ERROR: Location of the epicenter latitude error of the event. Value of 2
+    :ivar int EPICENTER_LONGITUDE_ERROR: Location of the epicenter longitude error of the event. Value of 3
+    :ivar int DEPTH_ERROR: Location of the depth error of the event. Value of 4
+    :ivar int MAGNITUDE_ERROR: Location of the magnitude error of the event. Value of 5
+    :ivar int HEADER_ID: Location of the header id of the event. Value of 6
+    :ivar int ID: Location of the id of the event. Value of 7
     """
     header_type = 5
     GAP = 0
@@ -174,11 +256,11 @@ class NordicWaveform:
     """
     A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file. 
 
-    Attributes:
-        header(list): The header of a nordic waveform in a list where each index of a value corresponds to NordicWaveform's pseudo-enum.
-
-    Args:
-        header(list): list object that contains the values of the header file
+    :param list header: The header of a nordic waveform in a list where each index of a value corresponds to NordicWaveform's pseudo-enum.
+    :ivar int header_type: This value tells that this is a NordicData object Value of 6
+    :ivar int WAVEFORM INFO: Location of the waveform info of the event. value of 0
+    :ivar int EVENT ID: Location of the event id of the event. value of 1
+    :ivar int ID: Location of the id of the event. value of 2
     """
     header_type = 6
     WAVEFORM_INFO = 0
@@ -190,13 +272,10 @@ class NordicWaveform:
 
 def createStringMainHeader(header):
     """
-    Function that creates NordicMain list with values being strings
+    Function that creates NordicMain object with a list with values being strings
     
-    Args:
-        header (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from header
+    :param str header: string from where the data is parsed from
+    :return: NordicMain object with list of values parsed from header
     """
 
     nordic_main = [None]*27
@@ -233,12 +312,8 @@ def createStringMacroseismicHeader(header):
     """
     Function that creates NordicMacroseismic list with values being strings
     
-    Args:
-        header (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from header
-
+    :param str header: string from where the data is parsed from
+    :return: NordicMacroseismic object with list of values parsed from header
     """
     nordic_macroseismic = [None]*20
 
@@ -269,11 +344,8 @@ def createStringCommentHeader(header):
     """
     Function that creates Nordic comment list with values being strings
 
-    Args:
-        header (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from header
+    :param str header: string from where the data is parsed from
+    :return: NordicComment object with a list of values parsed from header
     """
 
     nordic_comment = [None]
@@ -287,11 +359,8 @@ def createStringErrorHeader(header, h_id):
     """
     Function that creates Nordic error list with values being strings
 
-    Args:
-        header (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from header
+    :param str header: string from where the data is parsed from
+    :return: NordicError object with a list of values parsed from header
     """
     nordic_error = [None]*6
 
@@ -308,11 +377,8 @@ def createStringWaveformHeader(header):
     """
     Function that creates Nordic waveform list with values being strings
 
-    Args:
-        header (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from header
+    :param str header: string from where the data is parsed from
+    :return: NordicWaveform object with a list of values parsed from header
     """
 
     nordic_waveform = [None]
@@ -325,11 +391,8 @@ def createStringPhaseData(data):
     """
     Function that creates Nordic phase data list with values being strings
 
-    Args:
-        data (str): string from where the data is parsed from
-
-    Returns:
-        list of values parsed from data
+    :param str data: string from where the data is parsed from
+    :return: NordicData object with alist of values parsed from data
     """
     phase_data = [None]*22
 
@@ -358,20 +421,12 @@ def createStringPhaseData(data):
 
     return NordicData(phase_data)
 
-def nordicStringEvent2NordicEvent(nordic_event):
-    """
-    Function that turns a validated nordic string event to nordic event
-    """
-
 def returnInt(integer):
     """
     Function that casts integer to a int or None if it's empty.
 
-    Args:
-        integer(str): integer or empty string
-
-    Returns:
-        Integer or None
+    :param str integer: integer or empty string
+    :return: Integer or None
     """
     try:
         return int(integer)
@@ -382,11 +437,8 @@ def returnDate(date_s):
     """
     Function that casts date_s to a date or None if it's empty.
 
-    Args:
-        date_s(str): date or empty string
-        
-    Returns:
-        Date or None
+    :param str date_s: date or empty string
+    :return: datetime or None
     """
     try:
         return date(year=int(date_s[:4]), month=int(date_s[5:7]), day=int(date_s[8:]))
@@ -397,11 +449,8 @@ def returnFloat(float_s):
     """
     Function that casts float_s to a integer or None if it's empty.
 
-    Args:
-        float_s(str): float or empty string
-
-    Returns:
-        Float or None
+    :param str float_s: float or empty string
+    :return: Float or None
     """
     try:
         return float(float_s)
@@ -412,11 +461,8 @@ def returnString(string):
     """
     Function that returns string or None if the string is empty.
 
-    Args:
-        string(str): the string value
-    
-    Args:
-        string or None
+    :param str string: the string value
+    :return: string or None
     """
     if string == "":
         return None
@@ -426,13 +472,10 @@ def returnString(string):
 def mainString2Main(main_string, event_id):
     """
     Function that converts all values in main string list into main list with correct value types.
-
-    Args:
-        main_string(str []): list of all string valus of the main header
-        event_id (int): event_id of the main header
-
-    Returns:
-        List of all main info in correct order
+        
+    :param list main_string: list of all string valus of the main header
+    :param int event_id: event id of the main header
+    :return: List of all main info in correct order
     """
     main = [None]*25
 
@@ -467,13 +510,9 @@ def mainString2Main(main_string, event_id):
 def macroseismicString2Macroseismic(macro_string, event_id):
     """
     Function that converts all values in macroseismic string list into macroseismic list with correct value types.
-
-    Args:
-        macro_string.header(str []): list of all string valus of the macroseismic header
-        event_id (int): event_id of the macroseismic header
-
-    Returns:
-        List of all macroseismic info in correct order
+    :param list macro_string.header: list of all string valus of the macroseismic header
+    :param int event_id: event id of the macroseismic header
+    :return: List of all macroseismic info in correct order
     """
     macro = [None]*21
 
@@ -504,13 +543,10 @@ def macroseismicString2Macroseismic(macro_string, event_id):
 def commentString2Comment(comment_string, event_id):
     """
     Function that converts all values in comment string list into comment list with correct value types.
-
-    Args:
-        comment_string.header(str []): list of all string valus of the comment header
-        event_id (int): event_id of the comment header
-
-    Returns:
-        List of all comment info in correct order
+        
+    :param list comment_string.header: list of all string valus of the comment header
+    :param int event_id: event id of the comment header
+    :return: List of all comment info in correct order
     """
     comment = [None]*2
 
@@ -523,12 +559,9 @@ def errorString2Error(error_string, header_id):
     """
     Function that converts all values in comment string list into comment list with correct value types.
 
-    Args:
-        comment_string.header(str []): list of all string valus of the comment header
-        header_id (int): header_id of the comment header
-
-    Returns:
-        List of all error info in correct order
+    :param list comment_string.header: list of all string valus of the comment header
+    :param int header_id: header id of the comment header
+    :return: List of all error info in correct order
     """
     error = [None]*7
 
@@ -546,12 +579,9 @@ def waveformString2Waveform(waveform_string, event_id):
     """
     Function that converts all values in waveform string list into waveform list with correct value types.
 
-    Args:
-        waveform_string.header(str []): list of all string valus of the waveform header
-        header_id (int): header_id of the waveform header
-
-    Returns:
-        List of all waveform info in correct order
+    :param list waveform_string.header: list of all string valus of the waveform header
+    :param int header_id: header id of the waveform header
+    :return: List of all waveform info in correct order
     """
     waveform = [None]*2
 
@@ -564,12 +594,9 @@ def dataString2Data(data_string, event_id):
     """
     Function that converts all values in data string list into data list with correct value types.
 
-    Args:
-        data_string.header(str []): list of all string valus of the data header
-        header_id (int): header_id of the data header
-
-    Returns:
-        List of all data info in correct order
+    :param list data_string.header: list of all string valus of the data header
+    :param int header_id: header id of the data header
+    :return: List of all data info in correct order
     """
     data = [None]*23
 

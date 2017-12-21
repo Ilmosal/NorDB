@@ -4,7 +4,7 @@ Core
 .. automodule:: nordb.core
 
 .. toctree::
-    :max depth: 4
+    :maxdepth: 4
     
     nordicFix.rst
     nordicModify.rst

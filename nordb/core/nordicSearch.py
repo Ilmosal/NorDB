@@ -1,3 +1,10 @@
+"""
+This module contains all commands for searching the database for events with given criteria. The most important function here is searchNordic and most other functions and classes are here just to support it.
+
+Functions and Classes
+---------------------
+"""
+
 from datetime import date
 import logging
 import psycopg2
@@ -61,11 +68,7 @@ class Command:
     """
     Class for command that is returned by string2Command. 
 
-    Args:
-        command_tpe (int): Type of command
-    
-    Attributes:
-        command_tpe (int): Type of command
+    :ivar int command_tpe: Type of command. Initial value: command_tpe
     """
     def __init__(self, command_tpe):
         self.command_tpe = command_tpe
@@ -73,12 +76,10 @@ class Command:
     def isValueValid(self, value):
         """
         Method for checking whether a value is valid by the command. Override this for all classes.
-
-        Args:
-            value: value that will be compared to the original value
-
-        Returns:
-            Boolean value tha will be always false for Command class.
+        
+        :param value: value that will be compared to the original value
+        :type value: int or float or datetime
+        :return: Boolean value that will be always false for Command class.
         """
         return False
 
@@ -86,13 +87,8 @@ class ExactlyValue(Command):
     """
     Command for determining if the value is exactly the given value.
 
-    Args:
-        value: value that all other values will be compared to. Can be of any type
-
-    Attributes:
-        command_tpe (int): Type of command. In this case 1.
-        value: Value that all other values will be compared to. Can be of any type
-        
+    :ivar int command_tpe: Type of command. Initial value: 1
+    :ivar int,float,datetime value: Value that all other values will be compared to. Can be of any type. Initial value: value
     """
     def __init__(self, value):
         Command.__init__(self, 1)
@@ -101,12 +97,10 @@ class ExactlyValue(Command):
     def isValueValid(self, value):
         """
         Method for checking whether a value is valid by the command.
-
-        Args:
-            value: value that will be compared to the original for if they are exactly the same
-
-        Returns:
-            Boolean value that tells if the values are exactly the same
+        
+        :param value: value that will be compared to the original for if they are exactly the same
+        :type value: int, float or datetime
+        :return: Boolean value that tells if the values are exactly the same
         """
 
         if type(value) is not type(self.value):
@@ -119,16 +113,12 @@ class ExactlyValue(Command):
 
 class BetweenValues(Command):
     """
-    Command for determining if the value is exactly the given value.
-
-    Args:
-        valueLower: value of the lower limit of the comparison
-        valueUpper: value for the upper limit of the comparison
-
-    Attributes:
-        command_tpe (int): Type of command. In this case 2.
-        valueLower: value of the lower limit of the comparison
-        valueUpper: value for the upper limit of the comparison
+    Command for determining if a value falls exactly between the given values.
+    
+    :ivar int command_tpe: Type of command. In this case 2.
+    :ivar int,float,datetime valueLower: value of the lower limit of the comparison
+    :ivar int,float,datetime valueUpper: value for the upper limit of the comparison
+    :raises: **TypeError** -- TypeError given to user if valueLower and valueUpper are of different type
     """
     def __init__(self, valueLower, valueUpper):
         Command.__init__(self, 2)
@@ -142,11 +132,9 @@ class BetweenValues(Command):
         """
         Method for checking whether a value is smaller or as equal to valueUpper but higher than valueLower.
 
-        Args:
-            value: value that will be compared to valueUpper and valueLower
-
-        Returns:
-            Boolean value that tells if the value falls between valueUpper and valueLower
+        :param value: value that will be compared to valueUpper and valueLower
+        :type value: int, float, datetime
+        :return: Boolean value that tells if the value falls between valueUpper and valueLower
         """
 
         if type(value) is not type(self.valueLower):
@@ -162,12 +150,8 @@ class OverValue(Command):
     """
     Command for determining if the value is over or equal to the Commands value
 
-    Args:
-        value: value that all other values will be compared to. Can be of any type.
-
-    Attributes:
-        command_tpe (int): Type of command. In this case 3.
-        value: Value that all other values will be compared to. Can be of any type.
+    :ivar int,float,datetime command_tpe (int): Type of command. In this case 3.
+    :ivar int value: Value that all other values will be compared to. Can be of any type.
         
     """
     def __init__(self, value):
@@ -178,11 +162,9 @@ class OverValue(Command):
         """
         Method for checking whether a value is valid by the command.
 
-        Args:
-            value: value that will be compared to the original for if it is over or equal tothe orginal
-
-        Returns:
-            Boolean value that tells if the value is over or equal to the orginal
+        :param value: value that will be compared to the original for if it is over or equal tothe orginal
+        :type value: int, float, datetime
+        :return: Boolean value that tells if the value is over or equal to the orginal
         """
 
         if type(value) is not type(self.value):
@@ -197,12 +179,9 @@ class UnderValue(Command):
     """
     Command for determining if the value is lower or equal to the Commands value
 
-    Args:
-        value: value that all other values will be compared to. Can be of any type.
 
-    Attributes:
-        command_tpe (int): Type of command. In this case 4.
-        value: Value that all other values will be compared to. Can be of any type.
+    :ivar int command_tpe: Type of command. In this case 4.
+    :ivar int,float,datetime value: Value that all other values will be compared to. Can be of any type.
         
     """
     def __init__(self, value):
@@ -212,12 +191,9 @@ class UnderValue(Command):
     def isValueValid(self, value):
         """
         Method for checking whether a value is valid by the command.
-
-        Args:
-            value: value that will be compared to the original for if it is lower or equal tothe orginal
-
-        Returns:
-            Boolean value that tells if the value is lower or equal to the orginal
+        
+        :param int,float,datetime value: value that will be compared to the original for if it is lower or equal to the orginal
+        :return: Boolean value that tells if the value is lower or equal to the orginal
         """
 
         if type(value) is not type(self.value):
@@ -232,11 +208,9 @@ def returnValueFromString(value):
     """
     Function for returning a valid date, float or integer value from a string
 
-    Args:
-        value (str): string value that will be transformed into correct format
-    
-    Returns:
-        The value in it's correct type. Priority order is Date -> Float -> Integer
+    :param str value: string value that will be transformed into correct format
+    :return: The value in it's correct type. Priority order is Date -> Float -> Integer
+    :raise: **ValueError** -- Value error if the string vannot be parsed into any value supported by  the program
     """
     try:
         if len(value) != 10:
@@ -269,11 +243,9 @@ def string2Command(sCommand, cmd_type):
     """
     Generate a command from a string.
     
-    Args:
-        sCommand (str): Command given by user.
-
-    Returns:
-        Command that can be used for comparisons.
+    :param str sCommand: Command given by user.
+    :return: Command that can be used for comparisons.
+    :raises: **ValueError** -- Program raises value error if the sCommand is in a incorrect format
     """
     parts = sCommand.split('-')
 
@@ -313,12 +285,9 @@ def validateCommand(command, searchId):
     """
     Validate command checks if the type of the value in command matches it's search_id's expected type.
     
-    Args:
-        command(Command): The command that needs to be validated
-        searchID(int): search id of the command
-
-    Returns:
-        True or False
+    :param Command command: The command that needs to be validated
+    :param int searchID: search id of the command
+    :return: True or False depending on if the command goes through validation
     """
 
 
@@ -338,12 +307,9 @@ def rangeOfEventType(eveb, evet):
     """
     Method for getting all event types in range as a string.
 
-    Args:
-        eveb: Bottom limit of event types
-        evet: Top limit of event types
-
-    Returns:
-        String of all event types
+    :param str eveb: Bottom limit of event types
+    :param str evet: Top limit of event types
+    :return: String of all event types
     """
     bot = EVENT_TYPE_VALS[eveb]
     top = EVENT_TYPE_VALS[evet]
@@ -360,12 +326,10 @@ def createSearchQuery(commands):
     """
     Method for creating the search query.
 
-    Args:
-        commands: Dictionary of all search criteria
-
-    Returns:
-        An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
+    :param commands: Dictionary of all search criteria
+    :return: An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
     """
+
     query = "SELECT DISTINCT ON (event_id) event_id, event_type, distance_indicator, event_desc_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
 
     vals = ()
@@ -428,13 +392,10 @@ def createSearchQuery(commands):
 
 def getAllNordics(criteria):
     """
-    Method that returns all nordic events that fulfil the given crieria.
+    Method that returns all nordic events that fulfil the given criteria.
 
-    Args:
-        criteria: All criteria for search
-
-    Returns:
-        Array of event_ids that fulfil the criteria
+    :param dict criteria: All criteria for search
+    :return: Array of event_ids that fulfil the criteria
     """
     if not criteria:
         return None
@@ -467,7 +428,11 @@ def getAllNordics(criteria):
 
 def searchEventRoot(criteria, verbose):
     """
+    Function for searching all events with certain criteria given by user. Criteria needs to be a dict where the key and the values are strings from which the criteria for the search is generated from.
 
+    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
+    :param bool verbose: flag if all info from events need to be printed or just the main headers
+    :return: True or False depending on if the search was operated succesfully or not
     """
     if "event_id" in criteria.keys():
         events = searchWithEventId(criteria["event_id"])
@@ -481,7 +446,7 @@ def searchEventRoot(criteria, verbose):
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))
     except:
         logging.error("Couldn't connect to database!!")
-        return -1
+        return False
 
     cur = conn.cursor()
 
@@ -526,15 +491,14 @@ def searchEventRoot(criteria, verbose):
 
     conn.close()
 
-    return 
+    return True
 
 def searchWithEventId(event_id):
     """
     Method for searching if a event_id exists on the database
 
-
-    Returns:
-        Relevant information from the event: (event_id, event_type, distance_indicator, event_desc_id)
+    :param int event_id: id of the event that is being searched
+    :return: Relevant information from the event: (event_id, event_type, distance_indicator, event_desc_id)
     """
     try:
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))
@@ -553,11 +517,12 @@ def searchWithEventId(event_id):
 
 def printNordic(events, criteria, verbose):
     """
-    Method for printing out a list of event_ids.
+    Method for printing out a list of events.
 
-    Args:
-        event_ids (int[]): list of event_ids that need to be printed
-        verbose (bool): flag if all info from events need to be printed or just the main headers
+    :param array event_ids: list of event_ids that need to be printed
+    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
+    :param bool verbose: flag if all info from events need to be printed or just the main headers
+    :return: None if the operations were succesful
     """
     if events is None or len(events) == 0:
         print("No events found with criteria!")
@@ -603,12 +568,9 @@ def searchWithCriteria(criteria):
     """
     Method for searching events with given criteria. Description for the criteria is given in the documentation of searchNordic.
 
-    Args:
-        criteria({}): dictionary of the criteria
-        verbose (bool): flag if all info from events need to be printed or just the main headers
-
-    Returns:
-        list of events found with criteria
+    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
+    :param bool verbose: flag if all info from events need to be printed or just the main headers
+    :return: list of events found with criteria or None if the search was not succesful
     """
     commands = {}
 
@@ -646,17 +608,15 @@ def searchNordic(criteria, verbose, output, event_root, user_path, output_format
     Method for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
 
     Arguments must be given in following format:
-        criterion="Value" -> Checks if the event's value is exactly of value
-        criterion="Value1-Value2" -> Checks if the event's value is higher or equal to Value1 and lower or equal to Value2
-        criterion="Value+" -> Checks if the event's value is higher or equal to value
-        criterion="Value-" -> Checks if the event's value is lower or equal to value
+
+        * criterion="Value" -- Checks if the event's value is exactly of value
+        * criterion="Value1-Value2" -- Checks if the event's value is higher or equal to Value1 and lower or equal to Value2
+        * criterion="Value+" -- Checks if the event's value is higher or equal to value
+        * criterion="Value-" -- Checks if the event's value is lower or equal to value
     
-    Args:
-        criteria ({}): All the criteria for search given by user.
-        verbose (bool): flag if all info from events need to be printed or just the main headers
-    
-    Returns:
-        list of event ids or none
+    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
+    :param bool verbose: flag if all info from events need to be printed or just the main headers
+    :return: list of event ids or none
     """
     username = usernameUtilities.readUsername()
 
