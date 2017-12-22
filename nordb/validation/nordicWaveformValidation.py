@@ -6,9 +6,8 @@ if __name__=="__main__":
 
 from nordb.validation import validationTools 
 from nordb.validation.validationTools import values
-from nordb.core.nordic import NordicWaveform
 
-def validateWaveformHeader(header):
+def validateWaveformHeader(waveform):
     """
     Function for validating that the waveform header line is in correct format.
 
@@ -21,7 +20,7 @@ def validateWaveformHeader(header):
     validation = True
     mheader = 6
 
-    if not validationTools.validateString(header.header[NordicWaveform.WAVEFORM_INFO],
+    if not validationTools.validateString(waveform.header[waveform.WAVEFORM_INFO],
                                     "waveform string",
                                     0,
                                     78,

@@ -1,3 +1,9 @@
+"""
+NordicRead module contains a function readNordicFile that reads a single file and separates all nordicevents inside it to different string arrays.
+
+Functions and Classes
+---------------------
+"""
 import logging
 import sys
 
@@ -5,16 +11,15 @@ def readNordicFile(f):
     """
     Method for reading a nordic file and parsing it to a string array while also checking the integrity of the file(Will give errors when lines are too long). It also wil parse empty space on the file if it is too short.
 
-    Args:
-        f FILE: python file object for the Nordic File
+    :param file f: python file object for the Nordic File
     """
     nordics = []
     emsg = "Nordic Read: The following line is too short: {0}\n{1}"
     i = 0
     nordics.append([])
-    
+
     for line in f:
-        if line.strip() == "":
+        if line.strip() == "" or None:
             i += 1;
             nordics.append([])
         elif(len(line) < 81):

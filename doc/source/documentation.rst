@@ -5,7 +5,7 @@ Documentation for the code
     :members:
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 2
 
     modules/bin/bin.rst
     modules/core/core.rst

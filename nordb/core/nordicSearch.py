@@ -465,7 +465,6 @@ def searchEventRoot(criteria, verbose):
     e_all_roots = ()
 
     for e in e_set:
-
         cur.execute("SELECT DISTINCT ON (nordic_event.id) nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id, root_id FROM nordic_event, nordic_header_main WHERE nordic_event.root_id = %s AND nordic_header_main.event_id = nordic_event.id ORDER BY event_type;", (e,))
         e_all_roots += (tuple(cur.fetchall()),)
     
@@ -481,13 +480,12 @@ def searchEventRoot(criteria, verbose):
 
         for event in e_roots_list:
             if verbose:
-                nordic = sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))
+                nordic = getNordic.readNordicEvent(cur, event[0])
                 print("Event ID: {0}".format(a[0]))
-                for line in nordic:
-                    print(line, end='')
+                print(nordic)
                 print(80*"-")
             else:
-                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))[0][:-2]))
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], getNordic.readNordicEvent(cur, event[0])[1][0]))
 
     conn.close()
 
@@ -534,7 +532,7 @@ def printNordic(events, criteria, verbose):
             print("Events found with criteria:")
             for key in criteria.keys():
                 print(key + ": " + criteria[key] + " ", end='')
-            print("\n---------------------------")
+            print("\n--------------------------------------------------------------------------------------------")
 
         try:
             conn = psycopg2.connect("dbname=nordb user={0}".format(username))
@@ -546,10 +544,9 @@ def printNordic(events, criteria, verbose):
 
         if verbose:
             for event in events:
-                nordic = sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))
+                nordic = getNordic.readNordicEvent(cur, event[0])
                 print("Event ID: {0}".format(event[0]))
-                for line in nordic:
-                    print(line, end='')
+                print(nordic)
                 print(80*"-")
 
         else:
@@ -558,9 +555,9 @@ def printNordic(events, criteria, verbose):
                 if len(str(event[0])) > largest:
                     largest = len(str(event[0]))
 
-            print("EID" +" "*(largest+1) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
+            print(" EID" +" "*(largest) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
             for event in events:
-                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], sql2nordic.nordicEventToNordic(getNordic.readNordicEvent(cur, event[0]))[0][:-2]))
+                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], getNordic.readNordicEvent(cur, event[0]).headers[1][0]))
 
         conn.close()
 

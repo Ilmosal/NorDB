@@ -19,10 +19,27 @@ ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().str
 
 os.chdir(MODULE_PATH)
 sys.path = sys.path + [""]
-os.chdir(USER_PATH)
 
-from nordb.database import nordic2sql, scandia2sql, sql2nordic, sql2quakeml, sql2sc3, station2sql, resetDB, undoRead, norDBManagement, sql2station, sql2stationxml, sql2sitechan, sql2instrument, sql2sensor
-from nordb.core import usernameUtilities, nordicSearch, nordicModify
+from nordb.database import nordic2sql
+from nordb.database import scandia2sql
+from nordb.database import sql2nordic
+from nordb.database import sql2quakeml
+from nordb.database import sql2sc3
+from nordb.database import station2sql
+from nordb.database import resetDB
+from nordb.database import undoRead
+from nordb.database import norDBManagement
+from nordb.database import sql2station
+from nordb.database import sql2stationxml
+from nordb.database import sql2sitechan
+from nordb.database import sql2instrument
+from nordb.database import sql2sensor
+from nordb.core import usernameUtilities
+from nordb.core import nordicSearch
+from nordb.core import nordicModify
+from nordb.core import sftpQuake
+
+os.chdir(USER_PATH)
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -310,7 +327,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
             f_nordic = open(filename, 'r')
-            nordic2sql.read_nordicp(f_nordic, event_type, fix, ignore_duplicates, no_duplicates, ERROR_PATH)
+            nordic2sql.read2Database(f_nordic, event_type, fix, ignore_duplicates, no_duplicates, ERROR_PATH)
             f_nordic.close()
         elif (fnmatch.fnmatch(filename, "*.catalog")):
             f_scandia = open(filename, 'r')
@@ -402,6 +419,45 @@ def get(repo, event_id, event_id_file, output_format, output):
         sql2quakeml.writeQuakeML(e_ids, USER_PATH, output)
     elif output_format == "sc3":
         sql2sc3.writeSC3(e_ids, USER_PATH, output)
+
+@cli.command('getseed', short_help='get miniseed')
+@click.option('--event_id', '-id', default=-1, type=click.INT, help="Get all miniseeds related to the nordic event with this id")
+@click.option('--nfile', '-f', default=None, type=click.Path(exists=True, readable=True), help="Get all miniseeds related to this nordic file")
+@click.option('--fix', '-f', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
+@click.argument('station', required=False, default=None, type=click.STRING)
+@click.argument('year', required=False, default=None, type=click.INT)
+@click.argument('j_date', required=False, default=None, type=click.INT)
+@click.pass_obj
+def getseed(repo, event_id, nfile, fix, station, year, j_date):
+    """
+    Get the miniseed files related to search parameters given by the user. The function will connect to quake server and fetch all files that fit to the parameters given by the user. 
+
+    Warning: This function does not work unless you are in correct internal network
+    """
+    if event_id != -1 and nfile is not None:
+        click.echo("Do not give nfile and event_id at the same time!")
+        sys.exit()
+    if event_id != -1:
+        sftpQuake.getSeedFromNordicId(event_id)
+        sys.exit()
+    
+    if nfile is not None:
+        sftpQuake.getSeedFromNordicFile(open(nfile, 'r'), fix)
+        sys.exit()
+
+    if station is None:
+        click.echo("station cannot be empty unless a nordic file is given to the program!")
+        sys.exit()
+
+    if year is None:
+        click.echo("year cannot be empty unless a nordic file is given to the program!")
+        sys.exit()
+
+    if j_date is None:
+        click.echo("j_date cannot be empty unless a nordic file is given to the program!")
+        sys.exit()
+
+    sftpQuake.getSeed(station, year, j_date)
 
 @cli.command('undo', short_help='undo last insert')
 @click.pass_obj

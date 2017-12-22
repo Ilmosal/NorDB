@@ -1,3 +1,10 @@
+"""
+This module contains functions for getting nordic events out from the database. The most important function here is writeNordicEvent().
+
+Functions and Classes
+---------------------
+"""
+
 import logging
 import os
 import sys

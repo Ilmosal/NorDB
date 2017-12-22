@@ -1,7 +1,6 @@
 import math
 import logging
 from datetime import date
-from nordb.core.nordic import NordicMain
 
 nTypes = {0: "Nordic Event",
         1: "Nordic Main Header",
@@ -190,8 +189,8 @@ def fixDate(nordic_main):
     Args:
         nordic_main(NordicMain): nordic main object
     """
-    if nordic_main.header[NordicMain.DATE][5] == " ":
-        nordic_main.header[NordicMain.DATE] = nordic_main.header[NordicMain.DATE][:5] + "0" + nordic_main.header[NordicMain.DATE][6:]
-    if nordic_main.header[NordicMain.DATE][8] == " ":
-        nordic_main.header[NordicMain.DATE] = nordic_main.header[NordicMain.DATE][:8] + "0" + nordic_main.header[NordicMain.DATE][9:]
+    if nordic_main.header[nordic_main.DATE][5] == " ":
+        nordic_main.header[nordic_main.DATE] = nordic_main.header[nordic_main.DATE][:5] + "0" + nordic_main.header[nordic_main.DATE][6:]
+    if nordic_main.header[nordic_main.DATE][8] == " ":
+        nordic_main.header[nordic_main.DATE] = nordic_main.header[nordic_main.DATE][:8] + "0" + nordic_main.header[nordic_main.DATE][9:]
 

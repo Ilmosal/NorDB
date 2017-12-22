@@ -4,7 +4,7 @@ Core
 .. automodule:: nordb.core
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 1
     
     nordicFix.rst
     nordicModify.rst
@@ -12,3 +12,4 @@ Core
     nordicRead.rst
     nordicSearch.rst
     usernameUtilities.rst
+    sftpQuake.rst

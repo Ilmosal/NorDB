@@ -2,6 +2,7 @@ import psycopg2
 import sys
 import os
 import pwd
+import re
 from datetime import date
 import datetime
 import math
@@ -91,112 +92,36 @@ INSERT_COMMANDS = {
                         "DEFAULT VALUES  " +
                         "RETURNING id"
 }
-
-def read_headers(nordic_string):
+  
+def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates, no_duplicates, creation_id):
     """
-    Method for reading all the header files from the nordic file and returning them
-
-    Args:
-        nordic (str[]): nordic file in string array form
-
-    Returns:
-        List of Header objects, amount of headers
-    """
-    i = 1
-    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
+    Function that pushes a validated event to the database
     
-    #find where the data starts 
-    while (i < len(nordic_string)):
-        if (nordic_string[i][79] == ' '):
-            i+=1
-            break
-        i+=1
-
-    if (len(nordic_string) != i):
-        i-=1
-
-    mheader_pos = -1
-
-    #read the header lines
-    for x in range(0, i):
-        if (nordic_string[x][79] == '1'):
-            headers[1].append(nordic.createStringMainHeader(nordic_string[x]))
-            mheader_pos = len(headers[1])-1
-        elif (nordic_string[x][79] == '2'):
-            headers[2].append(nordic.createStringMacroseismicHeader(nordic_string[x]))
-        elif (nordic_string[x][79] == '3'):
-            headers[3].append(nordic.createStringCommentHeader(nordic_string[x]))
-        elif (nordic_string[x][79] == '5'):
-            headers[5].append(nordic.createStringErrorHeader(nordic_string[x], mheader_pos))
-        elif (nordic_string[x][79] == '6'):
-            headers[6].append(nordic.createStringWaveformHeader(nordic_string[x]))
-
-    return headers, i
-    
-def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_duplicates, no_duplicates, creation_id):
+    :param NordicEvent nordic_event: Event that will be pushed to the database
+    :param int event_type: event type id 
+    :param str nordic_filename: name of the file from which the nordic is read from
+    :param bool ignore_duplicates: flag for ignoring all events that already are in the database
+    :param bool no_duplicates: flag for telling the program that the event is not in the database and checking for old events will be skipped
+    :param int creation_id: id of the creation_info entry in the database
+    :return: True of False depending on if the operation was succesful or not
     """
-    Method for reading one event and pushing it to the database
-
-    Args:
-        nordic_string (str []): nordic file in string array form
-        event_type (int): event type id of the nordic event
-        nordic_filename (str): filename of the read nordic file
-        fixNordic (bool): flag for if fixNordic library needs to be used
-        ignore_duplicates (bool): flag for if the event has no earlier events in the database
-        creation_id (int): creation id of the command. Used in the undo function
-
-    Returns:
-        True or False if the event has been successfully pushed to the database
-    """
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return  False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-
-    if not nordic_string:
-        conn.close()
-        return False
-
-    headers, headers_size = read_headers(nordic_string)
-    data = []
-
-    author_id = "---"
+    author_id = None
     
-    #Get the author_id from the comment header
-    for header in headers[3]:
-        if header.header_type == 3:
-            if fnmatch.fnmatch(header.header[NordicComment.H_COMMENT], "*(???)*"):
-                for x in range(0, len(header.header[NordicComment.H_COMMENT])-4):
-                    if header.header[NordicComment.H_COMMENT][x] == '(' and header.header[NordicComment.H_COMMENT][x+4] == ')':
-                        author_id = header.header[NordicComment.H_COMMENT][x+1:x+4]
+    for header in nordic_event.headers[3]:
+        author_id = re.search(r'\[(\w3)\]', header.header[NordicComment.H_COMMENT]) 
+        if author_id is not None:
+            break
 
-    
-    #See if the filename already exists in the database
+    if author_id is None:
+        author_id = '---' 
+
     filename_id = -1
     cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
     filenameids = cur.fetchone()
     if filenameids is not None:
         filename_id = filenameids[0]
-
-    for x in range(headers_size, len(nordic_string)):
-        data.append(nordic.createStringPhaseData(nordic_string[x]))
-    
-    nordic_event = NordicEvent(headers, data, -1)
-   
-    if fixNordic:
-         nordicFix.fixNordicEvent(nordic_event)
-    
-    if not nordicValidation.validateNordic(nordic_event):
-        logging.error("Nordic validation failed with event: \n" 
-                        + headers[1][0].header[NordicMain.O_STRING])
-        conn.close()
-        return False
-
-    #VALIDATE THE DATA BEFORE PUSHING INTO THE DATABASE. 
-    #DONT PUT ANYTHING TO THE DATABASE BEFORE THIS
 
     e_id = -1
     if not no_duplicates:
@@ -211,16 +136,16 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
             return False
         if ignore_duplicates and e_id > 0:
             return False
-    elif ignore_duplicates:
-        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
+        elif ignore_duplicates:
+            ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
         e_id = ans[0]
-
         if e_id > 0:
             return False
+
     root_id = -1
 
     if e_id >= 0:
-        cur.execute("SELECT root_id from nordic_event WHERE id = %s", (e_id,))
+        cur.execute("SELECT root_id FROM nordic_event WHERE id = %s", (e_id,))
         root_id = cur.fetchone()[0]
 
     try:
@@ -231,7 +156,6 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
         if filename_id == -1:
             cur.execute("INSERT INTO nordic_file (file_location) VALUES (%s) RETURNING id", (nordic_filename,))
             filename_id = cur.fetchone()[0]
-
 
         cur.execute("INSERT INTO  " +
                        "nordic_event  " +
@@ -259,41 +183,44 @@ def read_event(nordic_string, event_type, nordic_filename, fixNordic, ignore_dup
                         event_type, 
                         '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())))
             cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (e_id,))
-
-        #Add all headers to the database
-        
-        header_ids = []
+    
+        main_header_id = -1
         for h in nordic_event.headers[1]:
-            header_ids.append(execute_command(  cur, 
-                                                INSERT_COMMANDS[1], 
-                                                nordic.mainString2Main(h, event_id).header, 
-                                                True))
+            h.header[NordicMain.EVENT_ID] = event_id
+            main_header_id = execute_command(  cur, 
+                                               INSERT_COMMANDS[1], 
+                                               h.header,
+                                               True)
         for h in nordic_event.headers[2]:
+            h.header[NordicMacroseismic.EVENT_ID] = event_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[2], 
-                                nordic.macroseismicString2Macroseismic(h, event_id).header,   
+                                h.header,
                                 False)
         for h in nordic_event.headers[3]:
+            h.header[NordicComment.EVENT_ID] = event_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[3], 
-                                nordic.commentString2Comment(h, event_id).header,   
+                                h.header,
                                 False)
         for h in nordic_event.headers[5]:       
+            h.header[NordicError.HEADER_ID] = main_header_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[5], 
-                                nordic.errorString2Error(h, header_ids[h.header_pos]).header, 
+                                h.header,
                                 False)
         for h in nordic_event.headers[6]:
+            h.header[NordicWaveform.EVENT_ID] = event_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[6], 
-                                nordic.waveformString2Waveform(h, event_id).header, 
+                                h.header,
                                 False)
-
         #Adding the data to the database
         for phase_data in nordic_event.data:
+            phase_data.data[NordicData.EVENT_ID] = event_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[7], 
-                                nordic.dataString2Data(phase_data, event_id).data, 
+                                phase_data.data,
                                 False)
 
         conn.commit()
@@ -389,51 +316,42 @@ def execute_command(cur, command, vals, returnValue):
     else:
         return None
 
-def read_nordicp(f, event_type, fixNordic, ignore_duplicates, no_duplicates, error_path):
+def read2Database(f, event_type, fix_nordic, ignore_duplicates, no_duplicates, error_path):
     """
     Function for reading the whole file and all the events in it to the database.
 
-    Args:
-        f (File): File object of the nordic file
-        event_type (int): event type id of the nordic event
-        fixNordic (bool): flag for if fixNordic library needs to be used
-        ignore_duplicates (bool): flag for iignoring all events that already are in the database
-        no_duplicates(bool): flag for if there are no duplicate events in the file compared to dapabase
-
-    Returns:
-        True or False if the whole file has been successfully pushed to the database
-
+    :param file f: File object of the nordic file
+    :param int event_type: event type id of the nordic event
+    :param bool fix_nordic: flag for if fixNordic library needs to be used
+    :param bool ignore_duplicates: flag for iignoring all events that already are in the database
+    :param bool no_duplicates: flag for if there are no duplicate events in the file compared to dapabase
+    :return: True or False if the whole file has been successfully pushed to the database
     """
     username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
-    validate = True
-    try:
-        nordics = nordicRead.readNordicFile(f)
-        nordicsFailed = []
-        for nordic in nordics:
-            if not read_event(nordic, event_type, f.name, fixNordic, ignore_duplicates, no_duplicates, creation_id):
-                if len(nordic) > 0:
-                    validate = False
-                    nordicsFailed.append(nordic)
 
-        if not validate:
-            print ("Some errors occurred with nordic file {0}. Check {1} for more details!".format(f.name, error_path.split("/")[-1]))
+    try:
+        nordics, nordic_failed = nordic.readNordic(f, fix_nordic)
+        if len(nordic_failed) > 0:
+             print ("Some errors occurred with nordic file {0}. Check {1} for more details!".format(f.name, error_path.split("/")[-1]))
+
+        for nord in nordics:
+            event2Database(nord, event_type, f.name, ignore_duplicates, no_duplicates, creation_id)
+
     except KeyboardInterrupt:
         print("\n")
         logging.error("Keyboard interrupt by user")
 
-        if validate:
-            delete_creation_info_if_unnecessary(creation_id)
-        else:
-            undoRead.removeEventsWithCreationId(creation_id)            
+        undoRead.removeEventsWithCreationId(creation_id)            
+        delete_creation_info_if_unnecessary(creation_id)
         return False
     
     delete_creation_info_if_unnecessary(creation_id)
 
-    if len(nordicsFailed) > 0:
+    if len(nordic_failed) > 0:
         failed = open("f_" + os.path.basename(f.name), "w")
 
-        for n in nordicsFailed:
+        for n in nordic_failed:
             for line in n:
                 failed.write(line)  
             failed.write("\n")

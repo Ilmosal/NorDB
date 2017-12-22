@@ -1,5 +1,8 @@
 """
 This module contains all functions for getting the nordic out from the database and creating NordicEvent object out of them.
+
+Functions and Classes
+---------------------
 """
 
 import psycopg2
@@ -70,14 +73,9 @@ def readNordicEvent(cur, event_id):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
-    Args:
-        cur 
-
-    :param: cur -- Psycopg2.Cursor Object for queries
-    :type: Psycopg2.Cursor
-    :param: event_id -- Event id of the event
-    :type: int
-    :returns: NordicEvent -- NordicEvent object
+    :param Psycopg2.Cursor cur: Object for queries 
+    :param int event_id: Event id of the event
+    :returns: NordicEvent object
     """
     headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
     data = []

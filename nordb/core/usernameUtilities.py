@@ -1,3 +1,10 @@
+"""
+This file contains all functions for handling the .user.config file in the nordb folder that contains the name of the user handling all postgres operations. 
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import logging
 
@@ -9,8 +16,7 @@ def confUser(username):
     """
     Method for configuring the .user.config to the format user wants it to be.
 
-    Args:
-        username(str): the username given by user
+    :param str username: the username given by user
     """
     f = open(MODULE_PATH + ".user.config", "w")
     f.write(username)
@@ -20,8 +26,7 @@ def readUsername():
     """
     Method for reading the .user.config file and loading it on the module that requires it.
     
-    Returns:
-        The username as a string
+    :return: The username as a string
     """
     try:
         f_user = open(MODULE_PATH + ".user.config")
@@ -35,9 +40,8 @@ def readUsername():
 def log2nordb():
     """
     Function that logs to database and returns a psycopg2 cur object.
-
-    Returns:
-        cur object.
+    
+    :return: Psycopg2.Connect object
     """
     username = readUsername()
 
@@ -48,6 +52,4 @@ def log2nordb():
         print("Problem with connecting! See error messages in error logs")
         sys.exit()
 
-    cur = conn.cursor()
-
-    return conn.cursor()
+    return conn

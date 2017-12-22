@@ -16,7 +16,6 @@ Functions and Classes
 """
 
 import math
-from nordb.core.nordic import NordicMain, NordicError, NordicData
 def fixMainData(header):
     """
     Method for fixing some of the common errors in main header.
@@ -24,30 +23,30 @@ def fixMainData(header):
     :param NordicMain header: main header that needs to be fixed
     """
     try:
-        if math.isnan(float(header.header[NordicMain.MAGNITUDE_1])):
-            header.header[NordicMain.MAGNITUDE_1] = ""
+        if math.isnan(float(header.header[header.MAGNITUDE_1])):
+            header.header[header.MAGNITUDE_1] = ""
     except ValueError:
         pass
 
     try:
-        if math.isnan(float(header.header[NordicMain.MAGNITUDE_2])):
-            header.header[NordicMain.MAGNITUDE_2] = ""
+        if math.isnan(float(header.header[header.MAGNITUDE_2])):
+            header.header[header.MAGNITUDE_2] = ""
     except ValueError:
         pass
 
     try:
-        if math.isnan(float(header.header[NordicMain.MAGNITUDE_3])):
-            header.header[NordicMain.MAGNITUDE_3] = ""
+        if math.isnan(float(header.header[header.MAGNITUDE_3])):
+            header.header[header.MAGNITUDE_3] = ""
     except ValueError:
         pass
 
-    if header.header[NordicMain.SECOND] == "60.0":
-        header.header[NordicMain.SECOND] = "0.0"
-        header.header[NordicMain.MINUTE] = str(int(header.header[NordicMain.MINUTE]) + 1)
-        if header.header[NordicMain.MINUTE] == "60":
-            header.header[NordicMain.MINUTE] = "0"
-            header.header[NordicMain.HOUR] = str(int(header.header[NordicMain.HOUR]) + 1)
-            if header.header[NordicMain.HOUR] == "23":
+    if header.header[header.SECOND] == "60.0":
+        header.header[header.SECOND] = "0.0"
+        header.header[header.MINUTE] = str(int(header.header[header.MINUTE]) + 1)
+        if header.header[header.MINUTE] == "60":
+            header.header[header.MINUTE] = "0"
+            header.header[header.HOUR] = str(int(header.header[header.HOUR]) + 1)
+            if header.header[header.HOUR] == "23":
                 logging.error("Fix Nordic error - rounding error with second 60.0")
 
 
@@ -58,8 +57,8 @@ def fixErrorData(header):
     :param NordicError header: error header that need to be fixed
     """
     try:
-        if math.isnan(float(header.header[NordicError.MAGNITUDE_ERROR])):
-            header.header[NordicError.MAGNITUDE_ERROR] = ""
+        if math.isnan(float(header.header[header.MAGNITUDE_ERROR])):
+            header.header[header.MAGNITUDE_ERROR] = ""
     except ValueError:
         pass
 
@@ -72,32 +71,32 @@ def fixPhaseData(data, mhour):
     :param int mhour: The hour value of the main header
     """
 
-    if data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] == "360":
-        data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH] = "0"
+    if data.data[data.EPICENTER_TO_STATION_AZIMUTH] == "360":
+        data.data[data.EPICENTER_TO_STATION_AZIMUTH] = "0"
 
-    if data.data[NordicData.BACK_AZIMUTH] == "360.0":
-        data.data[NordicData.BACK_AZIMUTH] = "0.0"
+    if data.data[data.BACK_AZIMUTH] == "360.0":
+        data.data[data.BACK_AZIMUTH] = "0.0"
 
-    if data.data[NordicData.SECOND] == "60.00":
-        data.data[NordicData.SECOND] = "0.00"
-        if data.data[NordicData.MINUTE] == "60":
-            data.data[NordicData.MINUTE] = 0
-            if data.data[NordicData.HOUR] == "23":
-                data.data[NordicData.HOUR] = "0"
-                data.data[NordicData.TIME_INFO] = "+"
+    if data.data[data.SECOND] == "60.00":
+        data.data[data.SECOND] = "0.00"
+        if data.data[data.MINUTE] == "60":
+            data.data[data.MINUTE] = 0
+            if data.data[data.HOUR] == "23":
+                data.data[data.HOUR] = "0"
+                data.data[data.TIME_INFO] = "+"
             else:
-                data.data[NordicData.HOUR] = str(int(data.data[NordicData.HOUR]) + 1)
+                data.data[data.HOUR] = str(int(data.data[data.HOUR]) + 1)
         else:
-            data.data[NordicData.MINUTE] = str(int(data.data[NordicData.MINUTE]) + 1)
+            data.data[data.MINUTE] = str(int(data.data[data.MINUTE]) + 1)
 
     try:
-        data.data[NordicData.EPICENTER_DISTANCE] = str(int(float(data.data[NordicData.EPICENTER_DISTANCE])))
+        data.data[data.EPICENTER_DISTANCE] = str(int(float(data.data[data.EPICENTER_DISTANCE])))
     except:
         pass
 
     try:
-        if int(mhour) > int(data.data[NordicData.HOUR]):
-            data.data[NordicData.TIME_INFO] = "+"
+        if int(mhour) > int(data.data[data.HOUR]):
+            data.data[data.TIME_INFO] = "+"
     except:
         pass
 
@@ -115,4 +114,4 @@ def fixNordicEvent(nordicEvent):
         fixErrorData(h)
 
     for data in nordicEvent.data:
-        fixPhaseData(data, nordicEvent.headers[1][0].header[NordicMain.HOUR])
+        fixPhaseData(data, nordicEvent.headers[1][0].header[nordicEvent.headers[1][0].HOUR])

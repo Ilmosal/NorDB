@@ -11,6 +11,12 @@ Functions and Classes
 """
 
 from datetime import date
+from nordb.core import nordicRead
+from nordb.core import nordicFix
+from nordb.core.utils import addString2String
+from nordb.core.utils import addInteger2String
+from nordb.core.utils import addFloat2String
+from nordb.validation import nordicValidation
 
 class NordicEvent:
     """
@@ -80,6 +86,43 @@ class NordicData:
 
     def __init__(self, data):
         self.data = data
+
+    def __str__(self):
+        phase_string = " "
+        phase_string += addString2String(self.data[self.STATION_CODE], 4, '<')
+        phase_string += " "
+        phase_string += addString2String(self.data[self.SP_INSTRUMENT_TYPE], 1, '<') 
+        phase_string += addString2String(self.data[self.SP_COMPONENT], 1, '<')
+        phase_string += " "
+        phase_string += addString2String(self.data[self.QUALITY_INDICATOR], 1, '<')  
+        phase_string += addString2String(self.data[self.PHASE_TYPE], 4, '<')
+        phase_string += addInteger2String(self.data[self.WEIGHT], 1, '<')
+        phase_string += " "
+        phase_string += addString2String(self.data[self.FIRST_MOTION], 1, '<')
+        phase_string += addString2String(self.data[self.TIME_INFO], 1, '<')
+        phase_string += addInteger2String(self.data[self.HOUR], 2, '0')
+        phase_string += addInteger2String(self.data[self.MINUTE], 2, '0')
+        phase_string += " "
+        phase_string += addFloat2String(self.data[self.SECOND], 5, 2, '>')
+        phase_string += " "
+        phase_string += addInteger2String(self.data[self.SIGNAL_DURATION], 4, '>')
+        phase_string += " "
+        phase_string += addFloat2String(self.data[self.MAX_AMPLITUDE], 6, 1, '>')
+        phase_string += " "
+        phase_string += addFloat2String(self.data[self.MAX_AMPLITUDE_PERIOD], 4, 1, '>')
+        phase_string += " "
+        phase_string += addFloat2String(self.data[self.BACK_AZIMUTH], 5, 1, '>')
+        phase_string += " "
+        phase_string += addFloat2String(self.data[self.APPARENT_VELOCITY], 4, 2, '>')
+        phase_string += addFloat2String(self.data[self.SIGNAL_TO_NOISE], 4, 2, '>')
+        phase_string += addInteger2String(self.data[self.AZIMUTH_RESIDUAL], 3, '>')
+        phase_string += addFloat2String(self.data[self.TRAVEL_TIME_RESIDUAL], 5, 1, '>')
+        phase_string += addInteger2String(self.data[self.LOCATION_WEIGHT], 2, '>')   
+        phase_string += addInteger2String(self.data[self.EPICENTER_DISTANCE], 5, '>')
+        phase_string += " "
+        phase_string += addInteger2String(self.data[self.EPICENTER_TO_STATION_AZIMUTH], 3, '>')
+        phase_string += " "
+        return phase_string
  
 class NordicMain:
     """
@@ -147,6 +190,44 @@ class NordicMain:
 
     def __init__(self, header):
         self.header = header
+
+    def __str__(self):
+        h_string = " "
+        h_string += addInteger2String(self.header[self.DATE].year, 4, '<')
+        h_string += " "
+        h_string += addInteger2String(self.header[self.DATE].month, 2, '0')
+        h_string += addInteger2String(self.header[self.DATE].day, 2, '0')
+        h_string += " "
+        h_string += addInteger2String(self.header[self.HOUR], 2, '0')
+        h_string += addInteger2String(self.header[self.MINUTE], 2, '0')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.SECOND], 4, 1, '>')
+        h_string += addString2String(self.header[self.LOCATION_MODEL], 1, '<')
+        h_string += addString2String(self.header[self.DISTANCE_INDICATOR], 1, '<')
+        h_string += addString2String(self.header[self.EVENT_DESC_ID], 1, '<')
+        h_string += addFloat2String(self.header[self.EPICENTER_LATITUDE], 7, 3, '>')
+        h_string += addFloat2String(self.header[self.EPICENTER_LONGITUDE], 8, 3, '>')
+        h_string += addFloat2String(self.header[self.DEPTH], 5, 1, '>')
+        h_string += addString2String(self.header[self.DEPTH_CONTROL], 1, '>')
+        h_string += addString2String(self.header[self.LOCATING_INDICATOR], 1, '>')
+        h_string += addString2String(self.header[self.EPICENTER_REPORTING_AGENCY], 3, '<')
+        h_string += addInteger2String(self.header[self.STATIONS_USED], 3, '>')
+        h_string += addFloat2String(self.header[self.RMS_TIME_RESIDUALS], 4, 1, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MAGNITUDE_1], 3, 1, '>')
+        h_string += addString2String(self.header[self.TYPE_OF_MAGNITUDE_1], 1, '>')
+        h_string += addString2String(self.header[self.MAGNITUDE_REPORTING_AGENCY_1], 3, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MAGNITUDE_2], 3, 1, '>')
+        h_string += addString2String(self.header[self.TYPE_OF_MAGNITUDE_2], 1, '>')
+        h_string += addString2String(self.header[self.MAGNITUDE_REPORTING_AGENCY_2], 3, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MAGNITUDE_3], 3, 1, '>')
+        h_string += addString2String(self.header[self.TYPE_OF_MAGNITUDE_3], 1, '>')
+        h_string += addString2String(self.header[self.MAGNITUDE_REPORTING_AGENCY_3], 3, '>')
+        h_string += "1"
+
+        return h_string
  
 class NordicMacroseismic:
     """
@@ -203,7 +284,10 @@ class NordicMacroseismic:
 
     def __init__(self, header):
         self.header = header
- 
+
+    def __str__(self): #TODO: THIS!
+        return "DOES NOT EXIST YET"         
+
 class NordicComment:
     """
     A class that functions as a collection of enums. Contains the information of the comment header line of a nordic file. 
@@ -221,6 +305,14 @@ class NordicComment:
 
     def __init__(self, header):
         self.header = header
+
+    def __str__(self):
+        h_string = " "
+        h_string += addString2String(self.header[self.H_COMMENT], 78, '<')
+        h_string += "3"
+
+        return h_string
+
 
 class NordicError:
     """
@@ -251,7 +343,21 @@ class NordicError:
         self.header = header
         self.header_pos = header_pos
 
-    
+    def __str__(self):
+        h_string = " "
+        h_string += "GAP="
+        h_string += addInteger2String(self.header[self.GAP], 3,'>')
+        h_string += "        "
+        h_string += addFloat2String(self.header[self.SECOND_ERROR], 4, 1, '>')
+        h_string += "   "   
+        h_string += addFloat2String(self.header[self.EPICENTER_LATITUDE_ERROR], 7, 3, '>')
+        h_string += addFloat2String(self.header[self.EPICENTER_LONGITUDE_ERROR], 8, 3, '>')
+        h_string += addFloat2String(self.header[self.DEPTH_ERROR], 5, 1, '>')
+        h_string += "             " 
+        h_string += addFloat2String(self.header[self.MAGNITUDE_ERROR], 3, 1, '>')
+        h_string += "                    5"
+        return h_string
+ 
 class NordicWaveform:
     """
     A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file. 
@@ -269,6 +375,12 @@ class NordicWaveform:
     def __init__(self, header):
         self.header = header
 
+    def __str__(self):
+        h_string = " "
+        h_string += addString2String(self.header[self.WAVEFORM_INFO], 78, '<')
+        h_string += "6"
+
+        return h_string
 
 def createStringMainHeader(header):
     """
@@ -626,3 +738,105 @@ def dataString2Data(data_string, event_id):
 
     return NordicData(data)
 
+def readHeaders(nordic_string):
+    """
+    Function for reading all the header files from the nordic file and returning them as nordicHeaderObjects.
+    
+    :param list nordic_string: nordic file in string array form
+    :return: dict of Header objects and the amount of headers
+    """
+    i = 1
+    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
+    
+    #find where the data starts 
+    while (i < len(nordic_string)):
+        if (nordic_string[i][79] == ' '):
+            i+=1
+            break
+        i+=1
+
+    if (len(nordic_string) != i):
+        i-=1
+
+    mheader_pos = -1
+
+    for x in range(0, i):
+        if (nordic_string[x][79] == '1'):
+            headers[1].append(createStringMainHeader(nordic_string[x]))
+            mheader_pos = len(headers[1])-1
+        elif (nordic_string[x][79] == '2'):
+            headers[2].append(createStringMacroseismicHeader(nordic_string[x]))
+        elif (nordic_string[x][79] == '3'):
+            headers[3].append(createStringCommentHeader(nordic_string[x]))
+        elif (nordic_string[x][79] == '5'):
+            headers[5].append(createStringErrorHeader(nordic_string[x], mheader_pos))
+        elif (nordic_string[x][79] == '6'):
+            headers[6].append(createStringWaveformHeader(nordic_string[x]))
+
+    return headers, i
+
+def nordicString2Nordic(nordic_event_string):
+    """
+    Function for converting NordicEvent with string values to NordicEvent with correctly converted values.
+    
+    :param NordicEvent nordic_event_string:
+    :return: NordicEvent with converted values
+    """
+    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
+    data = []
+    print(nordic_event_string.headers[1])
+    for h in nordic_event_string.headers[1]:
+        headers[1].append(mainString2Main(h, -1))
+
+    for h in nordic_event_string.headers[2]:
+        headers[2].append(macroseismicString2Macroseismic(h, -1))
+    
+    for h in nordic_event_string.headers[3]:
+        headers[3].append(commentString2Comment(h, -1))
+    
+    for h in nordic_event_string.headers[5]:
+        headers[5].append(errorString2Error(h, h.header_pos))
+    
+    for h in nordic_event_string.headers[6]:
+        headers[6].append(waveformString2Waveform(h, -1))
+    
+    for d in nordic_event_string.data:
+        data.append(dataString2Data(d, -1))
+
+    return NordicEvent(headers, data, -1)
+
+def readNordic(nordic_file, fix_nordic):
+    """
+    Function for converting nordic file into a NordicEvent object.
+
+    :param file nordic_file: File from where the nordics will be read
+    :param bool fix_nordic: Flag for fixing some common problems with the nordic files. See nordicFix
+    :return: NordicEvent object object list and a list of nordics for which the validation failed
+    """
+    nordic_strings = nordicRead.readNordicFile(nordic_file)
+    nordic_events = []
+    nordic_failed = []
+    validation = True
+
+    for nordic_string in nordic_strings:
+        headers, headers_size = readHeaders(nordic_string)
+        data = []
+    
+        for x in range(headers_size, len(nordic_string)):
+            data.append(createStringPhaseData(nordic_string[x]))
+        nordic_event = NordicEvent(headers, data, -1)
+
+        if fix_nordic:
+            nordicFix.fixNordicEvent(nordic_event)
+        if not nordicValidation.validateNordic(nordic_event):
+            print("Nordic validation failed with event: \n{0}".format(headers[1][0].header[NordicMain.O_STRING]))
+            nordic_failed.append(nordic_string)
+            continue
+
+        nordic_events.append(nordicString2Nordic(nordic_event))
+
+    if not validation:
+        return None
+   
+ 
+    return nordic_events, nordic_failed

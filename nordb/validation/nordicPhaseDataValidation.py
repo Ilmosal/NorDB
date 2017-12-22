@@ -3,7 +3,6 @@ import sys
 
 from nordb.validation import validationTools 
 from nordb.validation.validationTools import values
-from nordb.core.nordic import NordicData
 
 def validatePhaseData(phase_data):
     """
@@ -20,7 +19,7 @@ def validatePhaseData(phase_data):
     validation = True
     phname = 8
 
-    if not validationTools.validateString(phase_data.data[NordicData.STATION_CODE],
+    if not validationTools.validateString(phase_data.data[phase_data.STATION_CODE],
                                                 "station code",
                                                 0,
                                                 4,
@@ -29,7 +28,7 @@ def validatePhaseData(phase_data):
                                                 phname):    
         validation = False
     
-    if not validationTools.validateString(phase_data.data[NordicData.SP_INSTRUMENT_TYPE],
+    if not validationTools.validateString(phase_data.data[phase_data.SP_INSTRUMENT_TYPE],
                                                 "instrument type",
                                                 0,
                                                 1,
@@ -38,7 +37,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateString(phase_data.data[NordicData.SP_COMPONENT],
+    if not validationTools.validateString(phase_data.data[phase_data.SP_COMPONENT],
                                                 "component",
                                                 0,
                                                 1,
@@ -47,7 +46,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateString(phase_data.data[NordicData.QUALITY_INDICATOR],
+    if not validationTools.validateString(phase_data.data[phase_data.QUALITY_INDICATOR],
                                                 "quality indicator",
                                                 0,
                                                 1,
@@ -56,7 +55,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateString(phase_data.data[NordicData.PHASE_TYPE],
+    if not validationTools.validateString(phase_data.data[phase_data.PHASE_TYPE],
                                                 "phase type",
                                                 0,
                                                 4,
@@ -65,7 +64,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.WEIGHT],
+    if not validationTools.validateInteger(phase_data.data[phase_data.WEIGHT],
                                                 "weight",
                                                 0,
                                                 9,
@@ -73,7 +72,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateString(phase_data.data[NordicData.FIRST_MOTION],
+    if not validationTools.validateString(phase_data.data[phase_data.FIRST_MOTION],
                                                 "first motion",
                                                 0,
                                                 1,
@@ -82,7 +81,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateString(phase_data.data[NordicData.TIME_INFO],
+    if not validationTools.validateString(phase_data.data[phase_data.TIME_INFO],
                                                 "time info",
                                                 0,
                                                 1,
@@ -91,7 +90,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
     
-    if not validationTools.validateInteger(phase_data.data[NordicData.HOUR],
+    if not validationTools.validateInteger(phase_data.data[phase_data.HOUR],
                                                 "hour",
                                                 0,
                                                 23,
@@ -99,7 +98,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.MINUTE],
+    if not validationTools.validateInteger(phase_data.data[phase_data.MINUTE],
                                                 "minute",
                                                 0,
                                                 59,
@@ -107,7 +106,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.SECOND],
+    if not validationTools.validateFloat(phase_data.data[phase_data.SECOND],
                                                 "second",
                                                 0.0,
                                                 59.99,
@@ -115,7 +114,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.SIGNAL_DURATION],
+    if not validationTools.validateInteger(phase_data.data[phase_data.SIGNAL_DURATION],
                                                 "signal duration",
                                                 0,
                                                 9999,
@@ -123,7 +122,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.MAX_AMPLITUDE],
+    if not validationTools.validateFloat(phase_data.data[phase_data.MAX_AMPLITUDE],
                                                 "max amplitude",
                                                 -1.0,
                                                 9999.9,
@@ -131,7 +130,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.MAX_AMPLITUDE_PERIOD],
+    if not validationTools.validateFloat(phase_data.data[phase_data.MAX_AMPLITUDE_PERIOD],
                                                 "max amplitude period",
                                                 -1.0,
                                                 99.9,
@@ -139,7 +138,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.BACK_AZIMUTH],
+    if not validationTools.validateFloat(phase_data.data[phase_data.BACK_AZIMUTH],
                                                 "back azimuth",
                                                 0.0,
                                                 359.9,
@@ -147,7 +146,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.APPARENT_VELOCITY],
+    if not validationTools.validateFloat(phase_data.data[phase_data.APPARENT_VELOCITY],
                                                 "apparent velocity",
                                                 0.0,
                                                 99.9,
@@ -155,7 +154,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.SIGNAL_TO_NOISE],
+    if not validationTools.validateFloat(phase_data.data[phase_data.SIGNAL_TO_NOISE],
                                                 "signal to noise",
                                                 0.0,
                                                 99.9,
@@ -163,7 +162,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.AZIMUTH_RESIDUAL],
+    if not validationTools.validateInteger(phase_data.data[phase_data.AZIMUTH_RESIDUAL],
                                                 "azimuth residual",
                                                 -99,
                                                 999,
@@ -171,7 +170,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateFloat(phase_data.data[NordicData.TRAVEL_TIME_RESIDUAL],
+    if not validationTools.validateFloat(phase_data.data[phase_data.TRAVEL_TIME_RESIDUAL],
                                                 "travel time residual",
                                                 -999.9,
                                                 9999.9,
@@ -179,7 +178,7 @@ def validatePhaseData(phase_data):
                                                 phname):    
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.LOCATION_WEIGHT],
+    if not validationTools.validateInteger(phase_data.data[phase_data.LOCATION_WEIGHT],
                                                 "location weight",
                                                 0,
                                                 10,
@@ -187,7 +186,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.EPICENTER_DISTANCE],
+    if not validationTools.validateInteger(phase_data.data[phase_data.EPICENTER_DISTANCE],
                                                 "epicenter distance",
                                                 0,
                                                 99999,
@@ -195,7 +194,7 @@ def validatePhaseData(phase_data):
                                                 phname):
         validation = False
 
-    if not validationTools.validateInteger(phase_data.data[NordicData.EPICENTER_TO_STATION_AZIMUTH],
+    if not validationTools.validateInteger(phase_data.data[phase_data.EPICENTER_TO_STATION_AZIMUTH],
                                                 "epicenter to station azimuth",
                                                 0,
                                                 359,

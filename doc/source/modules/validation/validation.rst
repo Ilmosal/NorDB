@@ -4,7 +4,7 @@ Validation
 .. automodule:: nordb.validation
 
 .. toctree:: 
-    :maxdepth: 4
+    :maxdepth: 1
     
     instrumentValidation.rst
     nordicCommentValidation.rst

@@ -1,5 +1,5 @@
 ==============
-stationFindOld
+StationFindOld
 ==============
 .. automodule:: nordb.validation.stationFindOld
     :members:
