@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a :class:`.Sensor`.
+
+Functions and Classes
+---------------------
+"""
+
 from nordb.validation.validationTools import *
 import nordb.database.station2sql
 
@@ -5,18 +12,15 @@ def validateSensor(sensor):
     """
     Function for validating the Sensor data for one line
 
-    Args:
-        sensor (str[]): a array of string that contain the data to be validated
-
-    Returns:
-        True or False depending on if the data goes through validation or not
+    :param Sensor sensor: a array of string that contain the data to be validated
+    :returns: true or false depending on if the data goes through validation or not
     """
     validation = True
     mstat = 13
 
     s2s = nordb.database.station2sql
 
-    if not validateFloat(   sensor[s2s.Sensor.TIME],
+    if not validateFloat(   sensor.data[sensor.TIME],
                             "time",
                             0.00000000000,
                             9999999999.999,
@@ -24,7 +28,7 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateFloat(   sensor[s2s.Sensor.ENDTIME],
+    if not validateFloat(   sensor.data[sensor.ENDTIME],
                             "endtime",
                             0.00000000000,
                             9999999999.999,
@@ -32,12 +36,12 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateDate(    sensor[s2s.Sensor.JDATE],
+    if not validateDate(    sensor.data[sensor.JDATE],
                             "jdate",
                             mstat):
         validation = False
 
-    if not validateFloat(   sensor[s2s.Sensor.CALRATIO],
+    if not validateFloat(   sensor.data[sensor.CALRATIO],
                             "calratio",
                             -1.0,
                             10.0,
@@ -45,7 +49,7 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateFloat(   sensor[s2s.Sensor.CALPER],
+    if not validateFloat(   sensor.data[sensor.CALPER],
                             "calper",
                             -1.0,
                             50.0,
@@ -53,7 +57,7 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateFloat(   sensor[s2s.Sensor.TSHIFT],
+    if not validateFloat(   sensor.data[sensor.TSHIFT],
                             "tshift",
                             -1.0,   
                             9.9,
@@ -61,7 +65,7 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateString(  sensor[s2s.Sensor.INSTANT],
+    if not validateString(  sensor.data[sensor.INSTANT],
                             "instant",
                             1,
                             1,
@@ -70,10 +74,9 @@ def validateSensor(sensor):
                             mstat):
         validation = False
 
-    if not validateDate(    sensor[s2s.Sensor.LDDATE],
+    if not validateDate(    sensor.data[sensor.LDDATE],
                             "lddate",
                             mstat):
         validation = False
-
 
     return validation

@@ -6,6 +6,7 @@ Validation
 .. toctree:: 
     :maxdepth: 1
     
+    abbreviations.rst
     instrumentValidation.rst
     nordicCommentValidation.rst
     nordicErrorValidation.rst

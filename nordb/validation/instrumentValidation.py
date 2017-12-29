@@ -1,22 +1,23 @@
+"""
+This module contains the validation function for validating an :class:`.Instrument`.
+
+Functions and Classes
+---------------------
+"""
+
 from nordb.validation.validationTools import *
-import nordb.database.station2sql
 
 def validateInstrument(instrument):
     """
     Function for validating Instrument data for one line.
     
-    Args:
-        instrument (str[]): a array of string that contain the data to be validated
-
-    Returns:
-        True or False depending on if the data goes through validation or not
+    :param Instrument instrument: a array of string that contain the data to be validated
+    :return: True or False depending on if the data goes through validation or not
     """
     validation = True
     mstat = 12
 
-    s2s = nordb.database.station2sql
-
-    if not validateString(  instrument[s2s.Instrument.INSTRUMENT_NAME],
+    if not validateString(  instrument.data[instrument.INSTRUMENT_NAME],
                             "instrument name",
                             0,
                             50,
@@ -25,7 +26,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.INSTRUMENT_TYPE],
+    if not validateString(  instrument.data[instrument.INSTRUMENT_TYPE],
                             "instrument type",
                             0,
                             6,
@@ -34,7 +35,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.BAND],
+    if not validateString(  instrument.data[instrument.BAND],
                             "band",
                             0,
                             1,
@@ -43,7 +44,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.DIGITAL],
+    if not validateString(  instrument.data[instrument.DIGITAL],
                             "digital",
                             0,
                             1,
@@ -52,7 +53,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateFloat(   instrument[s2s.Instrument.SAMPRATE],
+    if not validateFloat(   instrument.data[instrument.SAMPRATE],
                             "samprate",
                             0.0,
                             1000.0,
@@ -60,7 +61,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateFloat(   instrument[s2s.Instrument.NCALIB],
+    if not validateFloat(   instrument.data[instrument.NCALIB],
                             "ncalib",
                             -1.0,
                             10000.0,
@@ -68,7 +69,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateFloat(   instrument[s2s.Instrument.NCALPER],
+    if not validateFloat(   instrument.data[instrument.NCALPER],
                             "ncalper",
                             -1.0,
                             10000.0,
@@ -76,7 +77,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.DIR],
+    if not validateString(  instrument.data[instrument.DIR],
                             "dir",
                             0,
                             64,
@@ -85,7 +86,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.DFILE],
+    if not validateString(  instrument.data[instrument.DFILE],
                             "dfile",
                             0,
                             32,
@@ -94,7 +95,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateString(  instrument[s2s.Instrument.RSPTYPE],
+    if not validateString(  instrument.data[instrument.RSPTYPE],
                             "rsptype",
                             0,
                             6,
@@ -103,7 +104,7 @@ def validateInstrument(instrument):
                             mstat):
         validation = False
 
-    if not validateDate(    instrument[s2s.Instrument.LDDATE],
+    if not validateDate(    instrument.data[instrument.LDDATE],
                             "lddate",
                             mstat):
         validation = False

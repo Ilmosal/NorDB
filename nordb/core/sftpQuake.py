@@ -44,7 +44,7 @@ channel_folders =   {
                         "HHZ.D"
                     }
 
-def agent_auth(t, username):
+def agentAuth(t, username):
     """
     Attempt to authenticate to the given transport using any of the private keys available from a SSH agent
     
@@ -66,7 +66,7 @@ def agent_auth(t, username):
         except paramiko.SSHException:
             print('... nope.')
 
-def manual_auth(username, hostname, t):
+def manualAuth(username, hostname, t):
     """
     Function for manual authentication of the Transport.
 
@@ -153,10 +153,10 @@ def getSeed(station, year, day, silent=True):
             if not silent:
                 print("*** Host key OK.")
 
-        agent_auth(t, username)
+        agentAuth(t, username)
         
         if not t.is_authenticated():
-            manual_auth(username, hostname, t)
+            manualAuth(username, hostname, t)
         if not t.is_authenticated():
             if not silent:
                 print("*** Authentication failed.")

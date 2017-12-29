@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a :class:`.NordicData`.
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -8,11 +15,8 @@ def validatePhaseData(phase_data):
     """
     Function for validating that the phase data line is in correct format.
 
-    Args:
-        header(NordicData): nordic phase data to be validated
-
-    Returns:
-        True if the file is valid, false if not
+    :param NordicData phase_data: nordic phase data to be validated
+    :returns: true if the file is valid, false if not
    
     """
 

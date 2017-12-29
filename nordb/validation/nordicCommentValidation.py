@@ -1,3 +1,7 @@
+"""
+This module contains a function for validating a :class:`.NordicComment`.
+"""
+
 import os
 import sys
 
@@ -11,11 +15,8 @@ def validateCommentHeader(comment):
     """
     Function for validating that the comment header line is in correct format.
 
-    Args:
-        header(NordicComment): nordic comment header to be validated
-
-    Returns:
-        True if the file is valid, false if not
+    :param NordicComment header: nordic comment header to be validated
+    :returns: True if the file is valid, False if not
     """
     validation = True
     mheader = 3

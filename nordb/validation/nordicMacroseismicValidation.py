@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a :class:`.NordicMacroseismic`.
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -11,11 +18,8 @@ def validateMacroseismicHeader(macro):
     """
     Function for validating that the macroseismic header line is in correct format.
 
-    Args:
-        header(NordicMacroseismic): nordic macroseismic header to be validated
-
-    Returns:
-        True if the file is valid, false if not
+    :param NordicMacroseismic macro: nordic macroseismic header to be validated
+    :returns: true if the file is valid, false if not
    
     """
 

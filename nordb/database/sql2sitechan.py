@@ -1,9 +1,18 @@
+"""
+This module contains all functions for getting sitechan information form the database and writing the to a file.
+
+Functions and Classes
+---------------------
+"""
+
 import logging
 import psycopg2
 
 from nordb.database.station2sql import SiteChan
 from nordb.core import usernameUtilities
-from nordb.database.sql2nordic import add_float_to_string, add_integer_to_string, add_string_to_string
+from nordb.core.utils import addFloat2String 
+from nordb.core.utils import addInteger2String
+from nordb.core.utils import addString2String
 
 username = ""
 
@@ -27,51 +36,48 @@ def createSiteChanString(channel):
     """
     Function for creating a sitechan string from a list of it's attributes
 
-    Args:
-        channel(list): list of attributes of the channel
-    
-    Returns:
-        A sitechan line
+    :param array channel: list of attributes of the channel
+    :returns: a sitechan line
     """
     sitechanString = ""
 
-    sitechanString += add_string_to_string(channel[SiteChan.STATION_ID], 7, '<')
-    sitechanString += add_string_to_string(channel[SiteChan.CHANNEL_CODE].strip(), 8, '<')
+    sitechanString += addString2String(channel[SiteChan.STATION_ID], 7, '<')
+    sitechanString += addString2String(channel[SiteChan.CHANNEL_CODE].strip(), 8, '<')
     sitechanString += "  "
     if channel[SiteChan.ON_DATE] is None:
-        sitechanString += add_integer_to_string(-1, 7, '>')
+        sitechanString += addInteger2String(-1, 7, '>')
     else:
-        sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].year, 4, '<') 
-        sitechanString += add_integer_to_string(channel[SiteChan.ON_DATE].timetuple().tm_yday, 3, '0') 
+        sitechanString += addInteger2String(channel[SiteChan.ON_DATE].year, 4, '<') 
+        sitechanString += addInteger2String(channel[SiteChan.ON_DATE].timetuple().tm_yday, 3, '0') 
     
     sitechanString += "  "
 
-    sitechanString += add_integer_to_string(channel[SiteChan.CSS_ID], 7, '>')
+    sitechanString += addInteger2String(channel[SiteChan.CSS_ID], 7, '>')
 
     sitechanString += "  "
 
     if channel[SiteChan.OFF_DATE] is None:
-        sitechanString += add_integer_to_string(-1, 7, '>')
+        sitechanString += addInteger2String(-1, 7, '>')
     else:
-        sitechanString += add_integer_to_string(channel[SiteChan.OFF_DATE].year, 4, '<') 
-        sitechanString += add_integer_to_string(channel[SiteChan.OFF_DATE].timetuple().tm_yday, 3, '0') 
+        sitechanString += addInteger2String(channel[SiteChan.OFF_DATE].year, 4, '<') 
+        sitechanString += addInteger2String(channel[SiteChan.OFF_DATE].timetuple().tm_yday, 3, '0') 
 
     sitechanString += " "
-    sitechanString += add_string_to_string(channel[SiteChan.CHANNEL_TYPE], 4, '<')
+    sitechanString += addString2String(channel[SiteChan.CHANNEL_TYPE], 4, '<')
 
-    sitechanString += add_float_to_string(channel[SiteChan.EMPLACEMENT_DEPTH], 10, 4, '>')
+    sitechanString += addFloat2String(channel[SiteChan.EMPLACEMENT_DEPTH], 10, 4, '>')
     sitechanString += "  "
-    sitechanString += add_float_to_string(channel[SiteChan.HORIZONTAL_ANGLE], 5, 1, '>')
+    sitechanString += addFloat2String(channel[SiteChan.HORIZONTAL_ANGLE], 5, 1, '>')
     sitechanString += "  "
-    sitechanString += add_float_to_string(channel[SiteChan.VERTICAL_ANGLE], 5, 1, '>')
+    sitechanString += addFloat2String(channel[SiteChan.VERTICAL_ANGLE], 5, 1, '>')
     sitechanString += " "
-    sitechanString += add_string_to_string(channel[SiteChan.DESCRIPTION], 50, '<')
+    sitechanString += addString2String(channel[SiteChan.DESCRIPTION], 50, '<')
     sitechanString += " "
 
     if channel[SiteChan.LOAD_DATE] is None:
-        sitechanString += add_integer_to_string(-1, 10, '>')
+        sitechanString += addInteger2String(-1, 10, '>')
     else:
-        sitechanString += add_string_to_string(channel[SiteChan.LOAD_DATE].strftime("%Y-%b-%d"), 10, '<')
+        sitechanString += addString2String(channel[SiteChan.LOAD_DATE].strftime("%Y-%b-%d"), 10, '<')
 
     return sitechanString
 
@@ -79,11 +85,8 @@ def readSitechan(sitechan_id):
     """
     Method for reading a sitechan from database by id.
     
-    Args:
-        sitechan_id(int): id of the sitechan wanted
-    
-    Seturns:
-        sitechan as a list
+    :param int sitechan_id: id of the sitechan wanted
+    :returns: sitechan as a list
     """
     try: 
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -104,9 +107,8 @@ def sql2sitechan(sitechan_ids, output_path):
     """
     Function for creating a sitechan file from all the sitechans with ids in station_ids in the db
 
-    Args:
-        sitechan_ids (int[]): Array of integers
-        output_path (str): Path to the output file
+    :param array sitechan_ids: Array of integers
+    :param str output_path: Path to the output file
     """
     sitechans = []
 
@@ -122,8 +124,7 @@ def writeAllSitechans(output_path):
     """
     Function for writing all sitechans into a sitechan file
 
-    Args:
-        output_path (str): path to outputfile
+    :param str output_path: path to outputfile
     """
     username = usernameUtilities.readUsername()
 

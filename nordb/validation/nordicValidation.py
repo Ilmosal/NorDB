@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a whole :class:`.NordicEvent`.
+
+Functions and Classes
+---------------------
+"""
+
 import sys
 import os
 import logging
@@ -21,11 +28,8 @@ def validateNordic(nordic_event):
     """
     Function for validating a whole nordic event.
 
-    Args:
-        nordic_event (NordicEvent): nordic event to be validated
-    
-    Returns:
-        True or False depending on if the file is valid or not
+    :param NordicEvent noridc_event: nordic event to be validated
+    :returns: True or False depending on if the file is valid or not
     """
     validation_error = False
 

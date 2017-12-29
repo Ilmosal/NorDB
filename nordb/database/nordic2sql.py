@@ -217,6 +217,7 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
                                 False)
         #Adding the data to the database
         for phase_data in nordic_event.data:
+            
             phase_data.data[NordicData.EVENT_ID] = event_id
             execute_command(    cur, 
                                 INSERT_COMMANDS[7], 

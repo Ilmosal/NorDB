@@ -1,24 +1,21 @@
+"""
+This module contains functions for finding similar events and determining what to do with them.
+
+Functions and Classes
+---------------------
+"""
+
 import sys
 import logging
 import psycopg2
 from datetime import date
-from nordb.core import nordicSearch, usernameUtilities
+from nordb.core import nordicSearch
+from nordb.core import usernameUtilities
+from nordb.core.utils import xstr
 from nordb.database import sql2nordic
 from nordb.database import getNordic
 
 username = ""
-
-def xstr(s):
-    """
-    Function for casting a value to string and None to a empty string
-
-    :param s: Value to be converted
-    :return: a string value
-    """
-    if s is None:
-        return ""
-    else:
-        return str(s)
 
 def checkForSameEvents(nordic_event, cur, ignore_duplicates):
     """
@@ -26,10 +23,8 @@ def checkForSameEvents(nordic_event, cur, ignore_duplicates):
 
     :param NordicEvent nordic_event: NordicEvent object for which the check will be done
     :param psycopg2.connect.cursor cur: psycopg cursor class
-    :param bool ignore_duplicates(bool): flag for if duplicate events need to be ignored
-    
-    Returns:
-        The id of the chosen same event
+    :param bool ignore_duplicates: flag for if duplicate events need to be ignored
+    :returns: the id of the chosen same event
     """
     
     main = nordic_event.headers[1][0]

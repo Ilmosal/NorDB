@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a scandia file.
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -9,6 +16,12 @@ from nordb.validation.validationTools import values
 from nordb.validation import abbreviations
 
 def validateScandiaHeader(scandia):
+    """
+    Function for validating a scandia header.
+    
+    :param scandia: scandia for validating
+    :return: true or false depending on if the scandia goes through validation
+    """
     validation = True
     mheader = 9
     global source_reference

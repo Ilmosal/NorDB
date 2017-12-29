@@ -1,9 +1,18 @@
+"""
+This module contains all operations for reading an :class:`.Instrument` object from the database and dumping it to a file or giving it to a user as a object.
+
+Functions and Classes
+---------------------
+"""
+
 import logging
 import psycopg2
 
 from nordb.database.station2sql import Instrument
 from nordb.core import usernameUtilities
-from nordb.database.sql2nordic import add_float_to_string, add_integer_to_string, add_string_to_string
+from nordb.core.utils import addFloat2String
+from nordb.core.utils import addInteger2String
+from nordb.core.utils import addString2String
 
 username = ""
 
@@ -22,49 +31,46 @@ def createInstrumentString(instrument):
     """
     Function for creating a css instrument string from a instrument object.
 
-    Args:
-        instrument (list()): instrument array described by Instrument object
-
-    Returns:
-        The instrument string in a css format
+    :param list instrument: instrument array described by Instrument object
+    :return: The instrument string in a css format
     """
     instrumentString = ""
     
-    instrumentString += add_integer_to_string(instrument[Instrument.CSS_ID], 8, '>')
+    instrumentString += addInteger2String(instrument[Instrument.CSS_ID], 8, '>')
     
     instrumentString += " "
 
-    instrumentString += add_string_to_string(instrument[Instrument.INSTRUMENT_NAME], 50, '<')
+    instrumentString += addString2String(instrument[Instrument.INSTRUMENT_NAME], 50, '<')
 
     instrumentString += " "
     
-    instrumentString += add_string_to_string(instrument[Instrument.INSTRUMENT_TYPE], 6, '<')
+    instrumentString += addString2String(instrument[Instrument.INSTRUMENT_TYPE], 6, '<')
 
     instrumentString += " "
 
-    instrumentString += add_string_to_string(instrument[Instrument.BAND], 2, '<')
-    instrumentString += add_string_to_string(instrument[Instrument.DIGITAL], 2, '<')
-    instrumentString += add_float_to_string (instrument[Instrument.SAMPRATE], 11, 7, '>')
+    instrumentString += addString2String(instrument[Instrument.BAND], 2, '<')
+    instrumentString += addString2String(instrument[Instrument.DIGITAL], 2, '<')
+    instrumentString += addFloat2String (instrument[Instrument.SAMPRATE], 11, 7, '>')
 
     instrumentString += "    "
     
-    instrumentString += add_float_to_string (instrument[Instrument.NCALIB], 13, 6, '>')
+    instrumentString += addFloat2String (instrument[Instrument.NCALIB], 13, 6, '>')
     
     instrumentString += "    "
     
-    instrumentString += add_float_to_string(instrument[Instrument.NCALPER], 13, 6, '>')
+    instrumentString += addFloat2String(instrument[Instrument.NCALPER], 13, 6, '>')
 
     instrumentString += " "
 
-    instrumentString += add_string_to_string(instrument[Instrument.DIR], 64, '<')
+    instrumentString += addString2String(instrument[Instrument.DIR], 64, '<')
         
     instrumentString += " "
     
-    instrumentString += add_string_to_string(instrument[Instrument.DFILE], 32, '<')
+    instrumentString += addString2String(instrument[Instrument.DFILE], 32, '<')
 
-    instrumentString += add_string_to_string(instrument[Instrument.RSPTYPE], 6, '<')
+    instrumentString += addString2String(instrument[Instrument.RSPTYPE], 6, '<')
 
-    instrumentString += add_string_to_string(instrument[Instrument.LDDATE].strftime("%Y-%b-%d"), 10, '<')
+    instrumentString += addString2String(instrument[Instrument.LDDATE].strftime("%Y-%b-%d"), 10, '<')
 
     return instrumentString
 
@@ -72,11 +78,8 @@ def readInstrument(instrument_id):
     """
     Function for reading a instrument from database by id
 
-    Args:
-        instrument_id(int): id of the instrument wanted
-
-    Returns:
-        instrument(list): instrument list
+    :param int instrument_id: id of the instrument wanted
+    :return: :class:`.Instrument` object
     """
     try:
         conn = psycopg2.connect("dbname = nordb user = {0}".format(username))
@@ -97,9 +100,8 @@ def sql2Instrument(instrument_ids, output_path):
     """
     Function for reading instruments from the database and dumping them to a instruments.instrument file
 
-    Args:
-        instrument_ids (ins[]): Array of integers
-        output_path (str): path to the output file
+    :param array instrument_ids: Array of instrument ids you want to get from the database
+    :param str output_path: path to the output file
     """
     username = usernameUtilities.readUsername()
 
@@ -117,8 +119,7 @@ def writeAllInstruments(output_path):
     """
     Function for writing all instruments to a instrument file
 
-    Args:
-        output_path(str): path to output_file
+    :param str output_path: path to output_file
     """
     username = usernameUtilities.readUsername()
 

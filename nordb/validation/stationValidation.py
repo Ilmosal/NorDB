@@ -1,22 +1,23 @@
+"""
+Module containing a function for validating a :class:`.Station`.
+
+Functions and Classes
+---------------------
+"""
+
 from nordb.validation import validationTools
-import nordb.database.station2sql
 
 def validateStation(station):
     """
     Method for validating the Station data for one line.
 
-    Args:
-        station (str[]): a array of strings that contain the data to be validated
-
-    Returns:
-        True or False depending on if the data goes through validation or not        
+    :param Station station: Station object that will be validated
+    :returns: true or false depending on if the data goes through validation or not        
     """
     validation = True
     mstat = 10
  
-    s2s = nordb.database.station2sql
-
-    if not validationTools.validateString(station[s2s.Station.STATION_CODE],
+    if not validationTools.validateString(station.data[station.STATION_CODE],
                                             "station code",
                                             0,  
                                             6,
@@ -25,17 +26,17 @@ def validateStation(station):
                                             mstat):
         validation = False
    
-    if not validationTools.validateDate(station[s2s.Station.ON_DATE],
+    if not validationTools.validateDate(station.data[station.ON_DATE],
                                             " on date",
                                             mstat):
         validation = False
 
-    if not validationTools.validateDate(station[s2s.Station.OFF_DATE],
+    if not validationTools.validateDate(station.data[station.OFF_DATE],
                                             "off date",
                                             mstat):
         validation = False
 
-    if not validationTools.validateFloat(station[s2s.Station.LATITUDE],
+    if not validationTools.validateFloat(station.data[station.LATITUDE],
                                             "latitude",
                                             -90.0,  
                                             90.0,
@@ -43,7 +44,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateFloat(station[s2s.Station.LONGITUDE],
+    if not validationTools.validateFloat(station.data[station.LONGITUDE],
                                             "longitude",
                                             -180.0,  
                                             180.0,
@@ -51,7 +52,7 @@ def validateStation(station):
                                             mstat):
         validation = False    
 
-    if not validationTools.validateFloat(station[s2s.Station.ELEVATION],
+    if not validationTools.validateFloat(station.data[station.ELEVATION],
                                             "elevation",
                                             -10.0,  
                                             10.0,
@@ -59,7 +60,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateString(station[s2s.Station.STATION_NAME],
+    if not validationTools.validateString(station.data[station.STATION_NAME],
                                             "station name",
                                             0,  
                                             50,
@@ -68,7 +69,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateString(station[s2s.Station.STATION_TYPE],
+    if not validationTools.validateString(station.data[station.STATION_TYPE],
                                             "station type",
                                             1,  
                                             2,
@@ -77,7 +78,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateString(station[s2s.Station.REFERENCE_STATION],
+    if not validationTools.validateString(station.data[station.REFERENCE_STATION],
                                             "reference station",
                                             0,  
                                             6,
@@ -86,7 +87,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateFloat(station[s2s.Station.NORTH_OFFSET],
+    if not validationTools.validateFloat(station.data[station.NORTH_OFFSET],
                                             "north offset",
                                             -100.0,  
                                             100.0,
@@ -94,7 +95,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateFloat(station[s2s.Station.EAST_OFFSET],
+    if not validationTools.validateFloat(station.data[station.EAST_OFFSET],
                                             "east offset",
                                             -100.0,  
                                             100.0,
@@ -102,7 +103,7 @@ def validateStation(station):
                                             mstat):
         validation = False
 
-    if not validationTools.validateDate(station[s2s.Station.LOAD_DATE],
+    if not validationTools.validateDate(station.data[station.LOAD_DATE],
                                             "load date",
                                             mstat):
         validation = False

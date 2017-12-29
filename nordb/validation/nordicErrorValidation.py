@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a :class:`.NordicError`.
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -11,12 +18,8 @@ def validateErrorHeader(error):
     """
     Function for validating that the error header line is in correct format.
 
-    Args:
-        header(NordicError): nordic error header to be validated
-
-    Returns:
-        True if the file is valid, false if not
-   
+    :param NordicError header: nordic error header to be validated
+    :returns: true if the file is valid, false if not
     """
     validation = True
     mheader = 5

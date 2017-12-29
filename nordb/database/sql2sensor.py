@@ -1,8 +1,17 @@
+"""
+This module contains all information for getting the sensor information out of the database. 
+
+Functions and Classes
+---------------------
+"""
+
 import psycopg2
 import logging
 
 from nordb.core import usernameUtilities
-from nordb.database.sql2nordic import add_float_to_string, add_integer_to_string, add_string_to_string
+from nordb.core.utils import addFloat2String
+from nordb.core.utils import addInteger2String
+from nordb.core.utils import addString2String
 from nordb.database.station2sql import Sensor
 
 username = ""
@@ -33,46 +42,43 @@ def createSensorString(sensor):
     """
     Function for creating a css sensor string from a sensor object.
 
-    Args:
-        sensor (list()): sensor array described by Sensor object
-
-    Returns:
-        The sensor string in a css format
+    :param array sensor: sensor array described by Sensor object
+    :returns: The sensor string in a css format
     """
     sensorString = ""
 
-    sensorString += add_string_to_string(sensor[Sensor.STATION_CODE], 6, '<')
-    sensorString += add_string_to_string(sensor[Sensor.CHANNEL_CODE], 8, '<')
+    sensorString += addString2String(sensor[Sensor.STATION_CODE], 6, '<')
+    sensorString += addString2String(sensor[Sensor.CHANNEL_CODE], 8, '<')
     sensorString += "   "
-    sensorString += add_float_to_string(sensor[Sensor.TIME], 16, 5, '>')
+    sensorString += addFloat2String(sensor[Sensor.TIME], 16, 5, '>')
     sensorString += "  "
-    sensorString += add_float_to_string(sensor[Sensor.ENDTIME], 16, 5, '>')
+    sensorString += addFloat2String(sensor[Sensor.ENDTIME], 16, 5, '>')
     sensorString += " "
-    sensorString += add_integer_to_string(sensor[Sensor.INSTRUMENT_ID], 8, '>')
+    sensorString += addInteger2String(sensor[Sensor.INSTRUMENT_ID], 8, '>')
     sensorString += " "
-    sensorString += add_integer_to_string(sensor[Sensor.CHANNEL_ID], 8, '>')
+    sensorString += addInteger2String(sensor[Sensor.CHANNEL_ID], 8, '>')
     sensorString += "  "
     
     if sensor[Sensor.JDATE] is None:
-        sensorString += add_integer_to_string(-1, 7, '>')
+        sensorString += addInteger2String(-1, 7, '>')
     else:
-        sensorString += add_integer_to_string(sensor[Sensor.JDATE].year, 4, '<')
-        sensorString += add_integer_to_string(sensor[Sensor.JDATE].timetuple().tm_yday, 3, '0')
+        sensorString += addInteger2String(sensor[Sensor.JDATE].year, 4, '<')
+        sensorString += addInteger2String(sensor[Sensor.JDATE].timetuple().tm_yday, 3, '0')
     
     sensorString += " "
-    sensorString += add_float_to_string(sensor[Sensor.CALRATIO], 16, 6, '>')
+    sensorString += addFloat2String(sensor[Sensor.CALRATIO], 16, 6, '>')
     sensorString += " "
-    sensorString += add_float_to_string(sensor[Sensor.CALPER], 16, 6, '>')
+    sensorString += addFloat2String(sensor[Sensor.CALPER], 16, 6, '>')
     sensorString += " "
-    sensorString += add_float_to_string(sensor[Sensor.TSHIFT], 6, 4, '>') 
+    sensorString += addFloat2String(sensor[Sensor.TSHIFT], 6, 4, '>') 
     sensorString += " "
-    sensorString += add_string_to_string(sensor[Sensor.INSTANT], 1, '>')
+    sensorString += addString2String(sensor[Sensor.INSTANT], 1, '>')
     sensorString += "       "
 
     if sensor[Sensor.LDDATE] is None:
-        sensorString += add_integer_to_string(-1, 10, '>')
+        sensorString += addInteger2String(-1, 10, '>')
     else:
-        sensorString += add_string_to_string(sensor[Sensor.LDDATE].strftime("%Y-%b-%d"), 10, '<')
+        sensorString += addString2String(sensor[Sensor.LDDATE].strftime("%Y-%b-%d"), 10, '<')
 
     return sensorString
 
@@ -80,11 +86,8 @@ def readSensor(sensor_id):
     """
     Function for reading a sensor from database by id 
 
-    Args:
-        sensor_id(int): id of the sensor wanted
-
-    Returns:
-        sensor(lis): sensor list
+    :param int sensor_id: id of the sensor wanted
+    :returns: sensor list
     """
     try:
         conn = psycopg2.connect("dbname=nordb user={0}".format(username))
@@ -105,9 +108,8 @@ def sql2Sensor(sensor_ids, output_path):
     """
     Function for reading sensors from database and dumping them into a sensors.sensor file
 
-    Args:
-        sensor_ids (int[]): Array of integers
-        output_path (str[]): path to output file
+    :param array sensor_ids: Array of integers
+    :param str output_path: path to output file
     """
     username = usernameUtilities.readUsername()
 
@@ -125,8 +127,7 @@ def writeAllSensors(output_path):
     """
     Function for writing all sensors to a sensor file
 
-    Args:
-        output_path(str): path to output_file
+    :param str output_path: path to output_file
     """
     username = usernameUtilities.readUsername()
 

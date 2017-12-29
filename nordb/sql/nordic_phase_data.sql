@@ -1,7 +1,7 @@
 CREATE TABLE nordic_phase_data(
 	id SERIAL PRIMARY KEY,
 	event_id INTEGER REFERENCES nordic_event(id),
-	station_code VARCHAR(4),
+	station_code VARCHAR(6),
 	sp_instrument_type VARCHAR(1),
 	sp_component VARCHAR(1),  
 	quality_indicator VARCHAR(1),

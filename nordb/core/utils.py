@@ -5,11 +5,23 @@ Functions and Classes
 ---------------------
 """
 
+def xstr(s):
+    """
+    Function for casting a value to string and None to a empty string
+
+    :param s: Value to be converted
+    :return: a string value
+    """
+    if s is None:
+        return ""
+    else:
+        return str(s)
+
 def addString2String(value, val_len, front):
     """
     Function for parsing a string into correct format. Front works as the parser character which tells how the string has to be formatted.
     
-    Examples::
+    **Examples**::
 
         >> add_string_to_string("test", 6, '<')
             "test  "
@@ -32,7 +44,7 @@ def addInteger2String(value, val_len, front):
     """
     Function for parsing a integer into a correct string format. Front works as the parser character which tells the program how the string has to be formatted.
 
-    Examples::
+    **Examples**::
         
         >> addInteger2String(3, 5, 0)
             "00003"
@@ -55,7 +67,7 @@ def addFloat2String(value, val_len, decimal_len, front):
     """
     Function for parsing a float into a correct string format. Front works as the parser character which tells the program how the string has to be formatted.
 
-    Examples::
+    **Examples**::
         
         >> addFloat2String(0.71, 6, 3, '>')
             " 0.710"

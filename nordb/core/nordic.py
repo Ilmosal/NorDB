@@ -21,6 +21,10 @@ from nordb.validation import nordicValidation
 class NordicEvent:
     """
     Container object of nordic event information
+
+    :ivar dict headers: headers of the event in a dict where the header_type of the header is a key to a array that contains all header data of the object
+    :ivar array data: data array of the event
+    :ivar int event_id: event id of the event
     """
     def __init__(self, headers, data, event_id):
         self.headers = headers
@@ -31,9 +35,9 @@ class NordicData:
     """
     A class that functions as a collection of enums. Contains the information of the phase data line of a nordic file. 
 
-    :ivar data(list): The data of a nordic phase in a list where each index of a value corresponds to NordicData's pseudo-enum. The data easily accessed with the enums provided by the class
+    :ivar list data: The data of a nordic phase in a list where each index of a value corresponds to NordicData's pseudo-enum. The data easily accessed with the enums provided by the class
     :ivar int header_type: This value tells that this is a NordicData object Value of 7
-    :ivar int STATION_CODE: The location of the unique station code. Value of 0
+    :ivar int STATION_CODE: The location of the station id. Value of 0
     :ivar int SP_INSTRUMENT_TYPE: The location of the type of the instrument that observed the event. Value of 1
     :ivar int SP_COMPONENT: The location of the component of the observation. Value of 2
     :ivar int QUALITY_INDICATOR: The location of the quality of the observation. Value of 3 
@@ -129,7 +133,7 @@ class NordicMain:
     A class that functions as a collection of enums. Contains the information of the main header line of a nordic file. 
 
     :ivar list header: The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum. This data is easily accessed by it's enums.
-    :ivar int header_type: This value tells that this is a NordicData object Value of 1
+    :ivar int header_type: This value tells that this is a NordicMain object. Value of 1
     :ivar int DATE: Location of the date of the event. Value of 0
     :ivar int HOUR: Location of the hour of the event. Value of 1
     :ivar int MINUTE: Location of the minute of the event. Value of 2
@@ -234,7 +238,7 @@ class NordicMacroseismic:
     A class that functions as a collection of enums. Contains the information of the macroseismic header line of a nordic file. 
 
     :param list header: The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
-    :ivar int header_type: This value tells that this is a NordicData object Value of 2
+    :ivar int header_type: This value tells that this is a NordicMacroseismic object. Value of 2
     :ivar int DESCRIPTION: Location of the description of the event. Value of 0
     :ivar int DIASTROPHISM_CODE: Location of the diastrophism code of the event. Value of 1
     :ivar int TSUNAMI_CODE: Location of the tsunami code of the event. Value of 2
@@ -293,7 +297,7 @@ class NordicComment:
     A class that functions as a collection of enums. Contains the information of the comment header line of a nordic file. 
 
     :param list header: The header of a nordic comment in a list where each index of a value corresponds to NordicComment's pseudo-enum.
-    :ivar int header_type: This value tells that this is a NordicData object Value of 3
+    :ivar int header_type: This value tells that this is a NordicComment object. Value of 3
     :ivar int H_COMMENT: Location of the comment int the event. Value of 0
     :ivar int EVENT_ID: Location of the event id of the event. Value of 1
     :ivar int ID: Location of the id of the event. Value of 2
@@ -319,7 +323,8 @@ class NordicError:
     A class that functions as a collection of enums. Contains the information of the error header line of a nordic file. 
 
     :param list header: The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
-    :ivar int header_type: This value tells that this is a NordicData object Value of 5
+    :param int header_pos: Position of the main header where the NordicError refers to in the NordicEvent NordicError array
+    :ivar int header_type: This value tells that this is a NordicError object. Value of 5
     :ivar int GAP: Location of the gap of the event. Value of 0
     :ivar int SECOND_ERROR: Location of the second error of the event. Value of 1
     :ivar int EPICENTER_LATITUDE_ERROR: Location of the epicenter latitude error of the event. Value of 2
@@ -363,7 +368,7 @@ class NordicWaveform:
     A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file. 
 
     :param list header: The header of a nordic waveform in a list where each index of a value corresponds to NordicWaveform's pseudo-enum.
-    :ivar int header_type: This value tells that this is a NordicData object Value of 6
+    :ivar int header_type: This value tells that this is a NordicWaveform object. Value of 6
     :ivar int WAVEFORM INFO: Location of the waveform info of the event. value of 0
     :ivar int EVENT ID: Location of the event id of the event. value of 1
     :ivar int ID: Location of the id of the event. value of 2

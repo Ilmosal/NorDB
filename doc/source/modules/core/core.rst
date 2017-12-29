@@ -13,3 +13,4 @@ Core
     nordicSearch.rst
     usernameUtilities.rst
     sftpQuake.rst
+    utils.rst

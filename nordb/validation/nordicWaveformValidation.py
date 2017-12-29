@@ -1,3 +1,10 @@
+"""
+This module contains tool to for validating a :class:`.NordicWaveform`
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -11,11 +18,8 @@ def validateWaveformHeader(waveform):
     """
     Function for validating that the waveform header line is in correct format.
 
-    Args:
-        header(NordicWaveform): nordic waveform header to be validated
-
-    Returns:
-        True if the file is valid, false if not
+    :param NordicWaveform waveform: nordic waveform header to be validated
+    :return: true if the file is valid, false if not
     """
     validation = True
     mheader = 6

@@ -1,3 +1,10 @@
+"""
+Module containing all the tools for validation.
+
+Functions and Classes
+---------------------
+"""
+
 import math
 import logging
 from datetime import date
@@ -22,11 +29,8 @@ def validateId(str_id):
     """
     Function for validating a id in a string format. Id must be a whole number.
 
-    Args:
-        str_id(str): id in a strin format
-
-    Returns:
-        True depending on if str_id validates 
+    :param str str_id: id in a strin format
+    :returns: true depending on if str_id validates 
     """
     try:
         if int(str_id) < 0:
@@ -40,15 +44,13 @@ def validateInteger(val, valueName, low, high, limits, nType):
     """
     Function that determines if val is valid integer and falls between given parameters.
     
-    Args:
-        val (str): value to be validated
-        valueName (str): name of the parameter for messaging purposes
-        low (int): lower limit of the val
-        high (int): upper limit of the val
-        limits (bool): bool for if the function needs to compare val against low and high
-        ntype (int): header name id. Used for messaging purposes
-    Returns:
-        true or False depending on if the val validates
+    :param str val: value to be validated
+    :param str valueName: name of the parameter for messaging purposes
+    :param int low: lower limit of the val
+    :param int high: upper limit of the val
+    :param bool limits: bool for if the function needs to compare val against low and high
+    :param int ntype: header name id. Used for messaging purposes
+    :returns: true or false depending on if the val validates
     """ 
     if val == "":
         return True
@@ -76,15 +78,13 @@ def validateFloat(val, valueName, low, high, limits, nType):
     """
     Function that determines if val is valid float, falls between given parameters and is not nAn or inf.
     
-    Args:
-        val (str): value to be validated
-        valueName (str): name of the parameter for messaging purposes
-        low (float): lower limit of the val
-        high (float): upper limit of the val
-        limits (bool): bool for if the function needs to compare val against low and high
-        ntype (int): header name id. Used for messaging purposes
-    Returns:
-        true or False depending on if the val validates
+    :param str val: value to be validated
+    :param str valueName: name of the parameter for messaging purposes
+    :param float low: lower limit of the val
+    :param float high: upper limit of the val
+    :param bool limits: bool for if the function needs to compare val against low and high
+    :param int ntype: header name id. Used for messaging purposes
+    :returns: true or false depending on if the val validates
     """
     if val == "":
         return True
@@ -122,17 +122,14 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
     """
     Function that determines if val is empty, falls between given parameters or can be found from a given list.
     
-    Args:
-        string (str): value to be validated
-        stringName (str): name of the parameter for messaging purposes
-        minlen (int): lower limit of the string length
-        maxlen (int): upper limit of the string length
-        listOfAllowed (list): list of valid string from where the string needs to be found
-        isList (bool): boolean value for determining if there is a list to which the string needs to be compared
-        ntype (int): header name id. Used for messaging purposes
-   
-    Returns:
-        true or False depending on if the string validates
+    :param str string: value to be validated
+    :param str stringName: name of the parameter for messaging purposes
+    :param int minlen: lower limit of the string length
+    :param int maxlen: upper limit of the string length
+    :param array listOfAllowed: list of valid string from where the string needs to be found
+    :param bool isList: boolean value for determining if there is a list to which the string needs to be compared
+    :param int ntype: header name id. Used for messaging purposes
+    :returns: true or false depending on if the string validates
     """
 
     if string is "":
@@ -161,13 +158,10 @@ def validateDate(dateS, dateName, nType):
     """
     Function that determines if dateS is a valid date or empty.
     
-    Args:
-        dateS (str): value to be validated
-        dateName (str): name of the parameter for messaging purposes
-        ntype (int): header name id. Used for messaging purposes
-   
-    Returns:
-        true or False depending on if the dateS validates
+    :param str dateS: value to be validated
+    :param str dateName: name of the parameter for messaging purposes
+    :param int ntype: header name id. Used for messaging purposes
+    :returns: true or false depending on if the dateS validates
     """
     if dateS == "":
         return True
@@ -184,10 +178,9 @@ def validateDate(dateS, dateName, nType):
 
 def fixDate(nordic_main):
     """
-    Functoin for fixing a broken date string to a correct format in a NordicMain Object
+    Function for fixing a broken date string to a correct format in a NordicMain Object
 
-    Args:
-        nordic_main(NordicMain): nordic main object
+    :param NordicMain nordic_main: nordic main object
     """
     if nordic_main.header[nordic_main.DATE][5] == " ":
         nordic_main.header[nordic_main.DATE] = nordic_main.header[nordic_main.DATE][:5] + "0" + nordic_main.header[nordic_main.DATE][6:]

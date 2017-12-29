@@ -1,3 +1,10 @@
+"""
+This module contains a function for validating a :class:`.NordicMain`.
+
+Functions and Classes
+---------------------
+"""
+
 import os
 import sys
 
@@ -11,11 +18,8 @@ def validateMainHeader(main):
     """
     Function for validating that the main header line is in correct format.
 
-    Args:
-        header(NordicMain): nordic main header to be validated
-
-    Returns:
-        True if the file is valid, false if not
+    :param NordicMain main: nordic main header to be validated
+    :returns: true if the file is valid, false if not
    
     """
     validation = True

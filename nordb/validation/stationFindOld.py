@@ -1,3 +1,12 @@
+"""
+Module containing the functions for finding indentical stations in the database and handling the conflicting situations.
+
+Not yet done
+
+Functions and Classes
+---------------------
+"""
+
 import logging
 import psycopg2
 
@@ -41,8 +50,8 @@ def checkForSameStation(site):
     """
     Function that Tries to find stations with exactly same information and skip adding these sites if they exist.
 
-    Returns:
-        True or False depending on if a same event was found
+    :param Station site: site for which the function tries to find duplicates
+    :return: true or false depending on if a same event was found
     """
     cur = usernameUtilities.log2Database() 
    

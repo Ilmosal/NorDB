@@ -1,3 +1,9 @@
+"""
+This module contains the undo functions for the database.
+
+Functions and Classes
+---------------------
+"""
 import psycopg2
 import logging
 import os
@@ -10,9 +16,8 @@ def removeEvent(event_id, cur):
     """
     Method for removing a event from the database.
 
-    Args:
-        event_id(int): the id of the event that needs to be removed
-        cur(psycopg2.connect.cursor): cursor object that executes the operations
+    :param int event_id: the id of the event that needs to be removed
+    :param psycopg2.cursor cur: cursor object that executes the operations
     """
     cur.execute("SELECT id FROM nordic_header_main WHERE event_id = %s", (event_id,))
     mheader_ids = cur.fetchall()
@@ -48,11 +53,8 @@ def removeEventsWithCreationId(creation_id):
     """
     Method that removes all the events that correspond to a creation id. Operation also destroys the creation info of the creation_id.
 
-    Args:
-        creation_id(int): creation id that needs to be cleared
-
-    Returns:
-        True or False depending on if the operation was succesful
+    :param int creation_id: creation id that needs to be cleared
+    :return: true or False depending on if the operation was succesful
     """
     print("Removing events with creation_id {0}".format(creation_id))
     try:

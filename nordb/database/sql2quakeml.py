@@ -1,3 +1,12 @@
+"""
+This module contains all functions for converting a nordic file to a quakeml file. Description of quakeml format is found `here`_.
+
+.. _here: https://quake.ethz.ch/quakeml/QuakeML
+
+Functions and Classes
+---------------------
+"""
+
 from lxml import etree
 
 import math
@@ -35,10 +44,9 @@ def addEventParameters(quakeml, nordics, long_quakeML):
     """
     Function that adds event parameters to a quakeml etree object.
 
-    Args:
-        quakeml(etree.XML): quakeml root object
-        nordics (NordicEvent): nordic event object
-        long_quakeML(bool): flag for if the required file is a long or a short one
+    :param etree.XML quakeml: quakeml root object
+    :param NordicEvent nordics: nordic event object
+    :param bool long_quakeML: flag for if the required file is a long or a short one
     """
     eventParameters = etree.SubElement(quakeml, "eventParameters")
     eventParameters.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/eventParameter"
@@ -50,10 +58,9 @@ def addEvent(eventParameters, nordic, long_quakeML):
     """
     Function for adding a complete event etree object to a eventParameters object
 
-    Args:
-        eventParameters(etree.XML): eventParameters object
-        nordic (NordicEvent): nordic event_file
-        long_quakeML(bool): flag for if the required file is a long or a short one
+    :param etree.XML eventParameters: eventParameters object
+    :param (NordicEvent nordic: nordic event_file
+    :param bool long_quakeML: flag for if the required file is a long or a short one
     """
     #Add event
     event = etree.SubElement(eventParameters, "event")
@@ -118,10 +125,9 @@ def addPick(event, nordic, phase_data):
     """
     Function for adding a pick etree object to a event object
 
-    Args:
-        event (etree.XML): event object
-        nordic (NordicEvent): nordic event_file
-        phase_data(NordicData): nordic phase data object
+    :param etree.XML event: event object
+    :param NordicEvent nordic: nordic event_file
+    :param NordicData phase_data: nordic phase data object
     """
     pick = etree.SubElement(event, "pick")
     pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/pick/" + str(phase_data.data[NordicData.ID])
@@ -218,10 +224,9 @@ def addOrigin(event, nordic, main):
     """
     Function for adding a origin etree object to a event object
 
-    Args:
-        event (etree.XML): event object
-        nordic (NordicEvent): nordic event_file
-        phase_data(NordicData): nordic phase data object
+    :param etree.XML event: event object
+    :param NordicEvent nordic: nordic event_file
+    :param NordicData phase_data: nordic phase data object
     """
     origin = etree.SubElement(event, "origin")
     origin.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/origin/" + str(main.header[NordicMain.ID])
@@ -385,9 +390,8 @@ def addFocalMech(event, h_error):
     """
     Function for adding a Focal Mechanism etree object to a event object
 
-    Args:
-        event (etree.XML): event object
-        h_error (NordicError): nordic error header object
+    :param etree.XML event: event object
+    :param NordicError h_error: nordic error header object
     """
 
     if h_error.header[NordicError.GAP] is not None:
@@ -403,10 +407,9 @@ def addTime(container, time_value, time_uncertainty):
     """
     Function for adding Time etree object to a container object
 
-    Args:
-        container (etree.XML): container object where the time is added to
-        time_value (str): value of the time as a string
-        time_uncertainty (str): value of the time_uncertainty as a string
+    :param etree.XML container: container object where the time is added to
+    :param str time_value: value of the time as a string
+    :param str time_uncertainty: value of the time_uncertainty as a string
     """
 
     time = etree.SubElement(container, "time")
@@ -420,13 +423,10 @@ def addTime(container, time_value, time_uncertainty):
 def validateQuakeMlFile(test, xmlschema):
     """
     Function that validates the created quakeml file against QuakeML-1.2.xsd schema.
-
-    Args:
-        test(etree.XML): finished quakeml etree object
-        xmlschema (etree.XMLSchema): schema loaded from QuakeML-1.2.xsd to which test is compared against to
-
-    Returns:
-        boolean depending on if the file is valid or not
+        
+    :param etree.XML test: finished quakeml etree object
+    :param etree.XMLSchema xmlschema: schema loaded from QuakeML-1.2.xsd to which test is compared against to
+    :returns: boolean depending on if the file is valid or not
     """
     
     if xmlschema.validate(test):
@@ -437,16 +437,13 @@ def validateQuakeMlFile(test, xmlschema):
             logging.error(error.message.encode("utf-8"))
         return False
 
-def nordicEventToQuakeMl(nordicEvents, long_quakeML):
+def nordicEventToQuakeMl(nordic_events, long_quakeML):
     """
     Function that turns a NordicEvent Object into a quakeml etree object, validates it and returns it.
-
-    Args:
-        nordicEvent (NordicEvent): nordic event object to be transformed
-        long_quakeML (bool): Boolean value for if you want the file to be long
-
-    Returns:
-        validated etree object
+        
+    :param NordicEvent nordic_events: nordic event object to be transformed
+    :param bool long_quakeML: Boolean value for if you want the file to be long
+    :return: validated etree object
     """
     f = open(MODULE_PATH + "../xml/QuakeML-1.2.xsd")
     xmlschema_doc = etree.parse(f)
@@ -455,7 +452,7 @@ def nordicEventToQuakeMl(nordicEvents, long_quakeML):
     utf8_parser = etree.XMLParser(encoding='utf-8')
     quakeml = etree.fromstring(QUAKEML_ROOT_STRING.encode('utf-8'), utf8_parser)
 
-    addEventParameters(quakeml, nordicEvents, long_quakeML)
+    addEventParameters(quakeml, nordic_events, long_quakeML)
 
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
@@ -472,13 +469,10 @@ def writeQuakeML(nordic_event_ids, usr_path, output):
     """
     A function for writing quakeml file based on a nordic event with id of nordicEventId.
 
-    Args:
-        nordic_event_ids (list): list of ids
-        usr_path (str): path to where the file is written to
-        output (str): output file name
-
-    Returns:
-        True or False depending on if the write was succesful or not
+    :param array nordic_event_ids: list of ids
+    :param str usr_path: path to where the file is written to
+    :param str output: output file name
+    :returns: True or False depending on if the write was succesful or not
     """
     username = usernameUtilities.readUsername()
 

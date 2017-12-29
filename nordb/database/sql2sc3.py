@@ -1,3 +1,12 @@
+"""
+This module contains tools to convert a nordic file to a `SC3 file`_. This is done by converting the nordic first to a quakeml etree.XML object and then converting it to SC3 from there using the schema in the geofon website.
+
+.. _SC3 file: http://geofon.gfz-potsdam.de/schema/0.9/
+
+Functions and Classes
+---------------------
+"""
+
 from lxml import etree
 import logging
 import sys
@@ -18,13 +27,10 @@ def writeSC3(nordic_event_ids, usr_path, output):
     """
     A function for writing sc3 file based on a nordic event with id of nordicEventId. The file is created by converting the nordic event to a quakeml etree object then parsing it into a sc3 etree object with the transformation stylesheet quakeml_1.2__sc3ml_0.9.xsl.
 
-    Args:
-        nordic_event_ids (list): list of ids wanted
-        usr_path (str): path to where the file is written to
-        output (str): output file name
-
-    Returns:
-        True or False depending on if the write was succesful or not
+    :param array nordic_event_ids: list of ids wanted
+    :param str usr_path: path to where the file is written to
+    :param str output: output file name
+    :returns: True or False depending on if the write was succesful or not
     """
 
     username = usernameUtilities.readUsername()

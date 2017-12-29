@@ -1,5 +1,5 @@
 """
-NordicRead module contains a function readNordicFile that reads a single file and separates all nordicevents inside it to different string arrays.
+NordicRead module contains a function readNordicFile that reads a single file and separates all separate events inside it to different string arrays.
 
 Functions and Classes
 ---------------------
