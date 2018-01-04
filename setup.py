@@ -16,6 +16,7 @@ setup(
         "lxml",
         "paramiko",
         "Sphinx",
+        'unidecode',
         "alabaster",
     ],
     long_description=open("README.md").read(),
