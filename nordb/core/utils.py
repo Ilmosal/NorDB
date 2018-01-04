@@ -19,7 +19,7 @@ def xstr(s):
 
 def addString2String(value, val_len, front):
     """
-    Function for parsing a string into correct format. Front works as the parser character which tells how the string has to be formatted.
+    Function for parsing a string into correct format. Front works as the parser character which tells how the string has to be formatted. Only formatters you can give for the function are '<' and '>'.
     
     **Examples**::
 
@@ -30,9 +30,14 @@ def addString2String(value, val_len, front):
     :param int val_len: int on how long the string needs to be
     :param str front: formatting character
     :return: formatted string
+    :raises: ValueError
     """
     string = ""
     parser = "{:" + front + str(val_len) + "s}"
+
+    if len(value) > val_len:
+        raise ValueError
+    
     if value is not None:
         string += parser.format(value)
     else:
@@ -53,8 +58,13 @@ def addInteger2String(value, val_len, front):
     :param int val_len: int on how long the string needs to be
     :param str front: formatting character
     :return: formatted string
+    :raises: ValueError
     """
     string = ""
+
+    if len(str(value)) > val_len:
+        raise ValueError
+
     parser = "{:" + front + str(val_len) + "d}"
     if value is not None:
         string += parser.format(value)
@@ -78,9 +88,12 @@ def addFloat2String(value, val_len, decimal_len, front):
     :param str front: formatting character
     :return: formatted string
     """
-
     string = ""
     parser = "{:" + front + str(val_len) + "." + str(decimal_len)  + "f}"
+
+    if len(str(value)) > val_len:
+        raise ValueError
+
     if value is not None:
         string += parser.format(value)
     else:
