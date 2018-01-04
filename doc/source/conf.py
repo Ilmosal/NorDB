@@ -28,7 +28,12 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.ifconfig', 'alabaster']
+extensions =    [
+                'sphinx.ext.autodoc', 
+                'sphinx.ext.intersphinx', 
+                'sphinx.ext.ifconfig', 
+                'alabaster',
+                ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -89,6 +94,7 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+pdf_documents = [('index', u'documentation', 'My docs', u'Me'), ]
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -99,7 +105,13 @@ html_theme = 'alabaster'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options =    {
+                            'github_user': 'MrCubanfrog',
+                            'github_repo': 'NorDB',
+                            'description': 'A light database tool for seismic events',
+                            'page_width': '1140px',
+                            'fixed_sidebar':'true',
+                        }
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = [alabaster.get_path()]
@@ -238,7 +250,7 @@ add_module_names = False
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'NorDB', u'NorDB Documentation',
-   u'Ilmo Salmenpera', 'NorDB', 'One line description of project.',
+   u'Ilmo Salmenpera', 'NorDB', 'A light database tool for seismic events',
    'Miscellaneous'),
 ]
 

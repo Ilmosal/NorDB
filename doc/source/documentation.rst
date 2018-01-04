@@ -1,6 +1,6 @@
-==========================
-Documentation for the code
-==========================
+=============
+Documentation
+=============
 .. automodule:: nordb
     :members:
 

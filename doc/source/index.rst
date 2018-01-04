@@ -20,6 +20,7 @@ Contents:
     database_structure.rst
     documentation.rst
     installation.rst
+    nordic_desc.rst
     tutorial.rst
 
 Indices and tables
