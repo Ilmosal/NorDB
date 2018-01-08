@@ -6,4 +6,4 @@ install:
     - pip install .
 # command to run tests
 script:
-    - python setupt.py test
+    - python setup.py test
