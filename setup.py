@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from setuptools import setup, find_packages
 
 setup(
@@ -10,6 +11,9 @@ setup(
     url="http://github.com/MrCubanfrog/NorDB",
     licence="LICENSE",
     description="Library for handling a seismic event database based on the nordic format",
+    setup_requires=[
+        "pytest-runner",
+    ],
     install_requires=[
         "psycopg2",
         "Click",
@@ -18,6 +22,11 @@ setup(
         "Sphinx",
         'unidecode',
         "alabaster",
+    ],
+    tests_require=[
+        "pytest",
+        "coverage",
+        "coveralls",
     ],
     long_description=open("README.md").read(),
     entry_points='''

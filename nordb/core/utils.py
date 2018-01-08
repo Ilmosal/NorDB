@@ -32,16 +32,16 @@ def addString2String(value, val_len, front):
     :return: formatted string
     :raises: ValueError
     """
+    if value is None:
+        return val_len * " "
+
     string = ""
     parser = "{:" + front + str(val_len) + "s}"
 
     if len(value) > val_len:
         raise ValueError
     
-    if value is not None:
-        string += parser.format(value)
-    else:
-        string = val_len * " "
+    string += parser.format(value)
 
     return string
 
@@ -60,16 +60,17 @@ def addInteger2String(value, val_len, front):
     :return: formatted string
     :raises: ValueError
     """
+
+    if value is None:
+        return val_len * " "
+
     string = ""
 
     if len(str(value)) > val_len:
         raise ValueError
 
     parser = "{:" + front + str(val_len) + "d}"
-    if value is not None:
-        string += parser.format(value)
-    else:
-        string = val_len * " "
+    string += parser.format(value)
 
     return string
 
@@ -88,18 +89,19 @@ def addFloat2String(value, val_len, decimal_len, front):
     :param str front: formatting character
     :return: formatted string
     """
+    if value is None:
+        return val_len * " "
+
+    if len(str(value)) > val_len:
+        value = float("%.2f" % value)
+        if len(str(value)) > val_len:
+            raise ValueError
+
     string = ""
     parser = "{:" + front + str(val_len) + "." + str(decimal_len)  + "f}"
 
-    if len(str(value)) > val_len:
-        raise ValueError
+    string += parser.format(value)
 
-    if value is not None:
-        string += parser.format(value)
-    else:
-        string = val_len * " "
-    if value is None:
-        return string 
     if float(value) < 0 and val_len == len(string) - 1:
         string = string[0] + string[2:]
         
