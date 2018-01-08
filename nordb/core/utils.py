@@ -93,8 +93,10 @@ def addFloat2String(value, val_len, decimal_len, front):
         return val_len * " "
 
     if len(str(value)) > val_len:
-        value = float("%.2f" % value)
-        if len(str(value)) > val_len:
+        value = float(("{:."+ str(decimal_len) +"f}").format(value))
+        if value < 1.0 and value > -1.0 and val_len == len(str(value)) - 1:
+            pass
+        elif len(str(value)) > val_len:
             raise ValueError
 
     string = ""

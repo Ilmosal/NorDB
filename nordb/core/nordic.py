@@ -205,7 +205,7 @@ class NordicMain:
         h_string += addInteger2String(self.header[self.HOUR], 2, '0')
         h_string += addInteger2String(self.header[self.MINUTE], 2, '0')
         h_string += " "
-        h_string += addFloat2String(self.header[self.SECOND], 4, 1, '>')
+        h_string += addFloat2String(self.header[self.SECOND], 4, 1, '0')
         h_string += addString2String(self.header[self.LOCATION_MODEL], 1, '<')
         h_string += addString2String(self.header[self.DISTANCE_INDICATOR], 1, '<')
         h_string += addString2String(self.header[self.EVENT_DESC_ID], 1, '<')
@@ -789,7 +789,6 @@ def nordicString2Nordic(nordic_event_string):
     """
     headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
     data = []
-    print(nordic_event_string.headers[1])
     for h in nordic_event_string.headers[1]:
         headers[1].append(mainString2Main(h, -1))
 
@@ -826,7 +825,10 @@ def readNordic(nordic_file, fix_nordic):
     for nordic_string in nordic_strings:
         headers, headers_size = readHeaders(nordic_string)
         data = []
-    
+  
+        if headers_size == 0:
+            continue
+  
         for x in range(headers_size, len(nordic_string)):
             data.append(createStringPhaseData(nordic_string[x]))
         nordic_event = NordicEvent(headers, data, -1)
@@ -834,7 +836,6 @@ def readNordic(nordic_file, fix_nordic):
         if fix_nordic:
             nordicFix.fixNordicEvent(nordic_event)
         if not nordicValidation.validateNordic(nordic_event):
-            print("Nordic validation failed with event: \n{0}".format(headers[1][0].header[NordicMain.O_STRING]))
             nordic_failed.append(nordic_string)
             continue
 
@@ -842,6 +843,5 @@ def readNordic(nordic_file, fix_nordic):
 
     if not validation:
         return None
-   
- 
+
     return nordic_events, nordic_failed

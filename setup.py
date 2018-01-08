@@ -26,7 +26,6 @@ setup(
     tests_require=[
         "pytest",
         "coverage",
-        "coveralls",
     ],
     long_description=open("README.md").read(),
     entry_points='''

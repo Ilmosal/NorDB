@@ -69,6 +69,12 @@ class TestAddFloat2String(object):
     def testFloatWithLongDecimal(self):
         assert addFloat2String(3.1123413213, 5, 2, '0') == "03.11"
 
+    def testWithNegativeLong(self):
+        assert addFloat2String(-3.12341, 5, 2,'>') == "-3.12"
+
+    def testWithNegativeLong(self):
+        assert addFloat2String(-0.12341, 4, 2,'>') == "-.12"
+
     def testNoneValue(self):
         assert addFloat2String(None, 5, 2, '0') == "     "
 
