@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
+services:
+    - postgresql
 install:
     - pip install .
 # command to run tests

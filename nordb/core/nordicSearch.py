@@ -401,7 +401,7 @@ def getAllNordics(criteria):
         return None
 
     username = usernameUtilities.readUsername()
-
+    print(username)
     commands = {}
 
     for arg in criteria.keys():

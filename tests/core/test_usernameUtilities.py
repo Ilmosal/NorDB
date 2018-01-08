@@ -44,7 +44,7 @@ class TestLog2NorDB(object):
     def testLogFailWithWrongUser(self):
         usr = usernameUtilities.readUsername()
         usernameUtilities.confUser("wrong")
-        with pytest.raises(psycopg2.Error):
+        with pytest.raises(psycopg2.OperationalError):
             usernameUtilities.log2nordb()
         usernameUtilities.confUser(usr)
     
