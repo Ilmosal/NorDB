@@ -25,7 +25,7 @@ setup(
     ],
     tests_require=[
         "pytest",
-        "coverage",
+        "pytest-cov",
     ],
     long_description=open("README.md").read(),
     entry_points='''
