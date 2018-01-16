@@ -20,7 +20,7 @@ setup(
         "lxml",
         "paramiko",
         "Sphinx",
-        'unidecode',
+        "unidecode",
         "alabaster",
     ],
     tests_require=[

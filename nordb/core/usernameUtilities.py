@@ -10,6 +10,7 @@ import logging
 
 import psycopg2
 
+global MODULE_PATH
 MODULE_PATH = os.path.realpath(__file__)[:-len("core/usernameUtilities.py")]
 
 def confUser(username):

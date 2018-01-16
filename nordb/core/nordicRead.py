@@ -19,12 +19,12 @@ def readNordicFile(f):
     nordics.append([])
 
     for line in f:
-        if line.strip() == "" or None:
+        if line.strip() == "" or line is None:
             i += 1;
             nordics.append([])
         elif(len(line) < 81):
-            logging.error(emsg.format(len(line), line))
-            sys.exit()
+            #logging.error(emsg.format(len(line), line))
+            raise ValueError
         elif (line[79] == "7"):
             pass
         elif (line[79] == " "):

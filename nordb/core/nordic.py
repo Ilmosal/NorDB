@@ -31,6 +31,42 @@ class NordicEvent:
         self.data = data
         self.event_id = event_id
     
+    def __str__(self):
+        n_string = ""
+
+        n_string += str(self.headers[1][0]) + "\n"
+
+        if len(self.headers[5]) > 0:
+            n_string += str(self.headers[5][0]) + "\n"
+
+        if len(self.headers[6]) > 0:
+            n_string += str(self.headers[6][0]) + "\n"
+
+        for comment in self.headers[3]:
+            n_string += str(comment) + "\n"
+
+        for i in range(1, len(self.headers[1])):
+            h_main = self.headers[1][i]
+            n_string += str(h_main) + "\n"
+
+            for h_error in self.headers[5]:
+                try:
+                    if h_error.header[h_error.HEADER_ID] == h_main.header[h_main.ID]:
+                        n_string += str(h_error) + "\n"
+                except IndexError:
+                    if h_error.header[h_error.HEADER_ID] == i:
+                        n_string += str(h_error) + "\n"
+
+        for h_macro in self.headers[2]:
+            n_string += str(h_macro) + "\n"
+
+        n_string += createHelpHeaderString()
+       
+        for p_data in self.data:
+            n_string += str(p_data) + "\n"
+ 
+        return n_string
+    
 class NordicData:
     """
     A class that functions as a collection of enums. Contains the information of the phase data line of a nordic file. 
@@ -107,18 +143,18 @@ class NordicData:
         phase_string += addInteger2String(self.data[self.HOUR], 2, '0')
         phase_string += addInteger2String(self.data[self.MINUTE], 2, '0')
         phase_string += " "
-        phase_string += addFloat2String(self.data[self.SECOND], 5, 2, '>')
+        phase_string += addFloat2String(self.data[self.SECOND], 5, 2, '0')
         phase_string += " "
         phase_string += addInteger2String(self.data[self.SIGNAL_DURATION], 4, '>')
         phase_string += " "
         phase_string += addFloat2String(self.data[self.MAX_AMPLITUDE], 6, 1, '>')
         phase_string += " "
-        phase_string += addFloat2String(self.data[self.MAX_AMPLITUDE_PERIOD], 4, 1, '>')
+        phase_string += addFloat2String(self.data[self.MAX_AMPLITUDE_PERIOD], 4, 2, '<')
         phase_string += " "
         phase_string += addFloat2String(self.data[self.BACK_AZIMUTH], 5, 1, '>')
         phase_string += " "
-        phase_string += addFloat2String(self.data[self.APPARENT_VELOCITY], 4, 2, '>')
-        phase_string += addFloat2String(self.data[self.SIGNAL_TO_NOISE], 4, 2, '>')
+        phase_string += addFloat2String(self.data[self.APPARENT_VELOCITY], 4, 1, '>')
+        phase_string += addFloat2String(self.data[self.SIGNAL_TO_NOISE], 4, 1, '>')
         phase_string += addInteger2String(self.data[self.AZIMUTH_RESIDUAL], 3, '>')
         phase_string += addFloat2String(self.data[self.TRAVEL_TIME_RESIDUAL], 5, 1, '>')
         phase_string += addInteger2String(self.data[self.LOCATION_WEIGHT], 2, '>')   
@@ -290,7 +326,37 @@ class NordicMacroseismic:
         self.header = header
 
     def __str__(self): #TODO: THIS!
-        return "DOES NOT EXIST YET"         
+        h_string = "     "
+
+        h_string += addString2String(self.header[self.DESCRIPTION], 15, '<')
+        h_string += " "
+        h_string += addString2String(self.header[self.DIASTROPHISM_CODE], 1, '>')
+        h_string += addString2String(self.header[self.TSUNAMI_CODE], 1, '>')
+        h_string += addString2String(self.header[self.SEICHE_CODE], 1, '>')
+        h_string += addString2String(self.header[self.CULTURAL_EFFECTS], 1, '>')
+        h_string += addString2String(self.header[self.UNUSUAL_EFFECTS], 1, '>')
+        h_string += " "
+        h_string += addInteger2String(self.header[self.MAXIMUM_OBSERVED_INTENSITY], 2, '>')
+        h_string += addString2String(self.header[self.MAXIMUM_INTENSITY_QUALIFIER], 1, '>')
+        h_string += addString2String(self.header[self.INTENSITY_SCALE], 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MACROSEISMIC_LATITUDE], 6, 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MACROSEISMIC_LONGITUDE], 7, 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.header[self.MACROSEISMIC_MAGNITUDE], 3, 1, '>')
+        h_string += addString2String(self.header[self.TYPE_OF_MAGNITUDE], 1, '>')
+        h_string += addFloat2String(self.header[self.LOGARITHM_OF_RADIUS], 4, 2, '>')
+        h_string += addFloat2String(self.header[self.LOGARITHM_OF_AREA_1], 5, 2, '>')
+        h_string += addInteger2String(self.header[self.BORDERING_INTENSITY_1], 2, '>')
+        h_string += addFloat2String(self.header[self.LOGARITHM_OF_AREA_2], 5 ,2 , '>')
+        h_string += addInteger2String(self.header[self.BORDERING_INTENSITY_2], 2, '>')
+        h_string += " "
+        h_string += addString2String(self.header[self.QUALITY_RANK], 1, '>')
+        h_string += addString2String(self.header[self.REPORTING_AGENCY], 3, '>')
+        h_string += "    2"
+
+        return h_string      
 
 class NordicComment:
     """
@@ -387,6 +453,19 @@ class NordicWaveform:
 
         return h_string
 
+def createHelpHeaderString():
+    """
+    Function that returns the help header of type 7 as a string. 
+    
+    Header::
+        
+        " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\\n"
+
+    :return: The help header as a string
+    """
+    return " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
+ 
+
 def createStringMainHeader(header):
     """
     Function that creates NordicMain object with a list with values being strings
@@ -418,7 +497,7 @@ def createStringMainHeader(header):
     nordic_main[NordicMain.MAGNITUDE_2 ] = header[64:67].strip()
     nordic_main[NordicMain.TYPE_OF_MAGNITUDE_2 ] = header[67].strip()
     nordic_main[NordicMain.MAGNITUDE_REPORTING_AGENCY_2 ] = header[68:71].strip()
-    nordic_main[NordicMain.MAGNITUDE_3 ] = header[71:75].strip()
+    nordic_main[NordicMain.MAGNITUDE_3 ] = header[72:75].strip()
     nordic_main[NordicMain.TYPE_OF_MAGNITUDE_3 ] = header[75].strip()
     nordic_main[NordicMain.MAGNITUDE_REPORTING_AGENCY_3 ] = header[76:79].strip()
     nordic_main[NordicMain.O_STRING] = header
@@ -452,7 +531,7 @@ def createStringMacroseismicHeader(header):
     nordic_macroseismic[NordicMacroseismic.BORDERING_INTENSITY_1] = header[61:63].strip()
     nordic_macroseismic[NordicMacroseismic.LOGARITHM_OF_AREA_2] = header[63:68].strip()
     nordic_macroseismic[NordicMacroseismic.BORDERING_INTENSITY_2] = header[68:70].strip()
-    nordic_macroseismic[NordicMacroseismic.QUALITY_RANK] = header[72].strip()
+    nordic_macroseismic[NordicMacroseismic.QUALITY_RANK] = header[71].strip()
     nordic_macroseismic[NordicMacroseismic.REPORTING_AGENCY] = header[72:75].strip()
 
     return NordicMacroseismic(nordic_macroseismic)
@@ -617,7 +696,7 @@ def mainString2Main(main_string, event_id):
     main[NordicMain.MAGNITUDE_2]                    = returnFloat   (main_string.header[NordicMain.MAGNITUDE_2]) 
     main[NordicMain.TYPE_OF_MAGNITUDE_2]            = returnString  (main_string.header[NordicMain.TYPE_OF_MAGNITUDE_2])
     main[NordicMain.MAGNITUDE_REPORTING_AGENCY_2]   = returnString  (main_string.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_2])
-    main[NordicMain.MAGNITUDE_3]                    = returnInt     (main_string.header[NordicMain.MAGNITUDE_3])
+    main[NordicMain.MAGNITUDE_3]                    = returnFloat   (main_string.header[NordicMain.MAGNITUDE_3])
     main[NordicMain.TYPE_OF_MAGNITUDE_3]            = returnString  (main_string.header[NordicMain.TYPE_OF_MAGNITUDE_3])
     main[NordicMain.MAGNITUDE_REPORTING_AGENCY_3]   = returnString  (main_string.header[NordicMain.MAGNITUDE_REPORTING_AGENCY_3])
     main[NordicMain.EVENT_ID]                       = event_id

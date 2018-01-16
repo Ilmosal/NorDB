@@ -68,7 +68,7 @@ def checkForSameEvents(nordic_event, cur, ignore_duplicates):
     
     main = nordic_event.headers[1][0]
     print ("Your event:")
-    print (sql2nordic.create)
+    print (main)
 
     while True:
         ans = input("Event_id(-1 if none are, -9 if is but you want to skip event): ")
@@ -184,7 +184,7 @@ def checkForSimilarEvents(nordic_event, cur):
         print(("{0:< " + str(largest) +"}   {1}  {2}").format(e_i[0], e_i[1], sql2nordic.nordicEventToNordic(n_event)[0][:-2]))
     
     print ("Your event:")
-    print ("        " + nordic_event.headers[1][0].header[NordicMain.O_STRING])
+    print ("        " + str(nordic_event.headers[1][0]))
     while True:
         ans = input("Event_id(-1 if none are, -9 if you want to skip event, enter to choose the first event): ")
 

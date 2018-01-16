@@ -185,12 +185,19 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
             cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (e_id,))
     
         main_header_id = -1
-        for h in nordic_event.headers[1]:
+        for i in range(0, len(nordic_event.headers[1])):
+            h = nordic_event.headers[1][i]
             h.header[NordicMain.EVENT_ID] = event_id
+
             main_header_id = execute_command(  cur, 
                                                INSERT_COMMANDS[1], 
                                                h.header,
                                                True)
+
+            for h_error in nordic_event.headers[5]:
+                if h_error.header[h_error.HEADER_ID] == i:
+                    h_error.header[h_error.HEADER_ID] = main_header_id
+
         for h in nordic_event.headers[2]:
             h.header[NordicMacroseismic.EVENT_ID] = event_id
             execute_command(    cur, 
