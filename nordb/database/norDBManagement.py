@@ -13,36 +13,29 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("norDBManagement.py")]
 
-username = ""
-
 from nordb.core import usernameUtilities
+from nordb import settings
 
-def create_database():
+def createDatabase():
     """
     Method for creating the database if the database doesn't exist.
     """
-    username = usernameUtilities.readUsername()
-    try:
-        conn = psycopg2.connect("dbname=postgres user={0}".format(username))
-    except:
-        logging.error("Username is not correct! Reconfigure your username with -conf flag!")
-        sys.exit()
-
+    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
-    cur.execute("SELECT 1 FROM pg_database WHERE datname='nordb'")
+    cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
     if cur.fetchall():
         logging.error("Database already exists. Destroy the database with destroy and try again!")
         conn.close()
         sys.exit()
 
-    cur.execute(open(MODULE_PATH + "../sql/init_nordb.sql", "r").read())
+    cur.execute("CREATE DATABASE {0}".format(settings.dbname))
 
     conn.commit()
     conn.close()
     
-    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     
     cur.execute(open(MODULE_PATH + "../sql/nordic_event_root.sql", "r").read())
@@ -66,17 +59,15 @@ def create_database():
     conn.commit()
     conn.close()
 
-def destroy_database():
+def destroyDatabase():
     """
     Method for destroying the database if the database exists
     """
-    username = usernameUtilities.readUsername()
-
-    conn = psycopg2.connect("dbname=postgres user={0}".format(username))
+    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
-    cur.execute("SELECT 1 FROM pg_database WHERE datname='nordb'")
+    cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
     if not cur.fetchall():
         logging.error("Database doesn't exists. Exiting program.")
         conn.close()
@@ -84,7 +75,7 @@ def destroy_database():
 
     conn.close()
 
-    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("DROP SCHEMA public CASCADE")
@@ -92,12 +83,11 @@ def destroy_database():
     conn.commit()
     conn.close()
 
-
-    conn = psycopg2.connect("dbname=postgres user={0}".format(username))
+    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
-    cur.execute("DROP DATABASE nordb")
+    cur.execute("DROP DATABASE {0}".format(settings.dbname))
 
     conn.commit()
     conn.close()

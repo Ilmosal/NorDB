@@ -81,12 +81,7 @@ def readInstrument(instrument_id):
     :param int instrument_id: id of the instrument wanted
     :return: :class:`.Instrument` object
     """
-    try:
-        conn = psycopg2.connect("dbname = nordb user = {0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(SELECT_INSTRUMENT, (instrument_id, ))
@@ -103,8 +98,6 @@ def sql2Instrument(instrument_ids, output_path):
     :param array instrument_ids: Array of instrument ids you want to get from the database
     :param str output_path: path to the output file
     """
-    username = usernameUtilities.readUsername()
-
     instruments = []
 
     for instrument_id in instrument_ids:
@@ -121,14 +114,7 @@ def writeAllInstruments(output_path):
 
     :param str output_path: path to output_file
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user = {0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT id FROM instrument;")

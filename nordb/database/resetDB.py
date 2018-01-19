@@ -13,23 +13,13 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("resetDB.py")]
 
 from nordb.core import usernameUtilities
 
-username = ""
-
-#Clearing the database
 def resetDatabase():
     """
     Function for clearing the database from all of its data
 
     :returns: bool -- the return code, which tells if the operation was succesful or not
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     start =  time.time()
@@ -108,14 +98,7 @@ def resetEvents():
 
     :returns: bool -- the return code, which tells if the operation was successful or not
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     start =  time.time()
@@ -175,14 +158,7 @@ def resetStations():
 
     :returns: bool -- the return code which tells the user if the operation was successful or not
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     start =  time.time()

@@ -13,8 +13,6 @@ from lxml import etree
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2stationxml.py")]
 
-username = ""
-
 from nordb.database import sql2station, sql2sitechan
 from nordb.database.station2sql import Station, SiteChan
 from nordb.core import usernameUtilities
@@ -50,7 +48,7 @@ def station2stationxml(station):
         terminationDate = etree.SubElement(stationXML, "TerminationDate")
         terminationDate.text = str(station[Station.OFF_DATE]) + "T" + "00:00:00+00:00"
 
-    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT sitechan.id FROM sitechan, station WHERE station_code = %s AND sitechan.station_id = station.id", (station[Station.STATION_CODE],))
@@ -106,14 +104,7 @@ def writeNetworkToStationXML(network, output_path):
     :param str network: Network from which all the stations are taken from.
     :param str output_path: path to output file.
     """
-    username = usernameUtilities.readUsername() 
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return None
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT station.id FROM station, network where network.id = station.network_id AND network.network = %s;", (network,))

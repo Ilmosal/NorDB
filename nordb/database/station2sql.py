@@ -21,8 +21,6 @@ from nordb.validation.instrumentValidation import validateInstrument
 from nordb.validation.sensorValidation import validateSensor
 from nordb.validation import validationTools
 
-username = ""
-
 MONTH_CONV = {  "Jan": "01",
                 "Feb": "02",
                 "Mar": "03",
@@ -399,12 +397,7 @@ def insertSen2Database(sensor):
     :param Sensor sensor: sensor that will be inserted to the database
     :return: true or false depending on if the operation was successful or not 
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Could not connect to database!")
-        sys.exit()
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -425,12 +418,7 @@ def insertIns2Database(instrument, instrument_id):
     :param Instrument instrument: instrument that will be inserted to the database
     :returns: true or false depending on if the operation was successful or not 
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Could not connect to database!")
-        sys.exit()
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -460,12 +448,7 @@ def insertChan2Database(channel, css_id):
     :param int css_id: id for the css format which is different from the id in the database. Stupid, I know.
     :return: true or false depending on if the operation was succesful
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Could not connect to database!")
-        sys.exit()
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -493,7 +476,7 @@ def insertStat2Database(station):
     :param Station station: station that will be inserted to the database
     :return: True or False depending on if the operation was succesful
     """
-    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     search_stations = (
@@ -541,12 +524,7 @@ def strSen2Sen(sensor, instrument_id, channel_id, station_code):
     :param Sensor sensor: String array of all data in a sensor string array
     :return: The sensor array with info in correct format
     """
-    try: 
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database")
-        sys.exit()
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -636,7 +614,7 @@ def strChan2Chan(channel):
     :return: A :class:`.SiteChan` object with info in correct format
 
     """
-    conn = psycopg2.connect("dbname=nordb user={0}".format(username))
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -769,11 +747,7 @@ def getNetworkID(network):
     :param array station: Array of all station related information in their correct spaces
     :return: True or False depending on if the operation was succesful
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("error connecting to database")
-        return -1
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT id FROM network WHERE network = %s", (network.strip(),))
@@ -798,10 +772,7 @@ def readSensors(f_sensors, error_log):
     """
     sensors = []
 
-    username = usernameUtilities.readUsername()
-
-    for line in f_sensors:
-        sensors.append(readSensorInfoToString(line))
+    sensors.append(readSensorInfoToString(line))
 
     for sen in sensors:
         if sen[0] is None:
@@ -833,8 +804,6 @@ def readInstruments(f_instruments, error_log):
     """
     instruments = []
 
-    username = usernameUtilities.readUsername()
-
     for line in f_instruments:
         instruments.append(readInstrumentInfoToString(line))
 
@@ -865,8 +834,6 @@ def readChannels(f_channels, error_log):
     :returns: True or False depending on if the f_channels was loaded into database succesfully
     """
     channels = []
-    
-    username = usernameUtilities.readUsername()
     
     for line in f_channels:
         channels.append(readSiteChanInfoToString(line))
@@ -905,8 +872,6 @@ def readStations(f_stations, network, error_log):
             print("Station validation failed! Check error log {0} for more details.".format(error_log))
             return False
 
-    username = usernameUtilities.readUsername()
-    
     network_id = getNetworkID(network) 
 
     for stat in stations:

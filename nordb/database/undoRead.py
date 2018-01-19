@@ -83,13 +83,7 @@ def undoMostRecent():
     """
     Method that destroys the most recent additions to the database based on creation_info table
     """
-    username = usernameUtilities.readUsername()
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     
     cur.execute("SELECT id FROM creation_info ORDER BY creation_date DESC ")

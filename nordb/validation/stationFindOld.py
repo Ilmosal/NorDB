@@ -11,7 +11,6 @@ import logging
 import psycopg2
 
 from nordb.core import usernameUtilities
-username = ""
 
 FIND_STATION_QUERY =    (
                             "SELECT " +
@@ -61,8 +60,6 @@ def checkForSameStation(site):
         logging.error("Problems with postgres query! Error: {0}".format(e))
         
     ans = cur.fetchall()
-
-    
     
     pass
 

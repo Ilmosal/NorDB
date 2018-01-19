@@ -14,8 +14,6 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-username = ""
-
 SELECT_STATION =    (
                         "SELECT " +
                             "station_code, on_date, off_date, latitude, " +

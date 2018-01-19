@@ -325,7 +325,7 @@ class NordicMacroseismic:
     def __init__(self, header):
         self.header = header
 
-    def __str__(self): #TODO: THIS!
+    def __str__(self):
         h_string = "     "
 
         h_string += addString2String(self.header[self.DESCRIPTION], 15, '<')
@@ -514,11 +514,11 @@ def createStringMacroseismicHeader(header):
     nordic_macroseismic = [None]*20
 
     nordic_macroseismic[NordicMacroseismic.DESCRIPTION] = header[5:20].strip()
-    nordic_macroseismic[NordicMacroseismic.DIASTROPHISM_CODE] = header[22].strip()
-    nordic_macroseismic[NordicMacroseismic.TSUNAMI_CODE] = header[23].strip()
-    nordic_macroseismic[NordicMacroseismic.SEICHE_CODE] = header[24].strip()
-    nordic_macroseismic[NordicMacroseismic.CULTURAL_EFFECTS] = header[25].strip()
-    nordic_macroseismic[NordicMacroseismic.UNUSUAL_EFFECTS] = header[26].strip()
+    nordic_macroseismic[NordicMacroseismic.DIASTROPHISM_CODE] = header[21].strip()
+    nordic_macroseismic[NordicMacroseismic.TSUNAMI_CODE] = header[22].strip()
+    nordic_macroseismic[NordicMacroseismic.SEICHE_CODE] = header[23].strip()
+    nordic_macroseismic[NordicMacroseismic.CULTURAL_EFFECTS] = header[24].strip()
+    nordic_macroseismic[NordicMacroseismic.UNUSUAL_EFFECTS] = header[25].strip()
     nordic_macroseismic[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY] = header[27:29].strip()
     nordic_macroseismic[NordicMacroseismic.MAXIMUM_INTENSITY_QUALIFIER] = header[29].strip()
     nordic_macroseismic[NordicMacroseismic.INTENSITY_SCALE] = header[30:32].strip()
@@ -617,17 +617,17 @@ def createStringPhaseData(data):
 
     return NordicData(phase_data)
 
-def returnInt(integer):
+def returnInt(int_s):
     """
     Function that casts integer to a int or None if it's empty.
 
-    :param str integer: integer or empty string
+    :param str int_s: integer or empty string
     :return: Integer or None
     """
-    try:
-        return int(integer)
-    except:
+    if int_s.strip() is "":
         return None
+    else:
+        return int(int_s)
 
 def returnDate(date_s):
     """
@@ -636,10 +636,10 @@ def returnDate(date_s):
     :param str date_s: date or empty string
     :return: datetime or None
     """
-    try:
-        return date(year=int(date_s[:4]), month=int(date_s[5:7]), day=int(date_s[8:]))
-    except ValueError:
+    if date_s.strip() is "":
         return None
+    else:
+        return date(year=int(date_s[:4]), month=int(date_s[5:7]), day=int(date_s[8:]))
 
 def returnFloat(float_s):
     """
@@ -648,22 +648,22 @@ def returnFloat(float_s):
     :param str float_s: float or empty string
     :return: Float or None
     """
-    try:
-        return float(float_s)
-    except:
+    if float_s.strip() is "":
         return None
+    else:
+        return float(float_s)
 
-def returnString(string):
+def returnString(string_s):
     """
     Function that returns string or None if the string is empty.
 
     :param str string: the string value
     :return: string or None
     """
-    if string == "":
+    if string_s.strip() == "":
         return None
     else:
-        return string
+        return string_s.strip()
 
 def mainString2Main(main_string, event_id):
     """
@@ -718,7 +718,7 @@ def macroseismicString2Macroseismic(macro_string, event_id):
     macro[NordicMacroseismic.SEICHE_CODE]                   = returnString  (macro_string.header[NordicMacroseismic.SEICHE_CODE])
     macro[NordicMacroseismic.CULTURAL_EFFECTS]              = returnString  (macro_string.header[NordicMacroseismic.CULTURAL_EFFECTS])
     macro[NordicMacroseismic.UNUSUAL_EFFECTS]               = returnString  (macro_string.header[NordicMacroseismic.UNUSUAL_EFFECTS])
-    macro[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY]    = returnFloat   (macro_string.header[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY])
+    macro[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY]    = returnInt     (macro_string.header[NordicMacroseismic.MAXIMUM_OBSERVED_INTENSITY])
     macro[NordicMacroseismic.MAXIMUM_INTENSITY_QUALIFIER]   = returnString  (macro_string.header[NordicMacroseismic.MAXIMUM_INTENSITY_QUALIFIER])
     macro[NordicMacroseismic.INTENSITY_SCALE]               = returnString  (macro_string.header[NordicMacroseismic.INTENSITY_SCALE])
     macro[NordicMacroseismic.MACROSEISMIC_LATITUDE]         = returnFloat   (macro_string.header[NordicMacroseismic.MACROSEISMIC_LATITUDE])
@@ -727,9 +727,9 @@ def macroseismicString2Macroseismic(macro_string, event_id):
     macro[NordicMacroseismic.TYPE_OF_MAGNITUDE]             = returnString  (macro_string.header[NordicMacroseismic.TYPE_OF_MAGNITUDE])
     macro[NordicMacroseismic.LOGARITHM_OF_RADIUS]           = returnFloat   (macro_string.header[NordicMacroseismic.LOGARITHM_OF_RADIUS])
     macro[NordicMacroseismic.LOGARITHM_OF_AREA_1]           = returnFloat   (macro_string.header[NordicMacroseismic.LOGARITHM_OF_AREA_1])
-    macro[NordicMacroseismic.BORDERING_INTENSITY_1]         = returnFloat   (macro_string.header[NordicMacroseismic.BORDERING_INTENSITY_1])
+    macro[NordicMacroseismic.BORDERING_INTENSITY_1]         = returnInt     (macro_string.header[NordicMacroseismic.BORDERING_INTENSITY_1])
     macro[NordicMacroseismic.LOGARITHM_OF_AREA_2]           = returnFloat   (macro_string.header[NordicMacroseismic.LOGARITHM_OF_AREA_2])
-    macro[NordicMacroseismic.BORDERING_INTENSITY_2]         = returnFloat   (macro_string.header[NordicMacroseismic.BORDERING_INTENSITY_2])
+    macro[NordicMacroseismic.BORDERING_INTENSITY_2]         = returnInt     (macro_string.header[NordicMacroseismic.BORDERING_INTENSITY_2])
     macro[NordicMacroseismic.QUALITY_RANK]                  = returnString  (macro_string.header[NordicMacroseismic.QUALITY_RANK])
     macro[NordicMacroseismic.REPORTING_AGENCY]              = returnString  (macro_string.header[NordicMacroseismic.REPORTING_AGENCY])
     macro[NordicMacroseismic.EVENT_ID]                      = event_id
@@ -919,8 +919,5 @@ def readNordic(nordic_file, fix_nordic):
             continue
 
         nordic_events.append(nordicString2Nordic(nordic_event))
-
-    if not validation:
-        return None
 
     return nordic_events, nordic_failed

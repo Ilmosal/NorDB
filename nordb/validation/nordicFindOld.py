@@ -15,8 +15,6 @@ from nordb.core.utils import xstr
 from nordb.database import sql2nordic
 from nordb.database import getNordic
 
-username = ""
-
 def checkForSameEvents(nordic_event, cur, ignore_duplicates):
     """
     Method for finding same events compared to validated nordic string object and asking.
@@ -97,8 +95,6 @@ def checkForSimilarEvents(nordic_event, cur):
     :return: The id of the chosen same event
     :raises: exception in case something goes wrong
     """
-
-    username = usernameUtilities.readUsername()
 
     weight_string = "("
     values = ()

@@ -12,8 +12,6 @@ import psycopg2
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("sql2nordic.py")]
 
-username = ""
-
 from nordb.core.nordic import NordicMain, NordicMacroseismic, NordicComment
 from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
@@ -76,20 +74,13 @@ def writeNordicEvent(nordicEventId, usr_path, output):
     :param str output: name of the file. If None given, program will name the file according to it's timestamp
     :returns: True or False depending on if the operation was successful
     """
-    username = usernameUtilities.readUsername()
-
     try:
         int(nordicEventId)
     except:
         logging.error("Argument {0} is not a valid event id!".format(nordicEventId))
         return False
 
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
-        return
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     nordic = getNordic.readNordicEvent(cur, nordicEventId)

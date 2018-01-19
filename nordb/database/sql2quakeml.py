@@ -474,21 +474,13 @@ def writeQuakeML(nordic_event_ids, usr_path, output):
     :param str output: output file name
     :returns: True or False depending on if the write was succesful or not
     """
-    username = usernameUtilities.readUsername()
-
     for n_id in nordic_event_ids:
         try:
             int(n_id)
         except:
             logging.error("Argument {0} is not a valid event id!".format(n_id))
             return False
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     nordics = []

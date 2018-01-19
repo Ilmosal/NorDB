@@ -11,8 +11,6 @@ import logging
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
-username = ""
-
 from nordb.core import nordicRead
 from nordb.core import nordicFix
 from nordb.core import usernameUtilities
@@ -249,12 +247,7 @@ def create_creation_info():
         The creation id created
     """
     creation_id = -1
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return creation_id
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(INSERT_COMMANDS[8])
@@ -275,12 +268,7 @@ def delete_creation_info_if_unnecessary(creation_id):
     Returns:
         creation_id of the deleted object
     """
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return creation_id
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT  " +
@@ -335,7 +323,6 @@ def read2Database(f, event_type, fix_nordic, ignore_duplicates, no_duplicates, e
     :param bool no_duplicates: flag for if there are no duplicate events in the file compared to dapabase
     :return: True or False if the whole file has been successfully pushed to the database
     """
-    username = usernameUtilities.readUsername()
     creation_id = create_creation_info()
 
     try:

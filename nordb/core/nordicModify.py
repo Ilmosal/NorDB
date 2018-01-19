@@ -5,12 +5,12 @@ Functions and Classes
 ---------------------
 """
 
+#TODO: Remove all outprinting from the module and create exceptions for errors
+
 import logging
 import psycopg2
 
 from nordb.core import usernameUtilities
-
-username = ""
 
 def changeEventType(event_id, event_type):
     """
@@ -19,13 +19,7 @@ def changeEventType(event_id, event_type):
     :param int event_id: id of the event
     :param str event_type: new event type
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return -1
+    conn = usernameUtilities.log2nordb()
 
     cur = conn.cursor()
 
@@ -47,9 +41,6 @@ def changeEventType(event_id, event_type):
     conn.commit()
     conn.close()
 
-    print("Event type of event {0} is now {1}!".format(event_id, event_type))
-
-
 def changeEventRoot(event_id, root_id):
     """
     Method that changes the root_id of the event and checks if there are any events with same event_type. If there is and the event_type is not A or O, it will change the event type of the old event to O. if roo_id of -999 is given to the method, it will generate a new root_id for the event.
@@ -57,14 +48,7 @@ def changeEventRoot(event_id, root_id):
     :param int event_id: id of the event that needs to be moved
     :param int root_id: new existiting root id for the event
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return -1
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT id, event_type from nordic_event WHERE id = %s;", (event_id,))

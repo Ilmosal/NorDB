@@ -14,8 +14,6 @@ from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 from nordb.database.station2sql import Sensor
 
-username = ""
-
 SELECT_SENSOR = (   
                     "SELECT " +
                         "time, endtime, jdate, calratio, calper, " +
@@ -89,12 +87,7 @@ def readSensor(sensor_id):
     :param int sensor_id: id of the sensor wanted
     :returns: sensor list
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return None
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(SELECT_SENSOR, (sensor_id, ))
@@ -129,15 +122,7 @@ def writeAllSensors(output_path):
 
     :param str output_path: path to output_file
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        print ("Error connecting to the database")
-        return
-
+    conn = usernameUtilities.log2nordb() 
     cur = conn.cursor()
 
     cur.execute("SELECT sensor.id FROM sensor, station, sitechan WHERE sensor.channel_id = sitechan.id AND station.id = station_id ORDER BY station_code;")

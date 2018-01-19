@@ -14,7 +14,6 @@ import sys
 import socket
 import traceback
 import paramiko
-import psycopg2 
 
 from nordb.core import nordicRead
 from nordb.core import usernameUtilities
@@ -25,8 +24,6 @@ from nordb.database import nordic2sql
 from nordb.database import getNordic
 
 arcdata_cfg_path = "/b/fdc/config/arcdata_id.cfg"
-
-username = ""
 
 stat_locations =    {
                         "peak":"/net/peak/home/sysop/seiscomp3/acquisition/archive",
@@ -225,14 +222,7 @@ def getSeedFromNordicId(nordic_id):
     :param int nordic_id: id of the nordic event for which the miniseeds are fetched for
     :return: list of all filenames that was created with the operation
     """
-    username = usernameUtilities.readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid")
-        return
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     nordic = getNordic.readNordicEvent(cur, nordic_id)
@@ -256,6 +246,7 @@ def getSeedFromNordicId(nordic_id):
     for station in stations:
         filenames.extend(getSeed(station, year, days))
 
+    conn.close()
     return filenames 
 
 def getSeedFromNordicFile(nordic_file, fix_nordic):

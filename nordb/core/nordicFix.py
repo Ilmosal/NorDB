@@ -16,6 +16,7 @@ Functions and Classes
 """
 
 import math
+
 def fixMainData(header):
     """
     Method for fixing some of the common errors in main header.

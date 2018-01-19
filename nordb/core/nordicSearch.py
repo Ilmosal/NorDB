@@ -7,7 +7,6 @@ Functions and Classes
 
 from datetime import date
 import logging
-import psycopg2
 
 from nordb.core import usernameUtilities
 from nordb.database import getNordic
@@ -400,8 +399,7 @@ def getAllNordics(criteria):
     if not criteria:
         return None
 
-    username = usernameUtilities.readUsername()
-    print(username)
+
     commands = {}
 
     for arg in criteria.keys():
@@ -412,18 +410,14 @@ def getAllNordics(criteria):
             return -2
 
     search = createSearchQuery(commands)
-
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return -1
  
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(search[0], search[1])
     ans = cur.fetchall()
 
+    conn.close()
     return ans
 
 def searchEventRoot(criteria, verbose):
@@ -615,8 +609,6 @@ def searchNordic(criteria, verbose, output, event_root, user_path, output_format
     :param bool verbose: flag if all info from events need to be printed or just the main headers
     :return: list of event ids or none
     """
-    username = usernameUtilities.readUsername()
-
     if event_root:
         events = searchEventRoot(criteria, verbose)
         return

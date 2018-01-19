@@ -13,7 +13,7 @@ import fnmatch
 
 import click
 
-MODULE_PATH = os.path.realpath(__file__)[:-len("bin/NorDB.py")]
+MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 USER_PATH = os.getcwd()
 ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
 
@@ -67,17 +67,17 @@ def conf(repo, username):
     usernameUtilities.confUser(username) 
 
 @cli.command('search', short_help='search for events')
-@click.option('--date', '-d', default="-999", help="Search with date. Example:\n--date=12.01.2010")
-@click.option('--hour', '-h',default="-999", help="Search with hour. Example:\n--hour=14")
-@click.option('--minute', '-m', default="-999", help="Search with minute. Example:\n--minute=14")
-@click.option('--second', '-s', default="-999",  help="Search with second. Example:\n--second=59.02")
+@click.option('--date', '-dy', default="-999", help="Search with date. Example:\n--date=12.01.2010")
+@click.option('--hour', '-hr',default="-999", help="Search with hour. Example:\n--hour=14")
+@click.option('--minute', '-mn', default="-999", help="Search with minute. Example:\n--minute=14")
+@click.option('--second', '-sc', default="-999",  help="Search with second. Example:\n--second=59.02")
 @click.option('--latitude', '-la', default="-999", help="Search with latitude. Example:\n--latitude=69.09")
 @click.option('--longitude', '-lo', default="-999", help="Search with longitude. Example:\n--longitude=69.09")
 @click.option('--magnitude', '-ma', default="-999", help="Search with magnitude. Example:\n--magnitude=69.09")
 @click.option('--depth', '-de', default="-999", help="Search with depth. Example:\n--depth=9.9")
-@click.option('--event-type', '-e', default="-999", help="Search with event-type. Example:\n--event-type=F")
+@click.option('--event-type', '-et', default="-999", help="Search with event-type. Example:\n--event-type=F")
 @click.option('--distance-indicator', '-di', default="-999", help="Search with distance-indicator. Example:\n--distance-indicator=R")
-@click.option('--event-desc-id', '-eid', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
+@click.option('--event-desc-id', '-ed', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
 @click.option('--event-id', '-id', default="-999", help="\b Search with event-id. Example:\n--event-id=123")
 @click.option('--verbose', '-v', is_flag=True, help="Print the whole nordic file instead of the main header.")
 @click.option('--output', '-o', type=click.Path(readable=True), help="file to which all events found are appended")
@@ -340,7 +340,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
 @click.pass_obj
 def create(repo):
     """This command creates the nordb dabase and inserts the required tables to the database. If you want to destroy the database beforehand remember to destroy the database with destroy command beforehand"""
-    norDBManagement.create_database()
+    norDBManagement.createDatabase()
     click.echo("Database created!")
 
 @cli.command('destroy', short_help='destroy database')
@@ -348,7 +348,7 @@ def create(repo):
 @click.pass_obj
 def destroy(repo):
     """Destroys the database. WARNING: this command will delete all information in the database"""
-    norDBManagement.destroy_database()
+    norDBManagement.destroyDatabase()
     click.echo("Database destroyed!")
 
 @cli.command('reset', short_help='reset database')
@@ -422,7 +422,7 @@ def get(repo, event_id, event_id_file, output_format, output):
 
 @cli.command('getseed', short_help='get miniseed')
 @click.option('--event_id', '-id', default=-1, type=click.INT, help="Get all miniseeds related to the nordic event with this id")
-@click.option('--nfile', '-f', default=None, type=click.Path(exists=True, readable=True), help="Get all miniseeds related to this nordic file")
+@click.option('--nfile', '-nf', default=None, type=click.Path(exists=True, readable=True), help="Get all miniseeds related to this nordic file")
 @click.option('--fix', '-f', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
 @click.argument('station', required=False, default=None, type=click.STRING)
 @click.argument('year', required=False, default=None, type=click.INT)

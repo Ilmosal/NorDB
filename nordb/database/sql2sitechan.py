@@ -14,8 +14,6 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-username = ""
-
 SELECT_SITECHAN =  ("SELECT"                                                            +
                     "   station.station_code, sitechan.channel_code, sitechan.on_date, sitechan.off_date, "    +
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             +
@@ -88,12 +86,7 @@ def readSitechan(sitechan_id):
     :param int sitechan_id: id of the sitechan wanted
     :returns: sitechan as a list
     """
-    try: 
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg.Error as e:
-        logging.error(e.pgerror)
-        return None
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(SELECT_SITECHAN, (sitechan_id,))
@@ -126,14 +119,7 @@ def writeAllSitechans(output_path):
 
     :param str output_path: path to outputfile
     """
-    username = usernameUtilities.readUsername()
-
-    try: 
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return None
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("SELECT id FROM sitechan")

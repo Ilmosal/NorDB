@@ -9,9 +9,9 @@ import os
 import logging
 
 import psycopg2
+from nordb import settings
 
-global MODULE_PATH
-MODULE_PATH = os.path.realpath(__file__)[:-len("core/usernameUtilities.py")]
+MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 def confUser(username):
     """
@@ -19,26 +19,11 @@ def confUser(username):
 
     :param str username: the username given by user
     """
-    f = open(MODULE_PATH + ".user.config", "w")
+    print(MODULE_PATH + os.sep + ".user.config")
+    f = open(MODULE_PATH + os.sep + ".user.config", "w")
     f.write(username)
     f.close()
-
-def readUsername():
-    """
-    Method for reading the .user.config file and loading it on the module that requires it.
-    
-    :return: The username as a string
-    :raises: IOError if there is no .user.config
-    """
-    try:
-        f_user = open(MODULE_PATH + ".user.config")
-        username = f_user.readline().strip()
-        f_user.close()
-    except:
-        raise FileNotFoundError
-        #logging.error("No .user.config file!! Run the program with conf command to initialize the .user.config")
-        #sys.exit(-1)
-    return username
+    settings.updateUsername()
 
 def log2nordb():
     """
@@ -46,14 +31,6 @@ def log2nordb():
     
     :return: psycopg2.Connect object
     """
-    username = readUsername()
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user = {0}".format(username))
-    except psycopg2.Error as e:
-        raise e
-        #logging.error("Program couldn't connect to the database!\nError: {0}".format(e))
-        #print("Problem with connecting! See error messages in error logs")
-        #sys.exit()
+    conn = psycopg2.connect("dbname = {0} user = {1}".format(settings.dbname, settings.username))
 
     return conn

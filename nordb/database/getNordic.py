@@ -5,7 +5,6 @@ Functions and Classes
 ---------------------
 """
 
-import psycopg2
 import logging
 
 from nordb.core import nordic

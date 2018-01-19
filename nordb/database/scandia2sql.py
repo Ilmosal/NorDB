@@ -10,8 +10,6 @@ from nordb.core import usernameUtilities
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("scandia2sql.py")]
 
-username = ""
-
 SCANDIA_INSERT = "INSERT INTO scandia_header (event_id, source_ref, origin_questionability, year, month, day, hour, minute, second, epicenter_latitude, epicenter_longitude, origin_time_uncertainty, location_uncertainty, focal_depth, depth_identification_code, magnitude_1, magnitude_scale_1, magnitude_2, magnitude_scale_2, magnitude_3, magnitude_scale_3, maximum_intensity, macroseismic_observation_flag, macroseismic_reference, mean_radius_of_area_percetibility, region_code, number_of_stations_used, max_azimuth_gap, min_epicenter_to_station_distance) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
 SCANDIA_SELECT = "SELECT event_id FROM nordic_header_main, nordic_event WHERE nordic_event.id = nordic_header_main.event_id AND nordic_event.event_type = 'F' AND nordic_header_main.date = %s AND nordic_header_main.hour = %s AND nordic_header_main.minute = %s AND nordic_header_main.second = %s AND nordic_header_main.epicenter_latitude = %s AND nordic_header_main.epicenter_longitude = %s"
@@ -148,16 +146,10 @@ def execute_command(cur, command, vals, scandia):
         sys.exit(-1)
 
 def read_scandia_file(f):
-    username = usernameUtilities.readUsername()
     scandias = []
     validation = True
 
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     for line in f:
