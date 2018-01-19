@@ -29,7 +29,6 @@ import psycopg2
 QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
 
 AUTHORITY_ID = "wh.atis.ids"
-NETWORK_CODE = "netcode"
 
 EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthquake", 'E':"explosion", 'P':"explosion" ,'I':"induced or triggered event" ,'V': "volcanic eruption", 'X':"landslide", 'A':"not reported" }
 PICK_POLARITY_CONVERSION = {'C': "positive", 'D': "negative", "+": "undecidable", "-": "undecidable"}
@@ -158,7 +157,7 @@ def addPick(event, nordic, phase_data):
 
     #Pick waveform ID
     waveform_id = etree.SubElement(pick, "waveformID")
-    waveform_id.attrib["networkCode"] = "" + NETWORK_CODE
+    waveform_id.attrib["networkCode"] = "" + nordic.headers[2][0].header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1]
     waveform_id.attrib["stationCode"] = phase_data.data[NordicData.STATION_CODE]
     if phase_data.data[NordicData.SP_INSTRUMENT_TYPE] is not None and phase_data.data[NordicData.SP_COMPONENT] is not None:
         waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.data[NordicData.SP_INSTRUMENT_TYPE]] + phase_data.data[NordicData.SP_COMPONENT]

@@ -436,12 +436,7 @@ def searchEventRoot(criteria, verbose):
     for e in events:
         e_ids += (e[0],)
 
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     e_roots_tmp = ()
@@ -492,12 +487,7 @@ def searchWithEventId(event_id):
     :param int event_id: id of the event that is being searched
     :return: Relevant information from the event: (event_id, event_type, distance_indicator, event_desc_id)
     """
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return -1
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
  
     cur.execute("SELECT nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MIN(event_type) from nordic_event GROUP BY root_id) AND nordic_event.id = %s AND nordic_header_main.event_id = nordic_event.id LIMIT 1;", (event_id,)) 
@@ -528,12 +518,7 @@ def printNordic(events, criteria, verbose):
                 print(key + ": " + criteria[key] + " ", end='')
             print("\n--------------------------------------------------------------------------------------------")
 
-        try:
-            conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-        except:
-            logging.error("Couldn't connect to database!!")
-            return None
- 
+        conn = usernameUtilities.log3nordb() 
         cur = conn.cursor()
 
         if verbose:
@@ -574,12 +559,7 @@ def searchWithCriteria(criteria):
 
     search = createSearchQuery(commands)
 
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to database!!")
-        return None
- 
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(search[0], search[1])
