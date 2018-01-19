@@ -157,7 +157,7 @@ def addPick(event, nordic, phase_data):
 
     #Pick waveform ID
     waveform_id = etree.SubElement(pick, "waveformID")
-    waveform_id.attrib["networkCode"] = "" + nordic.headers[2][0].header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1]
+    waveform_id.attrib["networkCode"] = "" + nordic.headers[1][0].header[NordicMain.MAGNITUDE_REPORTING_AGENCY_1]
     waveform_id.attrib["stationCode"] = phase_data.data[NordicData.STATION_CODE]
     if phase_data.data[NordicData.SP_INSTRUMENT_TYPE] is not None and phase_data.data[NordicData.SP_COMPONENT] is not None:
         waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.data[NordicData.SP_INSTRUMENT_TYPE]] + phase_data.data[NordicData.SP_COMPONENT]
