@@ -9,8 +9,6 @@ import sys
 
 import psycopg2
 
-MODULE_PATH = os.path.realpath(__file__)[:-len("resetDB.py")]
-
 from nordb.core import usernameUtilities
 
 def resetDatabase():

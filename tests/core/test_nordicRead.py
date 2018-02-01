@@ -83,12 +83,11 @@ DUMMY_NORDIC_TOO_SHORT =  io.StringIO (
                 )
 
 class TestReadNordicFile(object):
-
     def testSuccesfullRead(self):
         nordics = readNordicFile(DUMMY_NORDIC)
         assert len(nordics[0]) == 35
     
     def testTooShortLineRead(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             readNordicFile(DUMMY_NORDIC_TOO_SHORT)
 

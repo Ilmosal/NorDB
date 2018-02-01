@@ -1,0 +1,285 @@
+"""
+This module contains all class information related to Nordic Events.
+
+Functions and Classes
+---------------------
+"""
+import operator
+
+from nordb.core.validationTools import validateFloat
+from nordb.core.validationTools import validateInteger
+from nordb.core.validationTools import validateString
+from nordb.core.validationTools import validateDate
+from nordb.core.utils import addString2String
+from nordb.core.utils import addInteger2String
+from nordb.core.utils import addFloat2String
+
+class NordicMacroseismic:
+    """
+    A class that functions as a collection of enums. Contains the information of the macroseismic header line of a nordic file. 
+    :param list header: The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
+    :ivar int header_type: This value tells that this is a NordicMacroseismic object. Value of 2
+    :ivar int DESCRIPTION: Location of the description of the event. Value of 0
+    :ivar int DIASTROPHISM_CODE: Location of the diastrophism code of the event. Value of 1
+    :ivar int TSUNAMI_CODE: Location of the tsunami code of the event. Value of 2
+    :ivar int SEICHE_CODE: Location of the seiche_code of the event. Value of 3 
+    :ivar int CULTURAL_EFFECTS: Location of the cultural effects of the event. Value of 4
+    :ivar int UNUSUAL_EFFECTS: Location of the unusual effects of the event. Value of 5
+    :ivar int MAXIMUM_OBSERVED_INTENSITY: Location of the maximum observed intensity of the event. Value of 6
+    :ivar int MAXIMUM_INTENSITY_QUALIFIER: Location of the maximum intensity qualifier of the event. Value of 7
+    :ivar int INTENSITY_SCALE: Location of the intensity scale of the event. Value of 8
+    :ivar int MACROSEISMIC_LATITUDE: Location of the macroseismic latitude of the event. Value of 9
+    :ivar int MACROSEISMIC_LONGITUDE: Location of the macroseismic longitude of the event. Value of 10
+    :ivar int MACROSEISMIC_MAGNITUDE: Location of the macroseismic magnitude of the event. Value of 11
+    :ivar int TYPE_OF_MAGNITUDE: Location of the type of magnitude of the event. Value of 12
+    :ivar int LOGARITHM_OF_RADIUS: Location of the logarithm of radius of the event. Value of 13
+    :ivar int LOGARITHM_OF_AREA_1: Location of the logarithm of area 1 of the event. Value of 14
+    :ivar int BORDERING_INTENSITY_1: Location of the bordering intensity 1 of the event. Value of 15
+    :ivar int LOGARITHM_OF_AREA_2: Location of the logarithm of area 2 of the event. Value of 16
+    :ivar int BORDERING_INTENSITY_2: Location of the bordering intensity 2 of the event. Value of 17
+    :ivar int QUALITY_RANK: Location of the quality rank of the event. Value of 18
+    :ivar int REPORTING_AGENCY: Location of the reporting agency of the event. Value of 19
+    :ivar int EVENT_ID: Location of the event id of the event. Value of 20
+    :ivar int ID: Location of the id of the event. Value of 21
+    """
+    header_type = 2
+    DESCRIPTION = 0
+    DIASTROPHISM_CODE = 1
+    TSUNAMI_CODE = 2
+    SEICHE_CODE = 3 
+    CULTURAL_EFFECTS = 4
+    UNUSUAL_EFFECTS = 5
+    MAXIMUM_OBSERVED_INTENSITY = 6
+    MAXIMUM_INTENSITY_QUALIFIER = 7
+    INTENSITY_SCALE = 8
+    MACROSEISMIC_LATITUDE = 9
+    MACROSEISMIC_LONGITUDE = 10
+    MACROSEISMIC_MAGNITUDE = 11
+    TYPE_OF_MAGNITUDE = 12
+    LOGARITHM_OF_RADIUS = 13
+    LOGARITHM_OF_AREA_1 = 14
+    BORDERING_INTENSITY_1 = 15
+    LOGARITHM_OF_AREA_2 = 16
+    BORDERING_INTENSITY_2 = 17
+    QUALITY_RANK = 18
+    REPORTING_AGENCY = 19
+    EVENT_ID = 20
+    H_ID = 21
+
+    def __init__(self, header):
+        self.description = header[self.DESCRIPTION]
+        self.diastrophism_code = header[self.DIASTROPHISM_CODE]
+        self.tsunami_code = header[self.TSUNAMI_CODE]
+        self.seiche_code = header[self.SEICHE_CODE]
+        self.cultural_effects = header[self.CULTURAL_EFFECTS]
+        self.unusual_effects = header[self.UNUSUAL_EFFECTS]
+        self.maximum_observed_intensity = header[self.MAXIMUM_OBSERVED_INTENSITY]
+        self.maximum_intensity_qualifier = header[self.MAXIMUM_INTENSITY_QUALIFIER]
+        self.intensity_scale = header[self.INTENSITY_SCALE]
+        self.macroseismic_latitude = header[self.MACROSEISMIC_LATITUDE]
+        self.macroseismic_longitude = header[self.MACROSEISMIC_LONGITUDE]
+        self.macroseismic_magnitude = header[self.MACROSEISMIC_MAGNITUDE]
+        self.type_of_magnitude = header[self.TYPE_OF_MAGNITUDE]
+        self.logarithm_of_radius = header[self.LOGARITHM_OF_RADIUS]
+        self.logarithm_of_area_1 = header[self.LOGARITHM_OF_AREA_1]
+        self.bordering_intensity_1 = header[self.BORDERING_INTENSITY_1]
+        self.logarithm_of_area_2 = header[self.LOGARITHM_OF_AREA_2]
+        self.bordering_intensity_2 = header[self.BORDERING_INTENSITY_2]
+        self.quality_rank = header[self.QUALITY_RANK]
+        self.reporting_agency = header[self.REPORTING_AGENCY]
+        self.event_id = header[self.EVENT_ID]
+        self.h_id = header[self.H_ID]
+
+    description = property(operator.attrgetter('_description'))
+    
+    @description.setter
+    def description(self, val):
+        val_description = validateString(val, "description", 0, 15, "", False, self.header_type)
+        self._description = val_description
+
+    diastrophism_code = property(operator.attrgetter('_diastrophism_code'))
+    
+    @diastrophism_code.setter
+    def diastrophism_code(self, val):
+        val_diastrophism_code = validateString(val, "diastrophism_code", 0, 1, "FUD ", True, self.header_type)
+        self._diastrophism_code = val_diastrophism_code
+
+    tsunami_code = property(operator.attrgetter('_tsunami_code'))
+    
+    @tsunami_code.setter
+    def tsunami_code(self, val):
+        val_tsunami_code = validateString(val, "tsunami_code", 0, 1, "TQ ", True, self.header_type)
+        self._tsunami_code = val_tsunami_code
+
+    seiche_code = property(operator.attrgetter('_seiche_code'))
+    
+    @seiche_code.setter
+    def seiche_code(self, val):
+        val_seiche_code = validateString(val, "seiche_code", 0, 1, "SFQ ", True, self.header_type)
+        self._seiche_code = val_seiche_code
+
+    cultural_effects = property(operator.attrgetter('_cultural_effects'))
+    
+    @cultural_effects.setter
+    def cultural_effects(self, val):
+        val_cultural_effects = validateString(val, "cultural_effects", 0, 1, "CDFH ", True, self.header_type)
+        self._cultural_effects = val_cultural_effects
+
+    unusual_effects = property(operator.attrgetter('_unusual_effects'))
+    
+    @unusual_effects.setter
+    def unusual_effects(self, val):
+        val_unusual_effects = validateString(val, "unusual_effects", 0, 1, "LGSBCVOM", True, self.header_type)
+        self._unusual_effects = val_unusual_effects
+
+    maximum_observed_intensity = property(operator.attrgetter('_maximum_observed_intensity'))
+    
+    @maximum_observed_intensity.setter
+    def maximum_observed_intensity(self, val):
+        val_maximum_observed_intensity = validateInteger(val, "maximum_observed_intensity", 0, 20, True, self.header_type)
+        self._maximum_observed_intensity = val_maximum_observed_intensity
+
+    maximum_intensity_qualifier = property(operator.attrgetter('_maximum_intensity_qualifier'))
+    
+    @maximum_intensity_qualifier.setter
+    def maximum_intensity_qualifier(self, val):
+        val_maximum_intensity_qualifier = validateString(val, "maximum_intensity_qualifier", 0, 1, "+- ", True, self.header_type)
+        self._maximum_intensity_qualifier = val_maximum_intensity_qualifier
+
+    intensity_scale = property(operator.attrgetter('_intensity_scale'))
+    
+    @intensity_scale.setter
+    def intensity_scale(self, val):
+        val_intensity_scale = validateString(val, "intensity_scale", 0, 2, ["MM", "RF", "CS", "SK"], True, self.header_type)
+        self._intensity_scale = val_intensity_scale
+
+    macroseismic_latitude = property(operator.attrgetter('_macroseismic_latitude'))
+    
+    @macroseismic_latitude.setter
+    def macroseismic_latitude(self, val):
+        val_macroseismic_latitude = validateFloat(val, "macroseismic_latitude", -90.0, 90.0, True, self.header_type)
+        self._macroseismic_latitude = val_macroseismic_latitude
+
+    macroseismic_longitude = property(operator.attrgetter('_macroseismic_longitude'))
+    
+    @macroseismic_longitude.setter
+    def macroseismic_longitude(self, val):
+        val_macroseismic_longitude = validateFloat(val, "macroseismic_longitude", -180.0, 180.0, True, self.header_type)
+        self._macroseismic_longitude = val_macroseismic_longitude
+
+    macroseismic_magnitude = property(operator.attrgetter('_macroseismic_magnitude'))
+    
+    @macroseismic_magnitude.setter
+    def macroseismic_magnitude(self, val):
+        val_macroseismic_magnitude = validateFloat(val, "macroseismic_magnitude", 0.0, 20.0, True, self.header_type)
+        self._macroseismic_magnitude = val_macroseismic_magnitude
+
+    type_of_magnitude = property(operator.attrgetter('_type_of_magnitude'))
+    
+    @type_of_magnitude.setter
+    def type_of_magnitude(self, val):
+        val_type_of_magnitude = validateString(val, "type_of_magnitude", 0, 1, "IAR*", True, self.header_type)
+        self._type_of_magnitude = val_type_of_magnitude
+
+    logarithm_of_radius = property(operator.attrgetter('_logarithm_of_radius'))
+    
+    @logarithm_of_radius.setter
+    def logarithm_of_radius(self, val):
+        val_logarithm_of_radius = validateFloat(val, "logarithm_of_radius", 0.0, 99.99, True, self.header_type)
+        self._logarithm_of_radius = val_logarithm_of_radius
+
+    logarithm_of_area_1 = property(operator.attrgetter('_logarithm_of_area_1'))
+    
+    @logarithm_of_area_1.setter
+    def logarithm_of_area_1(self, val):
+        val_logarithm_of_area_1 = validateFloat(val, "logarithm_of_area_1", 0.0, 99.99, True, self.header_type)
+        self._logarithm_of_area_1 = val_logarithm_of_area_1
+
+    bordering_intensity_1 = property(operator.attrgetter('_bordering_intensity_1'))
+    
+    @bordering_intensity_1.setter
+    def bordering_intensity_1(self, val):
+        val_bordering_intensity_1 = validateInteger(val, "bordering_intensity_1", 0, 99, True, self.header_type)
+        self._bordering_intensity_1 = val_bordering_intensity_1
+
+    logarithm_of_area_2 = property(operator.attrgetter('_logarithm_of_area_2'))
+    
+    @logarithm_of_area_2.setter
+    def logarithm_of_area_2(self, val):
+        val_logarithm_of_area_2 = validateFloat(val, "logarithm_of_area_2", 0.0, 99.99, True, self.header_type)
+        self._logarithm_of_area_2 = val_logarithm_of_area_2
+
+    bordering_intensity_2 = property(operator.attrgetter('_bordering_intensity_2'))
+    
+    @bordering_intensity_2.setter
+    def bordering_intensity_2(self, val):
+        val_bordering_intensity_2 = validateInteger(val, "bordering_intensity_2", 0, 99, True, self.header_type)
+        self._bordering_intensity_2 = val_bordering_intensity_2
+
+    reporting_agency = property(operator.attrgetter('_reporting_agency'))
+    
+    @reporting_agency.setter
+    def reporting_agency(self, val):
+        val_reporting_agency = validateString(val, "reporting_agency", 3, 3, None, False, self.header_type)
+        self._reporting_agency = val_reporting_agency
+
+    def __str__(self):
+        h_string = "     "
+
+        h_string += addString2String(self.description, 15, '<')
+        h_string += " "
+        h_string += addString2String(self.diastrophism_code, 1, '>')
+        h_string += addString2String(self.tsunami_code, 1, '>')
+        h_string += addString2String(self.seiche_code, 1, '>')
+        h_string += addString2String(self.cultural_effects, 1, '>')
+        h_string += addString2String(self.unusual_effects, 1, '>')
+        h_string += " "
+        h_string += addInteger2String(self.maximum_observed_intensity, 2, '>')
+        h_string += addString2String(self.maximum_intensity_qualifier, 1, '>')
+        h_string += addString2String(self.intensity_scale, 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.macroseismic_latitude, 6, 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.macroseismic_longitude, 7, 2, '>')
+        h_string += " "
+        h_string += addFloat2String(self.macroseismic_magnitude, 3, 1, '>')
+        h_string += addString2String(self.type_of_magnitude, 1, '>')
+        h_string += addFloat2String(self.logarithm_of_radius, 4, 2, '>')
+        h_string += addFloat2String(self.logarithm_of_area_1, 5, 2, '>')
+        h_string += addInteger2String(self.bordering_intensity_1, 2, '>')
+        h_string += addFloat2String(self.logarithm_of_area_2, 5 ,2 , '>')
+        h_string += addInteger2String(self.bordering_intensity_2, 2, '>')
+        h_string += " "
+        h_string += addString2String(self.quality_rank, 1, '>')
+        h_string += addString2String(self.reporting_agency, 3, '>')
+        h_string += "    2"
+
+        return h_string      
+
+    def getAsList(self):
+        header_list = []
+        header_list.append(self.description)
+        header_list.append(self.diastrophism_code)
+        header_list.append(self.tsunami_code)
+        header_list.append(self.seiche_code)
+        header_list.append(self.cultural_effects)
+        header_list.append(self.unusual_effects)
+        header_list.append(self.maximum_observed_intensity)
+        header_list.append(self.maximum_intensity_qualifier)
+        header_list.append(self.intensity_scale)
+        header_list.append(self.macroseismic_latitude)
+        header_list.append(self.macroseismic_longitude)
+        header_list.append(self.macroseismic_magnitude)
+        header_list.append(self.type_of_magnitude)
+        header_list.append(self.logarithm_of_radius)
+        header_list.append(self.logarithm_of_area_1)
+        header_list.append(self.bordering_intensity_1)
+        header_list.append(self.logarithm_of_area_2)
+        header_list.append(self.bordering_intensity_2)
+        header_list.append(self.quality_rank)
+        header_list.append(self.reporting_agency)
+        header_list.append(self.event_id)
+
+        return header_list
+
+

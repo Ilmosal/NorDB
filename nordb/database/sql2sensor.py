@@ -12,7 +12,7 @@ from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
-from nordb.database.station2sql import Sensor
+from nordb.nordic.sensor import Sensor
 
 SELECT_SENSOR = (   
                     "SELECT " +

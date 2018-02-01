@@ -6,18 +6,18 @@ Database
 .. toctree::
     :maxdepth: 1
 
-    getNordic.rst
+    instrument2sql.rst
     norDBManagement.rst
+    nordicFindOld.rst
     nordic2sql.rst
     resetDB.rst
+    sensor2sql.rst
+    sitechan2sql.rst
     sql2instrument.rst
     sql2nordic.rst
-    sql2quakeml.rst
-    sql2sc3.rst
     sql2sensor.rst
     sql2sitechan.rst
     sql2station.rst
-    sql2stationxml.rst
     station2sql.rst
     undoRead.rst
-    
+    nordicSearch.rst    

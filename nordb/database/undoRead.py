@@ -8,8 +8,6 @@ import psycopg2
 import logging
 import os
 
-MODULE_PATH = os.path.realpath(__file__)[:-len("undoRead.py")]
-
 from nordb.core import usernameUtilities
 
 def removeEvent(event_id, cur):
@@ -48,7 +46,6 @@ def removeEvent(event_id, cur):
     if cur.fetchone()[0] == 0:
         cur.execute("DELETE FROM nordic_event_root WHERE id = %s", (ans[1],))
 
-
 def removeEventsWithCreationId(creation_id):
     """
     Method that removes all the events that correspond to a creation id. Operation also destroys the creation info of the creation_id.
@@ -56,13 +53,7 @@ def removeEventsWithCreationId(creation_id):
     :param int creation_id: creation id that needs to be cleared
     :return: true or False depending on if the operation was succesful
     """
-    print("Removing events with creation_id {0}".format(creation_id))
-    try:
-        conn = psycopg2.connect("dbname=nordb user={0}".format(username))
-    except:
-        logging.error("Couldn't connect to the database. Either you haven't initialized the database or your username is not valid!")
-        return False
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     
     cur.execute("SELECT id FROM nordic_event WHERE creation_id = %s", (creation_id,))
@@ -90,8 +81,7 @@ def undoMostRecent():
     creation_id = cur.fetchone()
 
     if creation_id is None:
-        logging.error("Database is empty!!")
-        return
+        raise Exception #No creation ids
 
     cur.execute("SELECT id FROM nordic_event WHERE creation_id = %s", (creation_id,))
 

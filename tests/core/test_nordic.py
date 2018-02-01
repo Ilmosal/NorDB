@@ -2,7 +2,6 @@ import io
 from datetime import date
 import pytest
 from nordb.core.nordic import *
-from nordb.validation import nordicValidation
 
 DUMMY_NORDIC_FILE =  io.StringIO(
     " 2013 0103 0613 04.3 LE 63.635  22.913  0.0F HEL 15 0.3 1.6LHEL 1.4LUPP        1\n"
@@ -106,89 +105,3 @@ class TestReadNordic(object):
         DUMMY_NORDIC_FAULTY_FILE.seek(0)
         assert len(nordics) == 1
         assert len(nordics_fail) == 0
-
-class TestNordicData(object):
-    def testCorrectLine(self):
-        line = " VAFB BZ EAML0  C+0613 15.30    5 1233.1 0.20 122.1 12.112.2312123.0 9   67 191 \n"
-        assert str(dataString2Data(createStringPhaseData(line), -1)) == line[:-1]
-
-class TestNordicMain(object):
-    def testCorrectLine(self):
-        line = " 2013 0103 0613 04.3ALE 63.635  22.913  0.0FFHEL 15 0.3 1.6LHEL 1.4CUPP 1.3CBER1\n"
-        assert str(mainString2Main(createStringMainHeader(line), -1)) == line[:-1]
-
-class TestNordicMacroseismic(object):
-    def testCorrectLine(self):
-        line = "     ANY_DESCRIPTIVE FTSCL 12+MM  63.12   22.31 5.2I4.1212.123112.3231 ABER    2\n"
-        assert str(macroseismicString2Macroseismic(createStringMacroseismicHeader(line), -1)) == line[:-1]
-
-class TestNordicComment(object):
-    def testCorrectLine(self):
-        line = " ASDSADASDASDASDASDASDASDASDSADASDsadsadaDSADSASDSADdadsasdsasdasdASDASdaadssad3\n"
-        assert str(commentString2Comment(createStringCommentHeader(line), -1)) == line[:-1]
-
-class TestErrorHeader(object):
-    def testCorrectLine(self):
-        line = " GAP= 92         0.3     0.291   0.427  0.1             0.1                    5\n"
-        assert str(errorString2Error(createStringErrorHeader(line, 1), -1)) == line[:-1]
-
-class TestWaveformHeader(object):
-    def testCorrectLine(self):
-        line = " ASDASDASDSADSADDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD6\n"
-        assert str(waveformString2Waveform(createStringWaveformHeader(line), -1)) == line[:-1]
-
-class TestReturnInt(object):
-    def testCorrectPlainInt(self):
-        assert returnInt("12") == 12
-
-    def testCorrectEmptyString(self):
-        assert returnInt("  ") is None
-
-    def testCorrectIntWithZero(self):
-        assert returnInt("02") == 2
-
-    def testCorrectNegativeInt(self):
-        assert returnInt("-12") == -12
-
-    def testStringReturnsError(self):
-        with pytest.raises(ValueError):
-            returnInt("error")
-
-class TestReturnFloat(object):
-    def testCorrectPlainFloat(self):
-        assert returnFloat("12.12") == 12.12
-
-    def testCorrectEmptyString(self):
-        assert returnFloat("  ") is None
-
-    def testCorrectFloatWithZero(self):
-        assert returnFloat("02.12") == 2.12
-
-    def testCorrectNegativeFloat(self):
-        assert returnFloat("-12.31") == -12.31
-
-    def testStringReturnsError(self):
-        with pytest.raises(ValueError):
-            returnFloat("error")
-
-class TestReturnDate(object):
-    def testCorrectDate(self):
-        assert returnDate("2015 03 12") == date(year=2015, month=3, day=12)
-
-    def testEmptyDate(self):
-        assert returnDate("   ") is None
-
-    def testDateWithWrongValues(self):
-        with pytest.raises(ValueError):
-            returnDate("2014 15 58")
-
-    def testDateWithWrongString(self):
-        with pytest.raises(ValueError):
-            returnDate("asdasdasda")
-
-class TestReturnString(object):
-    def testCorrectString(self):
-        assert returnString("asd ") == "asd"
-
-    def testEmptyString(self):
-        assert returnString("  ") == None

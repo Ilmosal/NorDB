@@ -5,12 +5,16 @@ Core
 
 .. toctree::
     :maxdepth: 1
-    
+   
+    abbreviations.rst 
     nordicFix.rst
     nordicModify.rst
     nordic.rst
     nordicRead.rst
-    nordicSearch.rst
     usernameUtilities.rst
     sftpQuake.rst
     utils.rst
+    nordic2quakeml.rst
+    nordic2sc3.rst
+    station2stationxml.rst
+    validationTools.rst

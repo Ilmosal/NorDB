@@ -8,7 +8,7 @@ Functions and Classes
 import logging
 import psycopg2
 
-from nordb.database.station2sql import Station
+from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String 
 from nordb.core.utils import addInteger2String
@@ -26,61 +26,12 @@ SELECT_STATION =    (
                             "id = %s" 
                     )
 
-def createStationString(station):
-    """
-    Function for creating a css stations string from a Station object.
-
-    :param Station station: Station object that will be parsed into a string
-    :returns: The station string in a css format
-    """
-    stationString = ""
-    stationString += addString2String(station[Station.STATION_CODE], 8, '<')
-
-    stationString += addInteger2String(station[Station.ON_DATE].year, 5, '<') 
-    stationString += addInteger2String(station[Station.ON_DATE].timetuple().tm_yday, 3, '0') 
-    
-    stationString += "  "
-
-    if station[Station.OFF_DATE] is None:
-        stationString += addInteger2String(-1, 7, '>')
-    else:
-        stationString += addInteger2String(station[Station.OFF_DATE].year, 4, '<') 
-        stationString += addInteger2String(station[Station.OFF_DATE].timetuple().tm_yday, 3, '0') 
-
-    stationString += "  "
-    stationString += addFloat2String(station[Station.LATITUDE], 8, 4, '>')
-    stationString += "  "
-    stationString += addFloat2String(station[Station.LONGITUDE], 8, 4, '>')
-
-    stationString += " "
-    stationString += addFloat2String(station[Station.ELEVATION], 9, 4, '>')
-
-    stationString += " "
-    stationString += addString2String(station[Station.STATION_NAME], 50, '<')
-
-    stationString += " "
-    stationString += addString2String(station[Station.STATION_TYPE], 2, '<')
-
-    stationString += "   "
-    stationString += addString2String(station[Station.REFERENCE_STATION], 8, '<')
-
-    stationString += " "
-    stationString += addFloat2String(station[Station.NORTH_OFFSET], 7, 4, '>')
-
-    stationString += "   "
-    stationString += addFloat2String(station[Station.EAST_OFFSET], 7, 4, '>')
-
-    stationString += " "
-    stationString += addString2String(station[Station.LOAD_DATE].strftime("%Y-%b-%d"), 10, '<')
-
-    return stationString
-
 def readStation(station_id):
     """
     Function for reading a station from database by id.
 
     :param int station_id: id of the station wanted
-    :returns: station as a list 
+    :returns: Station object
     """
     try:
         conn = psycopg2.connect("dbname = nordb user={0}".format(username))
@@ -96,7 +47,7 @@ def readStation(station_id):
 
     conn.close()
 
-    return ans
+    return Station(ans)
 
 def sql2station(station_ids, output_path):
     """
@@ -123,14 +74,7 @@ def writeAllStations(output_path):
 
     :param str output_path: path to output file
     """
-    username = usernameUtilities.readUsername() 
-
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return 
-
+    conn = usernameUtilities.log2nordb() 
     cur = conn.cursor()
 
     cur.execute("SELECT id FROM station ORDER BY station_code;")
@@ -142,9 +86,7 @@ def writeAllStations(output_path):
     station_ids = []
 
     if not ans:
-        print("No stations in the database!")
-        return
-
+        raise Exception
     for a in ans:
         station_ids.append(a[0])
 

@@ -1,121 +1,135 @@
 """
-This module contains functions for getting nordic events out from the database. The most important function here is writeNordicEvent().
+This module contains all functions for getting the nordic out from the database and creating NordicEvent object out of them.
 
 Functions and Classes
 ---------------------
 """
 
-import logging
-import os
-import sys
 import psycopg2
-
-MODULE_PATH = os.path.realpath(__file__)[:-len("sql2nordic.py")]
-
-from nordb.core.nordic import NordicMain, NordicMacroseismic, NordicComment
-from nordb.core.nordic import NordicError, NordicWaveform, NordicData
 from nordb.core import usernameUtilities
-from nordb.database import getNordic
+from nordb.nordic.nordicEvent import NordicEvent
+from nordb.nordic.nordicMain import NordicMain
+from nordb.nordic.nordicMacroseismic import NordicMacroseismic
+from nordb.nordic.nordicComment import NordicComment
+from nordb.nordic.nordicError import NordicError
+from nordb.nordic.nordicWaveform import NordicWaveform
+from nordb.nordic.nordicData import NordicData
 
-def nordicEventToNordic(nordic):
+SELECT_QUERY =   {
+                  1:"SELECT " +
+                       "date, hour, minute, second, location_model, distance_indicator, " +
+                       "event_desc_id, epicenter_latitude, epicenter_longitude, depth, " +
+                       "depth_control, locating_indicator, epicenter_reporting_agency, " +
+                       "stations_used, rms_time_residuals, " +
+                       "magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, " +
+                       "magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " +
+                       "magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " +
+                       "event_id, id " +
+                    "FROM " +
+                       "nordic_header_main " +
+                    "WHERE " +
+                       "event_id = %s",
+                  2:"SELECT " +
+                       "description, diastrophism_code, tsunami_code, seiche_code, " +
+                       "cultural_effects, unusual_effects, maximum_observed_intensity, " +
+                       "maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, " +
+                       "macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " +
+                       "logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " +
+                       "logarithm_of_area_2, bordering_intensity_2, quality_rank,  " +
+                       "reporting_agency, event_id, id " +
+                   "FROM " +
+                       "nordic_header_macroseismic " +
+                   "WHERE " +
+                       "event_id = %s",
+                  3:"SELECT " +
+                       "h_comment, event_id, id " +
+                    "FROM " +
+                       "nordic_header_comment " +
+                    "WHERE " +
+                       "event_id = %s",
+                  5:"SELECT " +
+                       "gap, second_error, epicenter_latitude_error, epicenter_longitude_error, " +
+                       "depth_error, magnitude_error, header_id, id " +
+                    "FROM " +
+                       "nordic_header_error " +
+                    "WHERE " +
+                       "header_id = %s",
+                  6:"SELECT " +
+                       "waveform_info, event_id, id " +
+                    "FROM " +
+                       "nordic_header_waveform " +
+                    "WHERE " +
+                       "event_id = %s",
+                  8:"SELECT " +
+                        "station_code, sp_instrument_type, sp_component, quality_indicator,  " +
+                        "phase_type, weight, first_motion, time_info, hour, minute, second, " +
+                        "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " +
+                        "apparent_velocity, signal_to_noise, azimuth_residual, " +
+                        "travel_time_residual, location_weight, epicenter_distance, " + 
+                        "epicenter_to_station_azimuth, event_id, id " +
+                     "FROM " +
+                        "nordic_phase_data " +
+                     "WHERE " +
+                        "event_id = %s"
+                }
+
+def getNordicFromDB(event_id):
     """
-    Method that converts a nordic event object to a nordic file string
+    Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
-    :param NordicEvent nordic: event to be converted into a string
-    :read: nordic file as a string array
+    :param int event_id: Event id of the event
+    :returns: NordicEvent object
     """
-    nordic_string = []
-
-    nordic_string.append(str(nordic.headers[1][0])+"\n")
-
-    if len(nordic.headers[5]) > 0:
-        nordic_string.append(str(nordic.headers[5][0]) + "\n")
-
-    if len(nordic.headers[6]) > 0:
-        nordic_string.append(str(nordic.headers[6][0]) + "\n")
-
-    for hd in nordic.headers[3]:
-        nordic_string.append(str(hd) + "\n")
-
-    for i in range(1,len(nordic.headers[1])):
-        nordic_string.append(str(nordic.headers[1][i]) + "\n")
-        for h_error in nordic.headers[5]:
-            if h_error.header[NordicError.HEADER_ID] == nordic.headers[1][i].header[NordicMain.ID]:
-                nordic_string.append(str(h_error) + "\n")
-
-    nordic_string.append(create_help_header_string())
-
-    for pd in nordic.data:
-        nordic_string.append(str(pd) + "\n")      
-
-    nordic_string.append("\n")
-
-    return nordic_string
-
-def create_help_header_string():
-    """
-    Function that returns the help header of type 7 as a string. 
-    
-    Header::
-        
-        " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\\n"
-
-    :return: The help header as a string
-    """
-    h_string = " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
-    return h_string
-
-def writeNordicEvent(nordicEventId, usr_path, output):
-    """
-    Function that writes a :class:`.NordicEvent` to a file
-
-    :param int nordicEventId: id of the event that is wanted
-    :param str usr_path: path to user
-    :param str output: name of the file. If None given, program will name the file according to it's timestamp
-    :returns: True or False depending on if the operation was successful
-    """
-    try:
-        int(nordicEventId)
-    except:
-        logging.error("Argument {0} is not a valid event id!".format(nordicEventId))
-        return False
-
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    nordic = getNordic.readNordicEvent(cur, nordicEventId)
-   
-    if nordic == None:
-        return False
+    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
+    data = []
+    main_ids = []
+
+    cur.execute("SELECT id from nordic_event WHERE id = %s", (event_id,))
+    ans = cur.fetchone()
+
+    if not ans:
+        return None
+
+    cur.execute(SELECT_QUERY[NordicMain.header_type], (event_id,))
+    ans = cur.fetchall()
+
+    for a in ans:
+        main_ids.append(a[-1])
+        headers[NordicMain.header_type].append(NordicMain(a))
+
+    cur.execute(SELECT_QUERY[NordicMacroseismic.header_type], (event_id,))
+    ans = cur.fetchall()
+
+    for a in ans:
+        headers[NordicMacroseismic.header_type].append(NordicMacroseismic(a))
+
+    cur.execute(SELECT_QUERY[NordicComment.header_type], (event_id,))
+    ans = cur.fetchall()
+
+    for a in ans:
+        headers[NordicComment.header_type].append(NordicComment(a))
+
+    for m_id in main_ids:
+        cur.execute(SELECT_QUERY[NordicError.header_type], (m_id,))
+        ans = cur.fetchall()
+
+        for a in ans:
+            headers[NordicError.header_type].append(NordicError(a, -1))
+
+    cur.execute(SELECT_QUERY[NordicWaveform.header_type], (event_id,))
+    ans = cur.fetchall()
+
+    for a in ans:
+        headers[NordicWaveform.header_type].append(NordicWaveform(a))
     
-    nordicString = nordicEventToNordic(nordic)
+    cur.execute(SELECT_QUERY[NordicData.header_type], (event_id,))
+    ans = cur.fetchall()
 
-    if output is None:
+    for a in ans:
+        data.append(NordicData(a))
 
-        filename = "{:d}{:03d}{:02d}{:02d}{:02d}".format(
-                        nordic.headers[1][0].header[NordicMain.DATE].year, 
-                        nordic.headers[1][0].header[NordicMain.DATE].timetuple().tm_yday, 
-                        nordic.headers[1][0].header[NordicMain.HOUR], 
-                        nordic.headers[1][0].header[NordicMain.MINUTE], 
-                        int(nordic.headers[1][0].header[NordicMain.SECOND])) + ".nordic"
-        
-        print(filename + " has been created!")
-    
-        f = open(usr_path + '/' + filename, 'w')
-        
-        for line in nordicString:   
-            f.write(line)
+    return NordicEvent(headers, data, event_id)
 
-        f.close()
-    else:
-        f = open(usr_path + "/" + output, "a")
-
-        for line in nordicString:
-            f.write(line)
-
-        f.close()
-
-    conn.commit()
-    conn.close()
-
-    return True

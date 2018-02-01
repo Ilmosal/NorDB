@@ -14,7 +14,7 @@ import os
 
 import psycopg2
 
-MODULE_PATH = os.path.realpath(__file__)[:-len("sql2sc3.py")]
+MODULE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 from nordb.core import usernameUtilities
 from nordb.core.nordic import NordicMain
@@ -30,13 +30,6 @@ def writeSC3(nordic_event_ids, usr_path, output):
     :param str output: output file name
     :returns: True or False depending on if the write was succesful or not
     """
-    for n_id in nordic_event_ids:
-        try:
-            int(n_id)
-        except:
-            logging.error("Argument {0} is not  a valid event id!".format(n_id))
-            return False
-
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     
@@ -48,7 +41,6 @@ def writeSC3(nordic_event_ids, usr_path, output):
     [n for n in nordics if n is not None]
 
     if nordics is None or len(nordics) < 0:
-        print("Nordics with given ids do not exists: \n{0}".format(nordic_event_ids))
         return False
     
     qmls = sql2quakeml.nordicEventToQuakeMl(nordics, True)
@@ -56,12 +48,8 @@ def writeSC3(nordic_event_ids, usr_path, output):
     if qmls == None:
         return False
 
-    try:
-        f = open(MODULE_PATH + "../xml/quakeml_1.2__sc3ml_0.9.xsl")
-    except:
-        logging.error("quakeml_1.2__sc3ml_0.9.xsl is missing!")
-        return False
-
+    f = open(MODULE_PATH + "../xml/quakeml_1.2__sc3ml_0.9.xsl") #Raises exception if file is missing
+       
     qml2scc3 = etree.parse(f)
     f.close()
 
@@ -81,8 +69,7 @@ def writeSC3(nordic_event_ids, usr_path, output):
     else:
         filename = output
 
-
-    f = open(usr_path + "/" + filename, "wb")
+    f = open(usr_path + os.sep + filename, "wb")
 
     print(filename + " has been created")
 

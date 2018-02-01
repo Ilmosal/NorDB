@@ -5,7 +5,7 @@ import math
 import logging
 from datetime import date
 
-from nordb.database.nordic2sql import execute_command
+from nordb.database.nordic2sql import executeCommand
 from nordb.core import usernameUtilities
 
 MODULE_PATH = os.path.realpath(__file__)[:-len("scandia2sql.py")]

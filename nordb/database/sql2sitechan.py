@@ -8,7 +8,7 @@ Functions and Classes
 import logging
 import psycopg2
 
-from nordb.database.station2sql import SiteChan
+from nordb.nordic.sitechan import SiteChan
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String 
 from nordb.core.utils import addInteger2String

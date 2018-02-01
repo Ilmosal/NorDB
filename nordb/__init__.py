@@ -5,4 +5,3 @@ Documentation of the project is on this page. The program has four modules which
 import nordb.core
 import nordb.database
 import nordb.bin
-import nordb.validation

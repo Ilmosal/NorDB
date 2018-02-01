@@ -26,9 +26,8 @@ def createDatabase():
 
     cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
     if cur.fetchall():
-        logging.error("Database already exists. Destroy the database with destroy and try again!")
         conn.close()
-        sys.exit()
+        raise Exception("Database already exists")
 
     cur.execute("CREATE DATABASE {0}".format(settings.dbname))
 
@@ -69,9 +68,8 @@ def destroyDatabase():
 
     cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
     if not cur.fetchall():
-        logging.error("Database doesn't exists. Exiting program.")
         conn.close()
-        sys.exit()
+        raise Exception("Database does not exist")
 
     conn.close()
 

@@ -7,7 +7,10 @@ def init():
     global dbname 
     dbname = "nordb"
     global username
-    username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + ".user.config").read().strip()
+    try:
+        username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + ".user.config").read().strip()
+    except FileNotFoundError:
+        username = None
 
 def updateUsername():
     username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + ".user.config").read().strip()

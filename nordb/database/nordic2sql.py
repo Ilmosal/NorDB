@@ -1,5 +1,4 @@
 import psycopg2
-import sys
 import os
 import pwd
 import re
@@ -7,18 +6,21 @@ from datetime import date
 import datetime
 import math
 import fnmatch
-import logging
-
-MODULE_PATH = os.path.realpath(__file__)[:-len("nordic2sql.py")]
 
 from nordb.core import nordicRead
 from nordb.core import nordicFix
 from nordb.core import usernameUtilities
 from nordb.core import nordic
-from nordb.core.nordic import NordicData, NordicMain, NordicMacroseismic, NordicComment, NordicError, NordicWaveform, NordicEvent
-from nordb.validation import nordicValidation
-from nordb.validation import nordicFindOld
-from nordb.database import sql2nordic, undoRead
+from nordb.nordic.nordicData import NordicData
+from nordb.nordic.nordicMain import NordicMain
+from nordb.nordic.nordicMacroseismic import NordicMacroseismic
+from nordb.nordic.nordicComment import NordicComment
+from nordb.nordic.nordicError import NordicError
+from nordb.nordic.nordicWaveform import NordicWaveform
+from nordb.nordic.nordicEvent import NordicEvent
+from nordb.database import nordicFindOld
+from nordb.database import sql2nordic 
+from nordb.database import undoRead
 
 EVENT_TYPE_VALUES = {
     "O":1,
@@ -106,9 +108,9 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     author_id = None
-    
+
     for header in nordic_event.headers[3]:
-        author_id = re.search(r'\[(\w3)\]', header.header[NordicComment.H_COMMENT]) 
+        author_id = re.search(r'\[(\w3)\]', header.h_comment) 
         if author_id is not None:
             break
 
@@ -122,23 +124,25 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
         filename_id = filenameids[0]
 
     e_id = -1
-    if not no_duplicates:
-        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
-        e_id = ans[0]
+    #TODO: DUPLICATE EVENTS AND SIMILAR EVENTS
 
-        if e_id == -1:
-            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
-            e_id = ans[0]
-
-        if e_id == -9:
-            return False
-        if ignore_duplicates and e_id > 0:
-            return False
-        elif ignore_duplicates:
-            ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
-        e_id = ans[0]
-        if e_id > 0:
-            return False
+#    if not no_duplicates:
+#        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
+#        e_id = ans[0]
+#
+#        if e_id == -1:
+#            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
+#            e_id = ans[0]
+#
+#        if e_id == -9:
+#            return False
+#        if ignore_duplicates and e_id > 0:
+#            return False
+#        elif ignore_duplicates:
+#            ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
+#        e_id = ans[0]
+#        if e_id > 0:
+#            return False
 
     root_id = -1
 
@@ -183,63 +187,59 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
             cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (e_id,))
     
         main_header_id = -1
+
         for i in range(0, len(nordic_event.headers[1])):
             h = nordic_event.headers[1][i]
-            h.header[NordicMain.EVENT_ID] = event_id
+            h.event_id = event_id
 
-            main_header_id = execute_command(  cur, 
+            main_header_id = executeCommand(  cur, 
                                                INSERT_COMMANDS[1], 
-                                               h.header,
+                                               h.getAsList(),
                                                True)
 
             for h_error in nordic_event.headers[5]:
-                if h_error.header[h_error.HEADER_ID] == i:
-                    h_error.header[h_error.HEADER_ID] = main_header_id
+                if h_error.header_pos == i:
+                    h_error.header_id = main_header_id
 
         for h in nordic_event.headers[2]:
-            h.header[NordicMacroseismic.EVENT_ID] = event_id
-            execute_command(    cur, 
+            h.event_id = event_id
+            executeCommand(    cur, 
                                 INSERT_COMMANDS[2], 
-                                h.header,
+                                h.getAsList(),
                                 False)
         for h in nordic_event.headers[3]:
-            h.header[NordicComment.EVENT_ID] = event_id
-            execute_command(    cur, 
+            h.event_id = event_id
+            executeCommand(    cur, 
                                 INSERT_COMMANDS[3], 
-                                h.header,
+                                h.getAsList(),
                                 False)
         for h in nordic_event.headers[5]:       
-            h.header[NordicError.HEADER_ID] = main_header_id
-            execute_command(    cur, 
+            executeCommand(    cur, 
                                 INSERT_COMMANDS[5], 
-                                h.header,
+                                h.getAsList(),
                                 False)
         for h in nordic_event.headers[6]:
-            h.header[NordicWaveform.EVENT_ID] = event_id
-            execute_command(    cur, 
+            h.event_id = event_id
+            executeCommand(    cur, 
                                 INSERT_COMMANDS[6], 
-                                h.header,
+                                h.getAsList(),
                                 False)
-        #Adding the data to the database
+
         for phase_data in nordic_event.data:
-            
-            phase_data.data[NordicData.EVENT_ID] = event_id
-            execute_command(    cur, 
+            phase_data.event_id = event_id
+            executeCommand(    cur, 
                                 INSERT_COMMANDS[7], 
-                                phase_data.data,
+                                phase_data.getAsList(),
                                 False)
 
         conn.commit()
         conn.close()
-        return True
 
-    except psycopg2.Error as e:
-        logging.error("Some error happened with sql-queries that was not detected by validation layer!")
-        logging.error(e.pgerror)
+    except Exception as e:
         conn.close()
-        return False
+        raise e
 
-def create_creation_info():
+def createCreationInfo():
     """
     Function for creating the creation_info entry to the database.
 
@@ -258,7 +258,7 @@ def create_creation_info():
 
     return creation_id
 
-def delete_creation_info_if_unnecessary(creation_id):
+def deleteCreationInfoIfUnnecessary(creation_id):
     """
     Function for deleting an unnecessary creation info object
     
@@ -288,7 +288,7 @@ def delete_creation_info_if_unnecessary(creation_id):
 
     return creation_id
 
-def execute_command(cur, command, vals, returnValue):
+def executeCommand(cur, command, vals, returnValue):
     """
     Function for for executing a command with values and handling exceptions
 
@@ -304,56 +304,13 @@ def execute_command(cur, command, vals, returnValue):
     try:
         cur.execute(command, vals)
     except psycopg2.Error as e:
-        logging.error("Error in sql command: " + command)
-        logging.error(e.pgerror)
-        sys.exit()
+        raise e
     if returnValue:
         return cur.fetchone()[0]
     else:
         return None
 
-def read2Database(f, event_type, fix_nordic, ignore_duplicates, no_duplicates, error_path):
-    """
-    Function for reading the whole file and all the events in it to the database.
-
-    :param file f: File object of the nordic file
-    :param int event_type: event type id of the nordic event
-    :param bool fix_nordic: flag for if fixNordic library needs to be used
-    :param bool ignore_duplicates: flag for iignoring all events that already are in the database
-    :param bool no_duplicates: flag for if there are no duplicate events in the file compared to dapabase
-    :return: True or False if the whole file has been successfully pushed to the database
-    """
-    creation_id = create_creation_info()
-
-    try:
-        nordics, nordic_failed = nordic.readNordic(f, fix_nordic)
-        if len(nordic_failed) > 0:
-             print ("Some errors occurred with nordic file {0}. Check {1} for more details!".format(f.name, error_path.split("/")[-1]))
-
-        for nord in nordics:
-            event2Database(nord, event_type, f.name, ignore_duplicates, no_duplicates, creation_id)
-
-    except KeyboardInterrupt:
-        print("\n")
-        logging.error("Keyboard interrupt by user")
-
-        undoRead.removeEventsWithCreationId(creation_id)            
-        delete_creation_info_if_unnecessary(creation_id)
-        return False
-    
-    delete_creation_info_if_unnecessary(creation_id)
-
-    if len(nordic_failed) > 0:
-        failed = open("f_" + os.path.basename(f.name), "w")
-
-        for n in nordic_failed:
-            for line in n:
-                failed.write(line)  
-            failed.write("\n")
-
-    return True
-
-def get_author(filename):
+def getAuthor(filename):
     """
     Function for getting the owner of the file from the file. Not used currently
 

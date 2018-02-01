@@ -10,4 +10,4 @@ Documentation
     modules/bin/bin.rst
     modules/core/core.rst
     modules/database/database.rst
-    modules/validation/validation.rst
+    modules/nordic/nordic.rst
