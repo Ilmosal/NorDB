@@ -4,7 +4,6 @@ NordicRead module contains a function readNordicFile that reads a single file an
 Functions and Classes
 ---------------------
 """
-import logging
 import sys
 
 def readNordicFile(f):
@@ -23,8 +22,7 @@ def readNordicFile(f):
             i += 1;
             nordics.append([])
         elif(len(line) < 81):
-            #logging.error(emsg.format(len(line), line))
-            raise ValueError
+            raise Exception("Line not long enough (len:{0}):\n{1}".format(len(line), line))
         elif (line[79] == "7"):
             pass
         elif (line[79] == " "):
@@ -32,4 +30,4 @@ def readNordicFile(f):
         else:
             nordics[i].append(line)
 
-    return nordics
+    return nordics[:-1]

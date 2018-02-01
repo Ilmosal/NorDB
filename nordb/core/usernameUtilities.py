@@ -19,7 +19,6 @@ def confUser(username):
 
     :param str username: the username given by user
     """
-    print(MODULE_PATH + os.sep + ".user.config")
     f = open(MODULE_PATH + os.sep + ".user.config", "w")
     f.write(username)
     f.close()

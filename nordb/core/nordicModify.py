@@ -5,11 +5,7 @@ Functions and Classes
 ---------------------
 """
 
-#TODO: Remove all outprinting from the module and create exceptions for errors
-
-import logging
 import psycopg2
-
 from nordb.core import usernameUtilities
 
 def changeEventType(event_id, event_type):
@@ -20,18 +16,16 @@ def changeEventType(event_id, event_type):
     :param str event_type: new event type
     """
     conn = usernameUtilities.log2nordb()
-
     cur = conn.cursor()
 
     cur.execute("SELECT id, event_type, root_id from nordic_event WHERE id = %s;", (event_id,))
     event = cur.fetchone()
+
     if event is None:
-        logging.error("Event with id: {0} does not exist!".format(event_id))
-        return
+        raise Exception("Event with id: {0} does not exist!".format(event_id))
 
     if event[1] == event_type:
-        logging.error("Event already has type {0}!".format(event_type))
-        return
+        raise Exception("Event already has type {0}!".format(event_type))
 
     if event_type not in "AO":
         cur.execute("UPDATE nordic_event SET event_type = %s WHERE root_id = %s AND event_type = %s", ("O", event[2], event_type))
@@ -43,7 +37,7 @@ def changeEventType(event_id, event_type):
 
 def changeEventRoot(event_id, root_id):
     """
-    Method that changes the root_id of the event and checks if there are any events with same event_type. If there is and the event_type is not A or O, it will change the event type of the old event to O. if roo_id of -999 is given to the method, it will generate a new root_id for the event.
+    Method that changes the root_id of the event and checks if there are any events with same event_type. If there is and the event_type is not A or O, it will change the event type of the old event to O. if root_id of -999 is given to the method, it will generate a new root_id for the event.
 
     :param int event_id: id of the event that needs to be moved
     :param int root_id: new existiting root id for the event
@@ -53,15 +47,14 @@ def changeEventRoot(event_id, root_id):
 
     cur.execute("SELECT id, event_type from nordic_event WHERE id = %s;", (event_id,))
     event = cur.fetchone()
+
     if event is None:
-        logging.error("Event with id: {0} does not exist!".format(event_id))
-        return
+        raise Exception("Event with id: {0} does not exist!".format(event_id))
 
     if root_id != -999:
         cur.execute("SELECT id from nordic_event_root WHERE id = %s;", (root_id,))
         if cur.fetchone() is None:
-            logging.error("Event root with id: {0} does not exist!".format(root_id))
-            return
+            raise Exception("Event with root_id: {0} does not exist!".format(root_id))
     else:
         cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES RETURNING id;")
         root_id = cur.fetchone()[0]
@@ -81,5 +74,3 @@ def changeEventRoot(event_id, root_id):
 
     conn.commit() 
     conn.close()
-
-    print("Event {0} root is now {1}". format(event_id, root_id))

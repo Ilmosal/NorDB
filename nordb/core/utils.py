@@ -5,6 +5,44 @@ Functions and Classes
 ---------------------
 """
 
+from datetime import date
+from datetime import timedelta
+
+MONTH_CONV = {  
+                "Jan": "01",
+                "Feb": "02",
+                "Mar": "03",
+                "Apr": "04",
+                "May": "05",
+                "Jun": "06",
+                "Jul": "07",
+                "Aug": "08",
+                "Sep": "09",
+                "Oct": "10",
+                "Nov": "11",
+                "Dec": "12"
+            }
+
+def stringToDate(sDate):
+    """
+    Function for converting a date in string format "YYYYDDD" or "YYYY-MMM-DD" to "YYYY-MM-DD".
+
+    :param str sDate: date string
+    :returns: the date in correct format as a string
+    """
+    if len(sDate) == 7:
+        ndate = date(day=1, month=1, year=int(sDate[:4]))
+        ndate += timedelta(days= int(sDate[4:]) - 1)
+        rdate = ndate.strftime("%Y-%m-%d")
+    elif len(sDate) == 11:
+        rdate = sDate[:4] + "-" + MONTH_CONV[sDate[5:8]] + "-" + sDate[9:]
+    elif sDate == "-1":
+        rdate = ""
+    else:
+        rdate = ""
+
+    return rdate
+
 def xstr(s):
     """
     Function for casting a value to string and None to a empty string

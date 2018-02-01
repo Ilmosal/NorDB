@@ -17,11 +17,10 @@ import paramiko
 
 from nordb.core import nordicRead
 from nordb.core import usernameUtilities
-from nordb.core.nordic import NordicData
-from nordb.core.nordic import NordicMain
-from nordb.core import nordic
+from nordb.nordic.nordicData import NordicData
+from nordb.nordic.nordicMain import NordicMain
 from nordb.database import nordic2sql
-from nordb.database import getNordic
+from nordb.database import sql2nordic
 
 arcdata_cfg_path = "/b/fdc/config/arcdata_id.cfg"
 
@@ -227,16 +226,16 @@ def getSeedFromNordicId(nordic_id):
 
     nordic = getNordic.readNordicEvent(cur, nordic_id)
 
-    date = nordic.headers[1][0].header[NordicMain.DATE]
+    date = nordic.headers[1][0].date
 
     stations = []
 
     for phase_data in nordic.data:
         days = date.timetuple().tm_yday
-        if phase_data.data[NordicData.TIME_INFO] == "+":
+        if phase_data.time_info == "+":
             days += 1
         year = date.timetuple().tm_year
-        station = phase_data.data[NordicData.STATION_CODE]
+        station = phase_data.station_code
 
         if station not in stations:
             stations.append(station)
@@ -260,16 +259,16 @@ def getSeedFromNordicFile(nordic_file, fix_nordic):
     nordics = nordic.readNordic(nordic_file, fix_nordic)[0]
     filenames = [] 
     for n in nordics:
-        date = n.headers[1][0].header[NordicMain.DATE]
+        date = n.headers[1][0].date
 
         stations = []
 
         for phase_data in n.data:
             days = date.timetuple().tm_yday
-            if phase_data.data[NordicData.TIME_INFO] == "+":
+            if phase_data.time_info == "+":
                 days += 1
             year = date.timetuple().tm_year
-            station = phase_data.data[NordicData.STATION_CODE]
+            station = phase_data.station_code
 
             if station not in stations:
                 stations.append(station)
