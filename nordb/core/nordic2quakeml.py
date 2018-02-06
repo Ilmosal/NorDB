@@ -417,28 +417,11 @@ def addTime(container, time_value, time_uncertainty):
         uncertainty = etree.SubElement(time, "uncertainty")
         uncertainty.text = str(time_uncertainty)
 
-def validateQuakeMlFile(test, xmlschema):
-    """
-    Function that validates the created quakeml file against QuakeML-1.2.xsd schema.
-        
-    :param etree.XML test: finished quakeml etree object
-    :param etree.XMLSchema xmlschema: schema loaded from QuakeML-1.2.xsd to which test is compared against to
-    :returns: boolean depending on if the file is valid or not
-    """
-    
-    if xmlschema.validate(test):
-        return True
-    else:
-        logging.error("QuakeML file did not go through the validation:")
-        for error in xmlschema.error_log:
-            logging.error(error.message.encode("utf-8"))
-        return False
-
 def nordicEvents2QuakeML(nordic_events, long_quakeML):
     """
-    Function that turns a NordicEvent Object into a quakeml etree object, validates it and returns it.
+    Function that turns a array of NordicEvent objects into a quakeml etree object, validates it and returns it.
         
-    :param array nordic_events: nordic event object array that will be transformed into a quakeml file
+    :param array nordic_events: nordic event object array that will be transformed into a quakeml single file
     :param bool long_quakeML: Boolean value for if you want the file to be long
     :return: validated etree object
     """
@@ -456,11 +439,10 @@ def nordicEvents2QuakeML(nordic_events, long_quakeML):
 
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    #Parse the tree to a string and back to the object because of a weird bug on validating the tree...
+    #Parse the tree to a string and back to the object because of a weird bug on validating the tree.
     test = etree.tostring(quakeml)
     quakeml = etree.XML(test)
 
-    if not validateQuakeMlFile(quakeml, xmlschema):
-        raise Exception("quakeml validation failed!")
+    xlmschema.assertValid(quakeml)
 
     return quakeml

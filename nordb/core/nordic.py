@@ -207,7 +207,7 @@ def readHeaders(nordic_string, fix_nordic):
     """
     i = 1
     headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
-    
+ 
     #find where the data starts 
     while (i < len(nordic_string)):
         if (nordic_string[i][79] == ' '):

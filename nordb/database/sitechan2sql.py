@@ -1,5 +1,5 @@
 """
-This module contains all functions and classes for reading a sitechan file in `CSS3.0 format`_ and pushing them into the database
+This module contains all functions and classes for reading a sitechan file in `CSS3.0 format`_ and pushing it into the database
 
 .. _CSS3.0 format: ftp://ftp.pmel.noaa.gov/newport/lau/tphase/data/css_wfdisc.pdf
 
@@ -24,10 +24,10 @@ CHANNEL_INSERT = (  "INSERT INTO sitechan" +
 
 def readSiteChanStringToSiteChan(chan_line):
     """
-    Function for reading channel info to string array from css sitechan string
+    Function for reading channel info to SiteChan object from css sitechan string
 
     :param str chan_line: css sitechan string
-    :return: sitechan string array and station_code
+    :return: SiteChan object
     """
     channel = [None]*13
 
@@ -52,7 +52,6 @@ def insertSiteChan2Database(channel):
     Function for inserting the sitechan array to the database.
         
     :param SiteChan channel: sitechan that will be inserted to the database
-    :return: true or false depending on if the operation was succesful
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -73,8 +72,6 @@ def insertSiteChan2Database(channel):
 
     conn.commit()
     conn.close()
-
-    return True
 
 def readChannels(f_channels):
     """ 

@@ -19,17 +19,21 @@ def confUser(username):
 
     :param str username: the username given by user
     """
-    f = open(MODULE_PATH + os.sep + ".user.config", "w")
+    config_file = ".user.config"
+    f = open(MODULE_PATH + os.sep + config_file, "w")
     f.write(username)
     f.close()
     settings.updateUsername()
 
-def log2nordb():
+def log2nordb(test_value=False):
     """
     Function that logs to database and returns a psycopg2 Connect object.
     
     :return: psycopg2.Connect object
     """
-    conn = psycopg2.connect("dbname = {0} user = {1}".format(settings.dbname, settings.username))
+    if test_value:
+        conn = psycopg2.connect("dbname = test_nordb user = {0}".format(settings.username))
+    else:
+        conn = psycopg2.connect("dbname = {0} user = {1}".format(settings.dbname, settings.username))
 
     return conn

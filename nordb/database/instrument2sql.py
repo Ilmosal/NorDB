@@ -1,5 +1,5 @@
 """
-This module contains all functions and classes for reading a instrument file in `CSS3.0 format`_ and pushing them into the database
+This module contains all functions and classes for reading a instrument file in `CSS3.0 format`_ and pushing it into the database
 
 .. _CSS3.0 format: ftp://ftp.pmel.noaa.gov/newport/lau/tphase/data/css_wfdisc.pdf
 

@@ -1,5 +1,5 @@
 """
-This module contains all class information related to Nordic Events.
+This module contains all class information related to NordicError header.
 
 Functions and Classes
 ---------------------
@@ -17,17 +17,26 @@ from nordb.core.utils import addFloat2String
 class NordicError:
     """
     A class that functions as a collection of enums. Contains the information of the error header line of a nordic file. 
+
     :param list header: The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
     :param int header_pos: Position of the main header where the NordicError refers to in the NordicEvent NordicError array
+    :ivar int gap: Gap of the single analysis. 0-359
+    :ivar float second_error: Error of the second value as seconds
+    :ivar float epicenter_latitude_error: Error in the epicenter latitude error as deg
+    :ivar float epicenter_longitude_error: Error in the epicenter longitude error as deg
+    :ivar float depth_error: Error in the depth value as km
+    :ivar float magnitude_error: Error in the magnitude value.
+    :ivar int header_id: id of the main header this NordicError is conntected to
+    :ivar int h_id: id of the NordicError in the database
     :ivar int header_type: This value tells that this is a NordicError object. Value of 5
-    :ivar int GAP: Location of the gap of the event. Value of 0
-    :ivar int SECOND_ERROR: Location of the second error of the event. Value of 1
-    :ivar int EPICENTER_LATITUDE_ERROR: Location of the epicenter latitude error of the event. Value of 2
-    :ivar int EPICENTER_LONGITUDE_ERROR: Location of the epicenter longitude error of the event. Value of 3
-    :ivar int DEPTH_ERROR: Location of the depth error of the event. Value of 4
-    :ivar int MAGNITUDE_ERROR: Location of the magnitude error of the event. Value of 5
-    :ivar int HEADER_ID: Location of the header id of the event. Value of 6
-    :ivar int H_ID: Location of the id of the event. Value of 7
+    :ivar int GAP: Location of the gap in a array. Value of 0
+    :ivar int SECOND_ERROR: Location of the second_error in a array. Value of 1
+    :ivar int EPICENTER_LATITUDE_ERROR: Location of the epicenter_latitude_error in a array. Value of 2
+    :ivar int EPICENTER_LONGITUDE_ERROR: Location of the epicenter_longitude_error in a array. Value of 3
+    :ivar int DEPTH_ERROR: Location of the depth_error in a array. Value of 4
+    :ivar int MAGNITUDE_ERROR: Location of the magnitude_error in a array. Value of 5
+    :ivar int HEADER_ID: Location of the header_id in a array. Value of 6
+    :ivar int H_ID: Location of the h_id in a array. Value of 7
     """
     header_type = 5
     GAP = 0
@@ -50,42 +59,42 @@ class NordicError:
         self.h_id = header[self.H_ID]
         self.header_pos = header_pos
 
-    gap = property(operator.attrgetter('_gap'))
+    gap = property(operator.attrgetter('_gap'), doc="")
     
     @gap.setter
     def gap(self, val):
         val_gap = validateInteger(val, "gap", 0, 359, True, self.header_type)
         self._gap = val_gap
 
-    second_error = property(operator.attrgetter('_second_error'))
+    second_error = property(operator.attrgetter('_second_error'), doc="")
     
     @second_error.setter
     def second_error(self, val):
         val_second_error = validateFloat(val, "second_error", 0.0, 99.9, True, self.header_type)
         self._second_error = val_second_error
 
-    epicenter_latitude_error = property(operator.attrgetter('_epicenter_latitude_error'))
+    epicenter_latitude_error = property(operator.attrgetter('_epicenter_latitude_error'), doc="")
     
     @epicenter_latitude_error.setter
     def epicenter_latitude_error(self, val):
         val_epicenter_latitude_error = validateFloat(val, "epicenter_latitude_error", 0.0, 99.99, True, self.header_type)
         self._epicenter_latitude_error = val_epicenter_latitude_error
 
-    epicenter_longitude_error = property(operator.attrgetter('_epicenter_longitude_error'))
+    epicenter_longitude_error = property(operator.attrgetter('_epicenter_longitude_error'), doc="")
     
     @epicenter_longitude_error.setter
     def epicenter_longitude_error(self, val):
         val_epicenter_longitude_error = validateFloat(val, "epicenter_longitude_error", 0.0, 99.99, True, self.header_type)
         self._epicenter_longitude_error = val_epicenter_longitude_error
 
-    depth_error = property(operator.attrgetter('_depth_error'))
+    depth_error = property(operator.attrgetter('_depth_error'), doc="")
     
     @depth_error.setter
     def depth_error(self, val):
         val_depth_error = validateFloat(val, "depth_error", 0.0, 999.9, True, self.header_type)
         self._depth_error = val_depth_error
 
-    magnitude_error = property(operator.attrgetter('_magnitude_error'))
+    magnitude_error = property(operator.attrgetter('_magnitude_error'), doc="")
     
     @magnitude_error.setter
     def magnitude_error(self, val):

@@ -16,7 +16,7 @@ def nordic2SC3(nordic_events):
     """
     Function that converts a NordicEvent object array into a lxml etree object in SC3 format.
     
-    :param NordicEvent nordic_event: nordicEvent that will be converted
+    :param array nordic_events: array of nordicEvent that will be converted into a single sc3 file
     :returns: SC3 file in lxml Etree object
     """
     if nordic_events is None or not nordic_events:

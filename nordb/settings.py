@@ -5,14 +5,20 @@ import os
 
 def init():
     global dbname 
-    dbname = "nordb"
     global username
+    global test_dbname 
+
+    dbname = "nordb"
+    conf_name = ".user.config"
+    
     try:
-        username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + ".user.config").read().strip()
+        username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + conf_name).read().strip()
     except FileNotFoundError:
         username = None
 
 def updateUsername():
-    username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + ".user.config").read().strip()
+    conf_name = ".user.config"
+    global username
+    username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + conf_name).read().strip()
 
 init()

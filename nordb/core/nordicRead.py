@@ -30,4 +30,7 @@ def readNordicFile(f):
         else:
             nordics[i].append(line)
 
-    return nordics[:-1]
+    if not nordics[-1]:
+        return nordics[:-1]
+    else:
+        return nordics

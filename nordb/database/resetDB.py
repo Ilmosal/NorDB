@@ -15,7 +15,7 @@ def resetDatabase():
     """
     Function for clearing the database from all of its data
 
-    :returns: bool -- the return code, which tells if the operation was succesful or not
+    :returns: boolean value which tells if the operation was succesful or not
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -94,7 +94,7 @@ def resetEvents():
     """
     Function for clearing the database from all event data
 
-    :returns: bool -- the return code, which tells if the operation was successful or not
+    :returns: boolean value which tells if the operation was successful or not
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -152,9 +152,9 @@ def resetEvents():
 
 def resetStations():
     """
-    Function for clearing the database from all station and networ kdata
+    Function for clearing the database from all station and network data
 
-    :returns: bool -- the return code which tells the user if the operation was successful or not
+    :returns: boolean value which tells the user if the operation was successful or not
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()

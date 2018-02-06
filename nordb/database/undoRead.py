@@ -17,6 +17,10 @@ def removeEvent(event_id, cur):
     :param int event_id: the id of the event that needs to be removed
     :param psycopg2.cursor cur: cursor object that executes the operations
     """
+    cur.execute("SELECT id FROM nordic_event WHERE id = %s", (event_id,))
+    if cur.fetchone() is None:
+        raise Exception("No such event in the database")
+
     cur.execute("SELECT id FROM nordic_header_main WHERE event_id = %s", (event_id,))
     mheader_ids = cur.fetchall()
 
@@ -51,7 +55,6 @@ def removeEventsWithCreationId(creation_id):
     Method that removes all the events that correspond to a creation id. Operation also destroys the creation info of the creation_id.
 
     :param int creation_id: creation id that needs to be cleared
-    :return: true or False depending on if the operation was succesful
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -68,11 +71,9 @@ def removeEventsWithCreationId(creation_id):
     conn.commit()
     conn.close()
 
-    return True
-
 def undoMostRecent():
     """
-    Method that destroys the most recent additions to the database based on creation_info table
+    Method that removes the most recent additions to the database based on creation_info table
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -81,7 +82,7 @@ def undoMostRecent():
     creation_id = cur.fetchone()
 
     if creation_id is None:
-        raise Exception #No creation ids
+        raise Exception("No creation ids")
 
     cur.execute("SELECT id FROM nordic_event WHERE creation_id = %s", (creation_id,))
 
@@ -94,7 +95,5 @@ def undoMostRecent():
 
     conn.commit()
     conn.close()
-
-    return True
 
 

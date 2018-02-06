@@ -1,3 +1,11 @@
+"""
+This module contains all information for pushing a NordicEvent object into the database.
+
+
+Functions and Classes
+---------------------
+"""
+
 import psycopg2
 import os
 import pwd
@@ -18,7 +26,6 @@ from nordb.nordic.nordicComment import NordicComment
 from nordb.nordic.nordicError import NordicError
 from nordb.nordic.nordicWaveform import NordicWaveform
 from nordb.nordic.nordicEvent import NordicEvent
-from nordb.database import nordicFindOld
 from nordb.database import sql2nordic 
 from nordb.database import undoRead
 
@@ -95,7 +102,7 @@ INSERT_COMMANDS = {
   
 def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates, no_duplicates, creation_id):
     """
-    Function that pushes a validated event to the database
+    Function that pushes a NordicEvent object to the database
     
     :param NordicEvent nordic_event: Event that will be pushed to the database
     :param int event_type: event type id 
@@ -103,7 +110,6 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
     :param bool ignore_duplicates: flag for ignoring all events that already are in the database
     :param bool no_duplicates: flag for telling the program that the event is not in the database and checking for old events will be skipped
     :param int creation_id: id of the creation_info entry in the database
-    :return: True of False depending on if the operation was succesful or not
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -243,8 +249,7 @@ def createCreationInfo():
     """
     Function for creating the creation_info entry to the database.
 
-    Returns:
-        The creation id created
+    :returns: The creation id of the creation_info entry created
     """
     creation_id = -1
     conn = usernameUtilities.log2nordb()
@@ -262,11 +267,8 @@ def deleteCreationInfoIfUnnecessary(creation_id):
     """
     Function for deleting an unnecessary creation info object
     
-    Args:
-        creation_id(int): id of the creation_info that needs to be deleted
-
-    Returns:
-        creation_id of the deleted object
+    :param int creation_id: id of the creation_info that needs to be deleted
+    :returns: creation_id of the deleted object
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -292,14 +294,12 @@ def executeCommand(cur, command, vals, returnValue):
     """
     Function for for executing a command with values and handling exceptions
 
-    Args:
-        cur (Cursor): cursor object from psycopg2 library
-        command (str): the sql command string
-        vals (list): list of values for the command
-        returnValue (bool): boolean values for if the command returns a value
+    :param Psycopg.Cursor cur: cursor object from psycopg2 library
+    :param str command: the sql command string
+    :param list vals: list of values for the command
+    :param bool returnValue: boolean values for if the command returns a value
 
-    Returns:
-        Values returned by the query
+    :returns: Values returned by the query or None if returnValue is False
     """
     try:
         cur.execute(command, vals)
@@ -314,11 +314,8 @@ def getAuthor(filename):
     """
     Function for getting the owner of the file from the file. Not used currently
 
-    Args:
-        filename(str): Name of the file
-
-    Returns:
-        Predefined author id 
+    :param str filename: Name of the file
+    :returns: Predefined author id  or '---' if None found
     """
     try:
         author_id = pwd.getpwuid(os.stat(filename).st_uid).pw_name
@@ -329,4 +326,3 @@ def getAuthor(filename):
     except:
         logging.error("Filename given to get Author is false")
         return "---"
-

@@ -1,5 +1,5 @@
 """
-This module contains all class information related to Nordic Events.
+This module contains all class information related to Nordic Comment header.
 
 Functions and Classes
 ---------------------
@@ -17,11 +17,15 @@ from nordb.core.utils import addFloat2String
 class NordicComment:
     """
     A class that functions as a collection of enums. Contains the information of the comment header line of a nordic file. 
+
     :param list header: The header of a nordic comment in a list where each index of a value corresponds to NordicComment's pseudo-enum.
+    :ivar string h_comment: Comment. Maximum of 78 characters
+    :ivar int event_id: Event id of the event the comment is related to. 
+    :ivar int h_id: Id of the comment header in the database.
     :ivar int header_type: This value tells that this is a NordicComment object. Value of 3
-    :ivar int H_COMMENT: Location of the comment int the event. Value of 0
-    :ivar int EVENT_ID: Location of the event id of the event. Value of 1
-    :ivar int ID: Location of the id of the event. Value of 2
+    :ivar int H_COMMENT: Location of the h_comment in a array. Value of 0
+    :ivar int EVENT_ID: Location of the event_id in a array. Value of 1
+    :ivar int ID: Location of the id in a array. Value of 2
     """
     header_type = 3
     H_COMMENT = 0
@@ -33,7 +37,7 @@ class NordicComment:
         self.event_id = header[self.EVENT_ID]
         self.h_id = header[self.H_ID]
 
-    h_comment = property(operator.attrgetter('_h_comment'))
+    h_comment = property(operator.attrgetter('_h_comment'), doc="")
     
     @h_comment.setter
     def h_comment(self, val):

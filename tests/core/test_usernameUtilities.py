@@ -2,22 +2,28 @@ import os
 import pytest
 import psycopg2
 from nordb.core import usernameUtilities
+from nordb.database import norDBManagement
+from nordb import settings
 
+username = ""
+
+@pytest.mark.usefixtures("setupdb")
 class TestConfUser(object):
-    @pytest.mark.skip(reason="no way of currently testing this")
-    def testConfUserWritesUsername(dummyDB):
+    def testConfUserWritesUsername(setupdb):
+        TEST_USER = "test"
         usernameUtilities.confUser(TEST_USER)
-        f = open(usernameUtilities.MODULE_PATH + ".user.config")
-        username = f.readline().strip()
-        assert username == TEST_USER
+        f = open(usernameUtilities.MODULE_PATH + "/.user.config")
+        s_username = f.readline().strip()
+        f.close()
+        assert s_username == TEST_USER
 
+@pytest.mark.usefixtures("setupdb")
 class TestLog2NorDB(object):
-    def testLogSuccesful(self):
-        conn = usernameUtilities.log2nordb()
+    def testLogSuccesful(setupdb):
+        conn = usernameUtilities.log2nordb(True)
         assert type(conn), psycopg2.Connect
 
-    @pytest.mark.skip(reason="no way of currently testing this")
-    def testLogFailWithWrongUser(dummyDB):
+    def testLogFailWithWrongUser(setupdb):
         usernameUtilities.confUser("wrong")
         with pytest.raises(psycopg2.OperationalError):
-            usernameUtilities.log2nordb()
+            usernameUtilities.log2nordb(True)

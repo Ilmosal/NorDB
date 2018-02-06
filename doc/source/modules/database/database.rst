@@ -8,7 +8,6 @@ Database
 
     instrument2sql.rst
     norDBManagement.rst
-    nordicFindOld.rst
     nordic2sql.rst
     resetDB.rst
     sensor2sql.rst

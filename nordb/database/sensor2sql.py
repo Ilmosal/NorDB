@@ -1,5 +1,5 @@
 """
-This module contains all functions and classes for reading a instrument file in `CSS3.0 format`_ and pushing them into the database
+This module contains all functions and classes for reading a sensor file in `CSS3.0 format`_ and pushing it into the database
 
 .. _CSS3.0 format: ftp://ftp.pmel.noaa.gov/newport/lau/tphase/data/css_wfdisc.pdf
 
@@ -8,7 +8,6 @@ Functions and Classes
 """
 
 import datetime
-
 import unidecode
 
 from nordb.nordic.sensor import Sensor
@@ -38,7 +37,7 @@ def readSensorStringToSensor(sen_line):
     Function for reading sensor string into a Sensor object
 
     :param str sen_line:  css sensor string
-    :return: sensor string array, channel id, instrument id and station_info
+    :return: Sensor object
     """
     sensor = [None]*13
 
@@ -130,8 +129,7 @@ def readSensors(f_sensors):
     sensors = []
 
     for line in f_sensors:
-        if line[0] != "#":
-            sensors.append(readSensorStringToSensor(line))
+        sensors.append(readSensorStringToSensor(line))
 
     for sen in sensors:
         insertSensor2Database(sen)

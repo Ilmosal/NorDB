@@ -42,7 +42,7 @@ def validateId(str_id):
 
 def validateInteger(val, valueName, low, high, limits, nType):
     """
-    Function that determines if val is valid integer and falls between given parameters.
+    Function that determines and returns a string as integer or None if the given value is valid integer and falls between given parameters or is empty. 
     
     :param str val: value to be validated
     :param str valueName: name of the parameter for messaging purposes
@@ -50,7 +50,7 @@ def validateInteger(val, valueName, low, high, limits, nType):
     :param int high: upper limit of the val
     :param bool limits: bool for if the function needs to compare val against low and high
     :param int ntype: header name id. Used for messaging purposes
-    :returns: true or false depending on if the val validates
+    :returns: correct value as a integer or None if it's empty
     """ 
     
     if val == "" or val is None:
@@ -82,7 +82,7 @@ def validateInteger(val, valueName, low, high, limits, nType):
 
 def validateFloat(val, valueName, low, high, limits, nType):
     """
-    Function that determines if val is valid float, falls between given parameters and is not nAn or inf.
+    Function that determines and returns string as float if the given value is valid float, falls between given parameters and is not nAn or inf.
     
     :param str val: value to be validated
     :param str valueName: name of the parameter for messaging purposes
@@ -90,7 +90,7 @@ def validateFloat(val, valueName, low, high, limits, nType):
     :param float high: upper limit of the val
     :param bool limits: bool for if the function needs to compare val against low and high
     :param int ntype: header name id. Used for messaging purposes
-    :returns: true or false depending on if the val validates
+    :returns: correct value as a float or None if it's empty
     """
     if val == "" or val is None:
         return None
@@ -138,7 +138,7 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
     :param array listOfAllowed: list of valid string from where the string needs to be found
     :param bool isList: boolean value for determining if there is a list to which the string needs to be compared
     :param int ntype: header name id. Used for messaging purposes
-    :returns: true or false depending on if the string validates
+    :returns: the same string or None if it's empty
     """
 
     if string is "" or string is None:
@@ -169,7 +169,7 @@ def validateDate(dateS, dateName, nType):
     :param str dateS: value to be validated
     :param str dateName: name of the parameter for messaging purposes
     :param int ntype: header name id. Used for messaging purposes
-    :returns: true or false depending on if the dateS validates
+    :returns: correct value as a date or None if it's empty
     """
     if dateS == "" or dateS == None:
         return None

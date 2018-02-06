@@ -7,5 +7,7 @@ services:
 install:
     - pip install .
 # command to run tests
+before_script:
+    - bash tests/create_usrconf.sh
 script:
     - python setup.py test

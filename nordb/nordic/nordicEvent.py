@@ -14,6 +14,10 @@ from nordb.core.validationTools import validateDate
 class NordicEvent:
     """
     Container object of nordic event information
+
+    :param dict headers: headers that will be inserted to the NordicEvent
+    :param array data: data array of the event
+    :param int event_id: id of the event in the database
     :ivar dict headers: headers of the event in a dict where the header_type of the header is a key to a array that contains all header data of the object
     :ivar array data: data array of the event
     :ivar int event_id: event id of the event
@@ -24,13 +28,13 @@ class NordicEvent:
         self.data = data
         self.event_id = event_id
 
-    headers = property(operator.attrgetter('_headers'))
+    headers = property(operator.attrgetter('_headers'), doc="")
 
     @headers.setter
     def headers(self, h):
         self._headers = h
 
-    data = property(operator.attrgetter('_data'))
+    data = property(operator.attrgetter('_data'), doc="")
 
     @data.setter
     def data(self, h):

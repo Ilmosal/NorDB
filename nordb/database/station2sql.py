@@ -1,5 +1,5 @@
 """
-This module contains all functions and classes for reading a station file in `CSS3.0 format`_ and pushing them into the database
+This module contains all functions and classes for reading a station file in `CSS3.0 format`_ and pushing it into the database
 
 .. _CSS3.0 format: ftp://ftp.pmel.noaa.gov/newport/lau/tphase/data/css_wfdisc.pdf
 
@@ -64,7 +64,7 @@ def readStationStringToStation(stat_line):
     Function for reading Station object from a css site string
 
     :param str stat_line: css site string
-    :returns: Station objetct   
+    :returns: Station object   
     """
 
     stations = [None]*14
@@ -88,10 +88,10 @@ def readStationStringToStation(stat_line):
 
 def getNetworkID(network):
     """
-    Function for inserting the information to the database.
+    Function for inserting the information to the database. If network doesn't already exist, the function adds the network to the database.
 
     :param array station: Array of all station related information in their correct spaces
-    :return: True or False depending on if the operation was succesful
+    :return: network id inserted to the database
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()

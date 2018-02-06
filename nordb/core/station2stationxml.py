@@ -6,7 +6,6 @@ Functions and Classes
 """
 
 import os
-import logging
 import psycopg2
 from datetime import datetime
 from lxml import etree
@@ -95,13 +94,13 @@ def channel2stationXML(sitechan, station):
 
     return channelXML
 
-def createStationXML(station):
-    """
-    Function for creating a stationxml etree object from a station
-    
-    :param Station station:
-    """
-    pass
+#def createStationXML(station):
+#    """
+#    Function for creating a stationxml etree object from a station
+#    
+#    :param Station station:
+#    """
+#    pass
 
 def writeNetworkToStationXML(network, output_path):
     """
@@ -120,8 +119,7 @@ def writeNetworkToStationXML(network, output_path):
     station_ids = []
 
     if not ans:
-        logging.error("No stations with network {0} in the database!".format(network))
-        return
+        raise Exception("No stations with Network {0} in the database".format(network))
 
     for a in ans:
         station_ids.append(a[0])
@@ -158,9 +156,7 @@ def writeNetworkToStationXML(network, output_path):
     
     if not xmlschema.validate(newSchema):
         log = xmlschema.error_log.last_error
-        logging.error("StationXML file did not go through validation: ")
-        logging.error(log)
-        return
-
+        raise Exception("StationXML file did not go through validation:\n{0}".format(log))
+        
     fout = open(output_path, "w")
     fout.write(xmlstring.decode("ascii"))

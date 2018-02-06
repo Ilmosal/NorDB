@@ -1,15 +1,16 @@
+import os
 import pytest
+from nordb.database import norDBManagement
+from nordb.core import usernameUtilities
+from nordb import settings
 
-@pytest.fixture
-def dummyDB():
-    import nordb.settings
-    from nordb.database import norDBManagement
-    nordb.settings.username = "dummyname"
-    nordb.settings.dbname = "dummyDB"
-    norDBManagement.createDatabase()
-    yield dummyDB
-    norDBManagement.destroyDatabase()
+@pytest.fixture()
+def setupdb():
+    print("Setup!")
+    username = settings.username
+    norDBManagement.createDatabase(True)
+    yield None
+    print("teardown")
+    usernameUtilities.confUser(username)
+    norDBManagement.destroyDatabase(True)
 
-    
-    
-    

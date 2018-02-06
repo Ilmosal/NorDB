@@ -1,5 +1,5 @@
 """
-This module contains all class information related to Nordic Events.
+This module contains all class information related to NordicMacroseismic header
 
 Functions and Classes
 ---------------------
@@ -17,30 +17,53 @@ from nordb.core.utils import addFloat2String
 class NordicMacroseismic:
     """
     A class that functions as a collection of enums. Contains the information of the macroseismic header line of a nordic file. 
+
     :param list header: The header of a nordic macroseismic in a list where each index of a value corresponds to NordicMacroseismic's pseudo-enum.
+    :ivar string description: Description of the macroseismic event. Maximum of 15 characters
+    :ivar string diastrophism_code: Diastrophism code - PDE type (F, U, D)
+    :ivar string tsunami_code: Tsunami code - PDE type (T, Q)
+    :ivar string seiche_code: Seiche code - PDE type (S, Q)
+    :ivar string cultural_effects: Cultural effects - PDE type (C, D, F, H)
+    :ivar string unusual_effects: Unsusual effects - PDE type (L, G, S, B, C, V, O, M)
+    :ivar int maximum_observed_intensity: Maximum of the observed intesity
+    :ivar string maximum_intensity_qualifier: Maximum intensity qualifier (+/- indicating more precisely)
+    :ivar string intensity_scale: Intesity Scale - ISC scale (MM, RF, CS, SK)
+    :ivar float macroseismic_latitude: Latitude of the event
+    :ivar float macroseismic_longitude: Longitude of the event
+    :ivar float macroseismic_magnitude: Magnitude of the event
+    :ivar string type_of_magnitude: Type of the magnitude (I, A, R, *)
+    :ivar float logarithm_of_radius: Logarithm (base 10) of the radius(km) of felt area
+    :ivar float logarithm_of_area_1: Logarithm (base 10) of area(km**2) number 1 where earthquake was felt exceeding a given intensity
+    :ivar int bordering_intensity_1: Intensity bordering the area number 1
+    :ivar float logarithm_of_area_2: Logarithm (base 10) of area(km**2) number 2 where earthquake was felt exceeding a given intensity
+    :ivar int bordering_intensity_2: Intensity bordering the area number 2
+    :ivar string quality_rank: Quality rank of the report (A, B, C, D)
+    :ivar string reporting_agency: Reporting agency
+    :ivar int event_id: Id of the event of the Macroseismic header
+    :ivar int h_id: Id of the NordicMacroseismic header in the database
     :ivar int header_type: This value tells that this is a NordicMacroseismic object. Value of 2
-    :ivar int DESCRIPTION: Location of the description of the event. Value of 0
-    :ivar int DIASTROPHISM_CODE: Location of the diastrophism code of the event. Value of 1
-    :ivar int TSUNAMI_CODE: Location of the tsunami code of the event. Value of 2
-    :ivar int SEICHE_CODE: Location of the seiche_code of the event. Value of 3 
-    :ivar int CULTURAL_EFFECTS: Location of the cultural effects of the event. Value of 4
-    :ivar int UNUSUAL_EFFECTS: Location of the unusual effects of the event. Value of 5
-    :ivar int MAXIMUM_OBSERVED_INTENSITY: Location of the maximum observed intensity of the event. Value of 6
-    :ivar int MAXIMUM_INTENSITY_QUALIFIER: Location of the maximum intensity qualifier of the event. Value of 7
-    :ivar int INTENSITY_SCALE: Location of the intensity scale of the event. Value of 8
-    :ivar int MACROSEISMIC_LATITUDE: Location of the macroseismic latitude of the event. Value of 9
-    :ivar int MACROSEISMIC_LONGITUDE: Location of the macroseismic longitude of the event. Value of 10
-    :ivar int MACROSEISMIC_MAGNITUDE: Location of the macroseismic magnitude of the event. Value of 11
-    :ivar int TYPE_OF_MAGNITUDE: Location of the type of magnitude of the event. Value of 12
-    :ivar int LOGARITHM_OF_RADIUS: Location of the logarithm of radius of the event. Value of 13
-    :ivar int LOGARITHM_OF_AREA_1: Location of the logarithm of area 1 of the event. Value of 14
-    :ivar int BORDERING_INTENSITY_1: Location of the bordering intensity 1 of the event. Value of 15
-    :ivar int LOGARITHM_OF_AREA_2: Location of the logarithm of area 2 of the event. Value of 16
-    :ivar int BORDERING_INTENSITY_2: Location of the bordering intensity 2 of the event. Value of 17
-    :ivar int QUALITY_RANK: Location of the quality rank of the event. Value of 18
-    :ivar int REPORTING_AGENCY: Location of the reporting agency of the event. Value of 19
-    :ivar int EVENT_ID: Location of the event id of the event. Value of 20
-    :ivar int ID: Location of the id of the event. Value of 21
+    :ivar int DESCRIPTION: Location of the description in a array. Value of 0
+    :ivar int DIASTROPHISM_CODE: Location of the diastrophism_code in a array. Value of 1
+    :ivar int TSUNAMI_CODE: Location of the tsunami_code in a array. Value of 2
+    :ivar int SEICHE_CODE: Location of the seiche_code in a array. Value of 3 
+    :ivar int CULTURAL_EFFECTS: Location of the cultural_effects in a array. Value of 4
+    :ivar int UNUSUAL_EFFECTS: Location of the unusual_effects in a array. Value of 5
+    :ivar int MAXIMUM_OBSERVED_INTENSITY: Location of the maximum_observed_intensity in a array. Value of 6
+    :ivar int MAXIMUM_INTENSITY_QUALIFIER: Location of the maximum_intensity_qualifier in a array. Value of 7
+    :ivar int INTENSITY_SCALE: Location of the intensity_scale in a array. Value of 8
+    :ivar int MACROSEISMIC_LATITUDE: Location of the macroseismic_latitude in a array. Value of 9
+    :ivar int MACROSEISMIC_LONGITUDE: Location of the macroseismic_longitude in a array. Value of 10
+    :ivar int MACROSEISMIC_MAGNITUDE: Location of the macroseismic_magnitude in a array. Value of 11
+    :ivar int TYPE_OF_MAGNITUDE: Location of the type_of_magnitude in a array. Value of 12
+    :ivar int LOGARITHM_OF_RADIUS: Location of the logarithm_of_radius in a array. Value of 13
+    :ivar int LOGARITHM_OF_AREA_1: Location of the logarithm_of_area_1 in a array. Value of 14
+    :ivar int BORDERING_INTENSITY_1: Location of the bordering_intensity_1 in a array. Value of 15
+    :ivar int LOGARITHM_OF_AREA_2: Location of the logarithm_of_area_2 in a array. Value of 16
+    :ivar int BORDERING_INTENSITY_2: Location of the bordering_intensity_2 in a array. Value of 17
+    :ivar int QUALITY_RANK: Location of the quality_rank in a array. Value of 18
+    :ivar int REPORTING_AGENCY: Location of the reporting_agency in a array. Value of 19
+    :ivar int EVENT_ID: Location of the event_id in a array. Value of 20
+    :ivar int ID: Location of the id in a array. Value of 21
     """
     header_type = 2
     DESCRIPTION = 0
@@ -90,133 +113,141 @@ class NordicMacroseismic:
         self.event_id = header[self.EVENT_ID]
         self.h_id = header[self.H_ID]
 
-    description = property(operator.attrgetter('_description'))
+    description = property(operator.attrgetter('_description'), doc="")
     
     @description.setter
     def description(self, val):
         val_description = validateString(val, "description", 0, 15, "", False, self.header_type)
         self._description = val_description
 
-    diastrophism_code = property(operator.attrgetter('_diastrophism_code'))
+    diastrophism_code = property(operator.attrgetter('_diastrophism_code'), doc="")
     
     @diastrophism_code.setter
     def diastrophism_code(self, val):
         val_diastrophism_code = validateString(val, "diastrophism_code", 0, 1, "FUD ", True, self.header_type)
         self._diastrophism_code = val_diastrophism_code
 
-    tsunami_code = property(operator.attrgetter('_tsunami_code'))
+    tsunami_code = property(operator.attrgetter('_tsunami_code'), doc="")
     
     @tsunami_code.setter
     def tsunami_code(self, val):
         val_tsunami_code = validateString(val, "tsunami_code", 0, 1, "TQ ", True, self.header_type)
         self._tsunami_code = val_tsunami_code
 
-    seiche_code = property(operator.attrgetter('_seiche_code'))
+    seiche_code = property(operator.attrgetter('_seiche_code'), doc="")
     
     @seiche_code.setter
     def seiche_code(self, val):
         val_seiche_code = validateString(val, "seiche_code", 0, 1, "SFQ ", True, self.header_type)
         self._seiche_code = val_seiche_code
 
-    cultural_effects = property(operator.attrgetter('_cultural_effects'))
+    cultural_effects = property(operator.attrgetter('_cultural_effects'), doc="")
     
     @cultural_effects.setter
     def cultural_effects(self, val):
         val_cultural_effects = validateString(val, "cultural_effects", 0, 1, "CDFH ", True, self.header_type)
         self._cultural_effects = val_cultural_effects
 
-    unusual_effects = property(operator.attrgetter('_unusual_effects'))
+    unusual_effects = property(operator.attrgetter('_unusual_effects'), doc="")
     
     @unusual_effects.setter
     def unusual_effects(self, val):
         val_unusual_effects = validateString(val, "unusual_effects", 0, 1, "LGSBCVOM", True, self.header_type)
         self._unusual_effects = val_unusual_effects
 
-    maximum_observed_intensity = property(operator.attrgetter('_maximum_observed_intensity'))
+    maximum_observed_intensity = property(operator.attrgetter('_maximum_observed_intensity'), doc="")
     
     @maximum_observed_intensity.setter
     def maximum_observed_intensity(self, val):
         val_maximum_observed_intensity = validateInteger(val, "maximum_observed_intensity", 0, 20, True, self.header_type)
         self._maximum_observed_intensity = val_maximum_observed_intensity
 
-    maximum_intensity_qualifier = property(operator.attrgetter('_maximum_intensity_qualifier'))
+    maximum_intensity_qualifier = property(operator.attrgetter('_maximum_intensity_qualifier'), doc="")
     
     @maximum_intensity_qualifier.setter
     def maximum_intensity_qualifier(self, val):
         val_maximum_intensity_qualifier = validateString(val, "maximum_intensity_qualifier", 0, 1, "+- ", True, self.header_type)
         self._maximum_intensity_qualifier = val_maximum_intensity_qualifier
 
-    intensity_scale = property(operator.attrgetter('_intensity_scale'))
+    intensity_scale = property(operator.attrgetter('_intensity_scale'), doc="")
     
     @intensity_scale.setter
     def intensity_scale(self, val):
         val_intensity_scale = validateString(val, "intensity_scale", 0, 2, ["MM", "RF", "CS", "SK"], True, self.header_type)
         self._intensity_scale = val_intensity_scale
 
-    macroseismic_latitude = property(operator.attrgetter('_macroseismic_latitude'))
+    macroseismic_latitude = property(operator.attrgetter('_macroseismic_latitude'), doc="")
     
     @macroseismic_latitude.setter
     def macroseismic_latitude(self, val):
         val_macroseismic_latitude = validateFloat(val, "macroseismic_latitude", -90.0, 90.0, True, self.header_type)
         self._macroseismic_latitude = val_macroseismic_latitude
 
-    macroseismic_longitude = property(operator.attrgetter('_macroseismic_longitude'))
+    macroseismic_longitude = property(operator.attrgetter('_macroseismic_longitude'), doc="")
     
     @macroseismic_longitude.setter
     def macroseismic_longitude(self, val):
         val_macroseismic_longitude = validateFloat(val, "macroseismic_longitude", -180.0, 180.0, True, self.header_type)
         self._macroseismic_longitude = val_macroseismic_longitude
 
-    macroseismic_magnitude = property(operator.attrgetter('_macroseismic_magnitude'))
+    macroseismic_magnitude = property(operator.attrgetter('_macroseismic_magnitude'), doc="")
     
     @macroseismic_magnitude.setter
     def macroseismic_magnitude(self, val):
         val_macroseismic_magnitude = validateFloat(val, "macroseismic_magnitude", 0.0, 20.0, True, self.header_type)
         self._macroseismic_magnitude = val_macroseismic_magnitude
 
-    type_of_magnitude = property(operator.attrgetter('_type_of_magnitude'))
+    type_of_magnitude = property(operator.attrgetter('_type_of_magnitude'), doc="")
     
     @type_of_magnitude.setter
     def type_of_magnitude(self, val):
         val_type_of_magnitude = validateString(val, "type_of_magnitude", 0, 1, "IAR*", True, self.header_type)
         self._type_of_magnitude = val_type_of_magnitude
 
-    logarithm_of_radius = property(operator.attrgetter('_logarithm_of_radius'))
+    logarithm_of_radius = property(operator.attrgetter('_logarithm_of_radius'), doc="")
     
     @logarithm_of_radius.setter
     def logarithm_of_radius(self, val):
         val_logarithm_of_radius = validateFloat(val, "logarithm_of_radius", 0.0, 99.99, True, self.header_type)
         self._logarithm_of_radius = val_logarithm_of_radius
 
-    logarithm_of_area_1 = property(operator.attrgetter('_logarithm_of_area_1'))
+    logarithm_of_area_1 = property(operator.attrgetter('_logarithm_of_area_1'), doc="")
     
     @logarithm_of_area_1.setter
     def logarithm_of_area_1(self, val):
         val_logarithm_of_area_1 = validateFloat(val, "logarithm_of_area_1", 0.0, 99.99, True, self.header_type)
         self._logarithm_of_area_1 = val_logarithm_of_area_1
 
-    bordering_intensity_1 = property(operator.attrgetter('_bordering_intensity_1'))
+    bordering_intensity_1 = property(operator.attrgetter('_bordering_intensity_1'), doc="")
     
     @bordering_intensity_1.setter
     def bordering_intensity_1(self, val):
         val_bordering_intensity_1 = validateInteger(val, "bordering_intensity_1", 0, 99, True, self.header_type)
         self._bordering_intensity_1 = val_bordering_intensity_1
 
-    logarithm_of_area_2 = property(operator.attrgetter('_logarithm_of_area_2'))
+    logarithm_of_area_2 = property(operator.attrgetter('_logarithm_of_area_2'), doc="")
     
     @logarithm_of_area_2.setter
     def logarithm_of_area_2(self, val):
         val_logarithm_of_area_2 = validateFloat(val, "logarithm_of_area_2", 0.0, 99.99, True, self.header_type)
         self._logarithm_of_area_2 = val_logarithm_of_area_2
 
-    bordering_intensity_2 = property(operator.attrgetter('_bordering_intensity_2'))
+    bordering_intensity_2 = property(operator.attrgetter('_bordering_intensity_2'), doc="")
     
     @bordering_intensity_2.setter
     def bordering_intensity_2(self, val):
         val_bordering_intensity_2 = validateInteger(val, "bordering_intensity_2", 0, 99, True, self.header_type)
         self._bordering_intensity_2 = val_bordering_intensity_2
 
-    reporting_agency = property(operator.attrgetter('_reporting_agency'))
+    quality_rank = property(operator.attrgetter('_quality_rank'), doc="")
+    
+    @quality_rank.setter
+    def quality_rank(self, val):
+        val_quality_rank = validateString(val, "quality_rank", 0, 1, "ABCD", True, self.header_type)
+        self._quality_rank = val_quality_rank
+
+
+    reporting_agency = property(operator.attrgetter('_reporting_agency'), doc="")
     
     @reporting_agency.setter
     def reporting_agency(self, val):
