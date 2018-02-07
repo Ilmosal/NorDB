@@ -15,11 +15,13 @@ from nordb.nordic.station import Station
 from nordb.nordic.sitechan import SiteChan
 from nordb.core import usernameUtilities
 
+MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
+
 def station2stationxml(station):
     """
     Method for converting a Station object to a stationxml lxml object
   
-    :param Station station: Station list that needs to be converted. 
+    :param Station station: Station object that needs to be converted. 
     :returns: StationXML etree object
     """
     stationXML = etree.Element("Station")    
@@ -63,16 +65,17 @@ def channel2stationXML(sitechan, station):
     """
     Create channel xml and return it
 
-    :param array sitechan: Sitechan object that will be converted into a xml etree object
+    :param SiteChan sitechan: Sitechan object that will be converted into a xml etree object
     :returns: lxml etree object of a channel defined by FNDS format
     """
     channelXML = etree.Element("Channel")
-    channelXML.attrib["code"] = channel.channel_code
+    channelXML.attrib["code"] = sitechan.channel_code
     channelXML.attrib["locationCode"] = "HE"
-    channelXML.attrib["startDate"] = str(channel.on_date) + "T" + "00:00:00+00:00"
+    if sitechan.on_date is not None:
+        channelXML.attrib["startDate"] = str(sitechan.on_date) + "T" + "00:00:00+00:00"
 
-    if channel.off_date is not None:
-        channelXML.attrib["endDate"] = str(channel.off_date) + "T" + "00:00:00+00:00"
+    if sitechan.off_date is not None:
+        channelXML.attrib["endDate"] = str(sitechan.off_date) + "T" + "00:00:00+00:00"
 
     latitude = etree.SubElement(channelXML, "Latitude")
     latitude.text = str(station.latitude)
@@ -84,49 +87,32 @@ def channel2stationXML(sitechan, station):
     elevation.text = str(station.elevation)
 
     depth = etree.SubElement(channelXML, "Depth")
-    depth.text = str(channel.emplacement_depth)   
+    depth.text = str(sitechan.emplacement_depth)   
 
     azimuth = etree.SubElement(channelXML, "Azimuth")
-    azimuth.text = str((int(channel.horizontal_angle) + 180) % 360)
+    azimuth.text = str((int(sitechan.horizontal_angle) + 180) % 360)
 
     dip = etree.SubElement(channelXML, "Dip")
-    dip.text = str(int(channel.vertical_angle))
+    dip.text = str(int(sitechan.vertical_angle))
 
     return channelXML
 
-#def createStationXML(station):
-#    """
-#    Function for creating a stationxml etree object from a station
-#    
-#    :param Station station:
-#    """
-#    pass
-
-def writeNetworkToStationXML(network, output_path):
+def stationsToStationXML(stations):
     """
-    Method for writing all stations of a network in database into a stationXML file.
+    Method for writing all stations given into a stationXML file.
 
-    :param str network: Network from which all the stations are taken from.
-    :param str output_path: path to output file.
+    :param array stations: Array of stations that need to be put into a stationXLM file
+    :returns: lxml etree object
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute("SELECT station.id FROM station, network where network.id = station.network_id AND network.network = %s;", (network,))
-
-    ans = cur.fetchall()
+    cur.execute("SELECT network FROM network WHERE id = %s", (stations[0].network_id,))
+    ans = cur.fetchone()
     
-    station_ids = []
-
-    if not ans:
-        raise Exception("No stations with Network {0} in the database".format(network))
-
-    for a in ans:
-        station_ids.append(a[0])
-  
-    conn.close()
-
-    stations = []
+    if ans is None:
+        raise Exception("No network for station in the database!")
+    network = ans[0]
 
     stationroot = etree.Element("FDSNStationXML")
     stationroot.attrib["schemaVersion"] = "1.0"
@@ -143,10 +129,10 @@ def writeNetworkToStationXML(network, output_path):
     networkXml = etree.SubElement(stationroot, "Network")
     networkXml.attrib["code"] = network
 
-    for station_id in station_ids:
-        networkXml.append(station2stationxml(sql2station.readStation(station_id)))
+    for station in stations:
+        networkXml.append(station2stationxml(station))
 
-    f = open(MODULE_PATH + "../xml/fdsn-station-1.0.xsd")
+    f = open(MODULE_PATH + "/xml/fdsn-station-1.0.xsd")
     xmlschema_doc = etree.parse(f)
     f.close()
     xmlschema = etree.XMLSchema(xmlschema_doc)
@@ -154,9 +140,6 @@ def writeNetworkToStationXML(network, output_path):
     xmlstring = etree.tostring(stationroot, pretty_print=True)
     newSchema = etree.XML(xmlstring)
     
-    if not xmlschema.validate(newSchema):
-        log = xmlschema.error_log.last_error
-        raise Exception("StationXML file did not go through validation:\n{0}".format(log))
-        
-    fout = open(output_path, "w")
-    fout.write(xmlstring.decode("ascii"))
+    xmlschema.assertValid(newSchema)
+       
+    return newSchema 

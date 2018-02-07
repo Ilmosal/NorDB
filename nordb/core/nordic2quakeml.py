@@ -16,7 +16,7 @@ import datetime
 import os
 import logging
 
-MODULE_PATH = os.path.realpath(__file__)[:-len("sql2quakeml.py")]
+MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
 username = ""
 
@@ -147,9 +147,9 @@ def addPick(event, nordic, phase_data):
         time_value = time_value + str(phase_data.minute) + ":"
 
     if phase_data.second < 10:
-        time_value = time_value + "0" + str(int(phase_data.second)) + "Z"
+        time_value = time_value + "0" + str(phase_data.second) + "Z"
     else:
-        time_value = time_value + str(int(phase_data.second)) + "Z" 
+        time_value = time_value + str(phase_data.second) + "Z" 
 
     addTime(pick, time_value, 0)
 
@@ -439,10 +439,10 @@ def nordicEvents2QuakeML(nordic_events, long_quakeML):
 
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    #Parse the tree to a string and back to the object because of a weird bug on validating the tree.
+    #Parse the tree to a string and back to the object because of a weird bug on validating the tree. Probably an encoding problem or something
     test = etree.tostring(quakeml)
     quakeml = etree.XML(test)
 
-    xlmschema.assertValid(quakeml)
+    xmlschema.assertValid(quakeml)
 
     return quakeml

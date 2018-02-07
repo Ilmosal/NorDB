@@ -19,12 +19,42 @@ SELECT_STATION =    (
                             "station_code, on_date, off_date, latitude, " +
                             "longitude, elevation, station_name, station_type, " +
                             "reference_station, north_offset, east_offset, " +
-                            "load_date, id " +
+                            "load_date, network_id, id " +
                         "FROM " +
                             "station " +
                         "WHERE " +
                             "id = %s" 
                     )
+
+ALL_STATIONS =      (
+                        "SELECT " +
+                            "station_code, on_date, off_date, latitude, " +
+                            "longitude, elevation, station_name, station_type, " +
+                            "reference_station, north_offset, east_offset, " +
+                            "load_date, network_id, id " +
+                        "FROM " +
+                            "station " 
+                    )
+
+def readAllStations():
+    """
+    Function for reading all stations from database.
+
+    :returns: Array of Station objects
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    cur.execute(ALL_STATIONS)
+
+    ans = cur.fetchall()
+    conn.close()
+
+    stations = []
+    for a in ans:
+        stations.append(Station(a))
+
+    return stations
 
 def readStation(station_id):
     """
@@ -33,12 +63,7 @@ def readStation(station_id):
     :param int station_id: id of the station wanted
     :returns: Station object
     """
-    try:
-        conn = psycopg2.connect("dbname = nordb user={0}".format(username))
-    except psycopg2.Error as e:
-        logging.error(e.pgerror)
-        return None
-
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute(SELECT_STATION, (station_id,))

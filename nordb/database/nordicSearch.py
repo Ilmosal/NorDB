@@ -6,7 +6,6 @@ Functions and Classes
 """
 
 from datetime import date
-import logging
 
 from nordb.core import usernameUtilities
 from nordb.database import sql2nordic
@@ -206,7 +205,7 @@ def returnValueFromString(value):
 
     :param str value: string value that will be transformed into correct format
     :return: The value in it's correct type. Priority order is Date -> Float -> Integer
-    :raise: **ValueError** -- Value error if the string vannot be parsed into any value supported by  the program
+    :raise: **ValueError** -- Value error if the string vannot be parsed into any value supported by the program
     """
     try:
         if len(value) != 10:
@@ -272,7 +271,7 @@ def string2Command(sCommand, cmd_type):
             val = returnValueFromString(sCommand)
 
         if val is False:
-            raise ValueError
+            raise Exception("Couldn't generate a search command from string {0}".format(sCommand))
         command = ExactlyValue(val)
 
     return command
@@ -326,7 +325,7 @@ def createSearchQuery(commands):
     :return: An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
     """
 
-    query = "SELECT DISTINCT ON (event_id) event_id, event_type, distance_indicator, event_desc_id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
+    query = "SELECT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id "
 
     vals = ()
 
@@ -380,130 +379,9 @@ def createSearchQuery(commands):
                 query += " AND nordic_header_main." + value + " <= %s"
                 vals += (commands[c].value,)
 
-    query += " ORDER BY event_id"
-
     search = [query, vals]
 
     return search
-
-def getAllNordics(criteria):
-    """
-    Method that returns all nordic events that fulfil the given criteria.
-
-    :param dict criteria: All criteria for search
-    :return: Array of event_ids that fulfil the criteria
-    """
-    if not criteria:
-        return None
-
-
-    commands = {}
-
-    for arg in criteria.keys():
-        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
-
-    for c in commands.keys():
-        if not validateCommand(commands[c], c):
-            return -2
-
-    search = createSearchQuery(commands)
- 
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute(search[0], search[1])
-    ans = cur.fetchall()
-
-    conn.close()
-    return ans
-
-def searchEventRoot(criteria, verbose):
-    """
-    Function for searching all events with certain criteria given by user. Criteria needs to be a dict where the key and the values are strings from which the criteria for the search is generated from.
-
-    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
-    :param bool verbose: flag if all info from events need to be printed or just the main headers
-    :return: All found NordicEvents as a array
-    """
-    if "event_id" in criteria.keys():
-        events = searchWithEventId(criteria["event_id"])
-    else:
-        events = searchWithCriteria(criteria)
-
-    e_ids = ()
-    for e in events:
-        e_ids += (e[0],)
-
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-    conn.close()
-
-    r_events = []
-
-    for e_id in e_ids:
-        r_events.append(getNordica.readNordicEvent(cur, e_id))
-
-    return r_events
-
-def searchWithEventId(event_id):
-    """
-    Method for searching if a event_id exists on the database
-
-    :param int event_id: id of the event that is being searched
-    :return: Relevant information from the event: (event_id, event_type, distance_indicator, event_desc_id)
-    """
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
- 
-    cur.execute("SELECT nordic_event.id, event_type, nordic_header_main.distance_indicator, nordic_header_main.event_desc_id FROM nordic_event, nordic_header_main WHERE (root_id, event_type) IN (SELECT root_id, MIN(event_type) from nordic_event GROUP BY root_id) AND nordic_event.id = %s AND nordic_header_main.event_id = nordic_event.id LIMIT 1;", (event_id,)) 
-    event = cur.fetchall()
-
-    conn.close()
-  
-    return event
-
-def printNordic(events, criteria, verbose):
-    """
-    Method for printing out a list of events.
-
-    :param array event_ids: list of event_ids that need to be printed
-    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
-    :param bool verbose: flag if all info from events need to be printed or just the main headers
-    :return: None if the operations were succesful
-    """
-    if events is None or len(events) == 0:
-        print("No events found with criteria!")
-    else:
-        if len(criteria.keys()) == 0:
-            print("Events in database:")
-            print("---------------------------")
-        else:
-            print("Events found with criteria:")
-            for key in criteria.keys():
-                print(key + ": " + criteria[key] + " ", end='')
-            print("\n--------------------------------------------------------------------------------------------")
-
-        conn = usernameUtilities.log3nordb() 
-        cur = conn.cursor()
-
-        if verbose:
-            for event in events:
-                nordic = getNordic.readNordicEvent(cur, event[0])
-                print("Event ID: {0}".format(event[0]))
-                print(nordic)
-                print(80*"-")
-
-        else:
-            largest = -1
-            for event in events:
-                if len(str(event[0])) > largest:
-                    largest = len(str(event[0]))
-
-            print(" EID" +" "*(largest) + "ETP YEAR M DA H MI SEC  DE LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP")
-            for event in events:
-                print(("{0:< " + str(largest+1) +"}    {1} {2}").format(event[0], event[1], getNordic.readNordicEvent(cur, event[0]).headers[1][0]))
-
-        conn.close()
 
 def searchWithCriteria(criteria):
     """
@@ -520,7 +398,7 @@ def searchWithCriteria(criteria):
 
     for c in commands.keys():
         if not validateCommand(commands[c], c):
-            raise Exception #Command error
+            raise Exception("Commands did not go through validation")
 
     search = createSearchQuery(commands)
 
@@ -535,45 +413,9 @@ def searchWithCriteria(criteria):
     event_ids = ()
     for a in ans:
         event_ids += (a[0],)
-    
-    return ans
-
-def searchNordic(criteria, verbose, output, event_root, user_path, output_format, no_outprint):
-    """
-    Method for searching for events. Allows searching for events with following criteria: date, hour, minute, second, latitude, longitude, event_desc_id and magnitude. The function shows the user all the events that fit the criteria.
-
-    Arguments must be given in following format:
-
-        * criterion="Value" -- Checks if the event's value is exactly of value
-        * criterion="Value1-Value2" -- Checks if the event's value is higher or equal to Value1 and lower or equal to Value2
-        * criterion="Value+" -- Checks if the event's value is higher or equal to value
-        * criterion="Value-" -- Checks if the event's value is lower or equal to value
-    
-    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
-    :param bool verbose: flag if all info from events need to be printed or just the main headers
-    :return: list of event ids or none
-    """
-    if event_root:
-        events = searchEventRoot(criteria, verbose)
-        return
-    elif "event_id" in criteria.keys():
-        events = searchWithEventId(criteria["event_id"])
-    else:
-        events = searchWithCriteria(criteria)
-
-    if not no_outprint:
-        printNordic(events, criteria, verbose)
-
-    event_ids = []
-
-    for e in events:
-        event_ids.append(e[0])
-
-    if output is not None:
-        if output_format == "n":
-            for e_id in event_ids:
-                sql2nordic.writeNordicEvent(e_id, user_path, output)
-        elif output_format == "q":
-            sql2quakeml.writeQuakeML(event_ids, user_path, output)
-        elif output_format == "sc3":
-            sql2sc3.writeSC3(event_ids, user_path, output)
+   
+    events = []
+    for event_id in event_ids:
+        events.append(sql2nordic.getNordicFromDB(event_id))
+ 
+    return events

@@ -11,3 +11,5 @@ before_script:
     - bash tests/create_usrconf.sh
 script:
     - python setup.py test
+after_script:
+    - sphinx-build doc/source/ doc/build/

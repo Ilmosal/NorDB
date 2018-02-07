@@ -14,8 +14,6 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-username = ""
-
 SELECT_INSTRUMENT = (   "SELECT " +
                             "instrument_name, instrument_type, " +
                             "band, digital, samprate, ncalib, ncalper, dir, " +
@@ -27,52 +25,35 @@ SELECT_INSTRUMENT = (   "SELECT " +
                         "AND " +
                             "instrument.id = %s")
 
-def createInstrumentString(instrument):
+ALL_INSTRUMENTS =   (   "SELECT " +
+                            "instrument_name, instrument_type, " +
+                            "band, digital, samprate, ncalib, ncalper, dir, " +
+                            "dfile, rsptype, lddate, id, css_id " +
+                        "FROM " +
+                            "instrument, instrument_css_link " +
+                        "WHERE " +
+                            "instrument.id = instrument_id ")
+
+def readAllInstruments():
     """
-    Function for creating a css instrument string from a instrument object.
+    Function for reading all insturments from the database and returning them to user.
 
-    :param list instrument: instrument array described by Instrument object
-    :return: The instrument string in a css format
+    :return: Array of :class:`.Instrument` objects
     """
-    instrumentString = ""
-    
-    instrumentString += addInteger2String(instrument[Instrument.CSS_ID], 8, '>')
-    
-    instrumentString += " "
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
 
-    instrumentString += addString2String(instrument[Instrument.INSTRUMENT_NAME], 50, '<')
+    cur.execute(ALL_INSTRUMENTS)
 
-    instrumentString += " "
-    
-    instrumentString += addString2String(instrument[Instrument.INSTRUMENT_TYPE], 6, '<')
+    ans = cur.fetchall()
+    conn.close()
 
-    instrumentString += " "
+    instruments = []
 
-    instrumentString += addString2String(instrument[Instrument.BAND], 2, '<')
-    instrumentString += addString2String(instrument[Instrument.DIGITAL], 2, '<')
-    instrumentString += addFloat2String (instrument[Instrument.SAMPRATE], 11, 7, '>')
+    for a in ans:
+        instruments.append(Instrument(a))
 
-    instrumentString += "    "
-    
-    instrumentString += addFloat2String (instrument[Instrument.NCALIB], 13, 6, '>')
-    
-    instrumentString += "    "
-    
-    instrumentString += addFloat2String(instrument[Instrument.NCALPER], 13, 6, '>')
-
-    instrumentString += " "
-
-    instrumentString += addString2String(instrument[Instrument.DIR], 64, '<')
-        
-    instrumentString += " "
-    
-    instrumentString += addString2String(instrument[Instrument.DFILE], 32, '<')
-
-    instrumentString += addString2String(instrument[Instrument.RSPTYPE], 6, '<')
-
-    instrumentString += addString2String(instrument[Instrument.LDDATE].strftime("%Y-%b-%d"), 10, '<')
-
-    return instrumentString
+    return instruments
 
 def readInstrument(instrument_id):
     """
@@ -89,46 +70,5 @@ def readInstrument(instrument_id):
 
     conn.close()
 
-    return ans
+    return Instrument(ans)
 
-def sql2Instrument(instrument_ids, output_path):
-    """
-    Function for reading instruments from the database and dumping them to a instruments.instrument file
-
-    :param array instrument_ids: Array of instrument ids you want to get from the database
-    :param str output_path: path to the output file
-    """
-    instruments = []
-
-    for instrument_id in instrument_ids:
-        instruments.append(readInstrument(instrument_id))
-
-    f = open(output_path, "w")
-
-    for instrument in instruments:
-        f.write(createInstrumentString(instrument) + "\n")
-
-def writeAllInstruments(output_path):
-    """
-    Function for writing all instruments to a instrument file
-
-    :param str output_path: path to output_file
-    """
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute("SELECT id FROM instrument;")
-    ans = cur.fetchall()
-
-    conn.close()
-
-    instrument_ids = []
-
-    if not ans:
-        print("No stations in the database")
-        return
-
-    for a in ans:
-        instrument_ids.append(a[0])
-
-    sql2Instrument(instrument_ids, output_path)
