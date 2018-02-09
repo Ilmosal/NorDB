@@ -45,11 +45,12 @@ def changeEventRoot(event_id, root_id):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, event_type from nordic_event WHERE id = %s;", (event_id,))
+    cur.execute("SELECT id, event_type, root_id from nordic_event WHERE id = %s;", (event_id,))
     event = cur.fetchone()
-
     if event is None:
         raise Exception("Event with id: {0} does not exist!".format(event_id))
+
+    old_root_id = event[2]
 
     if root_id != -999:
         cur.execute("SELECT id from nordic_event_root WHERE id = %s;", (root_id,))
@@ -68,9 +69,9 @@ def changeEventRoot(event_id, root_id):
         if a[1] == event[1] and event[1] not in "OAR ":
            cur.execute("UPDATE nordic_event SET event_type = %s WHERE id = %s AND NOT id = %s;", ("O", a[0], event_id)) 
    
-    cur.execute("SELECT id FROM nordic_event WHERE root_id = %s", (root_id,))
+    cur.execute("SELECT id FROM nordic_event WHERE root_id = %s", (old_root_id,))
     if cur.fetchone() is None:
-        cur.execute("DELETE nordic_event_root WHERE id = %s", (root_id,))
+        cur.execute("DELETE FROM nordic_event_root WHERE id = %s", (old_root_id,))
 
     conn.commit() 
     conn.close()

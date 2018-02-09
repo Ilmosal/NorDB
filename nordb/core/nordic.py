@@ -235,12 +235,15 @@ def readHeaders(nordic_string, fix_nordic):
 
     return headers, i
 
-def createNordicEvent(nordic_string, fix_nordic):
+def createNordicEvent(nordic_string, fix_nordic=False, root_id = -1, creation_id = -1, event_type = "O"):
     """
     Function for creating a single NordicEvent object from a string.
 
     :param Array nordic_string: String array representation of a nordic
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
+    :param int root_id: id of the root event
+    :param int creation_id: id of the creation id in the database
+    :param str event_type: Type of the event. 
     :return: Nordic Event object
     """
     headers, headers_size = readHeaders(nordic_string, fix_nordic)
@@ -252,6 +255,4 @@ def createNordicEvent(nordic_string, fix_nordic):
     for x in range(headers_size, len(nordic_string)):
         data.append(createStringPhaseData(nordic_string[x], fix_nordic, headers[1][0].hour))
 
-    nordic_event = NordicEvent(headers, data, -1)
-
-    return nordic_event
+    return NordicEvent(headers, data, -1, root_id, creation_id, event_type)

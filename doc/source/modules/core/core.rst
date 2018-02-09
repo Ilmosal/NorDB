@@ -8,7 +8,6 @@ Core
    
     abbreviations.rst 
     nordicFix.rst
-    nordicModify.rst
     nordic.rst
     nordicRead.rst
     usernameUtilities.rst

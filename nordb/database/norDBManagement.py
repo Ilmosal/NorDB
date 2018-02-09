@@ -16,7 +16,7 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("norDBManagement.py")]
 from nordb.core import usernameUtilities
 from nordb import settings
 
-def createDatabase(test_value=False):
+def createDatabase():
     """
     Method for creating the database if the database doesn't exist.
     """
@@ -24,7 +24,7 @@ def createDatabase(test_value=False):
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
     
-    if test_value:
+    if settings.test:
         cur.execute("SELECT 1 FROM pg_database WHERE datname = 'test_nordb'")
     else:
         cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
@@ -33,7 +33,7 @@ def createDatabase(test_value=False):
         conn.close()
         raise Exception("Database already exists")
 
-    if test_value:
+    if settings.test:
         cur.execute("CREATE DATABASE test_nordb")
     else:
         cur.execute("CREATE DATABASE {0}".format(settings.dbname))
@@ -41,7 +41,7 @@ def createDatabase(test_value=False):
     conn.commit()
     conn.close()
     
-    conn = usernameUtilities.log2nordb(test_value)
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     
     cur.execute(open(MODULE_PATH + "../sql/nordic_event_root.sql", "r").read())
@@ -65,7 +65,7 @@ def createDatabase(test_value=False):
     conn.commit()
     conn.close()
 
-def destroyDatabase(test_value=False):
+def destroyDatabase():
     """
     Method for destroying the database if the database exists
     """
@@ -73,7 +73,7 @@ def destroyDatabase(test_value=False):
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
-    if test_value:
+    if settings.test:
         cur.execute("SELECT 1 FROM pg_database WHERE datname='test_nordb'")
     else:
         cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
@@ -83,7 +83,7 @@ def destroyDatabase(test_value=False):
 
     conn.close()
 
-    conn = usernameUtilities.log2nordb(test_value)
+    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     cur.execute("DROP SCHEMA public CASCADE")
@@ -95,7 +95,7 @@ def destroyDatabase(test_value=False):
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
-    if test_value:
+    if settings.test:
         cur.execute("DROP DATABASE test_nordb")
     else:
         cur.execute("DROP DATABASE {0}".format(settings.dbname))

@@ -9,6 +9,7 @@ Database
     instrument2sql.rst
     norDBManagement.rst
     nordic2sql.rst
+    nordicModify.rst
     resetDB.rst
     sensor2sql.rst
     sitechan2sql.rst

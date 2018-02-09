@@ -28,6 +28,7 @@ from nordb.database import nordicSearch
 from nordb.database import norDBManagement
 from nordb.database import resetDB
 from nordb.database import undoRead
+from nordb.database import nordicModify
 
 from nordb.database import sql2instrument
 from nordb.database import sql2nordic
@@ -38,7 +39,6 @@ from nordb.database import sql2sitechan
 from nordb.core import nordic
 from nordb.core import nordic2quakeml
 from nordb.core import nordic2sc3
-from nordb.core import nordicModify
 from nordb.core import nordicRead
 from nordb.core import sftpQuake
 from nordb.core import station2stationxml
@@ -154,11 +154,14 @@ def search(repo, date, hour, minute, second, latitude, longitude, depth, event_i
         click.echo("No events found with criteria: \n{0}".format(criteria))
         return
 
-    click.echo("Event Search \n Criteria: {0}".format(criteria))
+    if criteria.keys():
+        click.echo("Event Search \n Criteria: {0}".format(criteria))
+    else:
+        click.echo("All events")
     click.echo("-------------------------------------------------------------")
     for e in events:
         if not verbose:
-            print(str(e.headers[1][0])[:-1])
+            print("id: {0} type: {1} - {2}".format(e.event_id, e.event_type, str(e.headers[1][0])[:-1]))
         else:
             print(str(e) + "\n-------------------------------------------------------------")
 
@@ -175,12 +178,12 @@ def search(repo, date, hour, minute, second, latitude, longitude, depth, event_i
             f_output.write(etree.tostring(qml, pretty_print=True).decode('utf8'))
 
         elif output_format == "sc3":
-            sc3 = nordic2sc3.nordic2SC3(events)
+            sc3 = nordic2sc3.nordicEvents2SC3(events)
             f_output.write(etree.tostring(sc3, pretty_print=True).decode('utf8'))
 
         f_output.close()
 
-@cli.command('insertsta', short_help='insert site file')
+@cli.command('insertsta', short_help='insert station related files')
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen in addition to error log")
 @click.option('--all_files', '-a', is_flag=True, help="add all four station files: .site, .sitechan, .instrument, .sensor to db")
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
@@ -394,26 +397,27 @@ def getsta(repo, o_format, output_name, stat_ids):
 #    """
 #    nordicModify.changeEventRoot(event_id, root_id)
 #
-#@cli.command('chgtype', short_help='change event type')
-#@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
-#@click.argument('event-id', type=click.INT)
-#@click.pass_obj
-#def chgtype(repo, event_type, event_id):
-#    """
-#    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Event type refers to how final the analysis of the event is.
-#    
-#    \b
-#    Event type
-#    ----------
-#    A - Automatic
-#    R - Reviewed
-#    P - Preliminary
-#    F - Final
-#    (S - Scandia) NOT YET IMPLEMENTED
-#    O - Other
-#    """
-#    nordicModify.changeEventType(event_id, event_type)
-#
+@cli.command('chgtype', short_help='change event type')
+@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
+@click.argument('event-id', type=click.INT)
+@click.pass_obj
+def chgtype(repo, event_type, event_id):
+    """
+    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Event type refers to how final the analysis of the event is.
+    
+    \b
+    Event type
+    ----------
+    A - Automatic
+    R - Reviewed
+    P - Preliminary
+    F - Final
+    (S - Scandia) NOT YET IMPLEMENTED
+    O - Other
+    """
+   
+    nordicModify.changeEventType(event_id, event_type)
+
 
 @cli.command('insert', short_help="insert events")
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
@@ -446,7 +450,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
 
             for n_string in nordic_strings:
                 try:
-                    nordic_events.append(nordic.createNordicEvent(n_string, fix))
+                    nordic_events.append(nordic.createNordicEvent(n_string, fix, -1, -1, event_type))
                 except Exception as e:
                     click.echo("Error reading nordic: {0}".format(e))
                     click.echo(n_string[0])
@@ -456,8 +460,41 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
             creation_id = nordic2sql.createCreationInfo()
 
             for nord in nordic_events:
+                
+                event_id = -1
+                if not no_duplicates:
+                    same_events = nordicSearch.searchSameEvents(nord)
+                    if same_events:
+                        click.echo("Identical events to current found! Is any of these a duplicate of yours?")
+                        click.echo("{0} - (Yours)".format(nord.headers[1][0]))
+                        click.echo("-----------------------------------------------------------------------------------------")
+                        for e in same_events:
+                            click.echo("{0} - ({1})".format(e.headers[1][0], e.event_id))
+                        while True:
+                            try:
+                                event_id = int(input("Event id of the same event: "))
+                                break
+                            except:
+                                click.echo("Not a valid id!")
+
+                    if event_id == -1:
+                        similar_events = nordicSearch.searchSimilarEvents(nord)
+                        
+                        if similar_events:
+                            click.echo("Similar events to current found! Is any of these a duplicate of yours?")
+                            click.echo("{0} (Yours)".format(nord.headers[1][0]))
+                            click.echo("-----------------------------------------------------------------------------------------")
+                            for e in similar_events:
+                                click.echo("{0} - ({1})".format(e.headers[1][0], e.event_id))
+                            while True:
+                                try:
+                                    event_id = int(input("Event id of the same event: "))
+                                    break
+                                except:
+                                    click.echo("Not a valid id!")
+
                 try:
-                    nordic2sql.event2Database(nord, event_type, f_nordic.name, ignore_duplicates, no_duplicates, creation_id)
+                    nordic2sql.event2Database(nord, event_type, f_nordic.name, ignore_duplicates, no_duplicates, creation_id, event_id)
                 except Exception as e:
                     click.echo("Error pushing nordic to database: {0}".format(e))
                     click.echo(nord.headers[1][0])
@@ -590,14 +627,17 @@ def get(repo, output_format, event_ids, output_name):
 #        sys.exit()
 #
 #    sftpQuake.getSeed(station, year, j_date)
-#
-#@cli.command('undo', short_help='undo last insert')
-#@click.pass_obj
-#def undo(repo):
-#    """
-#    Undo the last file insert made into the database. This will delete all events added to the db with a single insert command and modify the database to the way it was before the insert.
-#    """
-#    undoRead.undoMostRecent()
+
+@cli.command('undo', short_help='undo last insert')
+@click.pass_obj
+def undo(repo):
+    """
+    Undo the last file insert made into the database. This will delete all events added to the db with a single insert command and modify the database to the way it was before the insert.
+    """
+    try:
+        undoRead.undoMostRecent()
+    except:
+        click.echo("No events in database")
 
 if __name__ == "__main__":
     cli()

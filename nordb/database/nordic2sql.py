@@ -100,7 +100,7 @@ INSERT_COMMANDS = {
                         "RETURNING id"
 }
   
-def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates, no_duplicates, creation_id):
+def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates, no_duplicates, creation_id, e_id):
     """
     Function that pushes a NordicEvent object to the database
     
@@ -110,6 +110,7 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
     :param bool ignore_duplicates: flag for ignoring all events that already are in the database
     :param bool no_duplicates: flag for telling the program that the event is not in the database and checking for old events will be skipped
     :param int creation_id: id of the creation_info entry in the database
+    :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -128,27 +129,6 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
     filenameids = cur.fetchone()
     if filenameids is not None:
         filename_id = filenameids[0]
-
-    e_id = -1
-    #TODO: DUPLICATE EVENTS AND SIMILAR EVENTS
-
-#    if not no_duplicates:
-#        ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
-#        e_id = ans[0]
-#
-#        if e_id == -1:
-#            ans = nordicFindOld.checkForSimilarEvents(nordic_event, cur)
-#            e_id = ans[0]
-#
-#        if e_id == -9:
-#            return False
-#        if ignore_duplicates and e_id > 0:
-#            return False
-#        elif ignore_duplicates:
-#            ans = nordicFindOld.checkForSameEvents(nordic_event, cur, ignore_duplicates)
-#        e_id = ans[0]
-#        if e_id > 0:
-#            return False
 
     root_id = -1
 

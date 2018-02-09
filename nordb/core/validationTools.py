@@ -25,21 +25,6 @@ nTypes = {0: "Nordic Event",
 class values():
     maxInt = 9223372036854775807 
 
-def validateId(str_id):
-    """
-    Function for validating a id in a string format. Id must be a whole number.
-
-    :param str str_id: id in a strin format
-    :returns: true depending on if str_id validates 
-    """
-    try:
-        if int(str_id) < 0:
-            return False
-        else:
-            return True
-    except:
-        return False
-
 def validateInteger(val, valueName, low, high, limits, nType):
     """
     Function that determines and returns a string as integer or None if the given value is valid integer and falls between given parameters or is empty. 

@@ -6,11 +6,11 @@ Functions and Classes
 """
 
 from datetime import date
-
+import time
 from nordb.core import usernameUtilities
 from nordb.database import sql2nordic
 
-username = ""
+TIMEZONE = 2 #TIMEZONE of the observation location
 
 COMMAND_TPES = {1:"exactly", 2:"between", 3:"over", 4:"under"}
 
@@ -239,6 +239,7 @@ def string2Command(sCommand, cmd_type):
     Generate a command from a string.
     
     :param str sCommand: Command given by user.
+    :param str cmd_type: parameter to which the query is made for
     :return: Command that can be used for comparisons.
     :raises: **ValueError** -- Program raises value error if the sCommand is in a incorrect format
     """
@@ -325,7 +326,7 @@ def createSearchQuery(commands):
     :return: An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
     """
 
-    query = "SELECT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id "
+    query = "SELECT DISTINCT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id ORDER BY id"
 
     vals = ()
 
@@ -418,4 +419,74 @@ def searchWithCriteria(criteria):
     for event_id in event_ids:
         events.append(sql2nordic.getNordicFromDB(event_id))
  
+    return events
+
+def searchSameEvents(nordic_event):
+    """
+    Function for searching and returning all events that are the same compared to the event given by the user.
+
+    :param NordicEvent nordic_event: Event for which the search is done for
+    :returns: List of :class:`NordicEvent`s that are indentical to the event
+    """
+    criteria = {}
+
+    if nordic_event.headers[1][0].epicenter_latitude is not None:
+        criteria["latitude"] = str(nordic_event.headers[1][0].epicenter_latitude)
+    if nordic_event.headers[1][0].epicenter_longitude is not None:
+        criteria["longitude"] = str(nordic_event.headers[1][0].epicenter_longitude)
+    if nordic_event.headers[1][0].date is not None:
+        criteria["date"] = str(nordic_event.headers[1][0].date)
+    if nordic_event.headers[1][0].hour is not None:
+        criteria["hour"] = str(nordic_event.headers[1][0].hour)
+    if nordic_event.headers[1][0].minute is not None:
+        criteria["minute"] = str(nordic_event.headers[1][0].minute)
+    if nordic_event.headers[1][0].second is not None:
+        criteria["second"] = str(nordic_event.headers[1][0].second)
+
+    return list(filter(lambda event: (str(event) == str(nordic_event)), searchWithCriteria(criteria)))
+
+def searchSimilarEvents(nordic_event):
+    """
+    Function for searching and returning all events that are considered similar to the event given by user.
+
+    conditions for similarity:
+
+        -Events must occur 20 seconds maximum apart from each other
+        -Events must be 0.2 deg maximum apart from each other in latitude and longitude
+        -Events must have magnitude difference of 0.5 maximum
+
+    :param NordicEvent nordic_event: Event for which the search is done for
+    :returns: Array of :class:`NordicEvent`s that are considered similar
+    """
+    SEARCH_QUERY =  (
+                        "SELECT "
+                        "   DISTINCT event_id "
+                        "FROM "
+                        "   nordic_header_main "
+                        "WHERE "
+                        "   ABS(EXTRACT(EPOCH FROM date)+hour*3600+minute*60+second-%s) < %s "
+                        "AND "
+                        "   ABS(epicenter_latitude - %s) < %s "
+                        "AND "
+                        "   ABS(epicenter_longitude - %s) < %s "
+                        "AND "
+                        "   ABS(magnitude_1 - %s) < %s;"
+                    ) 
+    m_header = nordic_event.headers[1][0]
+    time_criteria = time.mktime(m_header.date.timetuple())+(TIMEZONE+m_header.hour)*3600+m_header.minute*60+m_header.second
+    search_criteria = (time_criteria, 20.0, m_header.epicenter_latitude, 0.2, m_header.epicenter_longitude, 0.2, m_header.magnitude_1, 0.5)
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    cur.execute(SEARCH_QUERY, search_criteria)
+    ans = cur.fetchall()
+
+    if ans is None:
+        return []
+    
+    events = []
+
+    for a in ans:
+        events.append(sql2nordic.getNordicFromDB(a[0]))
+
     return events

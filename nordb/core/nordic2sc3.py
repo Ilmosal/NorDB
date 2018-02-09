@@ -12,7 +12,7 @@ import os
 
 from nordb.core import nordic2quakeml
 
-def nordic2SC3(nordic_events):
+def nordicEvents2SC3(nordic_events):
     """
     Function that converts a NordicEvent object array into a lxml etree object in SC3 format.
     

@@ -25,13 +25,13 @@ def confUser(username):
     f.close()
     settings.updateUsername()
 
-def log2nordb(test_value=False):
+def log2nordb():
     """
     Function that logs to database and returns a psycopg2 Connect object.
     
     :return: psycopg2.Connect object
     """
-    if test_value:
+    if settings.test:
         conn = psycopg2.connect("dbname = test_nordb user = {0}".format(settings.username))
     else:
         conn = psycopg2.connect("dbname = {0} user = {1}".format(settings.dbname, settings.username))

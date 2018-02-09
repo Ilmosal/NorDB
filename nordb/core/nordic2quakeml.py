@@ -417,7 +417,7 @@ def addTime(container, time_value, time_uncertainty):
         uncertainty = etree.SubElement(time, "uncertainty")
         uncertainty.text = str(time_uncertainty)
 
-def nordicEvents2QuakeML(nordic_events, long_quakeML):
+def nordicEvents2QuakeML(nordic_events, long_quakeML=True):
     """
     Function that turns a array of NordicEvent objects into a quakeml etree object, validates it and returns it.
         

@@ -56,7 +56,7 @@ def fixMainData(header):
         if header[NordicMain.MINUTE] == "60":
             header[NordicMain.MINUTE] = "0"
             header[NordicMain.HOUR] = str(int(header[NordicMain.HOUR]) + 1)
-            if header[NordicMain.HOUR] == "23":
+            if header[NordicMain.HOUR] == "24":
                 raise ValueError #TODO OWN ERROR
 
 def fixErrorData(header):
@@ -87,15 +87,19 @@ def fixPhaseData(data, mhour):
 
     if data[NordicData.SECOND] == "60.00":
         data[NordicData.SECOND] = "0.00"
+        try:
+            data[NordicData.MINUTE] = str(int(data[NordicData.MINUTE])+1)
+        except:
+            pass
         if data[NordicData.MINUTE] == "60":
-            data[NordicData.MINUTE] = 0
-            if data[NordicData.HOUR] == "23":
-                data[NordicData.HOUR] = "0"
+            data[NordicData.MINUTE] = "00"
+            try:
+                data[NordicData.HOUR] = str(int(data[NordicData.HOUR])+1)
+            except:
+                pass
+            if data[NordicData.HOUR] == "24":
+                data[NordicData.HOUR] = "00"
                 data[NordicData.TIME_INFO] = "+"
-            else:
-                data[NordicData.HOUR] = str(int(data[NordicData.HOUR]) + 1)
-        else:
-            data[NordicData.MINUTE] = str(int(data[NordicData.MINUTE]) + 1)
 
     try:
         data[NordicData.EPICENTER_DISTANCE] = str(int(float(data[NordicData.EPICENTER_DISTANCE])))
@@ -107,20 +111,4 @@ def fixPhaseData(data, mhour):
             data[NordicData.TIME_INFO] = "+"
     except:
         pass
-
-def fixNordicEvent(nordicEvent):
-    """
-    Method for fixing an whole nordic event before validation. Only fixes couple of common errors like rounding errors with angles or seconds and such.
-
-    :param NordicEvent nordicEvent: Nordic Event Class object before validation.
-    """
-    
-    for h in nordicEvent.headers[1]:
-        fixMainData(h)
-
-    for h in nordicEvent.headers[5]:
-        fixErrorData(h)
-
-    for data in nordicEvent.data:
-        fixPhaseData(data, nordicEvent.headers[1][0].hour)
 

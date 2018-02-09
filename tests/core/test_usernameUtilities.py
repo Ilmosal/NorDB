@@ -5,8 +5,6 @@ from nordb.core import usernameUtilities
 from nordb.database import norDBManagement
 from nordb import settings
 
-username = ""
-
 @pytest.mark.usefixtures("setupdb")
 class TestConfUser(object):
     def testConfUserWritesUsername(setupdb):
@@ -20,10 +18,10 @@ class TestConfUser(object):
 @pytest.mark.usefixtures("setupdb")
 class TestLog2NorDB(object):
     def testLogSuccesful(setupdb):
-        conn = usernameUtilities.log2nordb(True)
+        conn = usernameUtilities.log2nordb()
         assert type(conn), psycopg2.Connect
 
     def testLogFailWithWrongUser(setupdb):
         usernameUtilities.confUser("wrong")
         with pytest.raises(psycopg2.OperationalError):
-            usernameUtilities.log2nordb(True)
+            usernameUtilities.log2nordb()
