@@ -83,10 +83,13 @@ def addEvent(eventParameters, nordic, long_quakeML):
     #Add event description
     event_description = etree.SubElement(event, "description")
     event_description_text = etree.SubElement(event_description, "text")
-    event_description_text.text =   (
-                                        nordic.headers[1][0].distance_indicator
-                                        + nordic.headers[1][0].event_desc_id
-                                    )
+    if nordic.headers[1][0].event_desc_id is None:
+        event_description_text.text = nordic.headers[1][0].distance_indicator + " "
+    else:
+        event_description_text.text =   (
+                                            nordic.headers[1][0].distance_indicator
+                                            + nordic.headers[1][0].event_desc_id
+                                        )
     #Adding event comments
     for header_comment in nordic.headers[3]:
         if header_comment.h_comment is not None:

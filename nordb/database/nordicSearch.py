@@ -326,7 +326,7 @@ def createSearchQuery(commands):
     :return: An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
     """
 
-    query = "SELECT DISTINCT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id ORDER BY id"
+    query = "SELECT DISTINCT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
 
     vals = ()
 
