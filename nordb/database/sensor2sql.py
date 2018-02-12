@@ -31,32 +31,6 @@ SENSOR_INSERT = (
                 "(  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                 )
 
-
-def readSensorStringToSensor(sen_line):
-    """
-    Function for reading sensor string into a Sensor object
-
-    :param str sen_line:  css sensor string
-    :return: Sensor object
-    """
-    sensor = [None]*13
-
-    sensor[Sensor.TIME]             = unidecode.unidecode(sen_line[15:33].strip())
-    sensor[Sensor.ENDTIME]          = unidecode.unidecode(sen_line[35:51].strip())
-    sensor[Sensor.JDATE]            = unidecode.unidecode(stringToDate(sen_line[71:78].strip()))
-    sensor[Sensor.CALRATIO]         = unidecode.unidecode(sen_line[78:96].strip())
-    sensor[Sensor.CALPER]           = unidecode.unidecode(sen_line[95:112] .strip())
-    sensor[Sensor.TSHIFT]           = unidecode.unidecode(sen_line[113:119].strip())
-    sensor[Sensor.INSTANT]          = unidecode.unidecode(sen_line[120].strip())
-    sensor[Sensor.LDDATE]           = unidecode.unidecode(stringToDate(sen_line[122:].strip()))
-    sensor[Sensor.CHANNEL_ID]       = unidecode.unidecode(sen_line[62:69].strip())
-    sensor[Sensor.INSTRUMENT_ID]    = unidecode.unidecode(sen_line[51:60].strip())
-    sensor[Sensor.S_ID]             = -1
-    sensor[Sensor.STATION_CODE]     = unidecode.unidecode(sen_line[:7].strip())
-    sensor[Sensor.CHANNEL_CODE]     = unidecode.unidecode(sen_line[7:15].strip())
-
-    return Sensor(sensor)
-
 def genFakeChannel(sensor):
     """
     Function for generating a false SiteChan object related to the Sensor object given by user. This is used to quarantee that all sensors are attached to a SiteChan in the database.
@@ -120,16 +94,3 @@ def insertSensor2Database(sensor):
     conn.commit()
     conn.close()
 
-def readSensors(f_sensors):
-    """
-    Function for reading sensors in css format and inserting them to the database
-
-    :param file f_sensors: file that will be read into the database
-    """
-    sensors = []
-
-    for line in f_sensors:
-        sensors.append(readSensorStringToSensor(line))
-
-    for sen in sensors:
-        insertSensor2Database(sen)

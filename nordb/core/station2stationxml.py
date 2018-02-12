@@ -6,7 +6,6 @@ Functions and Classes
 """
 
 import os
-import psycopg2
 from datetime import datetime
 from lxml import etree
 
@@ -47,18 +46,9 @@ def station2stationxml(station):
         terminationDate = etree.SubElement(stationXML, "TerminationDate")
         terminationDate.text = str(station.off_date) + "T" + "00:00:00+00:00"
 
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
+    for cha in station.sitechans:
+        stationXML.append(channel2stationXML(cha, station))
 
-    cur.execute("SELECT sitechan.id FROM sitechan, station WHERE station_code = %s AND sitechan.station_id = station.id", (station.station_code,))
-    channel_ids = cur.fetchall()
-
-    for cha in channel_ids:
-        channel = sql2sitechan.readSitechan(cha[0])
-        stationXML.append(channel2stationXML(channel, station))
-
-    conn.close()
- 
     return stationXML
 
 def channel2stationXML(sitechan, station):
@@ -102,17 +92,10 @@ def stationsToStationXML(stations):
     Method for writing all stations given into a stationXML file.
 
     :param array stations: Array of stations that need to be put into a stationXLM file
-    :returns: lxml etree object
+    :returns: lxml etree object or None is stations array is empty
     """
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute("SELECT network FROM network WHERE id = %s", (stations[0].network_id,))
-    ans = cur.fetchone()
-    
-    if ans is None:
-        raise Exception("No network for station in the database!")
-    network = ans[0]
+    if stations is []: 
+        return None
 
     stationroot = etree.Element("FDSNStationXML")
     stationroot.attrib["schemaVersion"] = "1.0"
@@ -127,7 +110,7 @@ def stationsToStationXML(stations):
     rootCreated.text = createdDate
     
     networkXml = etree.SubElement(stationroot, "Network")
-    networkXml.attrib["code"] = network
+    networkXml.attrib["code"] = stations[0].network
 
     for station in stations:
         networkXml.append(station2stationxml(station))

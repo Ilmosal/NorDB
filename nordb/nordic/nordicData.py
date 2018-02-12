@@ -123,154 +123,154 @@ class NordicData:
 
     @station_code.setter
     def station_code(self, val):
-        val_station_code = validateString(val, "station_code", 0, 4, "", False, self.header_type)
+        val_station_code = validateString(val, "station_code", 0, 4, None, self.header_type)
         self._station_code = val_station_code
 
     sp_instrument_type = property(operator.attrgetter('_sp_instrument_type'), doc="")
     
     @sp_instrument_type.setter
     def sp_instrument_type(self, val):
-        val_sp_instrument_type = validateString(val, "sp_instrument_type", 0, 1, "LSBHE", True, self.header_type)
+        val_sp_instrument_type = validateString(val, "sp_instrument_type", 0, 1, "LSBHE", self.header_type)
         self._sp_instrument_type = val_sp_instrument_type
 
     sp_component = property(operator.attrgetter('_sp_component'), doc="")
     
     @sp_component.setter
     def sp_component(self, val):
-        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH12VRT", True, self.header_type)
+        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH12VRT", self.header_type)
         self._sp_component = val_sp_component
 
     quality_indicator = property(operator.attrgetter('_quality_indicator'), doc="")
     
     @quality_indicator.setter
     def quality_indicator(self, val):
-        val_quality_indicator = validateString(val, "quality_indicator", 0, 1, "", False, self.header_type)
+        val_quality_indicator = validateString(val, "quality_indicator", 0, 1, None, self.header_type)
         self._quality_indicator = val_quality_indicator
 
     phase_type = property(operator.attrgetter('_phase_type'), doc="")
     
     @phase_type.setter
     def phase_type(self, val):
-        val_phase_type = validateString(val, "phase_type", 0, 4, "", False, self.header_type)
+        val_phase_type = validateString(val, "phase_type", 0, 4, None, self.header_type)
         self._phase_type = val_phase_type
 
     weight = property(operator.attrgetter('_weight'), doc="")
     
     @weight.setter
     def weight(self, val):
-        val_weight = validateInteger(val, "weight", 0, 9, True, self.header_type)
+        val_weight = validateInteger(val, "weight", 0, 9, self.header_type)
         self._weight = val_weight
 
     first_motion = property(operator.attrgetter('_first_motion'), doc="")
     
     @first_motion.setter
     def first_motion(self, val):
-        val_first_motion = validateString(val, "first_motion", 0, 1, "CD+- ", True, self.header_type)
+        val_first_motion = validateString(val, "first_motion", 0, 1, "CD+- ", self.header_type)
         self._first_motion = val_first_motion
 
     time_info = property(operator.attrgetter('_time_info'), doc="")
     
     @time_info.setter
     def time_info(self, val):
-        val_time_info = validateString(val, "time_info", 0, 1, "-+ ", True, self.header_type)
+        val_time_info = validateString(val, "time_info", 0, 1, "-+ ", self.header_type)
         self._time_info = val_time_info
 
     hour = property(operator.attrgetter('_hour'), doc="")
     
     @hour.setter
     def hour(self, val):
-        val_hour = validateInteger(val, "hour", 0, 23, True, self.header_type)
+        val_hour = validateInteger(val, "hour", 0, 23, self.header_type)
         self._hour = val_hour
 
     minute = property(operator.attrgetter('_minute'), doc="")
     
     @minute.setter
     def minute(self, val):
-        val_minute = validateInteger(val, "minute", 0, 59, True, self.header_type)
+        val_minute = validateInteger(val, "minute", 0, 59, self.header_type)
         self._minute = val_minute
 
     second = property(operator.attrgetter('_second'), doc="")
     
     @second.setter
     def second(self, val):
-        val_second = validateFloat(val, "second", 0.0, 59.99, True, self.header_type)
+        val_second = validateFloat(val, "second", 0.0, 59.99, self.header_type)
         self._second = val_second
 
     signal_duration = property(operator.attrgetter('_signal_duration'), doc="")
     
     @signal_duration.setter
     def signal_duration(self, val):
-        val_signal_duration = validateInteger(val, "signal_duration", 0, 9999, True, self.header_type)
+        val_signal_duration = validateInteger(val, "signal_duration", 0, 9999, self.header_type)
         self._signal_duration = val_signal_duration
 
     max_amplitude = property(operator.attrgetter('_max_amplitude'), doc="")
     
     @max_amplitude.setter
     def max_amplitude(self, val):
-        val_max_amplitude = validateFloat(val, "max_amplitude", -1.0, 9999.9, True, self.header_type)
+        val_max_amplitude = validateFloat(val, "max_amplitude", -1.0, 9999.9, self.header_type)
         self._max_amplitude = val_max_amplitude
 
     max_amplitude_period = property(operator.attrgetter('_max_amplitude_period'), doc="")
     
     @max_amplitude_period.setter
     def max_amplitude_period(self, val):
-        val_max_amplitude_period = validateFloat(val, "max_amplitude_period", -1.0, 99.9, True, self.header_type)
+        val_max_amplitude_period = validateFloat(val, "max_amplitude_period", -1.0, 99.9, self.header_type)
         self._max_amplitude_period = val_max_amplitude_period
 
     back_azimuth = property(operator.attrgetter('_back_azimuth'), doc="")
     
     @back_azimuth.setter
     def back_azimuth(self, val):
-        val_back_azimuth = validateFloat(val, "back_azimuth", 0.0, 359.9, True, self.header_type)
+        val_back_azimuth = validateFloat(val, "back_azimuth", 0.0, 359.9, self.header_type)
         self._back_azimuth = val_back_azimuth
 
     apparent_velocity = property(operator.attrgetter('_apparent_velocity'), doc="")
     
     @apparent_velocity.setter
     def apparent_velocity(self, val):
-        val_apparent_velocity = validateFloat(val, "apparent_velocity", 0.0, 99.9, True, self.header_type)
+        val_apparent_velocity = validateFloat(val, "apparent_velocity", 0.0, 99.9, self.header_type)
         self._apparent_velocity = val_apparent_velocity
 
     signal_to_noise = property(operator.attrgetter('_signal_to_noise'), doc="")
     
     @signal_to_noise.setter
     def signal_to_noise(self, val):
-        val_signal_to_noise = validateFloat(val, "signal_to_noise", 0.0, 99.9, True, self.header_type)
+        val_signal_to_noise = validateFloat(val, "signal_to_noise", 0.0, 99.9, self.header_type)
         self._signal_to_noise = val_signal_to_noise
 
     azimuth_residual = property(operator.attrgetter('_azimuth_residual'), doc="")
     
     @azimuth_residual.setter
     def azimuth_residual(self, val):
-        val_azimuth_residual = validateInteger(val, "azimuth_residual", -99, 999, True, self.header_type)
+        val_azimuth_residual = validateInteger(val, "azimuth_residual", -99, 999, self.header_type)
         self._azimuth_residual = val_azimuth_residual
 
     travel_time_residual = property(operator.attrgetter('_travel_time_residual'), doc="")
     
     @travel_time_residual.setter
     def travel_time_residual(self, val):
-        val_travel_time_residual = validateFloat(val, "travel_time_residual", -999.9, 9999.9, True, self.header_type)
+        val_travel_time_residual = validateFloat(val, "travel_time_residual", -999.9, 9999.9, self.header_type)
         self._travel_time_residual = val_travel_time_residual
 
     location_weight = property(operator.attrgetter('_location_weight'), doc="")
     
     @location_weight.setter
     def location_weight(self, val):
-        val_location_weight = validateInteger(val, "location_weight", 0, 10, True, self.header_type)
+        val_location_weight = validateInteger(val, "location_weight", 0, 10, self.header_type)
         self._location_weight = val_location_weight
 
     epicenter_distance = property(operator.attrgetter('_epicenter_distance'), doc="")
     
     @epicenter_distance.setter
     def epicenter_distance(self, val):
-        val_epicenter_distance = validateInteger(val, "epicenter_distance", 0, 99999, True, self.header_type)
+        val_epicenter_distance = validateInteger(val, "epicenter_distance", 0, 99999, self.header_type)
         self._epicenter_distance = val_epicenter_distance
 
     epicenter_to_station_azimuth = property(operator.attrgetter('_epicenter_to_station_azimuth'), doc="")
     
     @epicenter_to_station_azimuth.setter
     def epicenter_to_station_azimuth(self, val):
-        val_epicenter_to_station_azimuth = validateInteger(val, "epicenter_to_station_azimuth", 0, 359, True, self.header_type)
+        val_epicenter_to_station_azimuth = validateInteger(val, "epicenter_to_station_azimuth", 0, 359, self.header_type)
         self._epicenter_to_station_azimuth = val_epicenter_to_station_azimuth
 
     def __str__(self):

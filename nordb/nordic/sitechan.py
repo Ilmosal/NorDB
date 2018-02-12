@@ -2,6 +2,7 @@
 Contains information relevant to SiteChan object
 """
 import operator
+import unidecode 
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
@@ -10,6 +11,7 @@ from nordb.core.validationTools import validateDate
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
+from nordb.core.utils import stringToDate
 
 class SiteChan:
     """
@@ -46,7 +48,7 @@ class SiteChan:
     STATION_ID = 11
     CSS_ID = 12
  
-    def __init__(self, data):
+    def __init__(self, data, sensors = []):
         self.station_code = data[self.STATION_CODE]
         self.channel_code = data[self.CHANNEL_CODE]
         self.on_date = data[self.ON_DATE]
@@ -60,19 +62,20 @@ class SiteChan:
         self.s_id = data[self.S_ID]
         self.station_id = data[self.STATION_ID]
         self.css_id = data[self.CSS_ID]
+        self.sensors = sensors
     
     station_code = property(operator.attrgetter('_station_code'))
 
     @station_code.setter
     def station_code(self, val):
-        val_station_code = validateString(val, "station_code", 0, 6, None, False, self.header_type)
+        val_station_code = validateString(val, "station_code", 0, 6, None, self.header_type)
         self._station_code = val_station_code
 
     channel_code = property(operator.attrgetter('_channel_code'))
 
     @channel_code.setter
     def channel_code(self, val):
-        val_channel_code = validateString(val, "channel_code", 0, 8, None, False, self.header_type)
+        val_channel_code = validateString(val, "channel_code", 0, 8, None, self.header_type)
         self._channel_code = val_channel_code
 
     on_date = property(operator.attrgetter('_on_date'))
@@ -93,35 +96,35 @@ class SiteChan:
     
     @channel_type.setter
     def channel_type(self, val):
-        val_channel_type = validateString(val, "channel_type", 0, 4, None, False, self.header_type)
+        val_channel_type = validateString(val, "channel_type", 0, 4, None, self.header_type)
         self._channel_type = val_channel_type
 
     emplacement_depth = property(operator.attrgetter('_emplacement_depth'))
     
     @emplacement_depth.setter
     def emplacement_depth(self, val):
-        val_emplacement_depth = validateFloat(val, "emplacement_depth", 0.0, 5.0, True, self.header_type)
+        val_emplacement_depth = validateFloat(val, "emplacement_depth", 0.0, 5.0, self.header_type)
         self._emplacement_depth = val_emplacement_depth
 
     horizontal_angle = property(operator.attrgetter('_horizontal_angle'))
     
     @horizontal_angle.setter
     def horizontal_angle(self, val):
-        val_horizontal_angle = validateFloat(val, "horizontal_angle", -1.0, 360.0, True, self.header_type)
+        val_horizontal_angle = validateFloat(val, "horizontal_angle", -1.0, 360.0, self.header_type)
         self._horizontal_angle = val_horizontal_angle
 
     vertical_angle = property(operator.attrgetter('_vertical_angle'))
     
     @vertical_angle.setter
     def vertical_angle(self, val):
-        val_vertical_angle = validateFloat(val, "vertical_angle", -1.0, 180.0, True, self.header_type)
+        val_vertical_angle = validateFloat(val, "vertical_angle", -1.0, 180.0, self.header_type)
         self._vertical_angle = val_vertical_angle
 
     description = property(operator.attrgetter('_description'))
     
     @description.setter
     def description(self, val):
-        val_description = validateString(val, "description", 0, 50, None, False, self.header_type)
+        val_description = validateString(val, "description", 0, 50, None, self.header_type)
         self._description = val_description
 
     load_date = property(operator.attrgetter('_load_date'))
@@ -135,7 +138,7 @@ class SiteChan:
     
     @css_id.setter
     def css_id(self, val):
-        val_css_id = validateInteger(val, "css_id", None, None, False, self.header_type)
+        val_css_id = validateInteger(val, "css_id", None, None, self.header_type)
         self._css_id = val_css_id
 
     def __str__(self):
@@ -194,3 +197,30 @@ class SiteChan:
                             self.load_date]
                            
         return sitechan_list
+
+def readSiteChanStringToSiteChan(chan_line):
+    """
+    Function for reading channel info to SiteChan object from css sitechan string
+
+    :param str chan_line: css sitechan string
+    :return: SiteChan object
+    """
+    channel = [None]*13
+
+    channel[SiteChan.STATION_CODE]      = unidecode.unidecode(chan_line[:7].strip())
+    channel[SiteChan.CHANNEL_CODE]      = unidecode.unidecode(chan_line[7:17].strip())
+    channel[SiteChan.ON_DATE]           = unidecode.unidecode(stringToDate(chan_line[17:24].strip()))
+    channel[SiteChan.OFF_DATE]          = unidecode.unidecode(stringToDate(chan_line[35:42].strip()))
+    channel[SiteChan.CHANNEL_TYPE]      = unidecode.unidecode(chan_line[43:48].strip())
+    channel[SiteChan.EMPLACEMENT_DEPTH] = unidecode.unidecode(chan_line[49:57].strip())
+    channel[SiteChan.HORIZONTAL_ANGLE]  = unidecode.unidecode(chan_line[57:64].strip())
+    channel[SiteChan.VERTICAL_ANGLE]    = unidecode.unidecode(chan_line[64:71].strip())
+    channel[SiteChan.DESCRIPTION]       = unidecode.unidecode(chan_line[72:122].strip())
+    channel[SiteChan.LOAD_DATE]         = unidecode.unidecode(stringToDate(chan_line[123:].strip()))
+    channel[SiteChan.S_ID]              = -1
+    channel[SiteChan.STATION_ID]        = -1
+    channel[SiteChan.CSS_ID]            = unidecode.unidecode(chan_line[25:33].strip())
+
+    return SiteChan(channel)
+
+

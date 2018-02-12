@@ -5,6 +5,7 @@ Classes and Functions
 ---------------------
 """
 import operator
+import unidecode 
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
@@ -13,6 +14,7 @@ from nordb.core.validationTools import validateDate
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
+from nordb.core.utils import stringToDate
 
 class Instrument:
     """
@@ -81,70 +83,70 @@ class Instrument:
     
     @instrument_name.setter
     def instrument_name(self, val):
-        val_instrument_name = validateString(val, "instrument_name", 0, 50, None, False, self.header_type)
+        val_instrument_name = validateString(val, "instrument_name", 0, 50, None, self.header_type)
         self._instrument_name = val_instrument_name
 
     instrument_type = property(operator.attrgetter('_instrument_type'), doc="")
     
     @instrument_type.setter
     def instrument_type(self, val):
-        val_instrument_type = validateString(val, "instrument_type", 0, 6, None, False, self.header_type)
+        val_instrument_type = validateString(val, "instrument_type", 0, 6, None, self.header_type)
         self._instrument_type = val_instrument_type
 
     band = property(operator.attrgetter('_band'), doc="")
     
     @band.setter
     def band(self, val):
-        val_band = validateString(val, "band", 0, 1, None, False, self.header_type)
+        val_band = validateString(val, "band", 0, 1, None, self.header_type)
         self._band = val_band
 
     digital = property(operator.attrgetter('_digital'), doc="")
     
     @digital.setter
     def digital(self, val):
-        val_digital = validateString(val, "digital", 0, 1, None, False, self.header_type)
+        val_digital = validateString(val, "digital", 0, 1, None, self.header_type)
         self._digital = val_digital
 
     samprate = property(operator.attrgetter('_samprate'), doc="")
     
     @samprate.setter
     def samprate(self, val):
-        val_samprate = validateFloat(val, "samprate", 0.0, 1000.0, True, self.header_type)
+        val_samprate = validateFloat(val, "samprate", 0.0, 1000.0, self.header_type)
         self._samprate = val_samprate
 
     ncalib = property(operator.attrgetter('_ncalib'), doc="")
     
     @ncalib.setter
     def ncalib(self, val):
-        val_ncalib = validateFloat(val, "ncalib", -1.0, 10000.0, True, self.header_type)
+        val_ncalib = validateFloat(val, "ncalib", -1.0, 10000.0, self.header_type)
         self._ncalib = val_ncalib
 
     ncalper = property(operator.attrgetter('_ncalper'), doc="")
     
     @ncalper.setter
     def ncalper(self, val):
-        val_ncalper = validateFloat(val, "ncalper", -1.0, 10000.0, True, self.header_type)
+        val_ncalper = validateFloat(val, "ncalper", -1.0, 10000.0, self.header_type)
         self._ncalper = val_ncalper
 
     resp_dir = property(operator.attrgetter('_resp_dir'), doc="")
     
     @resp_dir.setter
     def resp_dir(self, val):
-        val_resp_dir = validateString(val, "resp_dir", 0, 64, None, False, self.header_type)
+        val_resp_dir = validateString(val, "resp_dir", 0, 64, None, self.header_type)
         self._resp_dir = val_resp_dir
 
     dfile = property(operator.attrgetter('_dfile'), doc="")
     
     @dfile.setter
     def dfile(self, val):
-        val_dfile = validateString(val, "dfile", 0, 32, None, False, self.header_type)
+        val_dfile = validateString(val, "dfile", 0, 32, None, self.header_type)
         self._dfile = val_dfile
 
     rsptype = property(operator.attrgetter('_rsptype'), doc="")
     
     @rsptype.setter
     def rsptype(self, val):
-        val_rsptype = validateString(val, "rsptype", 0, 6, None, False, self.header_type)
+        val_rsptype = validateString(val, "rsptype", 0, 6, None, self.header_type)
         self._rsptype = val_rsptype
 
     lddate = property(operator.attrgetter('_lddate'), doc="")
@@ -158,7 +160,7 @@ class Instrument:
 
     @css_id.setter
     def css_id(self, val):
-        val_css_id = validateInteger(val, "css_id", None, None, False, self.header_type)
+        val_css_id = validateInteger(val, "css_id", None, None, self.header_type)
         self._css_id = val_css_id
 
     def __str__(self):
@@ -220,3 +222,30 @@ class Instrument:
                             self.lddate]
 
         return instrument_list
+
+def readInstrumentStringToInstrument(ins_line):
+    """
+    Function for reading instrument info to a Instrument object 
+
+    :param str ins_line: css intrument line
+    :returns: Instrument object
+    """
+    instrument = [None]*13
+
+    instrument[Instrument.INSTRUMENT_NAME]  = unidecode.unidecode(ins_line[8:58].strip())
+    instrument[Instrument.INSTRUMENT_TYPE]  = unidecode.unidecode(ins_line[60:67].strip())
+    instrument[Instrument.BAND]             = unidecode.unidecode(ins_line[67].strip())
+    instrument[Instrument.DIGITAL]          = unidecode.unidecode(ins_line[69].strip())
+    instrument[Instrument.SAMPRATE]         = unidecode.unidecode(ins_line[70:82].strip())
+    instrument[Instrument.NCALIB]           = unidecode.unidecode(ins_line[82:100].strip())
+    instrument[Instrument.NCALPER]          = unidecode.unidecode(ins_line[101:116].strip())
+    instrument[Instrument.RESP_DIR]         = unidecode.unidecode(ins_line[117:182].strip())
+    instrument[Instrument.DFILE]            = unidecode.unidecode(ins_line[182:215].strip())
+    instrument[Instrument.RSPTYPE]          = unidecode.unidecode(ins_line[215:228].strip())
+    instrument[Instrument.LDDATE]           = unidecode.unidecode(stringToDate(ins_line[228:].strip()))
+    instrument[Instrument.I_ID]             = -1
+    instrument[Instrument.CSS_ID]           = unidecode.unidecode(ins_line[:8].strip())
+
+    return Instrument(instrument)
+
+

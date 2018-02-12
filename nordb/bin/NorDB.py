@@ -44,6 +44,11 @@ from nordb.core import sftpQuake
 from nordb.core import station2stationxml
 from nordb.core import usernameUtilities
 
+from nordb.nordic import instrument
+from nordb.nordic import sensor
+from nordb.nordic import sitechan
+from nordb.nordic import station
+
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 logging.basicConfig(filename=ERROR_PATH, level=logging.ERROR)
@@ -199,7 +204,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
 
         for line in f_stations:
             try:
-                stations.append(station2sql.readStationStringToStation(line))
+                stations.append(station.readStationStringToStation(line))
             except Exception as e:
                 click.echo("Error reading line: {0}".format(e))
                 click.echo("Line: {0}".format(line))
@@ -219,7 +224,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
 
         for line in f_sitechans:
             try:
-                sitechans.append(sitechan2sql.readSiteChanStringToSiteChan(line))
+                sitechans.append(sitechan.readSiteChanStringToSiteChan(line))
             except Exception as e:
                 click.echo("Error reading line: {0}".format(e))
                 click.echo("Line: {0}".format(line))
@@ -240,7 +245,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
 
         for line in f_instruments:
             try:
-                instruments.append(instrument2sql.readInstrumentStringToInstrument(line))
+                instruments.append(instrument.readInstrumentStringToInstrument(line))
             except Exception as e:
                 click.echo("Error reading line: {0}".format(e))
                 click.echo("Line: {0}".format(line))
@@ -261,7 +266,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
 
         for line in f_sensors:
             try:
-                sensors.append(sensor2sql.readSensorStringToSensor(line))
+                sensors.append(sensor.readSensorStringToSensor(line))
             except Exception as e:
                 click.echo("Error reading line: {0}".format(e))
                 click.echo("Line: {0}".format(line))

@@ -136,6 +136,7 @@ def fixableNordicEvent():
                             ]
 
     return fixable_nordic_event
+
 @pytest.fixture(scope="module")
 def faultyNordicEvents():
     faulty_nordic_events = [
@@ -217,5 +218,99 @@ def faultyNordicEvents():
                         ]
                     ]
     return faulty_nordic_events
+
+@pytest.fixture(scope="module")
+def stationFiles():
+    station_files =     [
+                        "AFI     2004334       -1  -13.9093 -171.7773    0.7060 AFIAMALU, SAMOA                                    ar   AFI       0.0000    0.0000       2004-Nov-29\n",
+                        "AK01    2006257       -1   50.6911   29.2131    0.1600 Malin Array element AK01                           ss   AKBB     -1.1480   -0.7590       2006-Sep-14\n",
+                        "AK02    2006257       -1   50.6573   29.2057    0.1700 Malin Array element AK02                           ss   AKBB     -4.9220   -1.1640       2006-Sep-14\n",
+                        "AK03    2006257       -1   50.7263   29.2217    0.1600 Malin Array element AK03                           ss   AKBB      2.7770   -0.2640       2006-Sep-14\n",
+                        "AKTO    2005256       -1   50.4348   58.0164    0.3790 AKTYUBINSK, KAZAKHSTAN                             bb   AKTO      0.0000    0.0000       2005-Sep-13\n",
+                        "AL31    1977149  2005256   65.0649 -147.5668    0.2980 EIELSON, AK ARRAY, United States of America        ss   -         0.0000    0.0000       2008-Jun-04\n"
+                        ]
+
+    return station_files
+
+@pytest.fixture(scope="module")
+def faultyStationFiles():
+    faulty_files =      [
+                        "AFI     2004334       -1  -13.9093 -371.7773    0.7060 AFIAMALU, SAMOA                                    ar   AFI       0.0000    0.0000       2004-Nov-29\n",
+                        "AK01    2006257       -1   50.6911       nAn    0.1600 Malin Array element AK01                           ss   AKBB     -1.1480   -0.7590       2006-Sep-14\n",
+                        "AK02    2006257       -1   50.6573   29.2057  -99.1700 Malin Array element AK02                           ss   AKBB     -4.9220   -1.1640       2006-Sep-14\n",
+                        "AK03    2006257       -1  650.7263   29.2217    0.1600 Malin Array element AK03                           ss   AKBB      2.7770   -0.2640       2006-Sep-14\n",
+                        "AKTO    2005256       -1   50.4348   58.0164    0.3790 AKTYUBINSK, KAZAKHSTAN                             bb   AKTO      0.0000       inf       2005-Sep-13\n",
+                        "AL31    asdasdd  2005256   65.0649 -147.5668    0.2980 EIELSON, AK ARRAY, United States of America        gg   -         0.0000    0.0000       2008-Jun-04\n"
+                        ]
+    return faulty_files
+
+@pytest.fixture(scope="module")
+def siteChanFiles():
+    sitechan_files =    [
+                        "AFI    BHE       2004335  1116650       -1 n     0.000000 90.000 90.000 broad band east                                          2004-Nov-29\n",
+                        "AFI    BHN       2004334  1116651       -1 n     0.000000 0.0000 90.000 broad band north                                         2004-Nov-29\n",
+                        "AFI    BHZ       2004334  1116652       -1 n     0.000000 -1.000 0.0000 broad band vertical                                      2004-Nov-29\n",
+                        "AK01   BHZ       2006257  1117200       -1 n     0.037000 -1.000 0.0000 broad-band vertical                                      2006-Sep-14\n",
+                        "AK02   BHZ       2006257  1117201       -1 n     0.073000 -1.000 0.0000 broad-band vertical                                      2006-Sep-14\n"
+                        ]
+
+    return sitechan_files
+
+@pytest.fixture(scope="module")
+def faultySitechanFiles():
+    faulty_files =      [
+                        "ASD    BHE       2004335  1116650       -1 n     0.000000 90.000 90.000 broad band east                                          2004-Nov-29\n",
+                        "AFI    BHN       2004334  -116651       -1 n     0.000000 0.0000 90.000 broad band north                                         2004-Nov-29\n",
+                        "AFI    BHZ       adssada  1116652       -1 n     0.000000 -1.000 0.0000 broad band vertical                                      2004-Nov-29\n",
+                        "AK01   BHZ       2006257  1117200       -1 g     0.037000 -1.000 0.0000 broad-band vertical                                      2006-Sep-14\n",
+                        ]
+    return faulty_files
+
+@pytest.fixture(scope="module")
+def sensorFiles():
+    sensor_files =  [
+                        "AFI    BHE       1101746937.00000  1266943736.99900  1116211  1116650  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    BHN       1101746937.00000  1266943736.99900  1116212  1116651  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    BHZ       1101746937.00000  1266943736.99900  1116213  1116652  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    BHE       1266943737.00000  9999999999.99900  1117422  1116650  2010054         1.000000         1.000000 0.0000 y       2010-May-17\n",
+                        "AFI    BHN       1266943737.00000  9999999999.99900  1117423  1116651  2010054         1.000000         1.000000 0.0000 y       2010-May-17\n",
+                        "AFI    BHZ       1266943737.00000  9999999999.99900  1117424  1116652  2010054         1.000000         1.000000 0.0000 y       2010-May-17\n"
+                    ]
+
+    return sensor_files
+
+@pytest.fixture(scope="module")
+def faultySensorFiles():
+    faulty_files =   [
+                        "FAL    BHE       1101746937.00000  1266943736.99900  1116211  1116650  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    ASD       1101746937.00000  1266943736.99900  1116212  1116651  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    BHZ       WHAT746937.00000  1266943736.99900  1116213  1116652  2004334         1.000000         1.000000 0.0000 y       2004-Nov-29\n",
+                        "AFI    BHE       1266943737.00000 -9999999999.99900  1117422    12310  2010054         1.000000         1.000000 0.0000 y       2010-May-17\n",
+                        "AFI    BHN       1266943737.00000  9999999999.99900  1117423  1116651  2010054         1.000000         1.000000 0.0000 a       2010-May-17\n",
+                        "AFI    BHZ       1266943737.00000  9999999999.99900  1117424  1116652  2010054         1.000000      -999.000000 0.0000 y       2010-May-17\n"
+                    ]
+    return faulty_files
+
+@pytest.fixture(scope="module")
+def instrumentFiles():
+    instrument_files =  [
+                            " 1116211 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            " 1116214 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
+                            " 1116215 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
+                            " 1116216 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
+                    ]
+
+    return instrument_files
+
+@pytest.fixture(scope="module")
+def faultyInstrumentFiles():
+    faulty_files =   [
+                            "    ads1 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STasdadsasd  40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                    ]
+    return faulty_files
 
 

@@ -49,28 +49,28 @@ class NordicEvent:
 
     @event_id.setter
     def event_id(self, val_event_id):
-        val_event_id = validateInteger(val_event_id, "event_id", None, None, False, 0)
+        val_event_id = validateInteger(val_event_id, "event_id", None, None, 0)
         self._event_id = val_event_id
 
     root_id = property(operator.attrgetter('_root_id'), doc="")
 
     @root_id.setter
     def root_id(self, val_root_id):
-        val_root_id = validateInteger(val_root_id, "root_id", None, None, False, 0)
+        val_root_id = validateInteger(val_root_id, "root_id", None, None, 0)
         self._root_id = val_root_id
 
     creation_id = property(operator.attrgetter('_creation_id'), doc="")
 
     @creation_id.setter
     def creation_id(self, val_creation_id):
-        val_creation_id = validateInteger(val_creation_id, "creation_id", None, None, False, 0)
+        val_creation_id = validateInteger(val_creation_id, "creation_id", None, None, 0)
         self._creation_id = val_creation_id
 
     event_type = property(operator.attrgetter('_event_type'), doc="")
 
     @event_type.setter
     def event_type(self, val_event_type):
-        val_event_type = validateString(val_event_type, "event_type", 1, 1, "ARPFSO", True, 0)
+        val_event_type = validateString(val_event_type, "event_type", 1, 1, "ARPFSO", 0)
         self._event_type = val_event_type
 
     def __str__(self):

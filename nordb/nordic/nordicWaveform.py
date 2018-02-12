@@ -37,7 +37,7 @@ class NordicWaveform:
     
     @waveform_info.setter
     def waveform_info(self, val):
-        val_waveform_info = validateString(val, "waveform_info", 0, 78, "", False, self.header_type)
+        val_waveform_info = validateString(val, "waveform_info", 0, 78, None, self.header_type)
         self._waveform_info = val_waveform_info
 
     def __str__(self):

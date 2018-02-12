@@ -8,6 +8,7 @@ Functions and Classes
 import psycopg2
 import logging
 
+from nordb.database import sql2instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
@@ -56,6 +57,17 @@ ALL_SENSORS = (
                         "station_code "
                 )
 
+SELECT_SENSORS_TO_SITECHAN =    (
+                                "SELECT "
+                                "   sensor.id "
+                                "FROM "
+                                "   sensor, sitechan "
+                                "ẀHERE "
+                                "   sitechan.id = %s "
+                                "AND "
+                                "   sitechan.id = sensor.sitechan_id"
+                                )
+
 def readAllSensors():
     """
     Function for reading all sensors from the database and returning them to user.
@@ -71,9 +83,29 @@ def readAllSensors():
     conn.close()
     sensors = []
     for a in ans:
-       sensors.append(Sensor(a)) 
+        sen = Sensor(a)
+        sql2instrument.instruments2sensor(sen)
+        sensors.append(sen) 
 
     return sensors
+
+def sensors2sitechan(sitechan):
+    """
+    Function for attaching all sensors related to a sitechan to the sitechan 
+
+    :param SiteChan sitechan: sitechan to which the sensors will be attached to
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    cur.execute(SELECT_SENSORS_TO_SITECHAN, (sitechan.s_id))
+    sensor_ids = cur.fetchall()
+
+    if sensor_ids:
+        for sensor_id in sensor_ids:
+            sitechan.sensors.append(readSensor(sensor_id))
+
+    conn.close()
 
 def readSensor(sensor_id):
     """
@@ -87,7 +119,9 @@ def readSensor(sensor_id):
 
     cur.execute(SELECT_SENSOR, (sensor_id, ))
     ans = cur.fetchone()
-    
     conn.close()
+    sen = Sensor(ans)
 
-    return Sensor(ans)
+    sql2instrument.instruments2sensor(sen)
+
+    return sen

@@ -11,7 +11,6 @@ import unidecode
 
 from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
-from nordb.core.utils import stringToDate
 
 STATION_INSERT =    (  
                     "INSERT INTO station " 
@@ -56,35 +55,6 @@ SEARCH_STATIONS =   (
                     "AND "
                     "   (off_date is null OR (off_date < %s OR on_date > %s ));"
                     )   
-
-
-
-def readStationStringToStation(stat_line):
-    """ 
-    Function for reading Station object from a css site string
-
-    :param str stat_line: css site string
-    :returns: Station object   
-    """
-
-    stations = [None]*14
-    
-    stations[Station.STATION_CODE]      = unidecode.unidecode(stat_line[0:6].strip())
-    stations[Station.ON_DATE]           = unidecode.unidecode(stringToDate(stat_line[8:15].strip()))
-    stations[Station.OFF_DATE]          = unidecode.unidecode(stringToDate(stat_line[17:24].strip()))
-    stations[Station.LATITUDE]          = unidecode.unidecode(stat_line[26:34].strip())
-    stations[Station.LONGITUDE]         = unidecode.unidecode(stat_line[36:44].strip())
-    stations[Station.ELEVATION]         = unidecode.unidecode(stat_line[47:54].strip())
-    stations[Station.STATION_NAME]      = unidecode.unidecode(stat_line[55:106].strip())
-    stations[Station.STATION_TYPE]      = unidecode.unidecode(stat_line[106:108].strip())
-    stations[Station.REFERENCE_STATION] = unidecode.unidecode(stat_line[111:117].strip())
-    stations[Station.NORTH_OFFSET]      = unidecode.unidecode(stat_line[119:127].strip())
-    stations[Station.EAST_OFFSET]       = unidecode.unidecode(stat_line[130:137].strip())
-    stations[Station.LOAD_DATE]         = unidecode.unidecode(stringToDate(stat_line[138:].strip()))
-    stations[Station.NETWORK_ID]        = -1
-    stations[Station.S_ID]              = -1
-
-    return Station(stations)
 
 def getNetworkID(network):
     """
@@ -134,18 +104,3 @@ def insertStation2Database(station, network):
 
     conn.commit()
     conn.close()
-
-def readStations(f_station, network):
-    """
-    Function for reading a station file in css format and inserting them to the database
-    
-    :param file f_station: Station CSS file
-    :param string network: name of the network
-    """
-    stations = []
-
-    for line in f_station:
-        stations.append(readStationStringToStation(line))
-
-    for stat in stations:
-        insertStation2Database(stat, network)

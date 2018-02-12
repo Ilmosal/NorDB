@@ -20,12 +20,13 @@ nTypes = {0: "Nordic Event",
         10: "Station Data",
         11: "Sitechan Data",
         12: "Instrument Data",
-        13: "Sensor Data"}
+        13: "Sensor Data",
+        -999: "Validation Test",}
 
 class values():
     maxInt = 9223372036854775807 
 
-def validateInteger(val, valueName, low, high, limits, nType):
+def validateInteger(val, valueName, low, high, nType):
     """
     Function that determines and returns a string as integer or None if the given value is valid integer and falls between given parameters or is empty. 
     
@@ -33,7 +34,6 @@ def validateInteger(val, valueName, low, high, limits, nType):
     :param str valueName: name of the parameter for messaging purposes
     :param int low: lower limit of the val
     :param int high: upper limit of the val
-    :param bool limits: bool for if the function needs to compare val against low and high
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a integer or None if it's empty
     """ 
@@ -55,17 +55,17 @@ def validateInteger(val, valueName, low, high, limits, nType):
         value = val
 
 
-    if limits and value < low:
+    if low is not None and value < low:
         msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
         raise Exception(msg.format(nTypes[nType], valueName, low, val))
 
-    if limits and value > high:
+    if high is not None and value > high:
         msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
         raise Exception(msg.format(nTypes[nType], valueName, high, val))
 
     return value
 
-def validateFloat(val, valueName, low, high, limits, nType):
+def validateFloat(val, valueName, low, high, nType):
     """
     Function that determines and returns string as float if the given value is valid float, falls between given parameters and is not nAn or inf.
     
@@ -73,7 +73,6 @@ def validateFloat(val, valueName, low, high, limits, nType):
     :param str valueName: name of the parameter for messaging purposes
     :param float low: lower limit of the val
     :param float high: upper limit of the val
-    :param bool limits: bool for if the function needs to compare val against low and high
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a float or None if it's empty
     """
@@ -102,17 +101,17 @@ def validateFloat(val, valueName, low, high, limits, nType):
         msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
         raise Exception(msg.format(nTypes[nType], valueName, val))
 
-    if value < low and limits:
+    if low is not None and value < low:
         msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
         raise Exception(msg.format(nTypes[nType], valueName, low, val))
 
-    if value > high and limits:
+    if high is not None and value > high:
         msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
         raise Exception(msg.format(nTypes[nType], valueName, high, val))
 
     return value
 
-def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nType):   
+def validateString(string, stringName, minlen, maxlen, listOfAllowed, nType):   
     """
     Function that determines if val is empty, falls between given parameters or can be found from a given list.
     
@@ -121,7 +120,6 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
     :param int minlen: lower limit of the string length
     :param int maxlen: upper limit of the string length
     :param array listOfAllowed: list of valid string from where the string needs to be found
-    :param bool isList: boolean value for determining if there is a list to which the string needs to be compared
     :param int ntype: header name id. Used for messaging purposes
     :returns: the same string or None if it's empty
     """
@@ -132,7 +130,7 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, isList, nT
         msg = "Validation Error - {0}: {1} is of wrong type! ({2})"
         raise Exception(msg.format(nTypes[nType], stringName, type(string)))
 
-    if isList and string not in listOfAllowed:
+    if listOfAllowed is not None and string not in listOfAllowed:
         msg = "Validation Error - {0}: {1} not in the list of allowed strings! ({2})\nAllowed:\n"
         for allowed in listOfAllowed:
             msg += "  -" + allowed + "\n"

@@ -117,133 +117,133 @@ class NordicMacroseismic:
     
     @description.setter
     def description(self, val):
-        val_description = validateString(val, "description", 0, 15, "", False, self.header_type)
+        val_description = validateString(val, "description", 0, 15, None, self.header_type)
         self._description = val_description
 
     diastrophism_code = property(operator.attrgetter('_diastrophism_code'), doc="")
     
     @diastrophism_code.setter
     def diastrophism_code(self, val):
-        val_diastrophism_code = validateString(val, "diastrophism_code", 0, 1, "FUD ", True, self.header_type)
+        val_diastrophism_code = validateString(val, "diastrophism_code", 0, 1, "FUD ", self.header_type)
         self._diastrophism_code = val_diastrophism_code
 
     tsunami_code = property(operator.attrgetter('_tsunami_code'), doc="")
     
     @tsunami_code.setter
     def tsunami_code(self, val):
-        val_tsunami_code = validateString(val, "tsunami_code", 0, 1, "TQ ", True, self.header_type)
+        val_tsunami_code = validateString(val, "tsunami_code", 0, 1, "TQ ", self.header_type)
         self._tsunami_code = val_tsunami_code
 
     seiche_code = property(operator.attrgetter('_seiche_code'), doc="")
     
     @seiche_code.setter
     def seiche_code(self, val):
-        val_seiche_code = validateString(val, "seiche_code", 0, 1, "SFQ ", True, self.header_type)
+        val_seiche_code = validateString(val, "seiche_code", 0, 1, "SFQ ", self.header_type)
         self._seiche_code = val_seiche_code
 
     cultural_effects = property(operator.attrgetter('_cultural_effects'), doc="")
     
     @cultural_effects.setter
     def cultural_effects(self, val):
-        val_cultural_effects = validateString(val, "cultural_effects", 0, 1, "CDFH ", True, self.header_type)
+        val_cultural_effects = validateString(val, "cultural_effects", 0, 1, "CDFH ", self.header_type)
         self._cultural_effects = val_cultural_effects
 
     unusual_effects = property(operator.attrgetter('_unusual_effects'), doc="")
     
     @unusual_effects.setter
     def unusual_effects(self, val):
-        val_unusual_effects = validateString(val, "unusual_effects", 0, 1, "LGSBCVOM", True, self.header_type)
+        val_unusual_effects = validateString(val, "unusual_effects", 0, 1, "LGSBCVOM", self.header_type)
         self._unusual_effects = val_unusual_effects
 
     maximum_observed_intensity = property(operator.attrgetter('_maximum_observed_intensity'), doc="")
     
     @maximum_observed_intensity.setter
     def maximum_observed_intensity(self, val):
-        val_maximum_observed_intensity = validateInteger(val, "maximum_observed_intensity", 0, 20, True, self.header_type)
+        val_maximum_observed_intensity = validateInteger(val, "maximum_observed_intensity", 0, 20, self.header_type)
         self._maximum_observed_intensity = val_maximum_observed_intensity
 
     maximum_intensity_qualifier = property(operator.attrgetter('_maximum_intensity_qualifier'), doc="")
     
     @maximum_intensity_qualifier.setter
     def maximum_intensity_qualifier(self, val):
-        val_maximum_intensity_qualifier = validateString(val, "maximum_intensity_qualifier", 0, 1, "+- ", True, self.header_type)
+        val_maximum_intensity_qualifier = validateString(val, "maximum_intensity_qualifier", 0, 1, "+- ", self.header_type)
         self._maximum_intensity_qualifier = val_maximum_intensity_qualifier
 
     intensity_scale = property(operator.attrgetter('_intensity_scale'), doc="")
     
     @intensity_scale.setter
     def intensity_scale(self, val):
-        val_intensity_scale = validateString(val, "intensity_scale", 0, 2, ["MM", "RF", "CS", "SK"], True, self.header_type)
+        val_intensity_scale = validateString(val, "intensity_scale", 0, 2, ["MM", "RF", "CS", "SK"], self.header_type)
         self._intensity_scale = val_intensity_scale
 
     macroseismic_latitude = property(operator.attrgetter('_macroseismic_latitude'), doc="")
     
     @macroseismic_latitude.setter
     def macroseismic_latitude(self, val):
-        val_macroseismic_latitude = validateFloat(val, "macroseismic_latitude", -90.0, 90.0, True, self.header_type)
+        val_macroseismic_latitude = validateFloat(val, "macroseismic_latitude", -90.0, 90.0, self.header_type)
         self._macroseismic_latitude = val_macroseismic_latitude
 
     macroseismic_longitude = property(operator.attrgetter('_macroseismic_longitude'), doc="")
     
     @macroseismic_longitude.setter
     def macroseismic_longitude(self, val):
-        val_macroseismic_longitude = validateFloat(val, "macroseismic_longitude", -180.0, 180.0, True, self.header_type)
+        val_macroseismic_longitude = validateFloat(val, "macroseismic_longitude", -180.0, 180.0, self.header_type)
         self._macroseismic_longitude = val_macroseismic_longitude
 
     macroseismic_magnitude = property(operator.attrgetter('_macroseismic_magnitude'), doc="")
     
     @macroseismic_magnitude.setter
     def macroseismic_magnitude(self, val):
-        val_macroseismic_magnitude = validateFloat(val, "macroseismic_magnitude", 0.0, 20.0, True, self.header_type)
+        val_macroseismic_magnitude = validateFloat(val, "macroseismic_magnitude", 0.0, 20.0, self.header_type)
         self._macroseismic_magnitude = val_macroseismic_magnitude
 
     type_of_magnitude = property(operator.attrgetter('_type_of_magnitude'), doc="")
     
     @type_of_magnitude.setter
     def type_of_magnitude(self, val):
-        val_type_of_magnitude = validateString(val, "type_of_magnitude", 0, 1, "IAR*", True, self.header_type)
+        val_type_of_magnitude = validateString(val, "type_of_magnitude", 0, 1, "IAR*", self.header_type)
         self._type_of_magnitude = val_type_of_magnitude
 
     logarithm_of_radius = property(operator.attrgetter('_logarithm_of_radius'), doc="")
     
     @logarithm_of_radius.setter
     def logarithm_of_radius(self, val):
-        val_logarithm_of_radius = validateFloat(val, "logarithm_of_radius", 0.0, 99.99, True, self.header_type)
+        val_logarithm_of_radius = validateFloat(val, "logarithm_of_radius", 0.0, 99.99, self.header_type)
         self._logarithm_of_radius = val_logarithm_of_radius
 
     logarithm_of_area_1 = property(operator.attrgetter('_logarithm_of_area_1'), doc="")
     
     @logarithm_of_area_1.setter
     def logarithm_of_area_1(self, val):
-        val_logarithm_of_area_1 = validateFloat(val, "logarithm_of_area_1", 0.0, 99.99, True, self.header_type)
+        val_logarithm_of_area_1 = validateFloat(val, "logarithm_of_area_1", 0.0, 99.99, self.header_type)
         self._logarithm_of_area_1 = val_logarithm_of_area_1
 
     bordering_intensity_1 = property(operator.attrgetter('_bordering_intensity_1'), doc="")
     
     @bordering_intensity_1.setter
     def bordering_intensity_1(self, val):
-        val_bordering_intensity_1 = validateInteger(val, "bordering_intensity_1", 0, 99, True, self.header_type)
+        val_bordering_intensity_1 = validateInteger(val, "bordering_intensity_1", 0, 99, self.header_type)
         self._bordering_intensity_1 = val_bordering_intensity_1
 
     logarithm_of_area_2 = property(operator.attrgetter('_logarithm_of_area_2'), doc="")
     
     @logarithm_of_area_2.setter
     def logarithm_of_area_2(self, val):
-        val_logarithm_of_area_2 = validateFloat(val, "logarithm_of_area_2", 0.0, 99.99, True, self.header_type)
+        val_logarithm_of_area_2 = validateFloat(val, "logarithm_of_area_2", 0.0, 99.99, self.header_type)
         self._logarithm_of_area_2 = val_logarithm_of_area_2
 
     bordering_intensity_2 = property(operator.attrgetter('_bordering_intensity_2'), doc="")
     
     @bordering_intensity_2.setter
     def bordering_intensity_2(self, val):
-        val_bordering_intensity_2 = validateInteger(val, "bordering_intensity_2", 0, 99, True, self.header_type)
+        val_bordering_intensity_2 = validateInteger(val, "bordering_intensity_2", 0, 99, self.header_type)
         self._bordering_intensity_2 = val_bordering_intensity_2
 
     quality_rank = property(operator.attrgetter('_quality_rank'), doc="")
     
     @quality_rank.setter
     def quality_rank(self, val):
-        val_quality_rank = validateString(val, "quality_rank", 0, 1, "ABCD", True, self.header_type)
+        val_quality_rank = validateString(val, "quality_rank", 0, 1, "ABCD", self.header_type)
         self._quality_rank = val_quality_rank
 
 
@@ -251,7 +251,7 @@ class NordicMacroseismic:
     
     @reporting_agency.setter
     def reporting_agency(self, val):
-        val_reporting_agency = validateString(val, "reporting_agency", 3, 3, None, False, self.header_type)
+        val_reporting_agency = validateString(val, "reporting_agency", 3, 3, None, self.header_type)
         self._reporting_agency = val_reporting_agency
 
     def __str__(self):

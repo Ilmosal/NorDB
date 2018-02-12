@@ -22,31 +22,6 @@ CHANNEL_INSERT = (  "INSERT INTO sitechan" +
                     "RETURNING " +
                     "   id" )
 
-def readSiteChanStringToSiteChan(chan_line):
-    """
-    Function for reading channel info to SiteChan object from css sitechan string
-
-    :param str chan_line: css sitechan string
-    :return: SiteChan object
-    """
-    channel = [None]*13
-
-    channel[SiteChan.STATION_CODE]      = unidecode.unidecode(chan_line[:7].strip())
-    channel[SiteChan.CHANNEL_CODE]      = unidecode.unidecode(chan_line[7:17].strip())
-    channel[SiteChan.ON_DATE]           = unidecode.unidecode(stringToDate(chan_line[17:24].strip()))
-    channel[SiteChan.OFF_DATE]          = unidecode.unidecode(stringToDate(chan_line[35:42].strip()))
-    channel[SiteChan.CHANNEL_TYPE]      = unidecode.unidecode(chan_line[43:48].strip())
-    channel[SiteChan.EMPLACEMENT_DEPTH] = unidecode.unidecode(chan_line[49:57].strip())
-    channel[SiteChan.HORIZONTAL_ANGLE]  = unidecode.unidecode(chan_line[57:64].strip())
-    channel[SiteChan.VERTICAL_ANGLE]    = unidecode.unidecode(chan_line[64:71].strip())
-    channel[SiteChan.DESCRIPTION]       = unidecode.unidecode(chan_line[72:122].strip())
-    channel[SiteChan.LOAD_DATE]         = unidecode.unidecode(stringToDate(chan_line[123:].strip()))
-    channel[SiteChan.S_ID]              = -1
-    channel[SiteChan.STATION_ID]        = -1
-    channel[SiteChan.CSS_ID]            = unidecode.unidecode(chan_line[25:33].strip())
-
-    return SiteChan(channel)
-
 def insertSiteChan2Database(channel):
     """ 
     Function for inserting the sitechan array to the database.
@@ -73,16 +48,3 @@ def insertSiteChan2Database(channel):
     conn.commit()
     conn.close()
 
-def readChannels(f_channels):
-    """ 
-    Function for reading sitechan in css format and inserting them to the database
-
-    :param file f_channels: the file that will be read into the database
-    """
-    channels = []
-    
-    for line in f_channels:
-        channels.append(readSiteChanStringToSiteChan(line))
-
-    for chan in channels:
-        insertSiteChan2Database(chan)

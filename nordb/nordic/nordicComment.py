@@ -41,7 +41,7 @@ class NordicComment:
     
     @h_comment.setter
     def h_comment(self, val):
-        val_h_comment = validateString(val, "h_comment", 0, 78, "", False, self.header_type)
+        val_h_comment = validateString(val, "h_comment", 0, 78, None, self.header_type)
         self._h_comment = val_h_comment
 
 

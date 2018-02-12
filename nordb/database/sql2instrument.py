@@ -14,25 +14,40 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-SELECT_INSTRUMENT = (   "SELECT " +
-                            "instrument_name, instrument_type, " +
-                            "band, digital, samprate, ncalib, ncalper, dir, " +
-                            "dfile, rsptype, lddate, id, css_id " +
-                        "FROM " +
-                            "instrument, instrument_css_link " +
-                        "WHERE " +
-                            "instrument.id = instrument_id " +
-                        "AND " +
-                            "instrument.id = %s")
+SELECT_INSTRUMENT = (   
+                        "SELECT " 
+                        "   instrument_name, instrument_type, " 
+                        "   band, digital, samprate, ncalib, ncalper, dir, " 
+                        "   dfile, rsptype, lddate, id, css_id " 
+                        "FROM " 
+                        "   instrument, instrument_css_link " 
+                        "WHERE " 
+                        "   instrument.id = instrument_id " 
+                        "AND " 
+                        "   instrument.id = %s")
 
-ALL_INSTRUMENTS =   (   "SELECT " +
-                            "instrument_name, instrument_type, " +
-                            "band, digital, samprate, ncalib, ncalper, dir, " +
-                            "dfile, rsptype, lddate, id, css_id " +
-                        "FROM " +
-                            "instrument, instrument_css_link " +
-                        "WHERE " +
-                            "instrument.id = instrument_id ")
+ALL_INSTRUMENTS =   (   
+                        "SELECT " 
+                        "   instrument_name, instrument_type, " 
+                        "   band, digital, samprate, ncalib, ncalper, dir, " 
+                        "   dfile, rsptype, lddate, id, css_id " 
+                        "FROM " 
+                        "   instrument, instrument_css_link " 
+                        "WHERE " 
+                        "   instrument.id = instrument_id "
+                    )
+
+
+SELECT_INSTRUMENTS_TO_SENSOR =  (
+                                "SELECT "
+                                "   instrument.id "
+                                "FROM "
+                                "   instrument, sensor "
+                                "WHERE "
+                                "   sensor.id = %s "
+                                "AND "
+                                "   instrument.id = sensor.instrument_id " 
+                                )
 
 def readAllInstruments():
     """
@@ -54,6 +69,23 @@ def readAllInstruments():
         instruments.append(Instrument(a))
 
     return instruments
+
+def instruments2sensor(sensor):
+    """
+    Function for attaching all related instruments to Sensor object.
+
+    :param Sensor sensor: sensor to which its intruments will be attached to
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    instrument_ids = cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id))
+
+    conn.close()
+
+    if instrument_ids:
+        for instrument_id in instrument_ids:
+            sensor.instruments.append(readInstrument(instrument_id))
 
 def readInstrument(instrument_id):
     """

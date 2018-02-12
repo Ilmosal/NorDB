@@ -63,42 +63,42 @@ class NordicError:
     
     @gap.setter
     def gap(self, val):
-        val_gap = validateInteger(val, "gap", 0, 359, True, self.header_type)
+        val_gap = validateInteger(val, "gap", 0, 359, self.header_type)
         self._gap = val_gap
 
     second_error = property(operator.attrgetter('_second_error'), doc="")
     
     @second_error.setter
     def second_error(self, val):
-        val_second_error = validateFloat(val, "second_error", 0.0, 99.9, True, self.header_type)
+        val_second_error = validateFloat(val, "second_error", 0.0, 99.9, self.header_type)
         self._second_error = val_second_error
 
     epicenter_latitude_error = property(operator.attrgetter('_epicenter_latitude_error'), doc="")
     
     @epicenter_latitude_error.setter
     def epicenter_latitude_error(self, val):
-        val_epicenter_latitude_error = validateFloat(val, "epicenter_latitude_error", 0.0, 99.99, True, self.header_type)
+        val_epicenter_latitude_error = validateFloat(val, "epicenter_latitude_error", 0.0, 99.99, self.header_type)
         self._epicenter_latitude_error = val_epicenter_latitude_error
 
     epicenter_longitude_error = property(operator.attrgetter('_epicenter_longitude_error'), doc="")
     
     @epicenter_longitude_error.setter
     def epicenter_longitude_error(self, val):
-        val_epicenter_longitude_error = validateFloat(val, "epicenter_longitude_error", 0.0, 99.99, True, self.header_type)
+        val_epicenter_longitude_error = validateFloat(val, "epicenter_longitude_error", 0.0, 99.99, self.header_type)
         self._epicenter_longitude_error = val_epicenter_longitude_error
 
     depth_error = property(operator.attrgetter('_depth_error'), doc="")
     
     @depth_error.setter
     def depth_error(self, val):
-        val_depth_error = validateFloat(val, "depth_error", 0.0, 999.9, True, self.header_type)
+        val_depth_error = validateFloat(val, "depth_error", 0.0, 999.9, self.header_type)
         self._depth_error = val_depth_error
 
     magnitude_error = property(operator.attrgetter('_magnitude_error'), doc="")
     
     @magnitude_error.setter
     def magnitude_error(self, val):
-        val_magnitude_error = validateFloat(val, "magnitude_error", 0.0, 9.9, True, self.header_type)
+        val_magnitude_error = validateFloat(val, "magnitude_error", 0.0, 9.9, self.header_type)
         self._magnitude_error = val_magnitude_error
    
     def __str__(self):
