@@ -73,6 +73,9 @@ class NordicEvent:
         val_event_type = validateString(val_event_type, "event_type", 1, 1, "ARPFSO", 0)
         self._event_type = val_event_type
 
+    def __eq__(self, other):
+        return str(self) == str(other) 
+
     def __str__(self):
         n_string = ""
 

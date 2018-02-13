@@ -10,9 +10,7 @@ class TestNordicFix(object):
         assert str(nordic_event) == "".join(fixableNordicEvent[1])
 
     def testFixFaultyNordic(self, fixableNordicEvent):
-        with pytest.raises(Exception):
-            createNordicEvent(fixableNordicEvent[2], True)
-
-        with pytest.raises(Exception):
-            createNordicEvent(fixableNordicEvent[3], True)
+        for fix_event in fixableNordicEvent[2:]:
+            with pytest.raises(Exception):
+                createNordicEvent(fix_event, True)
         

@@ -53,43 +53,54 @@ INSERT_COMMANDS = {
                             "logarithm_of_area_2, bordering_intensity_2, quality_rank, " 
                             "reporting_agency, event_id) " 
                         "VALUES " 
-                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
-                           " %s, %s, %s, %s, %s, %s);"
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
+                            " %s, %s, %s, %s, %s, %s) "
+                        "RETURNING "
+                            "id"
                         ),
                     3:  (
                         "INSERT INTO  " 
-                           "nordic_header_comment  " 
-                           "(h_comment, event_id)  " 
+                            "nordic_header_comment  " 
+                            "(h_comment, event_id)  " 
                         "VALUES  " 
-                           "(%s, %s);"
+                            "(%s, %s) "
+                        "RETURNING "
+                            "id "
                         ),
                     5:  (
                         "INSERT INTO  " 
-                           "nordic_header_error  " 
-                           "(gap, second_error, epicenter_latitude_error, " 
+                            "nordic_header_error  " 
+                            "(gap, second_error, epicenter_latitude_error, " 
                             "epicenter_longitude_error,  depth_error, " 
                             "magnitude_error, header_id)  " 
                         "VALUES  " 
-                           "(%s, %s, %s, %s, %s, %s, %s);"
+                            "(%s, %s, %s, %s, %s, %s, %s)"
+                        "RETURNING "
+                            "id"
                         ),
                     6:  (
                         "INSERT INTO  " 
                            "nordic_header_waveform  " 
                            "(waveform_info, event_id)  " 
                         "VALUES  " 
-                           "(%s, %s);"
+                           "(%s, %s) "
+                        "RETURNING "
+                            "id "
                         ),
                     7:  (
                         "INSERT INTO  " 
-                           "nordic_phase_data  " 
-                           "(station_code, sp_instrument_type, sp_component, quality_indicator, " 
+                            "nordic_phase_data  " 
+                            "(station_code, sp_instrument_type, sp_component, quality_indicator, " 
                             "phase_type, weight, first_motion, time_info, hour, minute, second, " 
                             "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " 
                             "apparent_velocity, signal_to_noise, azimuth_residual, " 
                             "travel_time_residual, location_weight, epicenter_distance, "  
                             "epicenter_to_station_azimuth, event_id) " 
-                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
-                                 "%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                        "VALUES "
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
+                            "%s, %s, %s, %s, %s, %s, %s, %s, %s) "
+                        "RETURNING "
+                            "id "
                         ),
                     8:  (
                         "INSERT INTO  " 
@@ -114,26 +125,29 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
     author_id = None
 
     for header in nordic_event.headers[3]:
-        author_id = re.search(r'\[(\w3)\]', header.h_comment) 
-        if author_id is not None:
-            break
+        search = re.search(r'\((\w{3})\)', header.h_comment) 
+        if search is not None:
+            author_id = search.group(0)[1:-1]
 
     if author_id is None:
         author_id = '---' 
 
-    filename_id = -1
-    cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
-    filenameids = cur.fetchone()
-    if filenameids is not None:
-        filename_id = filenameids[0]
-
-    root_id = -1
-
-    if e_id >= 0:
-        cur.execute("SELECT root_id FROM nordic_event WHERE id = %s", (e_id,))
-        root_id = cur.fetchone()[0]
-
     try:
+        filename_id = -1
+        cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
+        filenameids = cur.fetchone()
+        if filenameids is not None:
+            filename_id = filenameids[0]
+
+        root_id = -1
+
+        if e_id >= 0:
+            cur.execute("SELECT root_id, event_type FROM nordic_event WHERE id = %s", (e_id,))
+            try:
+                root_id, old_event_type = cur.fetchone()
+            except:
+                raise Exception("Given linking event_id does not exist in the database!")
+    
         if e_id == -1:
             cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES RETURNING id;")
             root_id = cur.fetchone()[0]
@@ -156,8 +170,9 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
                     creation_id)
                     )
         event_id = cur.fetchone()[0]
-        
-        if e_id != -1 and EVENT_TYPE_VALUES[event_type] == EVENT_TYPE_VALUES[event_id[1]] and event_type not in "AO":
+        nordic_event.event_id = event_id
+
+        if e_id != -1 and event_type == old_event_type and event_type not in "AO":
             cur.execute("INSERT INTO  " +
                            "nordic_modified " + 
                            "(event_id, replacement_event_id, old_event_type, replaced)  " +
@@ -175,7 +190,8 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
             h = nordic_event.headers[1][i]
             h.event_id = event_id
 
-            main_header_id = executeCommand(cur, INSERT_COMMANDS[1], h.getAsList(), True)
+            main_header_id = executeCommand(cur, INSERT_COMMANDS[1], h.getAsList(), True)[0][0]
+            h.h_id = main_header_id
 
             for h_error in nordic_event.headers[5]:
                 if h_error.header_pos == i:
@@ -183,34 +199,38 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
 
         for h in nordic_event.headers[2]:
             h.event_id = event_id
-            executeCommand(     cur, 
-                                INSERT_COMMANDS[2], 
-                                h.getAsList(),
-                                False)
+            h_id = executeCommand(  cur, 
+                                    INSERT_COMMANDS[2], 
+                                    h.getAsList(),
+                                    True)[0][0]
+            h.h_id = h_id
         for h in nordic_event.headers[3]:
             h.event_id = event_id
-            executeCommand(     cur, 
-                                INSERT_COMMANDS[3], 
-                                h.getAsList(),
-                                False)
+            h_id = executeCommand(  cur, 
+                                    INSERT_COMMANDS[3], 
+                                    h.getAsList(),
+                                    True)[0][0]
+            h.h_id = h_id
         for h in nordic_event.headers[5]:       
-            executeCommand(     cur, 
-                                INSERT_COMMANDS[5], 
-                                h.getAsList(),
-                                False)
+            h_id = executeCommand(  cur, 
+                                    INSERT_COMMANDS[5], 
+                                    h.getAsList(),
+                                    True)[0][0]
+            h.h_id = h_id
         for h in nordic_event.headers[6]:
             h.event_id = event_id
-            executeCommand(     cur, 
+            h_id = executeCommand(     cur, 
                                 INSERT_COMMANDS[6], 
                                 h.getAsList(),
-                                False)
-
+                                True)[0][0]
+            h.h_id = h_id
         for phase_data in nordic_event.data:
             phase_data.event_id = event_id
-            executeCommand(     cur, 
-                                INSERT_COMMANDS[7], 
-                                phase_data.getAsList(),
-                                False)
+            d_id = executeCommand(  cur, 
+                                    INSERT_COMMANDS[7], 
+                                    phase_data.getAsList(),
+                                    True)[0][0]
+            phase_data.d_id = d_id
 
         conn.commit()
         conn.close()
@@ -276,8 +296,9 @@ def executeCommand(cur, command, vals, returnValue):
     :returns: Values returned by the query or None if returnValue is False
     """
     cur.execute(command, vals)
+        
     if returnValue:
-        return cur.fetchone()[0]
+        return cur.fetchall()
     else:
         return None
 

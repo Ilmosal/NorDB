@@ -144,7 +144,7 @@ def getSeed(station, year, day, silent=True):
         agentAuth(t, username)
         
         if not t.is_authenticated():
-            manualAuth(username, hostname, t)
+            manualAuth(t)
         if not t.is_authenticated():
             if not silent:
                 print("*** Authentication failed.")

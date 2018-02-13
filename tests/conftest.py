@@ -9,10 +9,17 @@ from nordb import settings
 def setupdb():
     settings.setTest()
     username = settings.username
+    try:
+        norDBManagement.destroyDatabase()
+    except:
+        pass
     norDBManagement.createDatabase()
     yield None
     usernameUtilities.confUser(username)
-    norDBManagement.destroyDatabase()
+    try:
+        norDBManagement.destroyDatabase()
+    except:
+        pass
 
 @pytest.fixture(scope="module")
 def nordicEvents():
@@ -31,13 +38,13 @@ def nordicEvents():
                         " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n",
                         " VAF  BZ EP       0613 15.30                    7.0              0.210   67 191 \n",
                         " VAF  BZ ES       0613 23.10                                     0.4 4          \n",
-                        " UMAU BZ EP       0613 22.64                                    -0.010  114 285 \n",
+                        " UMAU BZ EP       0613 22.64                                     0.010  114 285 \n",
                         " BURU BZ EPB      0613 25.38                  141.0             -0.1 9  130 325 \n",
                         " BURU BZ ES       0613 39.82                                    -0.3 4          \n",
                         " ODEU BZ EP       0613 26.31                                    -0.2 9  138 310 \n",
                         " SVAU BZ EP       0613 34.71                                     0.3 8  189 302 \n",
                         " KEF  BZ EPN      0613 35.36                                     0.0 4  192 148 \n",
-                        " KEF  BZ ESN      0613 58.10                                    -0.0 8          \n",
+                        " KEF  BZ ESN      0613 58.10                                     0.0 8          \n",
                         " SUF  BZ EPG      0613 35.20                                    -0.1 8  193 121 \n",
                         " SUF  BZ  MSG     0613 55.58         3.6 0.20                                   \n",
                         " SUF  BZ ESN      0613 58.00                                    -0.3 9          \n",
@@ -72,7 +79,7 @@ def nordicEvents():
                         " OBF7 BZ  Sb      1225 53.77                                    -0.110   49 311 \n",
                         " OUF  BZ  Pb      1225 48.07                                    -0.110   54 356 \n",
                         " OUF  BZ  Sb      1225 55.08                                     0.210   54 356 \n",
-                        " OBF5 BZ  Pb      1225 49.80                                    -0.010   66  20 \n",
+                        " OBF5 BZ  Pb      1225 49.80                                     0.010   66  20 \n",
                         " OBF5 BZ  Sb      1225 57.95                                     0.110   66  20 \n",
                         " OBF1 BZ  Pb      1225 51.15                                     0.8 0   69 328 \n",
                         " OBF1 BZ  Sb      1225 59.26                                     0.5 0   69 328 \n",
@@ -88,7 +95,7 @@ def nordicEvents():
                         " GAP=171         0.8     7.100  10.400                  0.2                    5\n",
                         " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE UNCHECKED                  3\n",
                         " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n",
-                        " OBF4 BZ  Pg      1200 34.67                  293.9          31 -0.010    2  83 \n",
+                        " OBF4 BZ  Pg      1200 34.67                  293.9          31  0.010    2  83 \n",
                         " OBF4 BZ  Sg      1200 35.91                                     1.010    2  83 \n", 
                         " OBF3 BZ  Pg      1200 39.21                                     2.010   17 272 \n",
                         ],
@@ -132,7 +139,30 @@ def fixableNordicEvent():
                                 " OBF4 BZ  Sg      as00 35.91                                     1.010    2  83 \n", 
                                 " OBF3 BZ  Pg       200 39.21                                     2.010   17 272 \n",
                                 ],
-
+                                [
+                                " 2017  8 1 2259 60.0 LE 64.812  25.066  0.0FFHEL  7 1.6 nAnLHEL nan     nan    1\n",
+                                " GAP=171         0.8     7.1    10.4                    nAn                    5\n",
+                                " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE UNCHECKED                  3\n",
+                                " OBF4 BZ  Pg      23as 60.00                  360.0          31 -0.010  asd asd \n",
+                                " OBF4 BZ  Sg      2302 35.91                                     1.010    2  83 \n", 
+                                " OBF3 BZ  Pg       200 39.21                                     2.010   17 360 \n",
+                                ],
+                                [
+                                " 2017  8 1 2259 60.0 LE 64.812  25.066  0.0FFHEL  7 1.6 nAnLHEL nan     nan    1\n",
+                                " GAP=171         0.8     7.1    10.4                    nAn                    5\n",
+                                " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE UNCHECKED                  3\n",
+                                " OBF4 BZ  Pg      as59 60.00                  360.0          31 -0.010  asd asd \n",
+                                " OBF4 BZ  Sg      2302 35.91                                     1.010    2  83 \n", 
+                                " OBF3 BZ  Pg       200 39.21                                     2.010   17 360 \n",
+                                ],
+                                [
+                                " 2017  8 1 2259 60.0 LE 64.812  25.066  0.0FFHEL  7 1.6 nAnLHEL nan     nan    1\n",
+                                " GAP=171         0.8     7.1    10.4                    asd                    5\n",
+                                " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE UNCHECKED                  3\n",
+                                " OBF4 BZ  Pg      2959 60.00                  360.0          31 -0.010  123 123 \n",
+                                " OBF4 BZ  Sg      2302 35.91                                     1.010    2  83 \n", 
+                                " OBF3 BZ  Pg       200 39.21                                     2.010   17 360 \n",
+                                ],
                             ]
 
     return fixable_nordic_event

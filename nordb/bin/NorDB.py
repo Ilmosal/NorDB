@@ -8,7 +8,6 @@ import os
 import sys
 import datetime
 import logging
-import functools
 import fnmatch
 
 import click
@@ -499,7 +498,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
                                     click.echo("Not a valid id!")
 
                 try:
-                    nordic2sql.event2Database(nord, event_type, f_nordic.name, ignore_duplicates, no_duplicates, creation_id, event_id)
+                    nordic2sql.event2Database(nord, event_type, f_nordic.name, creation_id, event_id)
                 except Exception as e:
                     click.echo("Error pushing nordic to database: {0}".format(e))
                     click.echo(nord.headers[1][0])
