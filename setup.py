@@ -22,11 +22,11 @@ setup(
         "Sphinx",
         "unidecode",
         "alabaster",
+        "codecov",
     ],
     tests_require=[
         "pytest",
         "pytest-cov",
-        "codecov",
     ],
     long_description=open("README.md").read(),
     entry_points='''
