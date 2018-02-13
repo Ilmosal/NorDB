@@ -8,13 +8,12 @@ test = False
 def init():
     global dbname 
     global username
-#    global test
     dbname = "nordb"
     conf_name = ".user.config"
-#    test = False
+
     try:
         username = open(os.path.dirname(os.path.realpath(__file__)) + os.sep + conf_name).read().strip()
-    except FileNotFoundError:
+    except:
         username = None
 
 def updateUsername():

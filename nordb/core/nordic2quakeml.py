@@ -10,25 +10,37 @@ Functions and Classes
 from lxml import etree
 
 import math
-import sys
-import time
 import datetime
 import os
-import logging
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
-username = ""
+from nordb.core.nordic import NordicEvent  
+from nordb.core.nordic import NordicMain 
+from nordb.core.nordic import NordicMacroseismic
+from nordb.core.nordic import NordicError
+from nordb.core.nordic import NordicWaveform
 
-from nordb.core.nordic import NordicEvent, NordicMain, NordicMacroseismic, NordicComment
-from nordb.core.nordic import NordicError, NordicWaveform, NordicData
-from nordb.core import usernameUtilities
-
-QUAKEML_ROOT_STRING = '''<?xml version="1.0" encoding="utf-8" standalone="yes"?><q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1"></q:quakeml>'''
+QUAKEML_ROOT_STRING =   (
+    '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'
+    '<q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1">'
+    '</q:quakeml>'
+                        )
 
 AUTHORITY_ID = "wh.atis.ids"
 
-EVENT_TYPE_CONVERSION = {' ': "not reported",  '*': "earthquake", 'Q': "earthquake", 'E':"explosion", 'P':"explosion" ,'I':"induced or triggered event" ,'V': "volcanic eruption", 'X':"landslide", 'A':"not reported" }
+EVENT_TYPE_CONVERSION = {
+                            ' ': "not reported",  
+                            '*': "earthquake", 
+                            'Q': "earthquake", 
+                            'E':"explosion", 
+                            'P':"explosion" ,
+                            'I':"induced or triggered event" ,
+                            'V': "volcanic eruption", 
+                            'X':"landslide", 
+                            'A':"not reported" 
+                        }
+
 PICK_POLARITY_CONVERSION = {'C': "positive", 'D': "negative", "+": "undecidable", "-": "undecidable"}
 MAGNITUDE_TYPE_CONVERSION = {'L': 'ML', 'C': 'Mc', 'B': 'mb', 'S': 'Ms', 'W': 'MW'}
 INSTRUMENT_TYPE_CONVERSION = {'S': 'SH','B': 'BH', 'L': 'LH', 'H': '?H', 'E':'?E'}
@@ -64,11 +76,11 @@ def addEvent(eventParameters, nordic, long_quakeML):
     event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/" + str(nordic.headers[1][0].h_id)
 
     #Add preferred OriginID
-    event_preferred_origin = etree.SubElement(event, "preferredOriginID")	
+    event_preferred_origin = etree.SubElement(event, "preferredOriginID")
     event_preferred_origin.text = "smi:" + AUTHORITY_ID + "/origin/" + str(nordic.headers[1][0].h_id)
 
     #Add preferred magnitudeID
-    event_preferred_magnitude = etree.SubElement(event, "preferredMagnitudeID")	
+    event_preferred_magnitude = etree.SubElement(event, "preferredMagnitudeID")
     event_preferred_magnitude.text = "smi:" + AUTHORITY_ID + "/magnitude/" + str(nordic.headers[1][0].h_id)
 
     #Adding event type  
@@ -162,7 +174,7 @@ def addPick(event, nordic, phase_data):
     waveform_id.attrib["stationCode"] = phase_data.station_code
     if phase_data.sp_instrument_type is not None and phase_data.sp_component is not None:
         waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.sp_instrument_type] + phase_data.sp_component
-	
+
     #Quality indicator
     if phase_data.quality_indicator is not None:
         onset = etree.SubElement(pick, "onset")
@@ -187,7 +199,7 @@ def addPick(event, nordic, phase_data):
     pick_evaluation_mode = etree.SubElement(pick, "evaluationMode")
     pick_evaluation_mode.text = "manual"
 
-def addAmplitude(event, nordic, phase_data):
+def addAmplitude(event, phase_data):
     if phase_data.max_amplitude is not None:
         amplitude = etree.SubElement(event, "amplitude")
         amplitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/amplitude/" + str(phase_data.d_id)
@@ -220,12 +232,11 @@ def addAmplitude(event, nordic, phase_data):
             snr = etree.SubElement(amplitude, "snr")
             snr.text = str(phase_data.signal_to_noise)
 
-def addOrigin(event, nordic, main):
+def addOrigin(event, main):
     """
     Function for adding a origin etree object to a event object
 
     :param etree.XML event: event object
-    :param NordicEvent nordic: nordic event_file
     :param NordicData phase_data: nordic phase data object
     """
     origin = etree.SubElement(event, "origin")
@@ -311,6 +322,14 @@ def addOrigin(event, nordic, main):
         origin_quality_standard_error.text = str(main.rms_time_residuals)
 
 def addMagnitude(event, nordic, main):
+    """
+    Function for adding a magnitude etree object to a event object
+
+    :param etree.XML event: event lxml object
+    :param NordicEvent nordic: nordic event object
+    :param NordicMain main: nordic main header object
+    """
+
     if main.magnitude_1 is not None:
         magnitude = etree.SubElement(event, "magnitude")
         magnitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/magnitude/" + str(main.h_id)
@@ -348,7 +367,13 @@ def addMagnitude(event, nordic, main):
         magnitude_origin_id.text =  "smi:" + AUTHORITY_ID + "/origin/" + str(main.h_id)
 
 
-def addArrival(origin, phase_data, nordic):
+def addArrival(origin, phase_data):
+    """
+    Function that creates an Arrival lxml object and pastes it to origin lxml object
+
+    :param etree.XML origin: origin lxml object to which the arrival is put to
+    :param NordicData phase_data: phase data object from which the data is taken from
+    """
     if phase_data.phase_type is not None:
         arrival = etree.SubElement(origin, "arrival")
         arrival.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/arrival/" + str(phase_data.d_id)
@@ -376,16 +401,6 @@ def addArrival(origin, phase_data, nordic):
             arrival_distance = etree.SubElement(arrival, "distance")
             arrival_distance.text = str(phase_data.epicenter_distance/MAGIC_KM2DEG_CONSTANT)
 
-#TODO: See if station magnitude information can be found from somewhere. Without it stationMagnitude and staionMagnitudeContribution elements are useless.
-
-#TODO: addStationMag
-#def addStationMag(event, phase_data. nordic):
-#   if phase_data.max_amplitude is not None:
-#       station_magnitude = etree.SubElement(event, "stationMagnitude")
-#       station_magnitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/path/to/stationmag/"
-#TODO: addStationMagContribution
-
-#TODO: addFocalMech
 def addFocalMech(event, h_error):
     """
     Function for adding a Focal Mechanism etree object to a event object

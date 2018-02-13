@@ -6,7 +6,6 @@ import operator
 import unidecode 
 
 from nordb.core.validationTools import validateFloat
-from nordb.core.validationTools import validateInteger
 from nordb.core.validationTools import validateString
 from nordb.core.validationTools import validateDate
 from nordb.core.utils import addString2String
@@ -14,7 +13,7 @@ from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import stringToDate
 
-class Station:
+class Station(object):
     """
     Class for information in station. Comes from the css site format.
  
@@ -51,8 +50,9 @@ class Station:
     NETWORK = 12
     NETWORK_ID = 13
     S_ID = 14
+    sitechans = []
  
-    def __init__(self, data, sitechans = []):
+    def __init__(self, data):
         self.station_code = data[self.STATION_CODE]
         self.on_date = data[self.ON_DATE]
         self.off_date = data[self.OFF_DATE]
@@ -68,7 +68,6 @@ class Station:
         self.network = data[self.NETWORK]
         self.network_id = data[self.NETWORK_ID]
         self.s_id = data[self.S_ID]
-        self.sitechans = sitechans
 
     station_code = property(operator.attrgetter('_station_code'))
     

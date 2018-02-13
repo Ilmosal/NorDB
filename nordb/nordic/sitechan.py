@@ -13,7 +13,7 @@ from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import stringToDate
 
-class SiteChan:
+class SiteChan(object):
     """
     Class for site channel information. Comes from css sitechan format.
 
@@ -47,8 +47,9 @@ class SiteChan:
     S_ID = 10
     STATION_ID = 11
     CSS_ID = 12
+    sensors = []
  
-    def __init__(self, data, sensors = []):
+    def __init__(self, data):
         self.station_code = data[self.STATION_CODE]
         self.channel_code = data[self.CHANNEL_CODE]
         self.on_date = data[self.ON_DATE]
@@ -62,7 +63,6 @@ class SiteChan:
         self.s_id = data[self.S_ID]
         self.station_id = data[self.STATION_ID]
         self.css_id = data[self.CSS_ID]
-        self.sensors = sensors
     
     station_code = property(operator.attrgetter('_station_code'))
 

@@ -4,16 +4,9 @@ This module contains all functions for getting sitechan information form the dat
 Functions and Classes
 ---------------------
 """
-
-import logging
-import psycopg2
-
 from nordb.database import sql2sensor
 from nordb.nordic.sitechan import SiteChan
 from nordb.core import usernameUtilities
-from nordb.core.utils import addFloat2String 
-from nordb.core.utils import addInteger2String
-from nordb.core.utils import addString2String
 
 SELECT_SITECHAN_OF_STATION =    (
                                     "SELECT"                                                            
@@ -94,7 +87,7 @@ def sitechans2station(station):
   
     if sitechan_ids:
         for chan_id in sitechan_ids:
-            station.sitechans.append(readSiteChan(chan_id)) 
+            station.sitechans.append(readSitechan(chan_id)) 
 
     conn.close()
 

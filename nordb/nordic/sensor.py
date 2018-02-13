@@ -14,7 +14,7 @@ from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import stringToDate
 
-class Sensor:
+class Sensor(object):
     """
     Class for sensor information. Comes from css sensor format.
 
@@ -47,8 +47,9 @@ class Sensor:
     S_ID = 10
     STATION_CODE = 11
     CHANNEL_CODE = 12
+    instruments = []
 
-    def __init__(self, data, instruments = []):
+    def __init__(self, data):
         self.time = data[self.TIME]
         self.endtime = data[self.ENDTIME]
         self.jdate = data[self.JDATE]
@@ -62,7 +63,6 @@ class Sensor:
         self.s_id = data[self.S_ID]
         self.station_code = data[self.STATION_CODE]
         self.channel_code = data[self.CHANNEL_CODE]
-        self.instruments = instruments
 
     time = property(operator.attrgetter('_time'))
     

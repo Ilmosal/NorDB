@@ -10,24 +10,9 @@ import psycopg2
 import os
 import pwd
 import re
-from datetime import date
 import datetime
-import math
-import fnmatch
 
-from nordb.core import nordicRead
-from nordb.core import nordicFix
 from nordb.core import usernameUtilities
-from nordb.core import nordic
-from nordb.nordic.nordicData import NordicData
-from nordb.nordic.nordicMain import NordicMain
-from nordb.nordic.nordicMacroseismic import NordicMacroseismic
-from nordb.nordic.nordicComment import NordicComment
-from nordb.nordic.nordicError import NordicError
-from nordb.nordic.nordicWaveform import NordicWaveform
-from nordb.nordic.nordicEvent import NordicEvent
-from nordb.database import sql2nordic 
-from nordb.database import undoRead
 
 EVENT_TYPE_VALUES = {
     "O":1,
@@ -39,76 +24,88 @@ EVENT_TYPE_VALUES = {
 }
 
 INSERT_COMMANDS = {
-                    1:  "INSERT INTO " +
-                           "nordic_header_main " +
-                           "(date, hour, minute, second, location_model, " +
-                            "distance_indicator, event_desc_id, epicenter_latitude, " +
-                            "epicenter_longitude, depth, depth_control, " +
-                            "locating_indicator, epicenter_reporting_agency, " +
-                            "stations_used, rms_time_residuals, magnitude_1, " +
-                            "type_of_magnitude_1, magnitude_reporting_agency_1, " +
-                            "magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " +
-                            "magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " +
-                            "event_id) " +
-                        "VALUES " +
-                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
-                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
-                        "RETURNING " +
-                           "id;",
-                    2:  "INSERT INTO " +
-                           "nordic_header_macroseismic " +
-                           "(description, diastrophism_code, tsunami_code, seiche_code, " +
-                            "cultural_effects, unusual_effects, maximum_observed_intensity, " +
-                            "maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, " +
-                            "macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " +
-                            "logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " +
-                            "logarithm_of_area_2, bordering_intensity_2, quality_rank, " +
-                            "reporting_agency, event_id) " +
-                        "VALUES " +
-                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
+                    1:  (
+                        "INSERT INTO " 
+                        "   nordic_header_main " 
+                        "   (date, hour, minute, second, location_model, " 
+                        "   distance_indicator, event_desc_id, epicenter_latitude, " 
+                        "   epicenter_longitude, depth, depth_control, " 
+                        "   locating_indicator, epicenter_reporting_agency, " 
+                        "   stations_used, rms_time_residuals, magnitude_1, " 
+                        "   type_of_magnitude_1, magnitude_reporting_agency_1, " 
+                        "   magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " 
+                        "   magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " 
+                        "   event_id) " 
+                        "VALUES " 
+                        "   (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
+                        "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
+                        "RETURNING " 
+                        "   id;"
+                        )
+                    2:  (
+                        "INSERT INTO " 
+                           "nordic_header_macroseismic " 
+                           "(description, diastrophism_code, tsunami_code, seiche_code, " 
+                            "cultural_effects, unusual_effects, maximum_observed_intensity, " 
+                            "maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, " 
+                            "macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " 
+                            "logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " 
+                            "logarithm_of_area_2, bordering_intensity_2, quality_rank, " 
+                            "reporting_agency, event_id) " 
+                        "VALUES " 
+                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
                            " %s, %s, %s, %s, %s, %s);",
-                    3:  "INSERT INTO  " +
-                           "nordic_header_comment  " +
-                           "(h_comment, event_id)  " +
-                        "VALUES  " +
+                        )
+                    3:  (
+                        "INSERT INTO  " 
+                           "nordic_header_comment  " 
+                           "(h_comment, event_id)  " 
+                        "VALUES  " 
                            "(%s, %s);",
-                    5:  "INSERT INTO  " +
-                           "nordic_header_error  " +
-                           "(gap, second_error, epicenter_latitude_error, " +
-                            "epicenter_longitude_error,  depth_error, " +
-                            "magnitude_error, header_id)  " +
-                        "VALUES  " +
+                        )
+                    5:  (
+                        "INSERT INTO  " 
+                           "nordic_header_error  " 
+                           "(gap, second_error, epicenter_latitude_error, " 
+                            "epicenter_longitude_error,  depth_error, " 
+                            "magnitude_error, header_id)  " 
+                        "VALUES  " 
                            "(%s, %s, %s, %s, %s, %s, %s);",
-                    6:  "INSERT INTO  " +
-                           "nordic_header_waveform  " +
-                           "(waveform_info, event_id)  " +
-                        "VALUES  " +
+                        )
+                    6:  (
+                        "INSERT INTO  " 
+                           "nordic_header_waveform  " 
+                           "(waveform_info, event_id)  " 
+                        "VALUES  " 
                            "(%s, %s);",
-                    7:  "INSERT INTO  " +
-                           "nordic_phase_data  " +
-                           "(station_code, sp_instrument_type, sp_component, quality_indicator, " +
-                            "phase_type, weight, first_motion, time_info, hour, minute, second, " +
-                            "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " +
-                            "apparent_velocity, signal_to_noise, azimuth_residual, " +
-                            "travel_time_residual, location_weight, epicenter_distance, " + 
-                            "epicenter_to_station_azimuth, event_id) " +
-                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +
+                        )
+                    7:  (
+                        "INSERT INTO  " 
+                           "nordic_phase_data  " 
+                           "(station_code, sp_instrument_type, sp_component, quality_indicator, " 
+                            "phase_type, weight, first_motion, time_info, hour, minute, second, " 
+                            "signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " 
+                            "apparent_velocity, signal_to_noise, azimuth_residual, " 
+                            "travel_time_residual, location_weight, epicenter_distance, "  
+                            "epicenter_to_station_azimuth, event_id) " 
+                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
                                  "%s, %s, %s, %s, %s, %s, %s, %s, %s);", 
-                    8:  "INSERT INTO  " +
-                           "creation_info  " +
-                        "DEFAULT VALUES  " +
+                        )
+                    8:  (
+                        "INSERT INTO  " 
+                           "creation_info  " 
+                        "DEFAULT VALUES  " 
                         "RETURNING id"
+                        )
 }
   
-def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates, no_duplicates, creation_id, e_id):
+def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id):
     """
     Function that pushes a NordicEvent object to the database
     
     :param NordicEvent nordic_event: Event that will be pushed to the database
     :param int event_type: event type id 
     :param str nordic_filename: name of the file from which the nordic is read from
-    :param bool ignore_duplicates: flag for ignoring all events that already are in the database
-    :param bool no_duplicates: flag for telling the program that the event is not in the database and checking for old events will be skipped
     :param int creation_id: id of the creation_info entry in the database
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
@@ -160,7 +157,7 @@ def event2Database(nordic_event, event_type, nordic_filename, ignore_duplicates,
                     )
         event_id = cur.fetchone()[0]
         
-        if e_id != -1 and EVENT_TYPE_VALUES[event_type] == EVENT_TYPE_VALUES[ans[1]] and event_type not in "AO":
+        if e_id != -1 and EVENT_TYPE_VALUES[event_type] == EVENT_TYPE_VALUES[event_id[1]] and event_type not in "AO":
             cur.execute("INSERT INTO  " +
                            "nordic_modified " + 
                            "(event_id, replacement_event_id, old_event_type, replaced)  " +
@@ -290,19 +287,3 @@ def executeCommand(cur, command, vals, returnValue):
     else:
         return None
 
-def getAuthor(filename):
-    """
-    Function for getting the owner of the file from the file. Not used currently
-
-    :param str filename: Name of the file
-    :returns: Predefined author id  or '---' if None found
-    """
-    try:
-        author_id = pwd.getpwuid(os.stat(filename).st_uid).pw_name
-        if author_id in authorDict:
-            return authorDict[author_id]
-        else:
-            return "---"
-    except:
-        logging.error("Filename given to get Author is false")
-        return "---"

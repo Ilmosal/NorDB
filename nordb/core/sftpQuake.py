@@ -5,22 +5,16 @@ Functions and Classes
 ---------------------
 """
 
-import datetime
-import base64
 from binascii import hexlify
 import getpass
 import os
-import sys
 import socket
 import traceback
 import paramiko
 
-from nordb.core import nordicRead
-from nordb.core import usernameUtilities
-from nordb.nordic.nordicData import NordicData
-from nordb.nordic.nordicMain import NordicMain
-from nordb.database import nordic2sql
 from nordb.database import sql2nordic
+from nordb.core import usernameUtilities
+from nordb.core import nordic
 
 arcdata_cfg_path = "/b/fdc/config/arcdata_id.cfg"
 
@@ -62,17 +56,15 @@ def agentAuth(t, username):
         except paramiko.SSHException:
             print('... nope.')
 
-def manualAuth(username, hostname, t):
+def manualAuth(t):
     """
     Function for manual authentication of the Transport.
 
-    :param str username: name of the connecting user
-    :param str hostname: name of the host 
     :param paramiko.Transport t: Paramiko transport object
     """
     path = os.path.join(os.environ('HOME', '.ssh', 'id_rsa'))
     try:
-        key = paramiko.RSAKey.from_private_key_file(path)
+        paramiko.RSAKey.from_private_key_file(path)
     except Exception as e:
         print("Error with trying to get the key file")
         raise e
@@ -120,7 +112,7 @@ def getSeed(station, year, day, silent=True):
         
         #get host key
         hostkeytype = None
-        hostkey = None
+        host_key = None
 
         try:
             host_keys = paramiko.util.load_host_keys(os.path.expanduser('~/.ssh/known_hosts'))
@@ -141,7 +133,7 @@ def getSeed(station, year, day, silent=True):
         elif key.get_name() not in host_keys[hostname]:
             if not silent:
                 print("*** WARNING: Unknown host key!")
-        elif keys[hostname][key.get_name()] != host_key:
+        elif host_keys[hostname][key.get_name()] != host_key:
             if not silent:
                 print("*** WARNING: Host key has changed!")
             raise Exception
@@ -207,10 +199,7 @@ def getSeed(station, year, day, silent=True):
         return file_names
 
     except Exception as e:
-        try:
-            t.close()
-        except:
-            pass
+        t.close()
         
         raise e
 
@@ -224,7 +213,7 @@ def getSeedFromNordicId(nordic_id):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    nordic = getNordic.readNordicEvent(cur, nordic_id)
+    nordic = sql2nordic.readNordicEvent(cur, nordic_id)
 
     date = nordic.headers[1][0].date
 
@@ -256,6 +245,7 @@ def getSeedFromNordicFile(nordic_file, fix_nordic):
     :param bool fix_nordic: Flag for fixing some common problem with the nordic files. See nordicFix module
     :return: list of all filenames created by the operation
     """
+    
     nordics = nordic.readNordic(nordic_file, fix_nordic)[0]
     filenames = [] 
     for n in nordics:

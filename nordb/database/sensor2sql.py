@@ -7,14 +7,9 @@ Functions and Classes
 ---------------------
 """
 
-import datetime
-import unidecode
-
-from nordb.nordic.sensor import Sensor
 from nordb.nordic.sitechan import SiteChan
 from nordb.database import sitechan2sql
 from nordb.core import usernameUtilities
-from nordb.core.utils import stringToDate
 
 FAKE_CHANNEL_LINE = {
                         "n":[None, None, None, None, "n", 0.0,  0.0, 90.0, "% AUTOMATICALLY GENERATED CHANNEL! PROBABLY NOT OK", None, -1, -1, -1],
@@ -24,16 +19,17 @@ FAKE_CHANNEL_LINE = {
 
 SENSOR_INSERT = (   
                 "INSERT INTO sensor " 
-                    "(  time, endtime, jdate, calratio, " 
-                    "   calper, tshift, instant, lddate, " 
-                    "   channel_id, instrument_id) " 
+                "   (time, endtime, jdate, calratio, " 
+                "   calper, tshift, instant, lddate, " 
+                "   channel_id, instrument_id) " 
                 "VALUES " 
                 "(  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                 )
 
 def genFakeChannel(sensor):
     """
-    Function for generating a false SiteChan object related to the Sensor object given by user. This is used to quarantee that all sensors are attached to a SiteChan in the database.
+    Function for generating a false SiteChan object related to the Sensor object given by user. 
+    This is used to quarantee that all sensors are attached to a SiteChan in the database.
 
     :param Sensor sensor: Sensor object for which the SiteChan is generated for
     :returns: SiteChan object 
@@ -62,7 +58,7 @@ def insertSensor2Database(sensor):
     """ 
     Function for inserting the sensor array to the database
 
-    :param Sensor sensor: sensor that will be inserted to the database
+    :param Sensor sensor: sensor that will be inserted to the database
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
