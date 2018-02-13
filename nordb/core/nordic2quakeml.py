@@ -126,12 +126,12 @@ def addEvent(eventParameters, nordic, long_quakeML):
             addPick(event, nordic, phase_data)
 
         for phase_data in nordic.data:
-            addAmplitude(event, nordic, phase_data)
+            addAmplitude(event, phase_data)
 
         for phase_data in nordic.data:
             for origin in event.iter("origin"):
                 if origin.get("publicID") == event_preferred_origin.text:
-                    addArrival(origin, phase_data, nordic)
+                    addArrival(origin, phase_data)
 
 def addPick(event, nordic, phase_data):
     """
@@ -200,6 +200,10 @@ def addPick(event, nordic, phase_data):
     pick_evaluation_mode.text = "manual"
 
 def addAmplitude(event, phase_data):
+    """
+    :param etree.XML event: event object
+    :param NordicData phase_data: nordic phase data object
+    """
     if phase_data.max_amplitude is not None:
         amplitude = etree.SubElement(event, "amplitude")
         amplitude.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/amplitude/" + str(phase_data.d_id)
@@ -232,11 +236,12 @@ def addAmplitude(event, phase_data):
             snr = etree.SubElement(amplitude, "snr")
             snr.text = str(phase_data.signal_to_noise)
 
-def addOrigin(event, main):
+def addOrigin(event, nordic, main):
     """
     Function for adding a origin etree object to a event object
 
     :param etree.XML event: event object
+    :param NordicEvent nordic: nordic event_file
     :param NordicData phase_data: nordic phase data object
     """
     origin = etree.SubElement(event, "origin")

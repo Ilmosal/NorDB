@@ -26,22 +26,22 @@ EVENT_TYPE_VALUES = {
 INSERT_COMMANDS = {
                     1:  (
                         "INSERT INTO " 
-                        "   nordic_header_main " 
-                        "   (date, hour, minute, second, location_model, " 
-                        "   distance_indicator, event_desc_id, epicenter_latitude, " 
-                        "   epicenter_longitude, depth, depth_control, " 
-                        "   locating_indicator, epicenter_reporting_agency, " 
-                        "   stations_used, rms_time_residuals, magnitude_1, " 
-                        "   type_of_magnitude_1, magnitude_reporting_agency_1, " 
-                        "   magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " 
-                        "   magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " 
-                        "   event_id) " 
+                            "nordic_header_main " 
+                            "(date, hour, minute, second, location_model, " 
+                            "distance_indicator, event_desc_id, epicenter_latitude, " 
+                            "epicenter_longitude, depth, depth_control, " 
+                            "locating_indicator, epicenter_reporting_agency, " 
+                            "stations_used, rms_time_residuals, magnitude_1, " 
+                            "type_of_magnitude_1, magnitude_reporting_agency_1, " 
+                            "magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " 
+                            "magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " 
+                            "event_id) " 
                         "VALUES " 
-                        "   (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
-                        "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
+                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
                         "RETURNING " 
-                        "   id;"
-                        )
+                            "id;"
+                        ),
                     2:  (
                         "INSERT INTO " 
                            "nordic_header_macroseismic " 
@@ -54,15 +54,15 @@ INSERT_COMMANDS = {
                             "reporting_agency, event_id) " 
                         "VALUES " 
                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
-                           " %s, %s, %s, %s, %s, %s);",
-                        )
+                           " %s, %s, %s, %s, %s, %s);"
+                        ),
                     3:  (
                         "INSERT INTO  " 
                            "nordic_header_comment  " 
                            "(h_comment, event_id)  " 
                         "VALUES  " 
-                           "(%s, %s);",
-                        )
+                           "(%s, %s);"
+                        ),
                     5:  (
                         "INSERT INTO  " 
                            "nordic_header_error  " 
@@ -70,15 +70,15 @@ INSERT_COMMANDS = {
                             "epicenter_longitude_error,  depth_error, " 
                             "magnitude_error, header_id)  " 
                         "VALUES  " 
-                           "(%s, %s, %s, %s, %s, %s, %s);",
-                        )
+                           "(%s, %s, %s, %s, %s, %s, %s);"
+                        ),
                     6:  (
                         "INSERT INTO  " 
                            "nordic_header_waveform  " 
                            "(waveform_info, event_id)  " 
                         "VALUES  " 
-                           "(%s, %s);",
-                        )
+                           "(%s, %s);"
+                        ),
                     7:  (
                         "INSERT INTO  " 
                            "nordic_phase_data  " 
@@ -89,14 +89,14 @@ INSERT_COMMANDS = {
                             "travel_time_residual, location_weight, epicenter_distance, "  
                             "epicenter_to_station_azimuth, event_id) " 
                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " 
-                                 "%s, %s, %s, %s, %s, %s, %s, %s, %s);", 
-                        )
+                                 "%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                        ),
                     8:  (
                         "INSERT INTO  " 
                            "creation_info  " 
                         "DEFAULT VALUES  " 
                         "RETURNING id"
-                        )
+                        ),
 }
   
 def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id):
@@ -175,10 +175,7 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
             h = nordic_event.headers[1][i]
             h.event_id = event_id
 
-            main_header_id = executeCommand(  cur, 
-                                               INSERT_COMMANDS[1], 
-                                               h.getAsList(),
-                                               True)
+            main_header_id = executeCommand(cur, INSERT_COMMANDS[1], h.getAsList(), True)
 
             for h_error in nordic_event.headers[5]:
                 if h_error.header_pos == i:
@@ -186,31 +183,31 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
 
         for h in nordic_event.headers[2]:
             h.event_id = event_id
-            executeCommand(    cur, 
+            executeCommand(     cur, 
                                 INSERT_COMMANDS[2], 
                                 h.getAsList(),
                                 False)
         for h in nordic_event.headers[3]:
             h.event_id = event_id
-            executeCommand(    cur, 
+            executeCommand(     cur, 
                                 INSERT_COMMANDS[3], 
                                 h.getAsList(),
                                 False)
         for h in nordic_event.headers[5]:       
-            executeCommand(    cur, 
+            executeCommand(     cur, 
                                 INSERT_COMMANDS[5], 
                                 h.getAsList(),
                                 False)
         for h in nordic_event.headers[6]:
             h.event_id = event_id
-            executeCommand(    cur, 
+            executeCommand(     cur, 
                                 INSERT_COMMANDS[6], 
                                 h.getAsList(),
                                 False)
 
         for phase_data in nordic_event.data:
             phase_data.event_id = event_id
-            executeCommand(    cur, 
+            executeCommand(     cur, 
                                 INSERT_COMMANDS[7], 
                                 phase_data.getAsList(),
                                 False)
@@ -278,10 +275,7 @@ def executeCommand(cur, command, vals, returnValue):
 
     :returns: Values returned by the query or None if returnValue is False
     """
-    try:
-        cur.execute(command, vals)
-    except psycopg2.Error as e:
-        raise e
+    cur.execute(command, vals)
     if returnValue:
         return cur.fetchone()[0]
     else:

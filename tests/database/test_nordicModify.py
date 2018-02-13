@@ -9,7 +9,7 @@ class TestNordicChangeType(object):
     def testNordicChangeTypeWorks(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
         creation_id = nordic2sql.createCreationInfo()
-        nordic2sql.event2Database(event, "S", "dummy_name", False, True, creation_id, -1)
+        nordic2sql.event2Database(event, "S", "dummy_name", creation_id, -1)
     
         changeEventType(1, "F")
 
@@ -22,7 +22,7 @@ class TestNordicChangeType(object):
     def testNordicChangeTypeWithSameType(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
         creation_id = nordic2sql.createCreationInfo()
-        nordic2sql.event2Database(event, "F", "dummy_name", False, True, creation_id, -1)
+        nordic2sql.event2Database(event, "F", "dummy_name", creation_id, -1)
 
         with pytest.raises(Exception):    
             changeEventType(1, "F") 
@@ -32,8 +32,8 @@ class TestNordicChangeRoot(object):
     def testNordicChangeRootWorks(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
         creation_id = nordic2sql.createCreationInfo()
-        nordic2sql.event2Database(event, "S", "dummy_name", False, True, creation_id, -1)
-        nordic2sql.event2Database(event, "S", "dummy_name", False, True, creation_id, -1)
+        nordic2sql.event2Database(event, "S", "dummy_name", creation_id, -1)
+        nordic2sql.event2Database(event, "S", "dummy_name", creation_id, -1)
 
         changeEventRoot(2, 1)
 
@@ -43,7 +43,7 @@ class TestNordicChangeRoot(object):
     def testNordicChangeRootWorksWithNonExistingRoot(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
         creation_id = nordic2sql.createCreationInfo()
-        nordic2sql.event2Database(event, "S", "dummy_name", False, True, creation_id, -1)
+        nordic2sql.event2Database(event, "S", "dummy_name", creation_id, -1)
 
         changeEventRoot(1, -999)
 
@@ -52,7 +52,7 @@ class TestNordicChangeRoot(object):
     def testNordicChangeRootFailsWithNonExisting(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
         creation_id = nordic2sql.createCreationInfo()
-        nordic2sql.event2Database(event, "S", "dummy_name", False, True, creation_id, -1)
+        nordic2sql.event2Database(event, "S", "dummy_name", creation_id, -1)
 
         with pytest.raises(Exception):
             changeEventRoot(1, 12)
