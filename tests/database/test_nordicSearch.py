@@ -239,7 +239,7 @@ class TestSearchSameEvents(object):
        
 @pytest.mark.usefixtures("setupdbWithEvents", "nordicEvents")
 class TestSearchSimilarEvents(object):
-    def testSearchSameEvent(self, setupdbWithEvents, nordicEvents):
+    def testSearchSimilarEvent(self, setupdbWithEvents, nordicEvents):
         e = nordic.createNordicEvent(nordicEvents[0], False)
         events = nordicSearch.searchSimilarEvents(e)
         print(events)
