@@ -27,6 +27,7 @@ class TestNordic2SQL(object):
             print(events[0].headers[1][1].h_id)
             assert str(sql2nordic.getNordicFromDB(e_id[0])) == str(events[i])
             i += 1
+        
             
     def testPutSameEventTwice(self, setupdb, nordicEvents):
         event = nordic.createNordicEvent(nordicEvents[0], False) 

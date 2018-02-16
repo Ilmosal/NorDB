@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     url="http://github.com/MrCubanfrog/NorDB",
-    licence="LICENSE",
+    license="LICENSE",
     description="Library for handling a seismic event database based on the nordic format",
     setup_requires=[
         "pytest-runner",
@@ -22,7 +22,6 @@ setup(
         "Sphinx",
         "unidecode",
         "alabaster",
-        "codecov",
     ],
     tests_require=[
         "pytest",

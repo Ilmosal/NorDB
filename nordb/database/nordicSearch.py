@@ -68,16 +68,6 @@ class Command:
     def __init__(self, command_tpe):
         self.command_tpe = command_tpe
 
-    def isValueValid(self, value):
-        """
-        Method for checking whether a value is valid by the command. Override this for all classes.
-        
-        :param value: value that will be compared to the original value
-        :type value: int or float or datetime
-        :return: Boolean value that will be always false for Command class.
-        """
-        return False
-
 class ExactlyValue(Command):
     """
     Command for determining if the value is exactly the given value.
@@ -88,23 +78,6 @@ class ExactlyValue(Command):
     def __init__(self, value):
         Command.__init__(self, 1)
         self.value = value
-
-    def isValueValid(self, value):
-        """
-        Method for checking whether a value is valid by the command.
-        
-        :param value: value that will be compared to the original for if they are exactly the same
-        :type value: int, float or datetime
-        :return: Boolean value that tells if the values are exactly the same
-        """
-
-        if type(value) is not type(self.value):
-            return False
-
-        if value == self.value:
-            return True
-        else:
-            return False
 
 class BetweenValues(Command):
     """
@@ -123,24 +96,6 @@ class BetweenValues(Command):
         self.valueLower = valueLower
         self.valueUpper = valueUpper
 
-    def isValueValid(self, value):
-        """
-        Method for checking whether a value is smaller or as equal to valueUpper but higher than valueLower.
-
-        :param value: value that will be compared to valueUpper and valueLower
-        :type value: int, float, datetime
-        :return: Boolean value that tells if the value falls between valueUpper and valueLower
-        """
-
-        if type(value) is not type(self.valueLower):
-            return False
-
-        if value <= self.valueUpper and value >= self.valueLower:
-            return True
-        else:
-            return False
-
-
 class OverValue(Command):
     """
     Command for determining if the value is over or equal to the Commands value
@@ -152,23 +107,6 @@ class OverValue(Command):
     def __init__(self, value):
         Command.__init__(self, 3)
         self.value = value
-
-    def isValueValid(self, value):
-        """
-        Method for checking whether a value is valid by the command.
-
-        :param value: value that will be compared to the original for if it is over or equal tothe orginal
-        :type value: int, float, datetime
-        :return: Boolean value that tells if the value is over or equal to the orginal
-        """
-
-        if type(value) is not type(self.value):
-            return False
-
-        if value >= self.value:
-            return True
-        else:
-            return False
 
 class UnderValue(Command):
     """
@@ -182,22 +120,6 @@ class UnderValue(Command):
     def __init__(self, value):
         Command.__init__(self, 4)
         self.value = value
-
-    def isValueValid(self, value):
-        """
-        Method for checking whether a value is valid by the command.
-        
-        :param int,float,datetime value: value that will be compared to the original for if it is lower or equal to the orginal
-        :return: Boolean value that tells if the value is lower or equal to the orginal
-        """
-
-        if type(value) is not type(self.value):
-            return False
-
-        if value <= self.value:
-            return True
-        else:
-            return False
 
 def returnValueFromString(value):
     """
@@ -390,9 +312,16 @@ def searchWithCriteria(criteria):
 
     :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
     :param bool verbose: flag if all info from events need to be printed or just the main headers
-    :return: list of events found with criteria or None if the search was not succesful
+    :return: list of events found with criteria
     """
     commands = {}
+
+    if "event_id" in criteria.keys():
+        event = sql2nordic.getNordicFromDB(int(criteria["event_id"]))
+        if event is None:
+            return []
+        else:
+            return [event]
 
     for arg in criteria.keys():
         commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
