@@ -409,7 +409,6 @@ def searchSimilarEvents(nordic_event):
     m_header = nordic_event.headers[1][0]
     time_criteria = time.mktime(m_header.date.timetuple())+(TIMEZONE+m_header.hour)*3600+m_header.minute*60+m_header.second
     search_criteria = (time_criteria, time_diff, m_header.epicenter_latitude, latitude_diff, m_header.epicenter_longitude, longitude_diff, m_header.magnitude_1, magnitude_diff)
-    print(search_criteria)
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
