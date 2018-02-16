@@ -401,9 +401,15 @@ def searchSimilarEvents(nordic_event):
                         "AND "
                         "   ABS(magnitude_1 - %s) < %s;"
                     ) 
+    time_diff = 20.0
+    latitude_diff = 0.2
+    longitude_diff = 0.2
+    magnitude_diff = 0.2
+
     m_header = nordic_event.headers[1][0]
     time_criteria = time.mktime(m_header.date.timetuple())+(TIMEZONE+m_header.hour)*3600+m_header.minute*60+m_header.second
-    search_criteria = (time_criteria, 20.0, m_header.epicenter_latitude, 0.2, m_header.epicenter_longitude, 0.2, m_header.magnitude_1, 0.5)
+    search_criteria = (time_criteria, time_diff, m_header.epicenter_latitude, latitude_diff, m_header.epicenter_longitude, longitude_diff, m_header.magnitude_1, magnitude_diff)
+    print(search_criteria)
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
