@@ -33,12 +33,16 @@ def insertInstrument2Database(instrument):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute(INSTRUMENT_INSERT, instrument.getAsList())
+    try:
+        cur.execute(INSTRUMENT_INSERT, instrument.getAsList())
 
-    db_id = cur.fetchone()[0]
+        db_id = cur.fetchone()[0]
 
-    cur.execute("INSERT INTO instrument_css_link (css_id, instrument_id) VALUES (%s, %s)", (instrument.css_id, db_id))
-
+        cur.execute("INSERT INTO instrument_css_link (css_id, instrument_id) VALUES (%s, %s)", (instrument.css_id, db_id))
+    except Exception as e:
+        conn.close()
+        raise e
+    
     conn.commit()
     conn.close()
 

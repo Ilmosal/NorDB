@@ -254,21 +254,20 @@ def createSearchQuery(commands):
         value = SEARCH_IDS_REV[c]
         if value == "magnitude":
             value += "_1"
-        
+       
         if value == "event_type":
             if commands[c].command_tpe == 1:
                 query += " AND nordic_event." + value + " = %s"
                 vals += (commands[c].value,)
-
             elif commands[c].command_tpe == 2:
-                query += " AND nordic_event." + value + " = %s"
+                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
                 vals += (rangeOfEventType(commands[c].valueLower, commands[c].valueUpper),)
             elif commands[c].command_tpe == 3:
-                query += " AND nordic_event." + value + " = %s"
-                vals += (rangeOfEventType(commands[c].value), 'S')
+                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
+                vals += (rangeOfEventType(commands[c].value, 'S'),)
             elif commands[c].command_tpe == 4:
-                query += " AND nordic_event." + value + " = %s"
-                vals += ('O',rangeOfEventType(commands[c].value))
+                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
+                vals += (rangeOfEventType('O',commands[c].value),)
         else:     
             if commands[c].command_tpe == 1:
                 if value == "latitude" or value == "longitude":
@@ -372,18 +371,22 @@ def searchSameEvents(nordic_event):
 
     return list(filter(lambda event: (str(event) == str(nordic_event)), searchWithCriteria(criteria)))
 
-def searchSimilarEvents(nordic_event):
+def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, longitude_diff = 0.2, magnitude_diff = 0.2):
     """
     Function for searching and returning all events that are considered similar to the event given by user.
 
-    conditions for similarity:
+    default conditions for similarity:
 
         -Events must occur 20 seconds maximum apart from each other
         -Events must be 0.2 deg maximum apart from each other in latitude and longitude
         -Events must have magnitude difference of 0.5 maximum
 
     :param NordicEvent nordic_event: Event for which the search is done for
-    :returns: Array of :class:`NordicEvent`s that are considered similar
+    :param float time_diff: maximum time difference in seconds
+    :param float latitude_diff: maximum latitude difference in degrees
+    :param float longitude_diff: maximum longitude difference in degrees
+    :param float magnitude_diff: maximum magnitude difference
+    :returns: Array of :class:`NordicEvent`s that fit to the search criteria
     """
     SEARCH_QUERY =  (
                         "SELECT "
@@ -399,14 +402,8 @@ def searchSimilarEvents(nordic_event):
                         "AND "
                         "   ABS(magnitude_1 - %s) < %s;"
                     ) 
-    time_diff = 20.0
-    latitude_diff = 0.2
-    longitude_diff = 0.2
-    magnitude_diff = 0.2
-
     m_header = nordic_event.headers[1][0]
     time_criteria = calendar.timegm(m_header.date.timetuple())+(m_header.hour)*3600+m_header.minute*60+m_header.second
-    print(time_criteria)
     search_criteria = (time_criteria, time_diff, m_header.epicenter_latitude, latitude_diff, m_header.epicenter_longitude, longitude_diff, m_header.magnitude_1, magnitude_diff)
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()

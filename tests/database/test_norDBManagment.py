@@ -3,7 +3,7 @@ from nordb.core import usernameUtilities
 from nordb.database import norDBManagement
 
 @pytest.mark.usefixture("setupdb")
-class TestNorDNManagment(object):
+class TestNorDBManagment(object):
     def testCreateDatabaseDoesntWorkIfThereIsDatabase(self, setupdb):
         with pytest.raises(Exception):
             norDBManagement.createDatabase()

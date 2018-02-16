@@ -47,6 +47,21 @@ class TestNordicSearchWithCriteria(object):
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
+    def testFindEventsWithLatitudeRange(self, setupdbWithEvents):
+        criteria = {"latitude":"63.632-63.637"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 1
+
+    def testFindEventsWithLatitudeLower(self, setupdbWithEvents):
+        criteria = {"latitude":"63.637-"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 1
+
+    def testFindEventsWithLatitudeUpper(self, setupdbWithEvents):
+        criteria = {"latitude":"63.632+"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 3
+
     def testFindEventsWithLongitude(self, setupdbWithEvents):
         criteria = {"longitude":"22.913"}
         foundEvents = nordicSearch.searchWithCriteria(criteria)
@@ -61,6 +76,21 @@ class TestNordicSearchWithCriteria(object):
 
     def testFindEventsWithEventType(self, setupdbWithEvents):
         criteria = {"event_type":"F"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 3
+
+    def testFindEventsWithEventTypeRange(self, setupdbWithEvents):
+        criteria = {"event_type":"F-S"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 3
+
+    def testFindEventsWithEventTypeLower(self, setupdbWithEvents):
+        criteria = {"event_type":"F-"}
+        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        assert len(foundEvents) == 3
+
+    def testFindEventsWithEventTypeUpper(self, setupdbWithEvents):
+        criteria = {"event_type":"P+"}
         foundEvents = nordicSearch.searchWithCriteria(criteria)
         assert len(foundEvents) == 3
 
@@ -80,6 +110,11 @@ class TestNordicSearchWithCriteria(object):
         foundEvents = nordicSearch.searchWithCriteria(criteria)
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
+
+    def testSearchWithWrongTypeCrieria(self, setupdbWithEvents):
+        criteria = {"latitude":"12"}
+        with pytest.raises(Exception):
+            nordicSearch.searchWithCriteria(criteria)
 
     def testNoEventsWithNonexistingDate(self, setupdbWithEvents):
         criteria = {"date":"03.11.2012"}

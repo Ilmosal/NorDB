@@ -34,7 +34,7 @@ def genFakeChannel(sensor):
     :param Sensor sensor: Sensor object for which the SiteChan is generated for
     :returns: SiteChan object 
     """
-    fakeChan = SiteChan(FAKE_CHANNEL_LINE[sensor.channel_code[-1]])
+    fakeChan = SiteChan(FAKE_CHANNEL_LINE[sensor.channel_code[-1].lower()])
     fakeChan.station_code = sensor.station_code
     fakeChan.channel_code = sensor.channel_code
     fakeChan.css_id = sensor.channel_id
@@ -63,30 +63,33 @@ def insertSensor2Database(sensor):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute("SELECT instrument_id FROM instrument_css_link WHERE css_id = %s", (sensor.instrument_id,))
-    ans = cur.fetchone()
-
-    if ans is None:
-        raise Exception("No instrument for sensor")
-
-    sensor.instrument_id = ans[0]
-
-    cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (sensor.channel_id,))
-    ans = cur.fetchone()
-
-    if ans is None:
-        fakeChan = genFakeChannel(sensor)
-        sitechan2sql.insertSiteChan2Database(fakeChan)
-        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (fakeChan.css_id,))
+    try:
+        cur.execute("SELECT instrument_id FROM instrument_css_link WHERE css_id = %s", (sensor.instrument_id,))
         ans = cur.fetchone()
-        
-        if ans is None:
-            raise Exception("Cannot find the fake channel for the sensor")
-   
-    sensor.channel_id = ans[0]
     
-    cur.execute(SENSOR_INSERT, sensor.getAsList())
+        if ans is None:
+            raise Exception("No instrument for sensor")
 
+        sensor.instrument_id = ans[0]
+
+        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (sensor.channel_id,))
+        ans = cur.fetchone()
+
+        if ans is None:
+            fakeChan = genFakeChannel(sensor)
+            sitechan2sql.insertSiteChan2Database(fakeChan)
+            cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (fakeChan.css_id,))
+            ans = cur.fetchone()
+        
+            if ans is None:
+                raise Exception("Cannot find the fake channel for the sensor")
+   
+        sensor.channel_id = ans[0]
+    
+        cur.execute(SENSOR_INSERT, sensor.getAsList())
+    except Exception as e:
+        conn.close()
+        raise e
     conn.commit()
     conn.close()
 
