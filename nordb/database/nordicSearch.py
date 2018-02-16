@@ -6,11 +6,9 @@ Functions and Classes
 """
 
 from datetime import date
-import time
+import calendar
 from nordb.core import usernameUtilities
 from nordb.database import sql2nordic
-
-TIMEZONE = 2 #TIMEZONE of the observation location
 
 COMMAND_TPES = {1:"exactly", 2:"between", 3:"over", 4:"under"}
 
@@ -407,7 +405,8 @@ def searchSimilarEvents(nordic_event):
     magnitude_diff = 0.2
 
     m_header = nordic_event.headers[1][0]
-    time_criteria = time.mktime(m_header.date.timetuple())+(TIMEZONE+m_header.hour)*3600+m_header.minute*60+m_header.second
+    time_criteria = calendar.timegm(m_header.date.timetuple())+(m_header.hour)*3600+m_header.minute*60+m_header.second
+    print(time_criteria)
     search_criteria = (time_criteria, time_diff, m_header.epicenter_latitude, latitude_diff, m_header.epicenter_longitude, longitude_diff, m_header.magnitude_1, magnitude_diff)
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
