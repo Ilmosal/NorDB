@@ -241,5 +241,7 @@ class TestSearchSameEvents(object):
 class TestSearchSimilarEvents(object):
     def testSearchSameEvent(self, setupdbWithEvents, nordicEvents):
         e = nordic.createNordicEvent(nordicEvents[0], False)
-        assert len(nordicSearch.searchSimilarEvents(e)) == 1
+        events = nordicSearch.searchSimilarEvents(e)
+        print(events)
+        assert len(events) == 1
  
