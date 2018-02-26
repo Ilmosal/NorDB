@@ -18,7 +18,6 @@ ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().str
 
 from nordb.database import instrument2sql
 from nordb.database import nordic2sql
-from nordb.database import scandia2sql
 from nordb.database import sensor2sql
 from nordb.database import sitechan2sql
 from nordb.database import station2sql
@@ -39,7 +38,6 @@ from nordb.core import nordic
 from nordb.core import nordic2quakeml
 from nordb.core import nordic2sc3
 from nordb.core import nordicRead
-from nordb.core import sftpQuake
 from nordb.core import station2stationxml
 from nordb.core import usernameUtilities
 
@@ -592,45 +590,6 @@ def get(repo, output_format, event_ids, output_name):
         f_output.write(etree.tostring(sc3, pretty_print=True).decode('utf8'))
 
     f_output.close()
-
-#@cli.command('getseed', short_help='get miniseed')
-#@click.option('--event_id', '-id', default=-1, type=click.INT, help="Get all miniseeds related to the nordic event with this id")
-#@click.option('--nfile', '-nf', default=None, type=click.Path(exists=True, readable=True), help="Get all miniseeds related to this nordic file")
-#@click.option('--fix', '-f', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
-#@click.argument('station', required=False, default=None, type=click.STRING)
-#@click.argument('year', required=False, default=None, type=click.INT)
-#@click.argument('j_date', required=False, default=None, type=click.INT)
-#@click.pass_obj
-#def getseed(repo, event_id, nfile, fix, station, year, j_date):
-#    """
-#    Get the miniseed files related to search parameters given by the user. The function will connect to quake server and fetch all files that fit to the parameters given by the user. 
-#
-#    Warning: This function does not work unless you are in correct internal network
-#    """
-#    if event_id != -1 and nfile is not None:
-#        click.echo("Do not give nfile and event_id at the same time!")
-#        sys.exit()
-#    if event_id != -1:
-#        sftpQuake.getSeedFromNordicId(event_id)
-#        sys.exit()
-#    
-#    if nfile is not None:
-#        sftpQuake.getSeedFromNordicFile(open(nfile, 'r'), fix)
-#        sys.exit()
-#
-#    if station is None:
-#        click.echo("station cannot be empty unless a nordic file is given to the program!")
-#        sys.exit()
-#
-#    if year is None:
-#        click.echo("year cannot be empty unless a nordic file is given to the program!")
-#        sys.exit()
-#
-#    if j_date is None:
-#        click.echo("j_date cannot be empty unless a nordic file is given to the program!")
-#        sys.exit()
-#
-#    sftpQuake.getSeed(station, year, j_date)
 
 @cli.command('undo', short_help='undo last insert')
 @click.pass_obj

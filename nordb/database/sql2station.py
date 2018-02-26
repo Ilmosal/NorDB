@@ -24,7 +24,7 @@ SELECT_STATION =    (
                         "FROM " 
                         "   station, network " 
                         "WHERE " 
-                        "   id = %s " 
+                        "   station.id = %s " 
                         "AND "
                         "   network.id = network_id"
                     )

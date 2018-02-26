@@ -168,11 +168,11 @@ class SiteChan(object):
         sitechanString += " "
         sitechanString += addString2String(self.channel_type, 4, '<')
 
-        sitechanString += addFloat2String(self.emplacement_depth, 10, 4, '>')
-        sitechanString += "  "
-        sitechanString += addFloat2String(self.horizontal_angle, 5, 1, '>')
-        sitechanString += "  "
-        sitechanString += addFloat2String(self.vertical_angle, 5, 1, '>')
+        sitechanString += addFloat2String(self.emplacement_depth, 10, 6, '>')
+        sitechanString += " "
+        sitechanString += addFloat2String(self.horizontal_angle, 6, 3, '>')
+        sitechanString += " "
+        sitechanString += addFloat2String(self.vertical_angle, 6, 3, '>')
         sitechanString += " "
         sitechanString += addString2String(self.description, 50, '<')
         sitechanString += " "

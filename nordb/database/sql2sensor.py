@@ -58,7 +58,7 @@ SELECT_SENSORS_TO_SITECHAN =    (
                                 "WHERE "
                                 "   sitechan.id = %s "
                                 "AND "
-                                "   sitechan.id = sensor.sitechan_id"
+                                "   sitechan.id = sensor.channel_id"
                                 )
 
 def readAllSensors():
@@ -91,7 +91,7 @@ def sensors2sitechan(sitechan):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute(SELECT_SENSORS_TO_SITECHAN, (sitechan.s_id))
+    cur.execute(SELECT_SENSORS_TO_SITECHAN, (sitechan.s_id,))
     sensor_ids = cur.fetchall()
 
     if sensor_ids:

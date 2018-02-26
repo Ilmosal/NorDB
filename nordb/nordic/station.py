@@ -157,7 +157,7 @@ class Station(object):
         stationString = ""
         stationString += addString2String(self.station_code, 8, '<')
 
-        stationString += addInteger2String(self.on_date.year, 5, '<') 
+        stationString += addInteger2String(self.on_date.year, 4, '<') 
         stationString += addInteger2String(self.on_date.timetuple().tm_yday, 3, '0') 
         
         stationString += "  "
@@ -170,8 +170,8 @@ class Station(object):
 
         stationString += "  "
         stationString += addFloat2String(self.latitude, 8, 4, '>')
-        stationString += "  "
-        stationString += addFloat2String(self.longitude, 8, 4, '>')
+        stationString += " "
+        stationString += addFloat2String(self.longitude, 9, 4, '>')
 
         stationString += " "
         stationString += addFloat2String(self.elevation, 9, 4, '>')
@@ -230,7 +230,7 @@ def readStationStringToStation(stat_line, network):
     stations[Station.ON_DATE]           = unidecode.unidecode(stringToDate(stat_line[8:15].strip()))
     stations[Station.OFF_DATE]          = unidecode.unidecode(stringToDate(stat_line[17:24].strip()))
     stations[Station.LATITUDE]          = unidecode.unidecode(stat_line[26:34].strip())
-    stations[Station.LONGITUDE]         = unidecode.unidecode(stat_line[36:44].strip())
+    stations[Station.LONGITUDE]         = unidecode.unidecode(stat_line[35:44].strip())
     stations[Station.ELEVATION]         = unidecode.unidecode(stat_line[47:54].strip())
     stations[Station.STATION_NAME]      = unidecode.unidecode(stat_line[55:106].strip())
     stations[Station.STATION_TYPE]      = unidecode.unidecode(stat_line[106:108].strip())

@@ -11,7 +11,6 @@ Core
     nordic.rst
     nordicRead.rst
     usernameUtilities.rst
-    sftpQuake.rst
     utils.rst
     nordic2quakeml.rst
     nordic2sc3.rst

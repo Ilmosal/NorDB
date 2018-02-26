@@ -274,12 +274,12 @@ def faultyNordicEvents():
 @pytest.fixture(scope="module")
 def stationFiles():
     station_files =     [
-                        "AFI     2004334       -1  -13.9093 -171.7773    0.7060 AFIAMALU, SAMOA                                    ar   AFI       0.0000    0.0000       2004-Nov-29\n",
-                        "AK01    2006257       -1   50.6911   29.2131    0.1600 Malin Array element AK01                           ss   AKBB     -1.1480   -0.7590       2006-Sep-14\n",
-                        "AK02    2006257       -1   50.6573   29.2057    0.1700 Malin Array element AK02                           ss   AKBB     -4.9220   -1.1640       2006-Sep-14\n",
-                        "AK03    2006257       -1   50.7263   29.2217    0.1600 Malin Array element AK03                           ss   AKBB      2.7770   -0.2640       2006-Sep-14\n",
-                        "AKTO    2005256       -1   50.4348   58.0164    0.3790 AKTYUBINSK, KAZAKHSTAN                             bb   AKTO      0.0000    0.0000       2005-Sep-13\n",
-                        "AL31    1977149  2005256   65.0649 -147.5668    0.2980 EIELSON, AK ARRAY, United States of America        ss   -         0.0000    0.0000       2008-Jun-04\n"
+                        "AFI     2004334       -1  -13.9093 -171.7773    0.7060 AFIAMALU, SAMOA                                    ar   AFI       0.0000    0.0000 2004-Nov-29\n",
+                        "AK01    2006257       -1   50.6911   29.2131    0.1600 Malin Array element AK01                           ss   AKBB     -1.1480   -0.7590 2006-Sep-14\n",
+                        "AK02    2006257       -1   50.6573   29.2057    0.1700 Malin Array element AK02                           ss   AKBB     -4.9220   -1.1640 2006-Sep-14\n",
+                        "AK03    2006257       -1   50.7263   29.2217    0.1600 Malin Array element AK03                           ss   AKBB      2.7770   -0.2640 2006-Sep-14\n",
+                        "AKTO    2005256       -1   50.4348   58.0164    0.3790 AKTYUBINSK, KAZAKHSTAN                             bb   AKTO      0.0000    0.0000 2005-Sep-13\n",
+                        "AL31    1977149  2005256   65.0649 -147.5668    0.2980 EIELSON, AK ARRAY, United States of America        ss   -         0.0000    0.0000 2008-Jun-04\n"
                         ]
 
     return station_files
@@ -299,11 +299,11 @@ def faultyStationFiles():
 @pytest.fixture(scope="module")
 def siteChanFiles():
     sitechan_files =    [
-                        "AFI    BHE       2004335  1116650       -1 n     0.000000 90.000 90.000 broad band east                                          2004-Nov-29\n",
-                        "AFI    BHN       2004334  1116651       -1 n     0.000000 0.0000 90.000 broad band north                                         2004-Nov-29\n",
-                        "AFI    BHZ       2004334  1116652       -1 n     0.000000 -1.000 0.0000 broad band vertical                                      2004-Nov-29\n",
-                        "AK01   BHZ       2006257  1117200       -1 n     0.037000 -1.000 0.0000 broad-band vertical                                      2006-Sep-14\n",
-                        "AK02   BHZ       2006257  1117201       -1 n     0.073000 -1.000 0.0000 broad-band vertical                                      2006-Sep-14\n"
+                        "AFI    BHE       2004335  1116650       -1 n     0.000000 90.000 90.000 broad band east                                    2004-Nov-29\n",
+                        "AFI    BHN       2004334  1116651       -1 n     0.000000 0.0000 90.000 broad band north                                   2004-Nov-29\n",
+                        "AFI    BHZ       2004334  1116652       -1 n     0.000000 -1.000 0.0000 broad band vertical                                2004-Nov-29\n",
+                        "AK01   BHZ       2006257  1117200       -1 n     0.037000 -1.000 0.0000 broad-band vertical                                2006-Sep-14\n",
+                        "AK02   BHZ       2006257  1117201       -1 n     0.073000 -1.000 0.0000 broad-band vertical                                2006-Sep-14\n"
                         ]
 
     return sitechan_files
