@@ -7,6 +7,7 @@ services:
 install:
     - pip install .
     - pip install codecov
+    - pip install pylint
 # command to run tests
 before_script:
     - bash tests/create_usrconf.sh
