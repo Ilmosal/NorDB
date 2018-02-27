@@ -79,7 +79,7 @@ def instruments2sensor(sensor):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    instrument_ids = cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id))
+    instrument_ids = cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
 
     conn.close()
 

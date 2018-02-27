@@ -66,7 +66,7 @@ def removeEventsWithCreationId(creation_id):
     for event_id in ids:
         removeEvent(event_id[0], cur)
 
-    cur.execute("DELETE FROM creation_id WHERE id = %s", (creation_id,))
+    cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
 
     conn.commit()
     conn.close()

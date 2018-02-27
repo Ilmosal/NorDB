@@ -45,5 +45,3 @@ class TestSQL2SiteChan(object):
         chan = sql2sitechan.readSitechan(1)
    
         assert str(chan).strip() == siteChanFiles[0].strip()
-
-

@@ -514,10 +514,6 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
                     failed.write("\n")
 
             f_nordic.close()
-        elif (fnmatch.fnmatch(filename, "*.catalog")):
-            f_scandia = open(filename, 'r')
-            scandia2sql.read_scandia_file(f_scandia)
-            f_scandia.close()
         else:
             click.echo("File not in a valid format! See insert --help for information about valid formats")
 

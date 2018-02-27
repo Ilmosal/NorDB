@@ -14,7 +14,8 @@ SELECT_SENSOR = (
                     "SELECT " 
                     "   time, endtime, jdate, calratio, calper, " 
                     "   tshift, instant, lddate, sitechan_css_link.css_id, " 
-                    "   instrument_css_link.css_id, sensor.id, station_code, channel_code " 
+                    "   instrument_css_link.css_id, sensor.id, station_code, channel_code, " 
+                    "   sitechan.id, instrument_css_link.instrument_id "
                     "FROM " 
                     "   sensor, instrument_css_link, sitechan_css_link, station, sitechan " 
                     "WHERE "  
@@ -35,7 +36,8 @@ ALL_SENSORS = (
                     "SELECT " 
                     "   time, endtime, jdate, calratio, calper, " 
                     "   tshift, instant, lddate, sitechan_css_link.css_id, " 
-                    "   instrument_css_link.css_id, sensor.id, station_code, channel_code " 
+                    "   instrument_css_link.css_id, sensor.id, station_code, channel_code, " 
+                    "   sitechan.id, instrument_css_link.instrument_id "
                     "FROM " 
                     "    sensor, instrument_css_link, sitechan_css_link, station, sitechan " 
                     "WHERE "  
@@ -96,7 +98,7 @@ def sensors2sitechan(sitechan):
 
     if sensor_ids:
         for sensor_id in sensor_ids:
-            sitechan.sensors.append(readSensor(sensor_id))
+            sitechan.sensors.append(readSensor(sensor_id,))
 
     conn.close()
 

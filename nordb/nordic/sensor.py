@@ -42,11 +42,13 @@ class Sensor(object):
     TSHIFT = 5
     INSTANT = 6
     LDDATE = 7
-    CHANNEL_ID = 8
-    INSTRUMENT_ID = 9
+    CHANNEL_CSS_ID = 8
+    INSTRUMENT_CSS_ID = 9
     S_ID = 10
     STATION_CODE = 11
     CHANNEL_CODE = 12
+    CHANNEL_ID = 13
+    INSTRUMENT_ID = 14
     instruments = []
 
     def __init__(self, data):
@@ -63,6 +65,9 @@ class Sensor(object):
         self.s_id = data[self.S_ID]
         self.station_code = data[self.STATION_CODE]
         self.channel_code = data[self.CHANNEL_CODE]
+        self.instrument_css_id = data[self.INSTRUMENT_CSS_ID]
+        self.channel_css_id = data[self.CHANNEL_CSS_ID]
+#TODO: channel css id and instrument css id!!
 
     time = property(operator.attrgetter('_time'))
     
@@ -148,6 +153,22 @@ class Sensor(object):
         val_instrument_id = validateInteger(val, "instrument_id", None, None, self.header_type)
         self._instrument_id = val_instrument_id
 
+    channel_css_id = property(operator.attrgetter('_channel_css_id'))
+    
+    @channel_css_id.setter
+    def channel_css_id(self, val):
+        val_channel_css_id = validateInteger(val, "channel_css_id", None, None, self.header_type)
+        self._channel_css_id = val_channel_css_id
+
+    instrument_css_id = property(operator.attrgetter('_instrument_css_id'))
+    
+    @instrument_css_id.setter
+    def instrument_css_id(self, val):
+        val_instrument_css_id = validateInteger(val, "instrument_css_id", None, None, self.header_type)
+        self._instrument_css_id = val_instrument_css_id
+
+
+
     def __str__(self):
         sensorString = ""
 
@@ -159,9 +180,9 @@ class Sensor(object):
         sensorString += "  "
         sensorString += addFloat2String(self.endtime, 16, 5, '>')
         sensorString += " "
-        sensorString += addInteger2String(self.instrument_id, 8, '>')
+        sensorString += addInteger2String(self.instrument_css_id, 8, '>')
         sensorString += " "
-        sensorString += addInteger2String(self.channel_id, 8, '>')
+        sensorString += addInteger2String(self.channel_css_id, 8, '>')
         sensorString += "  "
         
         if self.jdate is None:
@@ -208,7 +229,7 @@ def readSensorStringToSensor(sen_line):
     :param str sen_line:  css sensor string
     :return: Sensor object
     """
-    sensor = [None]*13
+    sensor = [None]*15
 
     sensor[Sensor.TIME]             = unidecode.unidecode(sen_line[15:33].strip())
     sensor[Sensor.ENDTIME]          = unidecode.unidecode(sen_line[35:51].strip())
@@ -218,11 +239,13 @@ def readSensorStringToSensor(sen_line):
     sensor[Sensor.TSHIFT]           = unidecode.unidecode(sen_line[113:119].strip())
     sensor[Sensor.INSTANT]          = unidecode.unidecode(sen_line[120].strip())
     sensor[Sensor.LDDATE]           = unidecode.unidecode(stringToDate(sen_line[122:].strip()))
-    sensor[Sensor.CHANNEL_ID]       = unidecode.unidecode(sen_line[62:69].strip())
-    sensor[Sensor.INSTRUMENT_ID]    = unidecode.unidecode(sen_line[51:60].strip())
+    sensor[Sensor.CHANNEL_CSS_ID]   = unidecode.unidecode(sen_line[62:69].strip())
+    sensor[Sensor.INSTRUMENT_CSS_ID]= unidecode.unidecode(sen_line[51:60].strip())
     sensor[Sensor.S_ID]             = -1
     sensor[Sensor.STATION_CODE]     = unidecode.unidecode(sen_line[:7].strip())
     sensor[Sensor.CHANNEL_CODE]     = unidecode.unidecode(sen_line[7:15].strip())
+    sensor[Sensor.CHANNEL_ID]   = -1
+    sensor[Sensor.INSTRUMENT_ID]= -1
 
     return Sensor(sensor)
 

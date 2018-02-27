@@ -37,7 +37,7 @@ def genFakeChannel(sensor):
     fakeChan = SiteChan(FAKE_CHANNEL_LINE[sensor.channel_code[-1].lower()])
     fakeChan.station_code = sensor.station_code
     fakeChan.channel_code = sensor.channel_code
-    fakeChan.css_id = sensor.channel_id
+    fakeChan.css_id = sensor.channel_css_id
     
     if fakeChan.css_id == -1:
         conn = usernameUtilities.log2nordb()
@@ -64,7 +64,7 @@ def insertSensor2Database(sensor):
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT instrument_id FROM instrument_css_link WHERE css_id = %s", (sensor.instrument_id,))
+        cur.execute("SELECT instrument_id FROM instrument_css_link WHERE css_id = %s", (sensor.instrument_css_id,))
         ans = cur.fetchone()
     
         if ans is None:
@@ -72,12 +72,13 @@ def insertSensor2Database(sensor):
 
         sensor.instrument_id = ans[0]
 
-        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (sensor.channel_id,))
+        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (sensor.channel_css_id,))
         ans = cur.fetchone()
 
         if ans is None:
             fakeChan = genFakeChannel(sensor)
             sitechan2sql.insertSiteChan2Database(fakeChan)
+            sensor.channel_css_id = fakeChan.css_id
             cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (fakeChan.css_id,))
             ans = cur.fetchone()
         

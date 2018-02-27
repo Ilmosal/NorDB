@@ -180,7 +180,7 @@ class Instrument:
 
         instrumentString += addString2String(self.band, 2, '<')
         instrumentString += addString2String(self.digital, 2, '<')
-        instrumentString += addFloat2String (self.samprate, 11, 7, '>')
+        instrumentString += addFloat2String (self.samprate, 11, 6, '>')
 
         instrumentString += "    "
         
