@@ -19,7 +19,6 @@ setup(
         "psycopg2",
         "Click",
         "lxml",
-        "paramiko",
         "Sphinx",
         "unidecode",
         "alabaster",

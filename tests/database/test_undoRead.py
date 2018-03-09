@@ -4,7 +4,6 @@ from nordb.database import nordic2sql
 from nordb.core import nordic
 from nordb.core import usernameUtilities
 
-
 @pytest.mark.usefixture("setupdb", "nordicEvents")
 class TestUndoRead(object):
     def testUndoWithoutEvents(self, setupdb):

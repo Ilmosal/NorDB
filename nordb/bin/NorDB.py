@@ -460,13 +460,16 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
                     nordic_failed.append(n_string)
 
             creation_id = nordic2sql.createCreationInfo()
-
             for nord in nordic_events:
                 
                 event_id = -1
                 if not no_duplicates:
                     same_events = nordicSearch.searchSameEvents(nord)
                     if same_events:
+                        if ignore_duplicates:
+                            click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.headers[1][0]))
+                            continue
+
                         click.echo("Identical events to current found! Is any of these a duplicate of yours?")
                         click.echo("{0} - (Yours)".format(nord.headers[1][0]))
                         click.echo("-----------------------------------------------------------------------------------------")
@@ -481,8 +484,12 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
 
                     if event_id == -1:
                         similar_events = nordicSearch.searchSimilarEvents(nord)
-                        
+                       
                         if similar_events:
+                            if ignore_duplicates:
+                                click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.headers[1][0]))
+                                continue
+
                             click.echo("Similar events to current found! Is any of these a duplicate of yours?")
                             click.echo("{0} (Yours)".format(nord.headers[1][0]))
                             click.echo("-----------------------------------------------------------------------------------------")
