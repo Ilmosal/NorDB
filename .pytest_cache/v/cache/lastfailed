@@ -1,1 +1,3 @@
-{}
+{
+  "tests/core/test_nordicReset.py": true
+}
