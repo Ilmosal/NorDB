@@ -32,12 +32,9 @@ def createStringMainHeader(header, fix_nordic):
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :return: NordicMain object with list of values parsed from header
     """
-    nordic_main = [None]*26
+    nordic_main = [None]*23
 
-    nordic_main[NordicMain.DATE] = header[1:5] + "-" + header[6:8] + "-" + header[8:10]
-    nordic_main[NordicMain.HOUR] = header[11:13].strip()
-    nordic_main[NordicMain.MINUTE] = header[13:15].strip()
-    nordic_main[NordicMain.SECOND] = header[16:20].strip()
+    nordic_main[NordicMain.ORIGIN_TIME] = header[1:20]
     nordic_main[NordicMain.LOCATION_MODEL] = header[20].strip()
     nordic_main[NordicMain.DISTANCE_INDICATOR] = header[21].strip()
     nordic_main[NordicMain.EVENT_DESC_ID] = header[22].strip()
@@ -156,16 +153,16 @@ def createStringWaveformHeader(header):
 
     return NordicWaveform(nordic_waveform)
 
-def createStringPhaseData(data, fix_nordic, hour):
+def createStringPhaseData(data, fix_nordic, obs_time):
     """
     Function that creates Nordic phase data list with values being strings
 
     :param str data: string from where the data is parsed from
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
-    :param int hour: hour variable of the first main header for fix_nordic
+    :param obs_time obs_time: obs_time of the first main header for creating the observation_time 
     :return: NordicData object with alist of values parsed from data
     """
-    phase_data = [None]*24
+    phase_data = [None]*21
 
     phase_data[NordicData.STATION_CODE] = data[1:5].strip()
     phase_data[NordicData.SP_INSTRUMENT_TYPE] = data[6].strip()
@@ -173,11 +170,7 @@ def createStringPhaseData(data, fix_nordic, hour):
     phase_data[NordicData.QUALITY_INDICATOR] = data[9].strip()
     phase_data[NordicData.PHASE_TYPE] = data[10:14].strip()
     phase_data[NordicData.WEIGHT] = data[14].strip()
-    phase_data[NordicData.FIRST_MOTION] = data[16].strip()
-    phase_data[NordicData.TIME_INFO] = data[17].strip()
-    phase_data[NordicData.HOUR] = data[18:20].strip()
-    phase_data[NordicData.MINUTE] = data[20:22].strip()
-    phase_data[NordicData.SECOND] = data[23:28].strip()
+    phase_data[NordicData.OBSERVATION_TIME] = obs_time.strftime("%Y %m%d ") + data[18:28]
     phase_data[NordicData.SIGNAL_DURATION] = data[29:33].strip()
     phase_data[NordicData.MAX_AMPLITUDE] = data[34:40].strip()
     phase_data[NordicData.MAX_AMPLITUDE_PERIOD] = data[41:45].strip()
@@ -193,7 +186,7 @@ def createStringPhaseData(data, fix_nordic, hour):
     phase_data[NordicData.D_ID] = -1
 
     if fix_nordic:
-        nordicFix.fixPhaseData(phase_data, hour) 
+        nordicFix.fixPhaseData(phase_data, obs_time) 
 
     return NordicData(phase_data)
 
@@ -253,6 +246,6 @@ def createNordicEvent(nordic_string, fix_nordic=False, root_id = -1, creation_id
         raise Exception("No headers!")
 
     for x in range(headers_size, len(nordic_string)):
-        data.append(createStringPhaseData(nordic_string[x], fix_nordic, headers[1][0].hour))
+        data.append(createStringPhaseData(nordic_string[x], fix_nordic, headers[1][0].origin_time))
 
     return NordicEvent(headers, data, -1, root_id, creation_id, event_type)

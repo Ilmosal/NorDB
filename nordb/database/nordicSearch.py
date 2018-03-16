@@ -5,50 +5,48 @@ Functions and Classes
 ---------------------
 """
 
-from datetime import date
+from datetime import datetime
 import calendar
 from nordb.core import usernameUtilities
 from nordb.database import sql2nordic
 
 COMMAND_TPES = {1:"exactly", 2:"between", 3:"over", 4:"under"}
 
-SEARCH_IDS = {"date":1, 
-                "hour":2,
-                "minute":3,
-                "second":4,
-                "latitude":5, 
-                "longitude":6, 
-                "magnitude":7,
-                "event_type":8,
-                "distance_indicator":9,
-                "event_desc_id":10,
-                "event_id":11,
-                "depth":12}
+SEARCH_IDS =    {  
+                    "origin_time":1, 
+                    "latitude":2, 
+                    "longitude":3, 
+                    "magnitude":4,
+                    "event_type":5,
+                    "distance_indicator":6,
+                    "event_desc_id":7,
+                    "event_id":8,
+                    "depth":9
+                }
 
-SEARCH_IDS_REV = {1:"date", 
-                2:"hour",
-                3:"minute",
-                4:"second",
-                5:"latitude", 
-                6:"longitude", 
-                7:"magnitude",
-                8:"event_type",
-                9:"distance_indicator",
-                10:"event_desc_id",
-                11:"event_id",
-                12:"depth"}
+SEARCH_IDS_REV = {
+                    1:"origin_time", 
+                    2:"latitude", 
+                    3:"longitude", 
+                    4:"magnitude",
+                    5:"event_type",
+                    6:"distance_indicator",
+                    7:"event_desc_id",
+                    8:"event_id",
+                    9:"depth"
+                 }
 
-SEARCH_TYPES = { 1:date, 
-                2:int,
-                3:int,
-                4:float,
-                5:float, 
-                6:float, 
-                7:float,
-                8:str,
-                9:str,
-                10:str,
-                12:float}
+SEARCH_TYPES = { 
+                    1:datetime, 
+                    2:float, 
+                    3:float, 
+                    4:float,
+                    5:str,
+                    6:str,
+                    7:str,
+                    8:str,
+                    9:float
+               }
 
 EVENT_TYPE_VALS = {'O':1,
                     'A':2,
@@ -130,12 +128,12 @@ def returnValueFromString(value):
     try:
         if len(value) != 10:
             raise ValueError
-        return date(day=int(value[:2]), month=int(value[3:5]), year=int(value[6:]))
+        return datetime.strptime(value, "")
     except ValueError:
         pass
 
     try:
-        return date(day=int(value[8:]), month=int(value[5:7]), year=int(value[:4]))
+        return datetime.strptime(value, "")
     except ValueError:
         pass
 

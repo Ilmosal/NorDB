@@ -9,7 +9,7 @@ import operator
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
 from nordb.core.validationTools import validateString
-from nordb.core.validationTools import validateDate
+from nordb.core.validationTools import validateDatetime
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
@@ -19,10 +19,7 @@ class NordicMain:
     A class that functions as a collection of enums. Contains the information of the main header line of a nordic file. 
 
     :param list header: The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum. This data is easily accessed by it's enums.
-    :ivar datetime date: 
-    :ivar  hour: 
-    :ivar  minute: 
-    :ivar  second: 
+    :ivar origin_time datetime: 
     :ivar  location_model: 
     :ivar  distance_indicator: 
     :ivar  event_desc_id: 
@@ -75,89 +72,63 @@ class NordicMain:
     """
 
     header_type = 1
-    DATE = 0
-    HOUR = 1
-    MINUTE = 2
-    SECOND = 3
-    LOCATION_MODEL = 4
-    DISTANCE_INDICATOR = 5
-    EVENT_DESC_ID = 6
-    EPICENTER_LATITUDE = 7
-    EPICENTER_LONGITUDE = 8
-    DEPTH = 9 
-    DEPTH_CONTROL = 10
-    LOCATING_INDICATOR = 11
-    EPICENTER_REPORTING_AGENCY = 12
-    STATIONS_USED = 13
-    RMS_TIME_RESIDUALS = 14
-    MAGNITUDE_1 = 15
-    TYPE_OF_MAGNITUDE_1 = 16
-    MAGNITUDE_REPORTING_AGENCY_1 = 17
-    MAGNITUDE_2 = 18
-    TYPE_OF_MAGNITUDE_2 = 19
-    MAGNITUDE_REPORTING_AGENCY_2 = 20
-    MAGNITUDE_3 = 21
-    TYPE_OF_MAGNITUDE_3 = 22
-    MAGNITUDE_REPORTING_AGENCY_3 = 23
-    EVENT_ID = 24
-    H_ID = 25
+    ORIGIN_TIME = 0
+    LOCATION_MODEL = 1
+    DISTANCE_INDICATOR = 2
+    EVENT_DESC_ID = 3
+    EPICENTER_LATITUDE = 4
+    EPICENTER_LONGITUDE = 5
+    DEPTH = 6 
+    DEPTH_CONTROL = 7 
+    LOCATING_INDICATOR = 8 
+    EPICENTER_REPORTING_AGENCY = 9 
+    STATIONS_USED = 10
+    RMS_TIME_RESIDUALS = 11
+    MAGNITUDE_1 = 12
+    TYPE_OF_MAGNITUDE_1 = 13 
+    MAGNITUDE_REPORTING_AGENCY_1 = 14
+    MAGNITUDE_2 = 15
+    TYPE_OF_MAGNITUDE_2 = 16 
+    MAGNITUDE_REPORTING_AGENCY_2 = 17
+    MAGNITUDE_3 = 18
+    TYPE_OF_MAGNITUDE_3 = 19
+    MAGNITUDE_REPORTING_AGENCY_3 = 20
+    EVENT_ID = 21
+    H_ID = 22
 
-    def __init__(self, header):
-        self.date = header[self.DATE]
-        self.hour = header[self.HOUR]
-        self.minute = header[self.MINUTE]
-        self.second = header[self.SECOND]
-        self.location_model = header[self.LOCATION_MODEL]
-        self.distance_indicator = header[self.DISTANCE_INDICATOR]
-        self.event_desc_id = header[self.EVENT_DESC_ID]
-        self.epicenter_latitude = header[self.EPICENTER_LATITUDE]
-        self.epicenter_longitude = header[self.EPICENTER_LONGITUDE]
-        self.depth = header[self.DEPTH]
-        self.depth_control = header[self.DEPTH_CONTROL]
-        self.locating_indicator = header[self.LOCATING_INDICATOR]
-        self.epicenter_reporting_agency = header[self.EPICENTER_REPORTING_AGENCY]
-        self.stations_used = header[self.STATIONS_USED]
-        self.rms_time_residuals = header[self.RMS_TIME_RESIDUALS]
-        self.magnitude_1 = header[self.MAGNITUDE_1]
-        self.type_of_magnitude_1 = header[self.TYPE_OF_MAGNITUDE_1]
-        self.magnitude_reporting_agency_1 = header[self.MAGNITUDE_REPORTING_AGENCY_1]
-        self.magnitude_2 = header[self.MAGNITUDE_2]
-        self.type_of_magnitude_2 = header[self.TYPE_OF_MAGNITUDE_2]
-        self.magnitude_reporting_agency_2 = header[self.MAGNITUDE_REPORTING_AGENCY_2]
-        self.magnitude_3 = header[self.MAGNITUDE_3]
-        self.type_of_magnitude_3 = header[self.TYPE_OF_MAGNITUDE_3]
-        self.magnitude_reporting_agency_3 = header[self.MAGNITUDE_REPORTING_AGENCY_3]
-        self.event_id = header[self.EVENT_ID]
-        self.h_id = header[self.H_ID]
+    def __init__(   self, header=None):
+        if header is not None:
+            self.origin_time = header[self.ORIGIN_TIME]
+            self.location_model = header[self.LOCATION_MODEL]
+            self.distance_indicator = header[self.DISTANCE_INDICATOR]
+            self.event_desc_id = header[self.EVENT_DESC_ID]
+            self.epicenter_latitude = header[self.EPICENTER_LATITUDE]
+            self.epicenter_longitude = header[self.EPICENTER_LONGITUDE]
+            self.depth = header[self.DEPTH]
+            self.depth_control = header[self.DEPTH_CONTROL]
+            self.locating_indicator = header[self.LOCATING_INDICATOR]
+            self.epicenter_reporting_agency = header[self.EPICENTER_REPORTING_AGENCY]
+            self.stations_used = header[self.STATIONS_USED]
+            self.rms_time_residuals = header[self.RMS_TIME_RESIDUALS]
+            self.magnitude_1 = header[self.MAGNITUDE_1]
+            self.type_of_magnitude_1 = header[self.TYPE_OF_MAGNITUDE_1]
+            self.magnitude_reporting_agency_1 = header[self.MAGNITUDE_REPORTING_AGENCY_1]
+            self.magnitude_2 = header[self.MAGNITUDE_2]
+            self.type_of_magnitude_2 = header[self.TYPE_OF_MAGNITUDE_2]
+            self.magnitude_reporting_agency_2 = header[self.MAGNITUDE_REPORTING_AGENCY_2]
+            self.magnitude_3 = header[self.MAGNITUDE_3]
+            self.type_of_magnitude_3 = header[self.TYPE_OF_MAGNITUDE_3]
+            self.magnitude_reporting_agency_3 = header[self.MAGNITUDE_REPORTING_AGENCY_3]
+            self.event_id = header[self.EVENT_ID]
+            self.h_id = header[self.H_ID]
 
-    date = property(operator.attrgetter('_date'), doc="")
+    origin_time = property(operator.attrgetter('_origin_time'), doc="")
     
-    @date.setter
-    def date(self, val):
-        val_date = validateDate(val, "date", self.header_type)
-        self._date = val_date
-
-    hour = property(operator.attrgetter('_hour'), doc="")
+    @origin_time.setter
+    def origin_time(self, val):
+        val_origin_time = validateDatetime(val, "origin_time", self.header_type)
+        self._origin_time = val_origin_time
     
-    @hour.setter
-    def hour(self, val):
-        val_hour = validateInteger(val, "hour", 0, 23, self.header_type)
-        self._hour = val_hour
-
-    minute = property(operator.attrgetter('_minute'), doc="")
-    
-    @minute.setter
-    def minute(self, val):
-        val_minute = validateInteger(val, "minute", 0, 59, self.header_type)
-        self._minute = val_minute
-
-    second = property(operator.attrgetter('_second'), doc="")
-    
-    @second.setter
-    def second(self, val):
-        val_second = validateFloat(val, "second", 0.0, 59.99, self.header_type)
-        self._second = val_second
-
     location_model = property(operator.attrgetter('_location_model'), doc="")
     
     @location_model.setter
@@ -300,15 +271,17 @@ class NordicMain:
 
     def __str__(self):
         h_string = " "
-        h_string += addInteger2String(self.date.year, 4, '<')
+        h_string += addInteger2String(self.origin_time.year, 4, '<')
         h_string += " "
-        h_string += addInteger2String(self.date.month, 2, '0')
-        h_string += addInteger2String(self.date.day, 2, '0')
+        h_string += addInteger2String(self.origin_time.month, 2, '0')
+        h_string += addInteger2String(self.origin_time.day, 2, '0')
         h_string += " "
-        h_string += addInteger2String(self.hour, 2, '0')
-        h_string += addInteger2String(self.minute, 2, '0')
+        h_string += addInteger2String(self.origin_time.hour, 2, '0')
+        h_string += addInteger2String(self.origin_time.minute, 2, '0')
         h_string += " "
-        h_string += addFloat2String(self.second, 4, 1, '0')
+        h_string += addInteger2String(self.origin_time.second, 2, '0')
+        h_string += "."
+        h_string += addInteger2String(round(self.origin_time.microsecond/100000), 1, '<')
         h_string += addString2String(self.location_model, 1, '<')
         h_string += addString2String(self.distance_indicator, 1, '<')
         h_string += addString2String(self.event_desc_id, 1, '<')
@@ -336,13 +309,9 @@ class NordicMain:
 
         return h_string
 
-
     def getAsList(self):
         header_list = []
-        header_list.append(self.date)
-        header_list.append(self.hour)
-        header_list.append(self.minute)
-        header_list.append(self.second)
+        header_list.append(self.origin_time)
         header_list.append(self.location_model)
         header_list.append(self.distance_indicator)
         header_list.append(self.event_desc_id)

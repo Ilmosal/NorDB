@@ -1,10 +1,7 @@
 CREATE TABLE nordic_header_main (
 	id SERIAL PRIMARY KEY,
 	event_id SERIAL REFERENCES nordic_event(id),
-	date DATE,
-	hour INTEGER,
-	minute INTEGER,
-	second FLOAT,
+	origin_time timestamp,
 	location_model VARCHAR(1),
 	distance_indicator VARCHAR(1),
 	event_desc_id VARCHAR(1),

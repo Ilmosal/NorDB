@@ -25,7 +25,7 @@ SELECT_QUERY =   {
                     ), 
                   1:(
                     "SELECT " 
-                    "   date, hour, minute, second, location_model, distance_indicator, " 
+                    "   origin_time, location_model, distance_indicator, " 
                     "   event_desc_id, epicenter_latitude, epicenter_longitude, depth, " 
                     "   depth_control, locating_indicator, epicenter_reporting_agency, " 
                     "   stations_used, rms_time_residuals, " 
@@ -80,7 +80,7 @@ SELECT_QUERY =   {
                   8:(
                     "SELECT " 
                     "   station_code, sp_instrument_type, sp_component, quality_indicator,  " 
-                    "   phase_type, weight, first_motion, time_info, hour, minute, second, " 
+                    "   phase_type, weight, first_motion, observation_time, " 
                     "   signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " 
                     "   apparent_velocity, signal_to_noise, azimuth_residual, " 
                     "   travel_time_residual, location_weight, epicenter_distance, "  

@@ -47,7 +47,7 @@ def setupdbWithEvents():
 def nordicEvents():
     nordic_events = [
                         [
-                        " 2013 0103 0614 00.0 LE 63.635  22.913  0.0F HEL 15 0.3 1.6LHEL 1.4LUPP        1\n",
+                        " 2013 0103 0614 00.1 LE 63.635  22.913  0.0F HEL 15 0.3 1.6LHEL 1.4LUPP        1\n",
                         " GAP= 80         0.1     0.391   0.477                  0.0                    5\n",
                         " CSS:2013003061203.WFDISC  (DET3C)                                             6\n",
                         " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE CHECKED (NIH)              3\n",
@@ -61,7 +61,7 @@ def nordicEvents():
                         " VAF  BZ EP       0613 15.30                    7.0              0.210   67 191 \n",
                         " VAF  BZ ES       0613 23.10                                     0.4 4          \n",
                         " UMAU BZ EP       0613 22.64                                     0.010  114 285 \n",
-                        " BURU BZ EPB      0613 25.38                  141.0             -0.1 9  130 325 \n",
+                        " BURU BZ EPB      0613 25.08                  141.0             -0.1 9  130 325 \n",
                         " BURU BZ ES       0613 39.82                                    -0.3 4          \n",
                         " ODEU BZ EP       0613 26.31                                    -0.2 9  138 310 \n",
                         " SVAU BZ EP       0613 34.71                                     0.3 8  189 302 \n",
@@ -140,9 +140,9 @@ def fixableNordicEvent():
                                 " GAP=171         0.8     7.100  10.400                                         5\n",
                                 " FULLY AUTOMATIC, EVENT TYPE & LOCATION & MAGNITUDE UNCHECKED                  3\n",
                                 " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n",
-                                " OBF4 BZ  Pg     +0000 00.00                    0.0          31 -0.010    1  83 \n",
+                                " OBF4 BZ  Pg      0000 00.00                    0.0          31 -0.010    1  83 \n",
                                 " OBF4 BZ  Sg      2302 35.91                                     1.010    2  83 \n", 
-                                " OBF3 BZ  Pg     +0200 39.21                                     2.010   17   0 \n",
+                                " OBF3 BZ  Pg      0200 39.21                                     2.010   17   0 \n",
 
                                 ],
                                 [

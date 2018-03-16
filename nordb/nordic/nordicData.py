@@ -7,7 +7,7 @@ import operator
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
 from nordb.core.validationTools import validateString
-from nordb.core.validationTools import validateDate
+from nordb.core.validationTools import validateDatetime
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
@@ -24,10 +24,7 @@ class NordicData:
     :ivar string phase_type: Phase type. (PG, SG, PN, etc). Maximum of 4 characters
     :ivar int weight: Weighting indicator(1-4). 0=full weight as Hypocenter program, 9=timing error
     :ivar string first_motion: First motion of the observation(C/D for clear compression/dilatation, +/- for unclear compression/dilatation). 
-    :ivar string time_info: date compared to the main header date. Blank = same day, + = next day, - = previous day
-    :ivar int hour: Hour of the observation. 0-23
-    :ivar int minute: Minute of the observation. 0-59
-    :ivar int second: Second of the observation. 0-59.9
+    :ivar observation_time datetime: Datetime of the pick
     :ivar int signal_duration:  duration of the signal from phase onset to noise as seconds
     :ivar float max_amplitude: Maximum amplitude from zero to peak ground motion amplitude.
     :ivar float max_amplitude_period: Period of the maximum amplitude
@@ -49,23 +46,20 @@ class NordicData:
     :ivar int PHASE_TYPE: Location of the phase_type in a array. Value of 4
     :ivar int WEIGHT: Location of the weight in a array. Value of 5
     :ivar int FIRST_MOTION: Location of the first_motion in a array. Value of 6
-    :ivar int TIME_INFO: Location of the time_info in a array. Value of 7
-    :ivar int HOUR: Location of the hour in a array. Value of 8
-    :ivar int MINUTE: Location of the minute in a array. Value of 9 
-    :ivar int SECOND: The location of the second time of the observation.Value of 10
-    :ivar int SIGNAL_DURATION: Location of the signal_duration in a array. Value of 11
-    :ivar int MAX_AMPLITUDE: Location of the max_amplitude in a array. Value of 12 
-    :ivar int MAX_AMPLITUDE_PERIOD: Location of the max_amplitude_period in a array. Value of 13
-    :ivar int BACK_AZIMUTH: Location of the back_azimuth in a array. Value of 14
-    :ivar int APPARENT_VELOCITY: Location of the apparent_velocity in a array. Value of 15
-    :ivar int SIGNAL_TO_NOISE: Location of the signal_to_noise in a array. Value of 16
-    :ivar int AZIMUTH_RESIDUAL: Location of the azimuth_residual in a array. Value of 17
-    :ivar int TRAVEL_TIME_RESIDUAL: Location of the travel_time_residual in a array. Value of 18
-    :ivar int LOCATION_WEIGHT: Location of the location_weight in a array. Value of 19
-    :ivar int EPICENTER_DISTANCE: Location of the epicenter_distance in a array. Value of 20
-    :ivar int EPICENTER_TO_STATION_AZIMUTH: Location of the epicenter_to_station_azimuth in a array. Value of 21
-    :ivar int EVENT_ID: Location of the event_id in a array. Value of 22
-    :ivar int D_ID: Location of the d_id in a array. Value of 23
+    :ivar int OBSEVATION_TIME: Location of the observation_time in a array. Value of 7
+    :ivar int SIGNAL_DURATION: Location of the signal_duration in a array. Value of 8
+    :ivar int MAX_AMPLITUDE: Location of the max_amplitude in a array. Value of 9
+    :ivar int MAX_AMPLITUDE_PERIOD: Location of the max_amplitude_period in a array. Value of 10
+    :ivar int BACK_AZIMUTH: Location of the back_azimuth in a array. Value of 11
+    :ivar int APPARENT_VELOCITY: Location of the apparent_velocity in a array. Value of 12
+    :ivar int SIGNAL_TO_NOISE: Location of the signal_to_noise in a array. Value of 13
+    :ivar int AZIMUTH_RESIDUAL: Location of the azimuth_residual in a array. Value of 14
+    :ivar int TRAVEL_TIME_RESIDUAL: Location of the travel_time_residual in a array. Value of 15
+    :ivar int LOCATION_WEIGHT: Location of the location_weight in a array. Value of 16
+    :ivar int EPICENTER_DISTANCE: Location of the epicenter_distance in a array. Value of 17
+    :ivar int EPICENTER_TO_STATION_AZIMUTH: Location of the epicenter_to_station_azimuth in a array. Value of 18
+    :ivar int EVENT_ID: Location of the event_id in a array. Value of 19
+    :ivar int D_ID: Location of the d_id in a array. Value of 20
     """
     header_type = 8
     STATION_CODE = 0
@@ -75,23 +69,20 @@ class NordicData:
     PHASE_TYPE = 4
     WEIGHT = 5
     FIRST_MOTION = 6
-    TIME_INFO = 7
-    HOUR = 8
-    MINUTE = 9 
-    SECOND = 10
-    SIGNAL_DURATION = 11
-    MAX_AMPLITUDE = 12 
-    MAX_AMPLITUDE_PERIOD = 13
-    BACK_AZIMUTH = 14
-    APPARENT_VELOCITY = 15
-    SIGNAL_TO_NOISE = 16
-    AZIMUTH_RESIDUAL = 17
-    TRAVEL_TIME_RESIDUAL = 18
-    LOCATION_WEIGHT = 19
-    EPICENTER_DISTANCE = 20
-    EPICENTER_TO_STATION_AZIMUTH = 21
-    EVENT_ID = 22
-    D_ID = 23
+    OBSERVATION_TIME = 7
+    SIGNAL_DURATION = 8
+    MAX_AMPLITUDE = 9
+    MAX_AMPLITUDE_PERIOD = 10
+    BACK_AZIMUTH = 11
+    APPARENT_VELOCITY = 12
+    SIGNAL_TO_NOISE = 13
+    AZIMUTH_RESIDUAL = 14
+    TRAVEL_TIME_RESIDUAL = 15
+    LOCATION_WEIGHT = 16
+    EPICENTER_DISTANCE = 17
+    EPICENTER_TO_STATION_AZIMUTH = 18
+    EVENT_ID = 19
+    D_ID = 20
 
     def __init__(self, data):
         self.station_code = data[self.STATION_CODE]
@@ -101,10 +92,7 @@ class NordicData:
         self.phase_type = data[self.PHASE_TYPE]
         self.weight = data[self.WEIGHT]
         self.first_motion = data[self.FIRST_MOTION]
-        self.time_info = data[self.TIME_INFO]
-        self.hour = data[self.HOUR]
-        self.minute = data[self.MINUTE]
-        self.second = data[self.SECOND]
+        self.observation_time = data[self.OBSERVATION_TIME]
         self.signal_duration = data[self.SIGNAL_DURATION]
         self.max_amplitude = data[self.MAX_AMPLITUDE]
         self.max_amplitude_period = data[self.MAX_AMPLITUDE_PERIOD]
@@ -165,36 +153,15 @@ class NordicData:
     
     @first_motion.setter
     def first_motion(self, val):
-        val_first_motion = validateString(val, "first_motion", 0, 1, "CD+- ", self.header_type)
+        val_first_motion = validateString(val, "first_motion", 0, 1, "+-DC", self.header_type)
         self._first_motion = val_first_motion
 
-    time_info = property(operator.attrgetter('_time_info'), doc="")
+    observation_time = property(operator.attrgetter('_observation_time'), doc="")
     
-    @time_info.setter
-    def time_info(self, val):
-        val_time_info = validateString(val, "time_info", 0, 1, "-+ ", self.header_type)
-        self._time_info = val_time_info
-
-    hour = property(operator.attrgetter('_hour'), doc="")
-    
-    @hour.setter
-    def hour(self, val):
-        val_hour = validateInteger(val, "hour", 0, 23, self.header_type)
-        self._hour = val_hour
-
-    minute = property(operator.attrgetter('_minute'), doc="")
-    
-    @minute.setter
-    def minute(self, val):
-        val_minute = validateInteger(val, "minute", 0, 59, self.header_type)
-        self._minute = val_minute
-
-    second = property(operator.attrgetter('_second'), doc="")
-    
-    @second.setter
-    def second(self, val):
-        val_second = validateFloat(val, "second", 0.0, 59.99, self.header_type)
-        self._second = val_second
+    @observation_time.setter
+    def observation_time(self, val):
+        val_observation_time = validateDatetime(val, "observation_time", self.header_type)
+        self._observation_time = val_observation_time
 
     signal_duration = property(operator.attrgetter('_signal_duration'), doc="")
     
@@ -285,11 +252,13 @@ class NordicData:
         phase_string += addInteger2String(self.weight, 1, '<')
         phase_string += " "
         phase_string += addString2String(self.first_motion, 1, '<')
-        phase_string += addString2String(self.time_info, 1, '<')
-        phase_string += addInteger2String(self.hour, 2, '0')
-        phase_string += addInteger2String(self.minute, 2, '0')
+        phase_string += " " #HOW TO IMPLEMENT TIME INFO WITHOUT THE KNOWLEDGE OF THE REAL DAY?!
+        phase_string += addInteger2String(self.observation_time.hour, 2, '0')
+        phase_string += addInteger2String(self.observation_time.minute, 2, '0')
         phase_string += " "
-        phase_string += addFloat2String(self.second, 5, 2, '0')
+        phase_string += addInteger2String(self.observation_time.second, 2, '0')
+        phase_string += "."
+        phase_string += addInteger2String(round(self.observation_time.microsecond/10000), 2, '0')
         phase_string += " "
         phase_string += addInteger2String(self.signal_duration, 4, '>')
         phase_string += " "
@@ -320,10 +289,7 @@ class NordicData:
         data_list.append(self.phase_type)
         data_list.append(self.weight)
         data_list.append(self.first_motion)
-        data_list.append(self.time_info)
-        data_list.append(self.hour)
-        data_list.append(self.minute)
-        data_list.append(self.second)
+        data_list.append(self.observation_time)
         data_list.append(self.signal_duration)
         data_list.append(self.max_amplitude)
         data_list.append(self.max_amplitude_period)

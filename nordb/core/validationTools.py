@@ -8,6 +8,7 @@ Functions and Classes
 import math
 import logging
 from datetime import date
+from datetime import datetime
 
 nTypes = {0: "Nordic Event",
         1: "Nordic Main Header",
@@ -145,6 +146,43 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, nType):
 
     return string
 
+def validateDatetime(datetime_val, datetime_name = None, n_type = None):
+    """
+    Function that determines if datetime_val is a valid datetime or empty
+
+    :param str datetime_val: value to be validated
+    :param str datetime_name: name of the parameter for messaging purposes
+    :param int n_type: header name id. Used for messaging.
+    :returns: Correct value as a datetime or None if it's empty
+    """
+    if datetime_val is None:
+        return None
+    if type(datetime_val) is datetime:
+        return datetime_val
+    if type(datetime_val) is not type("string"):
+        if datetime_name is None:
+            raise TypeError
+        msg = "Validation Error - {0}: {1} is wrong type {2}"
+        raise Exception(msg.format(nTypes[n_type], datetime_name, type(datetime_val)))
+    if datetime_val.strip() == "":
+        return None
+    try:
+        return datetime(datetime_val)
+    except:
+#        try:
+        return datetime (    
+                            year = int(datetime_val[:4]),
+                            month = int(datetime_val[5:7]),
+                            day = int(datetime_val[7:9]),
+                            hour = int(datetime_val[10:12]),
+                            minute = int(datetime_val[12:14]),
+                            second = int(datetime_val[15:17]),
+                            microsecond = int("{0:<06s}".format(datetime_val[18:]))
+                        )
+#        except:
+#            msg = "Validation Error - {0}: {1} is not parsable into datetime!({2})"
+#            raise Exception(msg.format(nTypes[n_type], datetime_name, datetime_val))
+            
 def validateDate(dateS, dateName, nType):
     """
     Function that determines if dateS is a valid date or empty.

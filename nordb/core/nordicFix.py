@@ -20,6 +20,8 @@ import math
 from nordb.nordic.nordicMain import NordicMain
 from nordb.nordic.nordicError import NordicError
 from nordb.nordic.nordicData import NordicData
+from nordb.core.validationTools import validateDatetime
+from datetime import timedelta
 
 def fixMainData(header):
     """
@@ -27,11 +29,6 @@ def fixMainData(header):
    
     :param NordicMain header: main header that needs to be fixed
     """
-    if header[NordicMain.DATE][5] == " ":
-        header[NordicMain.DATE] = header[NordicMain.DATE][:5] + "0" + header[NordicMain.DATE][6:]
-    if header[NordicMain.DATE][8] == " ":
-        header[NordicMain.DATE] = header[NordicMain.DATE][:8] + "0" + header[NordicMain.DATE][9:]
-
     try:
         if math.isnan(float(header[NordicMain.MAGNITUDE_1])):
             header[NordicMain.MAGNITUDE_1] = ""
@@ -50,15 +47,15 @@ def fixMainData(header):
     except ValueError:
         pass
 
-    if header[NordicMain.SECOND] == "60.0":
-        header[NordicMain.SECOND] = "0.0"
-        header[NordicMain.MINUTE] = str(int(header[NordicMain.MINUTE]) + 1)
-        if header[NordicMain.MINUTE] == "60":
-            header[NordicMain.MINUTE] = "0"
-            header[NordicMain.HOUR] = str(int(header[NordicMain.HOUR]) + 1)
-            if header[NordicMain.HOUR] == "24":
-                raise ValueError #TODO OWN ERROR
-
+    if header[NordicMain.ORIGIN_TIME][-4:] == "60.0":
+        temp = header[NordicMain.ORIGIN_TIME][:-4] + "00.0"
+       
+        time = validateDatetime(temp)
+        time += timedelta(seconds=60)
+        new_time_string = time.strftime("%Y %m%d %H%M %S") 
+        new_time_string += ".{0}".format(round(time.microsecond /100000))
+        header[NordicMain.ORIGIN_TIME] = new_time_string
+        
 def fixErrorData(header):
     """
     Method for fixing some of the common errors in error header.
@@ -72,12 +69,12 @@ def fixErrorData(header):
         pass
 
 
-def fixPhaseData(data, mhour):
+def fixPhaseData(data, main_datetime):
     """
     Method for fixing some of the common errors in phase data.
    
     :param NordicData data: phase data that need to be fixed
-    :param int mhour: The hour value of the main header
+    :param main_datetime datetime: datetime of the first main header
     """
     if data[NordicData.EPICENTER_TO_STATION_AZIMUTH] == "360":
         data[NordicData.EPICENTER_TO_STATION_AZIMUTH] = "0"
@@ -85,21 +82,21 @@ def fixPhaseData(data, mhour):
     if data[NordicData.BACK_AZIMUTH] == "360.0":
         data[NordicData.BACK_AZIMUTH] = "0.0"
 
-    if data[NordicData.SECOND] == "60.00":
-        data[NordicData.SECOND] = "0.00"
-        try:
-            data[NordicData.MINUTE] = str(int(data[NordicData.MINUTE])+1)
-        except:
-            pass
-        if data[NordicData.MINUTE] == "60":
-            data[NordicData.MINUTE] = "00"
-            try:
-                data[NordicData.HOUR] = str(int(data[NordicData.HOUR])+1)
-            except:
-                pass
-            if data[NordicData.HOUR] == "24":
-                data[NordicData.HOUR] = "00"
-                data[NordicData.TIME_INFO] = "+"
+    if data[NordicData.OBSERVATION_TIME][-5:] == "60.00":
+        temp = data[NordicData.OBSERVATION_TIME][:-5] + "00.00"
+        time = validateDatetime(temp)
+        time += timedelta(seconds=60)
+        new_time_string = time.strftime("%Y %m%d %H%M %S") 
+        new_time_string += ".{0}".format(round(time.microsecond /10000))
+        data[NordicData.OBSERVATION_TIME] = new_time_string
+
+    if int(data[NordicData.OBSERVATION_TIME][10:12]) < main_datetime.hour:
+        time = validateDatetime(data[NordicData.OBSERVATION_TIME])
+        time += timedelta(days=1)
+        new_time_string = time.strftime("%Y %m%d %H%M %S") 
+        new_time_string += ".{0}".format(round(time.microsecond /10000))
+        data[NordicData.OBSERVATION_TIME] = new_time_string
+
 
     try:
         data[NordicData.EPICENTER_DISTANCE] = str(int(float(data[NordicData.EPICENTER_DISTANCE])))
