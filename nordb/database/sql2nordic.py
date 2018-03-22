@@ -92,7 +92,7 @@ SELECT_QUERY =   {
                     )
                 }
 
-def getNordicFromDB(event_id):
+def getNordic(event_id):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
@@ -102,53 +102,50 @@ def getNordicFromDB(event_id):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
-    data = []
-    main_ids = []
-
     cur.execute(SELECT_QUERY[0], (event_id,))
     n_events = cur.fetchone()
 
     if not n_events:
         return None
 
+    event = NordicEvent(event_id, n_events[1], n_events[2], n_events[4])
+
     cur.execute(SELECT_QUERY[NordicMain.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
-        main_ids.append(a[-1])
-        headers[NordicMain.header_type].append(NordicMain(a))
+        event.main_h.append(NordicMain(a))
 
     cur.execute(SELECT_QUERY[NordicMacroseismic.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
-        headers[NordicMacroseismic.header_type].append(NordicMacroseismic(a))
+        event.macro_h.append(NordicMacroseismic(a))
 
     cur.execute(SELECT_QUERY[NordicComment.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
-        headers[NordicComment.header_type].append(NordicComment(a))
+        event.comment_h.append(NordicComment(a))
 
-    for m_id in main_ids:
-        cur.execute(SELECT_QUERY[NordicError.header_type], (m_id,))
-        ans = cur.fetchall()
+    for main_h in event.main_h:
+        cur.execute(SELECT_QUERY[5], (main_h.h_id,))
+        ans = cur.fetchone()
 
-        for a in ans:
-            headers[NordicError.header_type].append(NordicError(a, -1))
+        if ans is not None:
+            main_h.error_h = NordicError(ans)
 
     cur.execute(SELECT_QUERY[NordicWaveform.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
-        headers[NordicWaveform.header_type].append(NordicWaveform(a))
+        event.waveform_h.append(NordicWaveform(a))
     
     cur.execute(SELECT_QUERY[NordicData.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
-        data.append(NordicData(a))
+        event.data.append(NordicData(a))
 
-    return NordicEvent(headers, data, event_id, n_events[1], n_events[2], n_events[4])
+    return event
 

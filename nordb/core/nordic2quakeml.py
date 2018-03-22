@@ -73,19 +73,19 @@ def addEvent(eventParameters, nordic, long_quakeML):
     """
     #Add event
     event = etree.SubElement(eventParameters, "event")
-    event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/" + str(nordic.headers[1][0].h_id)
+    event.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/event/" + str(nordic.main_h[0].h_id)
 
     #Add preferred OriginID
     event_preferred_origin = etree.SubElement(event, "preferredOriginID")
-    event_preferred_origin.text = "smi:" + AUTHORITY_ID + "/origin/" + str(nordic.headers[1][0].h_id)
+    event_preferred_origin.text = "smi:" + AUTHORITY_ID + "/origin/" + str(nordic.main_h[0].h_id)
 
     #Add preferred magnitudeID
     event_preferred_magnitude = etree.SubElement(event, "preferredMagnitudeID")
-    event_preferred_magnitude.text = "smi:" + AUTHORITY_ID + "/magnitude/" + str(nordic.headers[1][0].h_id)
+    event_preferred_magnitude.text = "smi:" + AUTHORITY_ID + "/magnitude/" + str(nordic.main_h[0].h_id)
 
     #Adding event type  
     event_type_txt = " "
-    for header in nordic.headers[1]:
+    for header in nordic.main_h:
         if header.event_desc_id is not None:
             event_type_txt = header.event_desc_id
 
@@ -95,31 +95,32 @@ def addEvent(eventParameters, nordic, long_quakeML):
     #Add event description
     event_description = etree.SubElement(event, "description")
     event_description_text = etree.SubElement(event_description, "text")
-    if nordic.headers[1][0].event_desc_id is None:
-        event_description_text.text = nordic.headers[1][0].distance_indicator + " "
+    if nordic.main_h[0].event_desc_id is None:
+        event_description_text.text = nordic.main_h[0].distance_indicator + " "
     else:
         event_description_text.text =   (
-                                            nordic.headers[1][0].distance_indicator
-                                            + nordic.headers[1][0].event_desc_id
+                                            nordic.main_h[0].distance_indicator
+                                            + nordic.main_h[0].event_desc_id
                                         )
     #Adding event comments
-    for header_comment in nordic.headers[3]:
+    for header_comment in nordic.comment_h:
         if header_comment.h_comment is not None:
             event_comment = etree.SubElement(event, "comment")
             event_comment_txt = etree.SubElement(event_comment, "text")
             event_comment_txt.text = header_comment.h_comment
 
     #Creating the all elements and their subelement
-    for i in range(0,len(nordic.headers[1])):
-        addOrigin(event, nordic, nordic.headers[1][i])
+    for i in range(0,len(nordic.main_h)):
+        addOrigin(event, nordic, nordic.main_h[i])
     
         #Adding preferred OriginID  
-    for i in range(0,len(nordic.headers[1])):
+    for i in range(0,len(nordic.main_h)):
         if long_quakeML:
-            addMagnitude(event, nordic, nordic.headers[1][i])
+            addMagnitude(event, nordic, nordic.main_h[i])
     
-    for i in range(0, len(nordic.headers[5])):
-        addFocalMech(event, nordic.headers[5][i])
+    for main in nordic.main_h:
+        if main.error_h is not None:
+            addFocalMech(event, main.error_h)
 
     if long_quakeML:
         for phase_data in nordic.data:
@@ -150,7 +151,7 @@ def addPick(event, nordic, phase_data):
 
     #Pick waveform ID
     waveform_id = etree.SubElement(pick, "waveformID")
-    waveform_id.attrib["networkCode"] = "" + nordic.headers[1][0].magnitude_reporting_agency_1
+    waveform_id.attrib["networkCode"] = "" + nordic.main_h[0].magnitude_reporting_agency_1
     waveform_id.attrib["stationCode"] = phase_data.station_code
     if phase_data.sp_instrument_type is not None and phase_data.sp_component is not None:
         waveform_id.attrib["channelCode"] = INSTRUMENT_TYPE_CONVERSION[phase_data.sp_instrument_type] + phase_data.sp_component
@@ -231,47 +232,38 @@ def addOrigin(event, nordic, main):
     time_value = etree.SubElement(time, "value")
     time_value.text = main.origin_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-    for h_error in nordic.headers[5]:
-        if h_error.h_id == main.h_id:
-            time_uncertainty = etree.SubElement(time, "uncertainty") 
-            time_uncertainty.text = str(h_error.second_error)
-            break
+    if main.error_h:
+        time_uncertainty = etree.SubElement(time, "uncertainty") 
+        time_uncertainty.text = str(main.error_h.second_error)
 
     #Adding value for epicenter latitude
     if main.epicenter_latitude is not None:
         origin_latitude = etree.SubElement(origin, "latitude")
         origin_latitude_value = etree.SubElement(origin_latitude, "value")
         origin_latitude_value.text = str(main.epicenter_latitude)
-        for h_error in nordic.headers[5]:
-            if h_error.header_id == main.h_id:
-                if h_error.epicenter_latitude_error is not None:
-                    origin_latitude_uncertainty = etree.SubElement(origin_latitude, "uncertainty")
-                    origin_latitude_uncertainty.text = str(h_error.epicenter_latitude_error)
-                break
+
+        if main.error_h is not None and main.error_h.epicenter_latitude_error is not None:
+            origin_latitude_uncertainty = etree.SubElement(origin_latitude, "uncertainty")
+            origin_latitude_uncertainty.text = str(main.error_h.epicenter_latitude_error)
 
     #Adding value for epicenter longitude
     if main.epicenter_longitude is not None:
         origin_longitude = etree.SubElement(origin, "longitude")
         origin_longitude_value = etree.SubElement(origin_longitude, "value")
         origin_longitude_value.text = str(main.epicenter_longitude)
-        for h_error in nordic.headers[5]:
-            if h_error.header_id == main.h_id:
-                if h_error.epicenter_longitude_error is not None:
-                    origin_longitude_uncertainty = etree.SubElement(origin_longitude, "uncertainty")
-                    origin_longitude_uncertainty.text = str(h_error.epicenter_longitude_error)
-                break
+
+        if main.error_h is not None and main.error_h.epicenter_longitude_error is not None:
+            origin_longitude_uncertainty = etree.SubElement(origin_longitude, "uncertainty")
+            origin_longitude_uncertainty.text = str(main.error_h.epicenter_longitude_error)
 
     #Adding value for depth
     if main.depth is not None:
         origin_depth = etree.SubElement(origin, "depth")
         origin_depth_value = etree.SubElement(origin_depth, "value")
         origin_depth_value.text = str(main.depth * 1000)
-        for h_error in nordic.headers[5]:
-            if h_error.header_id == main.h_id:
-                if h_error.depth_error is not None:
-                    origin_depth_uncertainty = etree.SubElement(origin_depth, "uncertainty")
-                    origin_depth_uncertainty.text = str(h_error.depth_error * 1000)
-                break
+        if main.error_h is not None and main.error_h.depth_error is not None:
+            origin_depth_uncertainty = etree.SubElement(origin_depth, "uncertainty")
+            origin_depth_uncertainty.text = str(main.error_h.epicenter_depth_error)
 
     #Adding value for rms time residuals
     if main.rms_time_residuals is not None:
@@ -296,13 +288,9 @@ def addMagnitude(event, nordic, main):
         magnitude_mag = etree.SubElement(magnitude, "mag")
         magnitude_mag_value = etree.SubElement(magnitude_mag, "value")
         magnitude_mag_value.text = str(main.magnitude_1)
-        if len(nordic.headers[5]) > 0:
-            for h_error in nordic.headers[5]:
-                if h_error.header_id == main.h_id:
-                    if h_error.magnitude_error is not None:
-                        magnitude_mag_uncertainty = etree.SubElement(magnitude_mag, "uncertainty")
-                        magnitude_mag_uncertainty.text = str(h_error.magnitude_error)
-                    break
+        if main.error_h is not None and main.error_h.magnitude_error is not None:
+            magnitude_mag_uncertainty = etree.SubElement(magnitude_mag, "uncertainty")
+            magnitude_mag_uncertainty.text = str(main.error_h.magnitude_error)
 
         #Adding magnitude type 
         if main.type_of_magnitude_1 is not None and main.type_of_magnitude_1 in MAGNITUDE_TYPE_CONVERSION:

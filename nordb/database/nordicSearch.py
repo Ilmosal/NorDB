@@ -153,7 +153,7 @@ class NordicSearch:
         events = []
     
         for e_id in event_ids:
-            events.append(sql2nordic.getNordicFromDB(e_id[0]))
+            events.append(sql2nordic.getNordic(e_id[0]))
  
         return events
 
@@ -329,7 +329,7 @@ def searchSameEvents(nordic_event):
     :param NordicEvent nordic_event: Event for which the search is done for
     :returns: List of :class:`NordicEvent`s that are indentical to the event
     """
-    m_header = nordic_event.headers[1][0]
+    m_header = nordic_event.main_h[0]
     search = NordicSearch()
 
     search.addSearchExactly("origin_time", m_header.origin_time)
@@ -356,7 +356,7 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
     :param float magnitude_diff: maximum magnitude difference
     :returns: Array of :class:`NordicEvent`s that fit to the search criteria
     """
-    m_header = nordic_event.headers[1][0]
+    m_header = nordic_event.main_h[0]
     search = NordicSearch()
 
     search.addSearchBetween("origin_time", m_header.origin_time - timedelta(seconds = time_diff), m_header.origin_time + timedelta(seconds = time_diff))

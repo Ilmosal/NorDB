@@ -10,6 +10,7 @@ from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
 from nordb.core.validationTools import validateString
 from nordb.core.validationTools import validateDatetime
+from nordb.nordic.nordicError import NordicError
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
@@ -96,7 +97,8 @@ class NordicMain:
     EVENT_ID = 21
     H_ID = 22
 
-    def __init__(   self, header=None):
+    def __init__(self, header=None, error_h = None):
+        self.error_h = error_h
         if header is not None:
             self.origin_time = header[self.ORIGIN_TIME]
             self.location_model = header[self.LOCATION_MODEL]
@@ -121,6 +123,15 @@ class NordicMain:
             self.magnitude_reporting_agency_3 = header[self.MAGNITUDE_REPORTING_AGENCY_3]
             self.event_id = header[self.EVENT_ID]
             self.h_id = header[self.H_ID]
+
+    error_h = property(operator.attrgetter('_error_h'), doc="")
+    
+    @error_h.setter
+    def error_h(self, val):
+        if type(val) is NordicError or val is None:
+            self._error_h = val
+        else:
+            raise Exception("Given value not a NordicError!")
 
     origin_time = property(operator.attrgetter('_origin_time'), doc="")
     

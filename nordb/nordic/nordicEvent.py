@@ -15,35 +15,27 @@ class NordicEvent:
     """
     Container object of nordic event information
 
-    :param dict headers: headers that will be inserted to the NordicEvent
+    :param array main_h: NordicMain objects of the NordicEvent
+    :param array macro_h: NordicMacroseismic objects of the NordicEvent
+    :param array comment_h: NordicComment objects of the NordicEvent
+    :param array waveform_h: NordicWaveform objects of the NordicEvent
     :param array data: data array of the event
     :param int event_id: id of the event in the database
     :param int root_id: root id of the event
     :param int creation_id: creation_id of the event
     :param event_type string: event type of the event
-    :ivar dict headers: headers of the event in a dict where the header_type of the header is a key to a array that contains all header data of the object
-    :ivar array data: data array of the event
     :ivar int event_id: event id of the event
     """
-    def __init__(self, headers, data, event_id, root_id, creation_id, event_type):
-        self.headers = headers
-        self.data = data
+    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, event_type = "O"):
+        self.main_h = []
+        self.macro_h = []
+        self.comment_h = []
+        self.waveform_h = []
+        self.data = []
         self.event_id = event_id
         self.root_id = root_id
         self.creation_id = creation_id
         self.event_type = event_type
-
-    headers = property(operator.attrgetter('_headers'), doc="")
-
-    @headers.setter
-    def headers(self, h):
-        self._headers = h
-
-    data = property(operator.attrgetter('_data'), doc="")
-
-    @data.setter
-    def data(self, d):
-        self._data = d
 
     event_id = property(operator.attrgetter('_event_id'), doc="")
 
@@ -79,32 +71,23 @@ class NordicEvent:
     def __str__(self):
         n_string = ""
 
-        n_string += str(self.headers[1][0]) + "\n"
+        n_string += str(self.main_h[0]) + "\n"
 
-        for h_error in self.headers[5]:
-            if h_error.header_id != -1 and h_error.header_id == self.headers[1][0].h_id:
-                n_string += str(self.headers[5][0]) + "\n"
-            elif h_error.header_pos == 0:
-                n_string += str(self.headers[5][0]) + "\n"
+        if self.main_h[0].error_h:
+            n_string += str(self.main_h[0].error_h) + "\n"
 
-        if len(self.headers[6]) > 0:
-            n_string += str(self.headers[6][0]) + "\n"
+        if self.waveform_h:
+            n_string += str(self.waveform_h[0]) + "\n"
 
-        for comment in self.headers[3]:
+        for comment in self.comment_h:
             n_string += str(comment) + "\n"
 
-        for i in range(1, len(self.headers[1])):
-            h_main = self.headers[1][i]
-            n_string += str(h_main) + "\n"
+        for i in range(1, len(self.main_h)):
+            n_string += str(self.main_h[i]) + "\n"
+            if self.main_h[i].error_h:
+                n_string += str(self.main_h[i].error_h) + "\n"
 
-            for h_error in self.headers[5]:
-                if h_error.header_id != -1:
-                    if h_error.header_id == h_main.h_id:
-                        n_string += str(h_error) + "\n"
-                elif h_error.header_pos == i:
-                    n_string += str(h_error) + "\n"
-
-        for h_macro in self.headers[2]:
+        for h_macro in self.macro_h:
             n_string += str(h_macro) + "\n"
 
         n_string += createHelpHeaderString()

@@ -13,6 +13,7 @@ Functions and Classes
 from datetime import date
 from nordb.core import nordicRead
 from nordb.core import nordicFix
+from nordb.core.nordicRead import readNordicFile
 from nordb.core.utils import addString2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addFloat2String
@@ -113,7 +114,7 @@ def createStringCommentHeader(header):
 
     return NordicComment(nordic_comment)
 
-def createStringErrorHeader(header, h_id, fix_nordic):
+def createStringErrorHeader(header, fix_nordic):
     """
     Function that creates Nordic error list with values being strings
 
@@ -135,7 +136,7 @@ def createStringErrorHeader(header, h_id, fix_nordic):
     if fix_nordic:
         nordicFix.fixErrorData(nordic_error)
     
-    return NordicError(nordic_error, h_id)
+    return NordicError(nordic_error)
 
 def createStringWaveformHeader(header):
     """
@@ -190,16 +191,16 @@ def createStringPhaseData(data, fix_nordic, obs_time):
 
     return NordicData(phase_data)
 
-def readHeaders(nordic_string, fix_nordic):
+def readHeaders(event, nordic_string, fix_nordic):
     """
     Function for reading all the header files from the nordic file and returning them a header objects.
     
+    :param NordicEvent event: nordic event to which the headers will be read to 
     :param Array nordic_string: nordic file in string array form
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
-    :return: dict of Header objects and the amount of headers
+    :return: amount of headers read
     """
     i = 1
-    headers = {1:[], 2:[], 3:[], 5:[], 6:[]}
  
     #find where the data starts 
     while (i < len(nordic_string)):
@@ -215,37 +216,44 @@ def readHeaders(nordic_string, fix_nordic):
 
     for x in range(0, i):
         if (nordic_string[x][79] == '1'):
-            headers[1].append(createStringMainHeader(nordic_string[x], fix_nordic))
-            mheader_pos = len(headers[1])-1
+            event.main_h.append(createStringMainHeader(nordic_string[x], fix_nordic))
+            mheader_pos +=1
         elif (nordic_string[x][79] == '2'):
-            headers[2].append(createStringMacroseismicHeader(nordic_string[x]))
+            event.macro_h.append(createStringMacroseismicHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '3'):
-            headers[3].append(createStringCommentHeader(nordic_string[x]))
+            event.comment_h.append(createStringCommentHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '5'):
-            headers[5].append(createStringErrorHeader(nordic_string[x], mheader_pos, fix_nordic))
+            event.main_h[mheader_pos].error_h = createStringErrorHeader(nordic_string[x], fix_nordic)
         elif (nordic_string[x][79] == '6'):
-            headers[6].append(createStringWaveformHeader(nordic_string[x]))
+            event.waveform_h.append(createStringWaveformHeader(nordic_string[x]))
 
-    return headers, i
+    return i
 
-def createNordicEvent(nordic_string, fix_nordic=False, root_id = -1, creation_id = -1, event_type = "O"):
+def createNordicEvent(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, event_type = "O"):
     """
     Function for creating a single NordicEvent object from a string.
 
-    :param Array nordic_string: String array representation of a nordic
+    :param Array File nordic_file: String array representation of a nordic or a file object
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :param int root_id: id of the root event
     :param int creation_id: id of the creation id in the database
     :param str event_type: Type of the event. 
     :return: Nordic Event object
     """
-    headers, headers_size = readHeaders(nordic_string, fix_nordic)
-    data = []
+    nordic_string = None
+    try:
+        nordic_string = readNordicFile(nordic_file)[0]
+    except:
+        nordic_string = nordic_file 
+
+    event = NordicEvent(-1, root_id, creation_id, event_type)
+
+    headers_size = readHeaders(event, nordic_string, fix_nordic)
 
     if headers_size == 0:
         raise Exception("No headers!")
 
     for x in range(headers_size, len(nordic_string)):
-        data.append(createStringPhaseData(nordic_string[x], fix_nordic, headers[1][0].origin_time))
+        event.data.append(createStringPhaseData(nordic_string[x], fix_nordic, event.main_h[0].origin_time))
 
-    return NordicEvent(headers, data, -1, root_id, creation_id, event_type)
+    return event

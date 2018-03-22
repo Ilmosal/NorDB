@@ -124,7 +124,7 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
     cur = conn.cursor()
     author_id = None
 
-    for header in nordic_event.headers[3]:
+    for header in nordic_event.comment_h:
         search = re.search(r'\((\w{3})\)', header.h_comment) 
         if search is not None:
             author_id = search.group(0)[1:-1]
@@ -186,44 +186,41 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
     
         main_header_id = -1
 
-        for i in range(0, len(nordic_event.headers[1])):
-            h = nordic_event.headers[1][i]
-            h.event_id = event_id
+        for main in nordic_event.main_h:
+            main.event_id = event_id
+            main.h_id = executeCommand( cur, 
+                                        INSERT_COMMANDS[1], 
+                                        main.getAsList(), 
+                                        True)[0][0]
 
-            main_header_id = executeCommand(cur, INSERT_COMMANDS[1], h.getAsList(), True)[0][0]
-            h.h_id = main_header_id
+            if main.error_h is not None:
+                main.error_h.header_id = main.h_id
+                main.error_h.h_id = executeCommand( cur, 
+                                                    INSERT_COMMANDS[5], 
+                                                    main.error_h.getAsList(),
+                                                    True)[0][0]
 
-            for h_error in nordic_event.headers[5]:
-                if h_error.header_pos == i:
-                    h_error.header_id = main_header_id
+        for macro in nordic_event.macro_h:
+            macro.event_id = event_id
+            macro.h_id = executeCommand(cur, 
+                                        INSERT_COMMANDS[2], 
+                                        macro.getAsList(),
+                                        True)[0][0]
 
-        for h in nordic_event.headers[2]:
-            h.event_id = event_id
-            h_id = executeCommand(  cur, 
-                                    INSERT_COMMANDS[2], 
-                                    h.getAsList(),
-                                    True)[0][0]
-            h.h_id = h_id
-        for h in nordic_event.headers[3]:
-            h.event_id = event_id
-            h_id = executeCommand(  cur, 
-                                    INSERT_COMMANDS[3], 
-                                    h.getAsList(),
-                                    True)[0][0]
-            h.h_id = h_id
-        for h in nordic_event.headers[5]:       
-            h_id = executeCommand(  cur, 
-                                    INSERT_COMMANDS[5], 
-                                    h.getAsList(),
-                                    True)[0][0]
-            h.h_id = h_id
-        for h in nordic_event.headers[6]:
-            h.event_id = event_id
-            h_id = executeCommand(     cur, 
-                                INSERT_COMMANDS[6], 
-                                h.getAsList(),
-                                True)[0][0]
-            h.h_id = h_id
+        for comment in nordic_event.comment_h:
+            comment.event_id = event_id
+            comment.h_id = executeCommand(  cur, 
+                                            INSERT_COMMANDS[3], 
+                                            comment.getAsList(),
+                                            True)[0][0]
+
+        for waveform in nordic_event.waveform_h:
+            waveform.event_id = event_id
+            waveform.h_id = executeCommand( cur, 
+                                            INSERT_COMMANDS[6], 
+                                            waveform.getAsList(),
+                                            True)[0][0]
+
         for phase_data in nordic_event.data:
             phase_data.event_id = event_id
             d_id = executeCommand(  cur, 

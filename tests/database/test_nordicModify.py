@@ -13,7 +13,7 @@ class TestNordicChangeType(object):
     
         changeEventType(1, "F")
 
-        assert "F" == sql2nordic.getNordicFromDB(1).event_type
+        assert "F" == sql2nordic.getNordic(1).event_type
 
     def testNordicChangeTypeWithNoEvent(self, setupdb):
         with pytest.raises(Exception):
@@ -37,7 +37,7 @@ class TestNordicChangeRoot(object):
 
         changeEventRoot(2, 1)
 
-        assert sql2nordic.getNordicFromDB(1).root_id == sql2nordic.getNordicFromDB(2).root_id
+        assert sql2nordic.getNordic(1).root_id == sql2nordic.getNordic(2).root_id
 
 
     def testNordicChangeRootWorksWithNonExistingRoot(self, setupdb, nordicEvents):
@@ -47,7 +47,7 @@ class TestNordicChangeRoot(object):
 
         changeEventRoot(1, -999)
 
-        assert sql2nordic.getNordicFromDB(1).root_id == 2
+        assert sql2nordic.getNordic(1).root_id == 2
 
     def testNordicChangeRootFailsWithNonExisting(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
@@ -63,6 +63,4 @@ class TestNordicChangeRoot(object):
 
         with pytest.raises(Exception):
             changeEventRoot(1, 12)
-
-
 

@@ -19,7 +19,6 @@ class NordicError:
     A class that functions as a collection of enums. Contains the information of the error header line of a nordic file. 
 
     :param list header: The header of a nordic error in a list where each index of a value corresponds to NordicError's pseudo-enum.
-    :param int header_pos: Position of the main header where the NordicError refers to in the NordicEvent NordicError array
     :ivar int gap: Gap of the single analysis. 0-359
     :ivar float second_error: Error of the second value as seconds
     :ivar float epicenter_latitude_error: Error in the epicenter latitude error as deg
@@ -48,7 +47,7 @@ class NordicError:
     HEADER_ID = 6
     H_ID = 7
 
-    def __init__(self, header, header_pos):
+    def __init__(self, header):
         self.gap = header[self.GAP]
         self.second_error = header[self.SECOND_ERROR]
         self.epicenter_latitude_error = header[self.EPICENTER_LATITUDE_ERROR]
@@ -57,7 +56,6 @@ class NordicError:
         self.magnitude_error = header[self.MAGNITUDE_ERROR]
         self.header_id = header[self.HEADER_ID]
         self.h_id = header[self.H_ID]
-        self.header_pos = header_pos
 
     gap = property(operator.attrgetter('_gap'), doc="")
     
