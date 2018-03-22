@@ -18,7 +18,7 @@ class TestUndoRead(object):
         creation_id = nordic2sql.createCreationInfo()
 
         for e in events:
-            nordic2sql.event2Database(e, "S", "dummy_name", creation_id, -1)
+            nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)
 
         undoRead.undoMostRecent() 
         
@@ -37,7 +37,7 @@ class TestUndoRead(object):
 
         for e in events:
             creation_id = nordic2sql.createCreationInfo()
-            nordic2sql.event2Database(e, "S", "dummy_name", creation_id, -1)
+            nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)
 
         undoRead.removeEventsWithCreationId(2)
         

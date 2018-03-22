@@ -18,6 +18,14 @@ def changeEventType(event_id, event_type):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
+    cur.execute("SELECT allow_multiple FROM event_type WHERE e_type_id = %s", (event_type,))
+    ans = cur.fetchone()
+    
+    if ans is None:
+        raise Exception("{0} is not a valid event_type! Either add the event type to the database or use another event_type".format(event_type))
+
+    allow_multiple = ans[0]
+
     cur.execute("SELECT id, event_type, root_id from nordic_event WHERE id = %s;", (event_id,))
     event = cur.fetchone()
 
@@ -27,7 +35,7 @@ def changeEventType(event_id, event_type):
     if event[1] == event_type:
         raise Exception("Event already has type {0}!".format(event_type))
 
-    if event_type not in "AO":
+    if not allow_multiple:
         cur.execute("UPDATE nordic_event SET event_type = %s WHERE root_id = %s AND event_type = %s", ("O", event[2], event_type))
     
     cur.execute("UPDATE nordic_event SET event_type = %s WHERE id = %s", (event_type, event_id))

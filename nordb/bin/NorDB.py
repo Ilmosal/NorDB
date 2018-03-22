@@ -27,6 +27,7 @@ from nordb.database import norDBManagement
 from nordb.database import resetDB
 from nordb.database import undoRead
 from nordb.database import nordicModify
+from nordb.database import eventTypeHandler
 
 from nordb.database import sql2instrument
 from nordb.database import sql2nordic
@@ -462,13 +463,87 @@ def chgtype(repo, event_type, event_id):
    
     nordicModify.changeEventType(event_id, event_type)
 
+@cli.command("etype", short_help="add, remove and look event types")
+@click.option('--list', '-l', 'etype_option', flag_value='list', default=True, help="List all the event types in the database")
+@click.option('--add', '-a', 'etype_option', flag_value='add', help="add a new event type to the database")
+@click.option('--remove', '-r','etype_option', flag_value='remove', help="remove an old event type from the database")
+@click.pass_obj
+def etype(repo, etype_option):
+    """
+    This command is for adding, removing and looking the event types in the database. They will prompt the necessary values from the user.
+    """ 
+    try: 
+        if etype_option == "list":
+            e_types = eventTypeHandler.getEventTypes()
+            click.echo("Type Id | Event Type Description           | Allow Multiple")
+            click.echo("-----------------------------------------------------------")
+            for e_type in e_types:
+                click.echo(" {0:<6} | {1:<32} | {2}".format(e_type[0], e_type[1], e_type[2]))
+        elif etype_option == "add":
+            click
+            e_type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            if len(e_type_id) > 6:
+                click.echo("{0} is too long! Maximum length of 3 characters".format(e_type_id))
+                return
+            if len(e_type_id) == 0:
+                click.echo("No event type given to the program!")
+                return
+
+            e_type_desc = click.prompt("Enter a short description for the event type id(CTR-C to escape)")
+            if len(e_type_desc) > 32:
+                click.echo("{0} is too long. Maximum length of 32 characters".format(e_type_desc))
+                return
+
+            e_type_allow = click.prompt("Allow multiple events of same type in same event root? ", type=bool)
+
+            try:
+                eventTypeHandler.addEventType(e_type_id, e_type_desc, e_type_allow)
+            except:
+                click.echo("Event Type {0} already exists in the database!".format(e_type_id))
+        elif etype_option == "remove": 
+            
+            e_type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            if len(e_type_id) > 6:
+                click.echo("{0} is too long! Maximum length of 6 characters".format(e_type_id))
+                return
+            if len(e_type_id) == 0:
+                click.echo("No event type given to the program!")
+                return
+
+            existing = eventTypeHandler.getEventTypes() 
+            if e_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
+                click.echo("Given event type does not exist in the database!")
+                return
+
+            search = nordicSearch.NordicSearch()
+            search.addSearchExactly("event_type", e_type_id) 
+            new_e_type_id = "O"
+
+            if len(search.searchEventIds()) > 0:
+                if not click.prompt("Events found with id {0}. Do you want to move them to another id?".format(e_type_id), type=bool):
+                    return
+
+                new_e_type_id = click.prompt("Enter the event type id of the replacing event type(Press CTR-C to escape)")
+                if len(e_type_id) > 6:
+                    click.echo("{0} is too long! Maximum length of 3 characters".format(new_e_type_id))
+                    return
+                if len(e_type_id) == 0:
+                    click.echo("No event type given to the program!")
+                    return
+                if new_e_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
+                    click.echo("Event type {0} does not exist!".format(new_e_type_id))
+                    return
+
+            eventTypeHandler.removeEventType(e_type_id, new_e_type_id)
+    except KeyboardInterrupt:
+        pass
 
 @cli.command('insert', short_help="insert events")
-@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.option('--nofix', '-nf', is_flag=True, help="Do not use the fixing tool to add nordics with broken syntax the database")
 @click.option('--ignore-duplicates', '-iq', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
+@click.argument('event-type')
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):

@@ -62,7 +62,7 @@ class NordicEvent:
 
     @event_type.setter
     def event_type(self, val_event_type):
-        val_event_type = validateString(val_event_type, "event_type", 1, 1, "ARPFSO", 0)
+        val_event_type = validateString(val_event_type, "event_type", 1, 6, None, 0)
         self._event_type = val_event_type
 
     def __eq__(self, other):

@@ -14,15 +14,6 @@ import datetime
 
 from nordb.core import usernameUtilities
 
-EVENT_TYPE_VALUES = {
-    "O":1,
-    "A":2,
-    "R":3,
-    "P":4,
-    "F":5,
-    "S":6
-}
-
 INSERT_COMMANDS = {
                     1:  (
                         "INSERT INTO " 
@@ -110,7 +101,7 @@ INSERT_COMMANDS = {
                         ),
 }
   
-def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id):
+def event2Database(nordic_event, event_type = "O", nordic_filename = None, creation_id = None, e_id = -1):
     """
     Function that pushes a NordicEvent object to the database
     
@@ -120,6 +111,9 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
     :param int creation_id: id of the creation_info entry in the database
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
+    if creation_id is None:
+        creation_id = createCreationInfo() 
+ 
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     author_id = None
@@ -133,6 +127,14 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
         author_id = '---' 
 
     try:
+        cur.execute("SELECT allow_multiple FROM event_type WHERE e_type_id = %s", (event_type,))
+        ans = cur.fetchone() 
+
+        if ans is None:
+            raise Exception("{0} is not a valid event_type! Either add the event type to the database or use another event_type".format(event_type))
+
+        allow_multiple = ans[0]
+    
         filename_id = -1
         cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
         filenameids = cur.fetchone()
@@ -172,7 +174,7 @@ def event2Database(nordic_event, event_type, nordic_filename, creation_id, e_id)
         event_id = cur.fetchone()[0]
         nordic_event.event_id = event_id
 
-        if e_id != -1 and event_type == old_event_type and event_type not in "AO":
+        if e_id != -1 and event_type == old_event_type and not allow_multiple:
             cur.execute("INSERT INTO  " +
                            "nordic_modified " + 
                            "(event_id, replacement_event_id, old_event_type, replaced)  " +

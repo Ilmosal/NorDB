@@ -14,7 +14,7 @@ class TestNordic2SQL(object):
         creation_id = nordic2sql.createCreationInfo()
 
         for e in events:
-            nordic2sql.event2Database(e, "S", "dummy_name", creation_id, -1)
+            nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)
 
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
