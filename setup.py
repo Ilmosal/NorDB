@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name="NorDB",
     version="0.2.1",
-    python_requires='3.4.2',
+    python_requires='>3.4.2',
     author="Ilmo Salmenperä",
     author_email="ilmo.salmenpera@helsinki.fi",
     packages=find_packages(),
