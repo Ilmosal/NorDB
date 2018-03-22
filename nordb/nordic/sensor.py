@@ -67,7 +67,6 @@ class Sensor(object):
         self.channel_code = data[self.CHANNEL_CODE]
         self.instrument_css_id = data[self.INSTRUMENT_CSS_ID]
         self.channel_css_id = data[self.CHANNEL_CSS_ID]
-#TODO: channel css id and instrument css id!!
 
     time = property(operator.attrgetter('_time'))
     

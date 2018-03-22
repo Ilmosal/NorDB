@@ -78,7 +78,7 @@ def instruments2sensor(sensor):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-
+    print("asd")
     instrument_ids = cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
 
     conn.close()

@@ -1,124 +1,110 @@
 import pytest
-from nordb.database import nordicSearch
+from nordb.database.nordicSearch import *
 from nordb.database import nordic2sql
+from datetime import date
 from nordb.core import usernameUtilities
 from nordb.core import nordic
 
 @pytest.mark.usefixtures("setupdbWithEvents")
 class TestNordicSearchWithCriteria(object):
     def testFindAllEventsWithoutCriteria(self, setupdbWithEvents):
-        foundEvents = nordicSearch.searchWithCriteria({})
+        search = NordicSearch()
+        foundEvents = search.searchEvents()
 
         assert len(foundEvents) == 3
 
     def testFindEventsWithDate(self, setupdbWithEvents):
-        criteria = {"date":"03.01.2013"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 1
-        assert foundEvents[0].event_id == 1
-
-    def testFindEventsWithHour(self, setupdbWithEvents):
-        criteria = {"hour":"6"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 1
-        assert foundEvents[0].event_id == 1
-
-    def testFindEventsWithMinute(self, setupdbWithEvents):
-        criteria = {"minute":"14"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 1
-        assert foundEvents[0].event_id == 1
-
-    def testFindEventsWithSecond(self, setupdbWithEvents):
-        criteria = {"second":"4.0"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("origin_time", date(2013, 1, 3))
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithMagnitude(self, setupdbWithEvents):
-        criteria = {"magnitude":"1.6"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("magnitude_1", 1.6)
+        foundEvents = search.searchEvents()
+
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithLatitude(self, setupdbWithEvents):
-        criteria = {"latitude":"63.635"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("latitude", 63.635)
+        foundEvents = search.searchEvents()
+
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithLatitudeRange(self, setupdbWithEvents):
-        criteria = {"latitude":"63.632-63.637"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchBetween("epicenter_latitude", 63.632-63.637)
+        foundEvents = search.searchEvents()
+
         assert len(foundEvents) == 1
 
     def testFindEventsWithLatitudeLower(self, setupdbWithEvents):
-        criteria = {"latitude":"63.637-"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchLower("epicenter_latitude", 63.637)
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
 
     def testFindEventsWithLatitudeUpper(self, setupdbWithEvents):
-        criteria = {"latitude":"63.632+"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchUpper("epicenter_latitude", 63.632)
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 3
 
     def testFindEventsWithLongitude(self, setupdbWithEvents):
-        criteria = {"longitude":"22.913"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchUpper("epicenter_longitude", 22.913)
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithDepth(self, setupdbWithEvents):
-        criteria = {"depth":"0.1"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("depth", 0.1)
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithEventType(self, setupdbWithEvents):
-        criteria = {"event_type":"F"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 3
-
-    def testFindEventsWithEventTypeRange(self, setupdbWithEvents):
-        criteria = {"event_type":"F-S"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 3
-
-    def testFindEventsWithEventTypeLower(self, setupdbWithEvents):
-        criteria = {"event_type":"F-"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
-        assert len(foundEvents) == 3
-
-    def testFindEventsWithEventTypeUpper(self, setupdbWithEvents):
-        criteria = {"event_type":"P+"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("event_type", "F")
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 3
 
     def testFindEventsWithDistanceIndicator(self, setupdbWithEvents):
-        criteria = {"distance_indicator":"L"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("distance_indicator", "L")
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 3
 
     def testFindEventsWithEventID(self, setupdbWithEvents):
-        criteria = {"event_id":"1"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("event_id", "1")
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
     def testFindEventsWithEventDescID(self, setupdbWithEvents):
-        criteria = {"event_desc_id":"P"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("event_desc_id", "P")
+        foundEvents = search.searchEvents()
         assert len(foundEvents) == 1
         assert foundEvents[0].event_id == 1
 
-    def testSearchWithWrongTypeCrieria(self, setupdbWithEvents):
-        criteria = {"latitude":"12"}
+    def testSearchWithWrongTypeCriteria(self, setupdbWithEvents):
+        search = NordicSearch()
         with pytest.raises(Exception):
-            nordicSearch.searchWithCriteria(criteria)
+            search.addSearchExactly("epicenter_latitude", "P")
+            foundEvents = search.searchEvents()
 
     def testNoEventsWithNonexistingDate(self, setupdbWithEvents):
-        criteria = {"date":"03.11.2012"}
-        foundEvents = nordicSearch.searchWithCriteria(criteria)
+        search = NordicSearch()
+        search.addSearchExactly("origin_time", date(2012,11,3))
+        foundEvents = nordicSearch.searchEvents()
         assert len(foundEvents) == 0
 
     def testNoEventsWithNonexistingHour(self, setupdbWithEvents):

@@ -5,64 +5,236 @@ Functions and Classes
 ---------------------
 """
 
+from datetime import date
 from datetime import datetime
-import calendar
+from datetime import timedelta
 from nordb.core import usernameUtilities
 from nordb.database import sql2nordic
 
-COMMAND_TPES = {1:"exactly", 2:"between", 3:"over", 4:"under"}
-
-SEARCH_IDS =    {  
-                    "origin_time":1, 
-                    "latitude":2, 
-                    "longitude":3, 
-                    "magnitude":4,
-                    "event_type":5,
-                    "distance_indicator":6,
-                    "event_desc_id":7,
-                    "event_id":8,
-                    "depth":9
-                }
-
-SEARCH_IDS_REV = {
-                    1:"origin_time", 
-                    2:"latitude", 
-                    3:"longitude", 
-                    4:"magnitude",
-                    5:"event_type",
-                    6:"distance_indicator",
-                    7:"event_desc_id",
-                    8:"event_id",
-                    9:"depth"
-                 }
-
 SEARCH_TYPES = { 
-                    1:datetime, 
-                    2:float, 
-                    3:float, 
-                    4:float,
-                    5:str,
-                    6:str,
-                    7:str,
-                    8:str,
-                    9:float
+                    "origin_time":[datetime, date], 
+                    "epicenter_latitude":[float], 
+                    "epicenter_longitude":[float], 
+                    "magnitude_1":[float],
+                    "event_type":[str],
+                    "distance_indicator":[str],
+                    "event_desc_id":[str],
+                    "event_id":[int],
+                    "depth":[float]
                }
 
-EVENT_TYPE_VALS = {'O':1,
-                    'A':2,
-                    'R':3,
-                    'P':4,
-                    'F':5,
-                    'S':6}
+SEARCH_TYPE_HEADERS =   {
+                            "origin_time":"nordic_header_main", 
+                            "epicenter_latitude":"nordic_header_main", 
+                            "epicenter_longitude":"nordic_header_main", 
+                            "magnitude_1":"nordic_header_main",
+                            "event_type":"nordic_event",
+                            "distance_indicator":"nordic_header_main",
+                            "event_desc_id":"nordic_header_main",
+                            "event_id":"nordic_header_main",
+                            "depth":"nordic_header_main"
+                        }
+
+class NordicSearch:
+    """
+    Class for searching events from database with multiple criteria.
+    """
+    def __init__(self):
+        self.criteria = []
+
+    def getCriteriaString(self):
+        """
+        Get all criteria in a formatted string for printing purposes.
+        """
+        criteria_string = ""
+        for crit in self.criteria:
+            if crit.command_type == 1:
+               criteria_string += " {0}: {1}\n".format(crit.search_type, crit.getValue()[0]) 
+            elif crit.command_type == 2:
+               criteria_string += " {0}: {1} - {2}\n".format(crit.search_type, crit.getValue()[0], crit.getValue()[1]) 
+            elif crit.command_type == 3:
+               criteria_string += " {0}: {1} - \n".format(crit.search_type, crit.getValue()[0]) 
+            else:
+               criteria_string += " {0}: - {1} \n".format(crit.search_type, crit.getValue()[0]) 
+
+        return criteria_string
+
+    def getCriteriaAmount(self):
+        """
+        Return the amount of criteria in the NordicSearch 
+        """
+        return len(self.criteria)
+
+    def clear(self):
+        """
+        Clear all criteria from NordicSearch object
+        """
+        self.criteria = []
+
+    def addSearchExactly(self, search_type, search_val):
+        """
+        Add SearchExactly criteria to the NordicSearch object. 
+
+        :param str search_type:
+        :param int,float,datetime,str search_val: Value to which the search type will be compared to
+        """
+        self.criteria.append(ExactlyValue(search_type, search_val))
+
+    def addSearchBetween(self, search_type, search_val_low, search_val_upp):
+        """
+        Add SearchBetween criteria to the NordicSearch object. 
+
+        :param str search_type:
+        :param int,float,datetime,str search_val_low: Lower value to which the search type will be compared to
+        :param int,float,datetime,str search_val_upp: Upper value to which the search type will be compared to
+        """
+        self.criteria.append(BetweenValues(search_type, search_val_low, search_val_upp))
+
+    def addSearchOver(self, search_type, search_val):
+        """
+        Add SearchOver criteria to the NordicSearch object. 
+
+        :param str search_type:
+        :param int,float,datetime,str search_val: Value to which the search type will be compared to
+        """
+        self.criteria.append(OverValue(search_type, search_val))
+   
+    def addSearchUnder(self, search_type, search_val):
+        """
+        Add SearchUnder criteria to the NordicSearch object. 
+
+        :param str search_type:
+        :param int,float,datetime,str search_val: Value to which the search type will be compared to
+        """
+        self.criteria.append(UnderValue(search_type, search_val))
+
+    def getSearchQueryAndValues(self):
+        query_str = ""
+        query_vals = []
+        for query in self.criteria:
+            query_str += "AND " + query.getQuery()
+            query_vals.extend(query.getValue())
+        
+        return query_str, query_vals
+
+    def searchEventIdAndDate(self):
+        """
+        Search for all event ids and their dates that fit to the criteria given to the NordicSearch and return them
+
+        :returns: a list of event_ids and dates
+        """
+        events = []
+        query = (   "SELECT "
+                    "   DISTINCT ON (nordic_event.id) nordic_event.id, nordic_header_main.origin_time "
+                    "FROM "
+                    "   nordic_event, nordic_header_main "
+                    "WHERE "
+                    "   nordic_event.id = nordic_header_main.event_id "
+                )
+        query_str, query_vals = self.getSearchQueryAndValues() 
+        query += query_str
+
+        conn = usernameUtilities.log2nordb()
+        cur = conn.cursor()
+
+        cur.execute(query, query_vals)
+        ans = cur.fetchall()
+        conn.close() 
+
+        return ans
+
+    def searchEvents(self):
+        """
+        Search for all the events that fit to the criteria given to the NordicSearch and return them.
+
+        :returns: array of NordicEvent objects
+        """
+        event_ids = self.searchEventIdAndDate()
+        events = []
+    
+        for e_id in event_ids:
+            events.append(sql2nordic.getNordicFromDB(e_id[0]))
+ 
+        return events
+
+    def searchEventIds(self):
+        """
+        Search for all event ids that fit to the criteria given to the NordicSearch and return them.
+
+        :returns: a list of event ids
+        """
+        event_ids = []
+        temp = self.searchEventIdAndDate()
+        return [temp[i][0] for i in range(len(temp))] 
+
+    def searchEventRoots(self):
+        """
+        Search for event root ids that have events that git to the criteria given to the NordicSearch and return them.
+        :returns: a list of event root ids
+        """
+        root_ids = []
+
+        query = (
+                "SELECT "
+                "   DISTINCT nordic_event.root_id "
+                "FROM "
+                "   nordic_event, nordic_header_main "
+                "WHERE "
+                "   nordic_event.id = nordic_header_main.event_id "
+                )
+
+        query_str, query_vals = self.getSearchQueryAndValues()
+        query += query_str
+
+        conn = usernameUtilities.log2nordb()
+        cur = conn.cursor()
+        cur.execute(query, query_vals)
+        ans = cur.fetchall()
+        conn.close()
+    
+        return ans
 
 class Command:
     """
     Class for command that is returned by string2Command. 
 
-    :ivar int command_tpe: Type of command. Initial value: command_tpe
+    :ivar int command_type: Type of command.
     """
-    def __init__(self, command_tpe):
-        self.command_tpe = command_tpe
+    def __init__(self, command_type, search_type):
+        if search_type not in SEARCH_TYPES.keys():
+            raise Exception("Not a valid search type! ({0})".format(search_type))
+        
+        if command_type != 1:
+            if search_type in ["event_type", "distance_indicator", "event_desc_id"]:
+                raise Exception("Cannot search between string values! ({0})".format(search_type))
+
+        self.command_type = command_type
+        self.search_type = search_type
+
+    def getQuery(self):
+        """ 
+        Functiong for creating the query for the command
+        """
+        return None
+
+    def getValue(self):
+        return None
+    
+    def createQuery(self, value):
+        search_criteria = ""
+        if self.search_type == "origin_time" and type(value) is date:
+            search_criteria = "{0}.{1}::date".format(SEARCH_TYPE_HEADERS[self.search_type], self.search_type)
+        else:
+            search_criteria = "{0}.{1}".format(SEARCH_TYPE_HEADERS[self.search_type], self.search_type)
+
+        if self.command_type == 1:
+            return "    {0} = %s ".format(search_criteria)
+        elif self.command_type == 2:
+            return "    {0} >= %s AND {0} <= %s ".format(search_criteria)
+        elif self.command_type == 3:
+            return "    {0} >= %s ".format(search_criteria)
+        elif self.command_type == 4:
+            return "    {0} <= %s ".format(search_criteria)
 
 class ExactlyValue(Command):
     """
@@ -71,9 +243,17 @@ class ExactlyValue(Command):
     :ivar int command_tpe: Type of command. Initial value: 1
     :ivar int,float,datetime value: Value that all other values will be compared to. Can be of any type. Initial value: value
     """
-    def __init__(self, value):
-        Command.__init__(self, 1)
+    def __init__(self, search_type, value):
+        Command.__init__(self, 1, search_type)
+        if type(value) not in SEARCH_TYPES[search_type]:
+            raise Exception("Given search value is not a correct type! (Given: {0}, Required: {1})".format(type(value), SEARCH_TYPES[search_type]))
         self.value = value
+
+    def getQuery(self):
+        return self.createQuery(self.value)
+
+    def getValue(self):
+        return (self.value,)
 
 class BetweenValues(Command):
     """
@@ -82,15 +262,23 @@ class BetweenValues(Command):
     :ivar int command_tpe: Type of command. In this case 2.
     :ivar int,float,datetime valueLower: value of the lower limit of the comparison
     :ivar int,float,datetime valueUpper: value for the upper limit of the comparison
-    :raises: **TypeError** -- TypeError given to user if valueLower and valueUpper are of different type
     """
-    def __init__(self, valueLower, valueUpper):
-        Command.__init__(self, 2)
-        if type(valueLower) is not type(valueUpper):
-            raise TypeError
+    def __init__(self, search_type, value_lower, value_upper):
+        Command.__init__(self, 2, search_type)
+        if type(value_lower) not in SEARCH_TYPES[search_type]:
+            raise Exception("Given lower search value is not a correct type! (Given: {0}, Required: {1})".format(type(value_lower), SEARCH_TYPES[search_type]))
 
-        self.valueLower = valueLower
-        self.valueUpper = valueUpper
+        if type(value_upper) not in SEARCH_TYPES[search_type]:
+            raise Exception("Given upper search value is not a correct type! (Given: {0}, Required: {1})".format(type(value_upper), SEARCH_TYPES[search_type]))
+
+        self.value_lower = value_lower
+        self.value_upper = value_upper
+
+    def getQuery(self):
+        return self.createQuery(self.value_lower)
+
+    def getValue(self):
+        return self.value_lower, self.value_upper
 
 class OverValue(Command):
     """
@@ -100,250 +288,39 @@ class OverValue(Command):
     :ivar int value: Value that all other values will be compared to. Can be of any type.
         
     """
-    def __init__(self, value):
-        Command.__init__(self, 3)
+    def __init__(self, search_type, value):
+        Command.__init__(self, 3, search_type)
+        if type(value) not in SEARCH_TYPES[search_type]:
+            raise Exception("Given search value is not a correct type! (Given: {0}, Required: {1})".format(type(value), SEARCH_TYPES[search_type]))
+
         self.value = value
+
+    def getQuery(self):
+        return self.createQuery(self.value)
+
+    def getValue(self):
+        return (self.value,)
 
 class UnderValue(Command):
     """
     Command for determining if the value is lower or equal to the Commands value
 
-
     :ivar int command_tpe: Type of command. In this case 4.
     :ivar int,float,datetime value: Value that all other values will be compared to. Can be of any type.
         
     """
-    def __init__(self, value):
-        Command.__init__(self, 4)
+    def __init__(self, search_type, value):
+        Command.__init__(self, 4, search_type)
+        if type(value) not in SEARCH_TYPES[search_type]:
+            raise Exception("Given search value is not a correct type! (Given: {0}, Required: {1})".format(type(value), SEARCH_TYPES[search_type]))
+
         self.value = value
 
-def returnValueFromString(value):
-    """
-    Function for returning a valid date, float or integer value from a string
+    def getQuery(self):
+        return self.createQuery(self.value)
 
-    :param str value: string value that will be transformed into correct format
-    :return: The value in it's correct type. Priority order is Date -> Float -> Integer
-    :raise: **ValueError** -- Value error if the string vannot be parsed into any value supported by the program
-    """
-    try:
-        if len(value) != 10:
-            raise ValueError
-        return datetime.strptime(value, "")
-    except ValueError:
-        pass
-
-    try:
-        return datetime.strptime(value, "")
-    except ValueError:
-        pass
-
-    try:
-        return int(value)
-    except ValueError:
-        pass
-    
-    try:
-        return float(value)
-    except ValueError:
-        pass
-  
-    if len(value) == 1:
-        return value
- 
-    return False
-
-def string2Command(sCommand, cmd_type):
-    """
-    Generate a command from a string.
-    
-    :param str sCommand: Command given by user.
-    :param str cmd_type: parameter to which the query is made for
-    :return: Command that can be used for comparisons.
-    :raises: **ValueError** -- Program raises value error if the sCommand is in a incorrect format
-    """
-    parts = sCommand.split('-')
-
-    if cmd_type == "distance_indicator" or cmd_type == "event_desc_id":
-        if len(sCommand) != 1:
-            raise ValueError
-
-    if len(parts) == 2 and parts[1] != "" and sCommand[0] != "-": 
-        val1 = returnValueFromString(parts[0])
-        val2 = returnValueFromString(parts[1])
-        if val1 is False or val2 is False:
-            raise ValueError
-        command = BetweenValues(val1, val2)
-    elif sCommand.endswith('-'):
-        val = returnValueFromString(sCommand[:-1])
-        if val is False:
-            raise ValueError
-        command = UnderValue(val)
-    elif sCommand.endswith('+'):
-        val = returnValueFromString(sCommand[:-1])
-        if val is False:
-            raise ValueError
-        command = OverValue(val)
-    else:
-        if (cmd_type == "distance_indicator" or cmd_type == "event_desc_id") and sCommand == " ":
-            val = None
-        else:
-            val = returnValueFromString(sCommand)
-
-        if val is False:
-            raise Exception("Couldn't generate a search command from string {0}".format(sCommand))
-        command = ExactlyValue(val)
-
-    return command
-
-def validateCommand(command, searchId):
-    """
-    Validate command checks if the type of the value in command matches it's search_id's expected type.
-    
-    :param Command command: The command that needs to be validated
-    :param int searchID: search id of the command
-    :return: True or False depending on if the command goes through validation
-    """
-
-
-    if (searchId == 9 or searchId == 10) and command.value == None:
-        return True
-
-    if command.command_tpe == 2:
-        if isinstance(command.valueLower, SEARCH_TYPES[searchId]) and isinstance(command.valueUpper, SEARCH_TYPES[searchId]):
-            return True
-    else:
-        if isinstance(command.value, SEARCH_TYPES[searchId]):
-            return True
-
-    return False
-
-def rangeOfEventType(eveb, evet):
-    """
-    Method for getting all event types in range as a string.
-
-    :param str eveb: Bottom limit of event types
-    :param str evet: Top limit of event types
-    :return: String of all event types
-    """
-    bot = EVENT_TYPE_VALS[eveb]
-    top = EVENT_TYPE_VALS[evet]
-
-    events = ""
-
-    for key in EVENT_TYPE_VALS.keys():
-        if EVENT_TYPE_VALS[key] >= bot and EVENT_TYPE_VALS[key] <= top:
-            events += key     
-
-    return events
-
-def createSearchQuery(commands):
-    """
-    Method for creating the search query.
-
-    :param commands: Dictionary of all search criteria
-    :return: An tuple where the first value is the query in string format and second value is a tuple of the values inserted into the command
-    """
-
-    query = "SELECT DISTINCT nordic_event.id FROM nordic_event, nordic_header_main WHERE nordic_event.id = nordic_header_main.event_id"
-
-    vals = ()
-
-    for c in commands.keys():
-        value = SEARCH_IDS_REV[c]
-        if value == "magnitude":
-            value += "_1"
-       
-        if value == "event_type":
-            if commands[c].command_tpe == 1:
-                query += " AND nordic_event." + value + " = %s"
-                vals += (commands[c].value,)
-            elif commands[c].command_tpe == 2:
-                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
-                vals += (rangeOfEventType(commands[c].valueLower, commands[c].valueUpper),)
-            elif commands[c].command_tpe == 3:
-                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
-                vals += (rangeOfEventType(commands[c].value, 'S'),)
-            elif commands[c].command_tpe == 4:
-                query += " AND strpos(%s, nordic_event." + value + "::varchar) > 0"
-                vals += (rangeOfEventType('O',commands[c].value),)
-        else:     
-            if commands[c].command_tpe == 1:
-                if value == "latitude" or value == "longitude":
-                    value = "epicenter_" + value
-
-                if commands[c].value == None:
-                    query += " AND nordic_header_main." + value + " is %s"
-                else:
-                    query += " AND nordic_header_main." + value + " = %s"
-                vals += (commands[c].value,)
-            elif commands[c].command_tpe == 2:
-                if value == "latitude" or value == "longitude":
-                    value = "epicenter_" + value
-
-                query += " AND nordic_header_main." + value + " >= %s"
-                query += " AND nordic_header_main." + value + " <= %s"
-                vals += (commands[c].valueLower,)
-                vals += (commands[c].valueUpper,)
-            elif commands[c].command_tpe == 3:
-                if value == "latitude" or value == "longitude":
-                    value = "epicenter_" + value
-
-                query += " AND nordic_header_main." + value + " >= %s"
-                vals += (commands[c].value,)
-            elif commands[c].command_tpe == 4:
-                if value == "latitude" or value == "longitude":
-                    value = "epicenter_" + value
-
-                query += " AND nordic_header_main." + value + " <= %s"
-                vals += (commands[c].value,)
-
-    search = [query, vals]
-
-    return search
-
-def searchWithCriteria(criteria):
-    """
-    Method for searching events with given criteria. Description for the criteria is given in the documentation of searchNordic.
-
-    :param dict criteria: Criteria given by user. This function is used mainly by the NorDB.py module which is the command line tool that controls the program
-    :param bool verbose: flag if all info from events need to be printed or just the main headers
-    :return: list of events found with criteria
-    """
-    commands = {}
-
-    if "event_id" in criteria.keys():
-        event = sql2nordic.getNordicFromDB(int(criteria["event_id"]))
-        if event is None:
-            return []
-        else:
-            return [event]
-
-    for arg in criteria.keys():
-        commands[SEARCH_IDS[arg]] = string2Command(criteria[arg], arg)
-
-    for c in commands.keys():
-        if not validateCommand(commands[c], c):
-            raise Exception("Commands did not go through validation")
-
-    search = createSearchQuery(commands)
-
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute(search[0], search[1])
-    ans = cur.fetchall()
-
-    conn.close()
-
-    event_ids = ()
-    for a in ans:
-        event_ids += (a[0],)
-   
-    events = []
-    for event_id in event_ids:
-        events.append(sql2nordic.getNordicFromDB(event_id))
- 
-    return events
+    def getValue(self):
+        return (self.value,)
 
 def searchSameEvents(nordic_event):
     """
@@ -352,28 +329,21 @@ def searchSameEvents(nordic_event):
     :param NordicEvent nordic_event: Event for which the search is done for
     :returns: List of :class:`NordicEvent`s that are indentical to the event
     """
-    criteria = {}
+    m_header = nordic_event.headers[1][0]
+    search = NordicSearch()
 
-    if nordic_event.headers[1][0].epicenter_latitude is not None:
-        criteria["latitude"] = str(nordic_event.headers[1][0].epicenter_latitude)
-    if nordic_event.headers[1][0].epicenter_longitude is not None:
-        criteria["longitude"] = str(nordic_event.headers[1][0].epicenter_longitude)
-    if nordic_event.headers[1][0].date is not None:
-        criteria["date"] = str(nordic_event.headers[1][0].date)
-    if nordic_event.headers[1][0].hour is not None:
-        criteria["hour"] = str(nordic_event.headers[1][0].hour)
-    if nordic_event.headers[1][0].minute is not None:
-        criteria["minute"] = str(nordic_event.headers[1][0].minute)
-    if nordic_event.headers[1][0].second is not None:
-        criteria["second"] = str(nordic_event.headers[1][0].second)
+    search.addSearchExactly("origin_time", m_header.origin_time)
+    search.addSearchExactly("epicenter_latitude", m_header.epicenter_latitude)
+    search.addSearchExactly("epicenter_longitude", m_header.epicenter_longitude)
+    search.addSearchExactly("magnitude_1", m_header.magnitude_1)
 
-    return list(filter(lambda event: (str(event) == str(nordic_event)), searchWithCriteria(criteria)))
+    return search.searchEvents()
 
-def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, longitude_diff = 0.2, magnitude_diff = 0.2):
+def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, longitude_diff = 0.2, magnitude_diff = 0.5):
     """
     Function for searching and returning all events that are considered similar to the event given by user.
 
-    default conditions for similarity:
+    Default conditions for similarity: \b
 
         -Events must occur 20 seconds maximum apart from each other
         -Events must be 0.2 deg maximum apart from each other in latitude and longitude
@@ -386,35 +356,12 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
     :param float magnitude_diff: maximum magnitude difference
     :returns: Array of :class:`NordicEvent`s that fit to the search criteria
     """
-    SEARCH_QUERY =  (
-                        "SELECT "
-                        "   DISTINCT event_id "
-                        "FROM "
-                        "   nordic_header_main "
-                        "WHERE "
-                        "   ABS(EXTRACT(EPOCH FROM date)+hour*3600+minute*60+second-%s) < %s "
-                        "AND "
-                        "   ABS(epicenter_latitude - %s) < %s "
-                        "AND "
-                        "   ABS(epicenter_longitude - %s) < %s "
-                        "AND "
-                        "   ABS(magnitude_1 - %s) < %s;"
-                    ) 
     m_header = nordic_event.headers[1][0]
-    time_criteria = calendar.timegm(m_header.date.timetuple())+(m_header.hour)*3600+m_header.minute*60+m_header.second
-    search_criteria = (time_criteria, time_diff, m_header.epicenter_latitude, latitude_diff, m_header.epicenter_longitude, longitude_diff, m_header.magnitude_1, magnitude_diff)
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
+    search = NordicSearch()
 
-    cur.execute(SEARCH_QUERY, search_criteria)
-    ans = cur.fetchall()
+    search.addSearchBetween("origin_time", m_header.origin_time - timedelta(seconds = time_diff), m_header.origin_time + timedelta(seconds = time_diff))
+    search.addSearchBetween("epicenter_latitude", m_header.epicenter_latitude - latitude_diff, m_header.epicenter_latitude + latitude_diff)
+    search.addSearchBetween("epicenter_longitude", m_header.epicenter_longitude - longitude_diff, m_header.epicenter_longitude + longitude_diff)
+    search.addSearchBetween("magnitude_1", m_header.magnitude_1 - magnitude_diff, m_header.magnitude_1 + magnitude_diff)
 
-    if ans is None:
-        return []
-    
-    events = []
-
-    for a in ans:
-        events.append(sql2nordic.getNordicFromDB(a[0]))
-
-    return events
+    return search.searchEvents()

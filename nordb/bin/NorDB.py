@@ -6,7 +6,7 @@ This is the command line tool of the whole program. The command line tool is cre
 
 import os
 import sys
-import datetime
+from datetime import datetime
 import logging
 import fnmatch
 
@@ -14,7 +14,7 @@ import click
 from lxml import etree
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
-ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
+ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
 
 from nordb.database import instrument2sql
 from nordb.database import nordic2sql
@@ -72,27 +72,14 @@ def conf(repo, username):
     usernameUtilities.confUser(username) 
 
 @cli.command('search', short_help='search for events')
-@click.option('--date', '-dy', default="-999", help="Search with date. Example:\n--date=12.01.2010")
-@click.option('--hour', '-hr',default="-999", help="Search with hour. Example:\n--hour=14")
-@click.option('--minute', '-mn', default="-999", help="Search with minute. Example:\n--minute=14")
-@click.option('--second', '-sc', default="-999",  help="Search with second. Example:\n--second=59.02")
-@click.option('--latitude', '-la', default="-999", help="Search with latitude. Example:\n--latitude=69.09")
-@click.option('--longitude', '-lo', default="-999", help="Search with longitude. Example:\n--longitude=69.09")
-@click.option('--magnitude', '-ma', default="-999", help="Search with magnitude. Example:\n--magnitude=69.09")
-@click.option('--depth', '-de', default="-999", help="Search with depth. Example:\n--depth=9.9")
-@click.option('--event-type', '-et', default="-999", help="Search with event-type. Example:\n--event-type=F")
-@click.option('--distance-indicator', '-di', default="-999", help="Search with distance-indicator. Example:\n--distance-indicator=R")
-@click.option('--event-desc-id', '-ed', default="-999", help="Search with event-desc-id. Example:\nevent-desc-id=Q")
-@click.option('--event-id', '-id', default="-999", help="\b Search with event-id. Example:\n--event-id=123")
 @click.option('--verbose', '-v', is_flag=True, help="Print the whole nordic file instead of the main header.")
-@click.option('--output', '-o', type=click.Path(readable=True), help="file to which all events found are appended")
+@click.option('--output', '-o', type=click.Path(writable=True), help="file to which all events found are appended")
 @click.option('--output-format', '-f', default="n", type = click.Choice(["n", "q", "sc3"]))
 @click.option('--event-root', '-r', is_flag=True)
 @click.option('--silent', '-s', is_flag=True)
+@click.argument("criteria", nargs=-1, type=click.STRING)
 @click.pass_obj
-def search(repo, date, hour, minute, second, latitude, longitude, depth, event_id, output_format,
-            magnitude, event_type, distance_indicator, event_desc_id, verbose, output, event_root,
-            silent):
+def search(repo, output_format, verbose, output, event_root, silent, criteria):
     """
     This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -109,55 +96,109 @@ def search(repo, date, hour, minute, second, latitude, longitude, depth, event_i
 
     This will print all nordic events from date 01.01.2009 onwards into the outputfile. Better way of getting files from the database is get command.
     """
-    criteria = {}
-    if date != "-999":
-        criteria["date"] = date
-    if hour != "-999":
-        criteria["hour"] = hour
-    if minute != "-999":
-        criteria["minute"] = minute
-    if second != "-999":
-        criteria["second"] = second
-    if latitude != "-999":
-        criteria["latitude"] = latitude
-    if longitude != "-999":
-        criteria["longitude"] = longitude
-    if magnitude != "-999":
-        criteria["magnitude"] = magnitude
-    if depth != "-999":
-        criteria["depth"] = depth
-    if event_type != "-999":
-        criteria["event_type"] = event_type
-    if event_desc_id != "-999":
-        criteria["event_desc_id"] = event_desc_id
-    if distance_indicator != "-999":
-        criteria["distance_indicator"] = distance_indicator
-    if event_id != "-999":
-        criteria["event_id"] = event_id
-
-    if len(criteria) == 0:
-        click.echo("No criteria given to search. NorDB will print all events. This might take a while. Ctrl-C will abort the search")
-    
-    events = []
-
-    if event_id != "-999":
+    search = nordicSearch.NordicSearch()
+  
+    search_types =  {
+                        "date":"origin_time",
+                        "d":"origin_time",
+                        "origin_time":"origin_time",
+                        "latitude":"epicenter_latitude",
+                        "la":"epicenter_latitude",
+                        "epicenter_latitude":"epicenter_latitude",
+                        "longitude":"epicenter_longitude",
+                        "lo":"epicenter_longitude",
+                        "epicenter_longitude":"epicenter_longitude",
+                        "magnitude":"magnitude_1",
+                        "magnitude_1":"magnitude_1",
+                        "ma":"magnitude_1",
+                        "m":"magnitude_1",
+                        "event_type":"event_type",
+                        "et":"event_type",
+                        "distance_indicator":"distance_indicator",
+                        "di":"distance_indicator",
+                        "event_desc_id":"event_desc_id",
+                        "ed":"event_desc_id",
+                        "eid":"event_desc_id",
+                        "event_id":"event_id",
+                        "id":"event_id",
+                        "depth":"depth",
+                        "de":"depth",
+                    }
+ 
+    for crit in criteria:
         try:
-            events.append(sql2nordic.getNordicFromDB(int(event_id)))
-        except ValueError:
-            click.echo("Event id {0} not a valid id".format(event_id))
-    else:
-        try:
-            events = nordicSearch.searchWithCriteria(criteria)
-        except Exception as e:
-            click.echo("Problem occured with the search\n{0}".format(e))
+            tpe, values = crit.split('=')
+        except:
+            click.echo("Criteria not in valid format! Use --help/-h for support. ({0})".format(crit))
+            return
+        if tpe not in search_types.keys():
+            click.echo("Criteria type not a valid type! ({0})".format(tpe))
             return
 
+        strvalues = []
+
+        if '-' in values and values[-1] != '-':
+            strvalues = values.split('-')
+        else:
+            if values[-1] in "-+":
+                strvalues = [values[:-1]]
+            else:
+                strvalues = [values]
+       
+ 
+        real_vals = []        
+
+        for val in strvalues:
+            if search_types[tpe] == "origin_time":
+                try:
+                    real_vals.append(datetime.strptime(val, "%Y%j_%H:%M:%S"))
+                except:
+                    try:
+                        real_vals.append(datetime.strptime(val, "%d.%m.%Y_%H:%M:%S"))
+                    except:
+                        try:
+                            real_vals.append(datetime.strptime(val, "%Y%j").date())
+                        except:
+                            try:
+                                real_vals.append(datetime.strptime(val, "%d.%m.%Y").date())
+                            except:
+                                click.echo("origin_time not in a correct format! ({0})".format(val))
+                                return
+            elif search_types[tpe] in ["epicenter_latitude", "epicenter_longitude", "magnitude_1", "depth"]:
+                try:
+                    real_vals.append(float(val))
+                except:
+                    click.echo("{0} not in a float! ({1})".format(tpe, val))
+                    return
+            elif search_types[tpe] in ["event_id"]:
+                try:
+                   real_vals.append(int(val)) 
+                except:
+                    click.echo("{0} not in a int! ({1})".format(tpe, val))
+                    return
+            else:
+                real_vals.append(val)
+
+        if len(real_vals) == 2:
+            search.addSearchBetween(search_types[tpe], real_vals[0], real_vals[1])
+        elif values[-1] == "-":
+            search.addSearchUnder(search_types[tpe], real_vals[0])
+        elif values[-1] == "+":
+            search.addSearchOver(search_types[tpe], real_vals[0])
+        else:
+            search.addSearchExactly(search_types[tpe], real_vals[0])
+
+    if search.getCriteriaAmount() == 0:
+        click.echo("No criteria given to search. NorDB will print all events. This might take a while. Ctrl-C will abort the search")
+
+    events = search.searchEvents()
+    
     if not events:
         click.echo("No events found with criteria: \n{0}".format(criteria))
         return
 
-    if criteria.keys():
-        click.echo("Event Search \n Criteria: {0}".format(criteria))
+    if criteria:
+        click.echo("Event Search \nCriteria: \n{0}".format(search.getCriteriaString()[:-1]))
     else:
         click.echo("All events")
     click.echo("-------------------------------------------------------------")
@@ -201,7 +242,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
 
         for line in f_stations:
             try:
-                stations.append(station.readStationStringToStation(line))
+                stations.append(station.readStationStringToStation(line, network))
             except Exception as e:
                 click.echo("Error reading line: {0}".format(e))
                 click.echo("Line: {0}".format(line))
@@ -387,18 +428,19 @@ def getsta(repo, o_format, output_name, stat_ids):
     else:
         click.echo("{0}.{1} written!".format(output_name, o_format))
 
-#@cli.command('chgroot', short_help='change root id')
-#@click.option('--root-id', '-id', default=-999, type=click.INT, help="root to which the event is attached to")
-#@click.argument('event-id', type=click.INT)
-#@click.pass_obj
-#def chgroot(repo, root_id, event_id):
-#    """
-#    This command changes the root id of a event to root id given by user or creates a new root for the event. If no root-id is given to the command, it will attach the event to a new root.
-#
-#    A root is an id to which different analyses of a same event will refer to. This groups the events together and makes it very simple to follow how the analysis of the single event has evolved. If the insert program fails to find proper root or the user accidentally attaches a event to a wrong root. This command can be used to change the root id to a new one.
-#    """
-#    nordicModify.changeEventRoot(event_id, root_id)
-#
+@cli.command('chgroot', short_help='change root id')
+@click.option('--root-id', '-id', default=-999, type=click.INT, help="root to which the event is attached to")
+@click.argument('event-id', type=click.INT)
+@click.pass_obj
+def chgroot(repo, root_id, event_id):
+    """
+    This command changes the root id of a event to root id given by user or creates a new root for the event. If no root-id is given to the command, it will attach the event to a new root.
+
+    A root is an id to which different analyses of a same event will refer to. This groups the events together and makes it very simple to follow how the analysis of the single event has evolved. If the insert program fails to find proper root or the user accidentally attaches a event to a wrong root. This command can be used to change the root id to a new one.
+    """
+    nordicModify.changeEventRoot(event_id, root_id)
+
+
 @cli.command('chgtype', short_help='change event type')
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
 @click.argument('event-id', type=click.INT)
@@ -423,13 +465,13 @@ def chgtype(repo, event_type, event_id):
 
 @cli.command('insert', short_help="insert events")
 @click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
-@click.option('--fix', '-f', is_flag=True, help="Use the fixing tool to add nordics with broken syntax t the database")
+@click.option('--nofix', '-nf', is_flag=True, help="Do not use the fixing tool to add nordics with broken syntax the database")
 @click.option('--ignore-duplicates', '-iq', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, verbose):
+def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
     """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
 
     if verbose:
@@ -452,7 +494,7 @@ def insert(repo, event_type, fix, ignore_duplicates, no_duplicates, filenames, v
 
             for n_string in nordic_strings:
                 try:
-                    nordic_events.append(nordic.createNordicEvent(n_string, fix, -1, -1, event_type))
+                    nordic_events.append(nordic.createNordicEvent(n_string, not nofix, -1, -1, event_type))
                 except Exception as e:
                     click.echo("Error reading nordic: {0}".format(e))
                     click.echo(n_string[0])

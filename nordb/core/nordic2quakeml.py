@@ -144,29 +144,9 @@ def addPick(event, nordic, phase_data):
     pick = etree.SubElement(event, "pick")
     pick.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/pick/" + str(phase_data.d_id)
 
-    time_value = ""
-    #time value for the pick    
-    if phase_data.hour < nordic.headers[1][0].hour:
-        time_value = str(nordic.headers[1][0].date + datetime.timedelta(days=1)) + "T"
-    else:
-        time_value = str(nordic.headers[1][0].date) + "T"
-
-    if phase_data.hour < 10:
-        time_value = time_value + "0" + str(phase_data.hour) + ":"
-    else:
-        time_value = time_value + str(phase_data.hour) + ":"
-
-    if phase_data.minute < 10:
-        time_value = time_value + "0" + str(phase_data.minute) + ":"
-    else:
-        time_value = time_value + str(phase_data.minute) + ":"
-
-    if phase_data.second < 10:
-        time_value = time_value + "0" + str(phase_data.second) + "Z"
-    else:
-        time_value = time_value + str(phase_data.second) + "Z" 
-
-    addTime(pick, time_value, 0)
+    time = etree.SubElement(pick, "time")
+    value = etree.SubElement(time, "value")
+    value.text = phase_data.observation_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
     #Pick waveform ID
     waveform_id = etree.SubElement(pick, "waveformID")
@@ -247,42 +227,15 @@ def addOrigin(event, nordic, main):
     origin = etree.SubElement(event, "origin")
     origin.attrib["publicID"] = "smi:" + AUTHORITY_ID + "/origin/" + str(main.h_id)
 
-    #time value for the origin
-    time_value = ""
-    time_value = str(main.date) + "T"
+    time = etree.SubElement(origin, "time")
+    time_value = etree.SubElement(time, "value")
+    time_value.text = main.origin_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-    if main.hour is not None:
-        if main.hour < 10:
-            time_value = time_value + "0" + str(main.hour) + ":"
-        else:
-            time_value = time_value + str(main.hour) + ":"
-    else:
-        time_value = time_value + "00:"
-
-    if main.minute is not None:
-        if main.minute < 10:
-            time_value = time_value + "0" + str(main.minute) + ":"
-        else:
-            time_value = time_value + str(main.minute) + ":"
-    else:
-        time_value = time_value + "00:"
-    
-    if main.second is not None:
-        if main.second < 10:
-            time_value = time_value + "0" + str(int(main.second)) + "Z"
-        else:
-            time_value = time_value + str(int(main.second)) + "Z" 
-    else:
-        time_value = time_value + "00Z"
-
-    #time uncertainty   
-    time_uncertainty = 1
     for h_error in nordic.headers[5]:
         if h_error.h_id == main.h_id:
-            time_uncertainty = h_error.second_error
+            time_uncertainty = etree.SubElement(time, "uncertainty") 
+            time_uncertainty.text = str(h_error.second_error)
             break
-
-    addTime(origin, time_value, time_uncertainty)
 
     #Adding value for epicenter latitude
     if main.epicenter_latitude is not None:
@@ -421,24 +374,6 @@ def addFocalMech(event, h_error):
         #Adding Gap
         focal_mechanism_gap = etree.SubElement(focal_mechanism, "azimuthalGap")
         focal_mechanism_gap.text = str(h_error.gap)
-
-
-def addTime(container, time_value, time_uncertainty):
-    """
-    Function for adding Time etree object to a container object
-
-    :param etree.XML container: container object where the time is added to
-    :param str time_value: value of the time as a string
-    :param str time_uncertainty: value of the time_uncertainty as a string
-    """
-
-    time = etree.SubElement(container, "time")
-    value = etree.SubElement(time, "value")
-    value.text = time_value
-
-    if time_uncertainty != 0:
-        uncertainty = etree.SubElement(time, "uncertainty")
-        uncertainty.text = str(time_uncertainty)
 
 def nordicEvents2QuakeML(nordic_events, long_quakeML=True):
     """

@@ -116,7 +116,7 @@ def readSensor(sensor_id):
     ans = cur.fetchone()
     conn.close()
     sen = Sensor(ans)
-
+    
     sql2instrument.instruments2sensor(sen)
 
     return sen
