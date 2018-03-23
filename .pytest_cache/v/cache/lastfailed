@@ -1,18 +1,12 @@
 {
-  "tests/core/test_nordic2quakeml.py::TestNordic2Quakeml::()::test_Conversion": true,
-  "tests/core/test_nordic2sc3.py::TestNordic2SC3::()::test_Conversion": true,
   "tests/core/test_nordicReset.py": true,
-  "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testFindEventsWithDate": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testFindEventsWithHour": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testFindEventsWithMinute": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testFindEventsWithSecond": true,
-  "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testNoEventsWithNonexistingDate": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testNoEventsWithNonexistingHour": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testNoEventsWithNonexistingMinute": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testNoEventsWithNonexistingSecond": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testSearchWithNegativeRange": true,
   "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testSearchWithPositiveRange": true,
-  "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testSearchWithRange": true,
-  "tests/database/test_nordicSearch.py::TestSearchSameEvents::()::testSearchSameEvent": true,
-  "tests/database/test_nordicSearch.py::TestSearchSimilarEvents::()::testSearchSimilarEvent": true
+  "tests/database/test_nordicSearch.py::TestNordicSearchWithCriteria::()::testSearchWithRange": true
 }

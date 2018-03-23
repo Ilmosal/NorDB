@@ -47,6 +47,8 @@ from nordb.nordic import sensor
 from nordb.nordic import sitechan
 from nordb.nordic import station
 
+from nordb.nordic import nordicEvent
+
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 logging.basicConfig(filename=ERROR_PATH, level=logging.ERROR)
@@ -111,6 +113,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
                         "epicenter_longitude":"epicenter_longitude",
                         "magnitude":"magnitude_1",
                         "magnitude_1":"magnitude_1",
+                        "mag":"magnitude_1",
                         "ma":"magnitude_1",
                         "m":"magnitude_1",
                         "event_type":"event_type",
@@ -152,10 +155,10 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
         for val in strvalues:
             if search_types[tpe] == "origin_time":
                 try:
-                    real_vals.append(datetime.strptime(val, "%Y%j_%H:%M:%S"))
+                    real_vals.append(datetime.strptime(val, "%Y%jT%H:%M:%S"))
                 except:
                     try:
-                        real_vals.append(datetime.strptime(val, "%d.%m.%Y_%H:%M:%S"))
+                        real_vals.append(datetime.strptime(val, "%d.%m.%YT%H:%M:%S"))
                     except:
                         try:
                             real_vals.append(datetime.strptime(val, "%Y%j").date())
@@ -195,19 +198,30 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
     events = search.searchEvents()
     
     if not events:
-        click.echo("No events found with criteria: \n{0}".format(criteria))
+        click.echo("No events found with criteria: \n{0}".format(search.getCriteriaString()[:-1]))
         return
+
+    type_len = 4
+    id_len = 3
+
+    for e in events:
+        if len(str(e.event_type)) > type_len:
+            type_len = len(str(e.event_type))
+        if len(str(e.event_id)) > id_len:
+            id_len = len(str(e.event_id))
 
     if criteria:
         click.echo("Event Search \nCriteria: \n{0}".format(search.getCriteriaString()[:-1]))
     else:
         click.echo("All events")
-    click.echo("-------------------------------------------------------------")
+    help_string = " YEAR MODA HRMN SEC  DT LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP"
+    click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
+    click.echo((type_len+id_len+len(help_string)+5)*"-")
     for e in events:
         if not verbose:
-            print("id: {0} type: {1} - {2}".format(e.event_id, e.event_type, str(e.headers[1][0])[:-1]))
+            click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}").format(e.event_id, e.event_type, str(e.main_h[0])[:-1]))
         else:
-            print(str(e) + "\n-------------------------------------------------------------")
+            click.echo(str(e))
 
     if output is not None:
         f_output = open(output, 'w')
@@ -441,24 +455,13 @@ def chgroot(repo, root_id, event_id):
     """
     nordicModify.changeEventRoot(event_id, root_id)
 
-
 @cli.command('chgtype', short_help='change event type')
-@click.argument('event-type', type=click.Choice(["A", "R", "P", "F", "S", "O"]))
+@click.argument('event-type', type=click.STRING)
 @click.argument('event-id', type=click.INT)
 @click.pass_obj
 def chgtype(repo, event_type, event_id):
     """
     This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Event type refers to how final the analysis of the event is.
-    
-    \b
-    Event type
-    ----------
-    A - Automatic
-    R - Reviewed
-    P - Preliminary
-    F - Final
-    (S - Scandia) NOT YET IMPLEMENTED
-    O - Other
     """
    
     nordicModify.changeEventType(event_id, event_type)
@@ -584,14 +587,14 @@ def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames,
                     same_events = nordicSearch.searchSameEvents(nord)
                     if same_events:
                         if ignore_duplicates:
-                            click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.headers[1][0]))
+                            click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.main_h[0]))
                             continue
 
                         click.echo("Identical events to current found! Is any of these a duplicate of yours?")
-                        click.echo("{0} - (Yours)".format(nord.headers[1][0]))
+                        click.echo("{0} - (Yours)".format(nord.main_h[0]))
                         click.echo("-----------------------------------------------------------------------------------------")
                         for e in same_events:
-                            click.echo("{0} - ({1})".format(e.headers[1][0], e.event_id))
+                            click.echo("{0} - ({1})".format(e.main_h[0], e.event_id))
                         while True:
                             try:
                                 event_id = int(input("Event id of the same event: "))
@@ -604,14 +607,14 @@ def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames,
                        
                         if similar_events:
                             if ignore_duplicates:
-                                click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.headers[1][0]))
+                                click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.main_h[0]))
                                 continue
 
                             click.echo("Similar events to current found! Is any of these a duplicate of yours?")
-                            click.echo("{0} (Yours)".format(nord.headers[1][0]))
+                            click.echo("{0} (Yours)".format(nord.main_h[0]))
                             click.echo("-----------------------------------------------------------------------------------------")
                             for e in similar_events:
-                                click.echo("{0} - ({1})".format(e.headers[1][0], e.event_id))
+                                click.echo("{0} - ({1})".format(e.main_h[0], e.event_id))
                             while True:
                                 try:
                                     event_id = int(input("Event id of the same event: "))
@@ -623,7 +626,7 @@ def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames,
                     nordic2sql.event2Database(nord, event_type, f_nordic.name, creation_id, event_id)
                 except Exception as e:
                     click.echo("Error pushing nordic to database: {0}".format(e))
-                    click.echo(nord.headers[1][0])
+                    click.echo(nord.main_h[0])
                     nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                     nordic_failed.append(str(nord))
            
@@ -679,17 +682,21 @@ def reset(repo, reset_type):
 @cli.command('get', short_help='get event')
 @click.argument('event-ids', nargs=-1, type=click.INT)
 @click.argument('output-name', type=click.Path(exists=False))
+@click.option('--event-root', is_flag=True, help="search as event_root_ids instead")
 @click.option('--output-format', '-f', default="n", type = click.Choice(["n", "q", "sc3"]), help="What format you want to use. Default 'n'")
 @click.pass_obj
-def get(repo, output_format, event_ids, output_name):
+def get(repo, output_format, event_ids, output_name, event_root):
     """
     Command for getting files out from the database. ID tells which event you want, FORMAT tells the program that in what format you want the file(n - nordic, q - quakeml, sc3 - seiscomp3) and output-name tells the output file's name if you want to specify it.
 
     You can create an output file by searching events with search command using --output or -o flag or simply writing event_ids on a blank file with every id being on a new line.
     """
     n_events = []
-    for e_id in event_ids:
-        n_events.append(sql2nordic.getNordicFromDB(e_id))
+    if event_root:
+        for e_id in event_ids:
+            n_events.extend(sql2nordic.getNordicsRoot(e_id))
+    else:
+        n_events = sql2nordic.getNordics(event_ids)
 
     n_events = [nordic_event for nordic_event in n_events if nordic_event is not None]
 

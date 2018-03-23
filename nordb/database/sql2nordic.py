@@ -92,6 +92,49 @@ SELECT_QUERY =   {
                     )
                 }
 
+SELECT_ROOT_ID =    (
+                    "SELECT "
+                    "   nordic_event.id "
+                    "FROM "
+                    "   nordic_event "
+                    "WHERE "
+                    "   nordic_event.root_id = %s"
+                    )
+
+def getNordicsRoot(root_id):
+    """
+    Method for getting all events attached to a root id from the database and returning them in a array.
+
+    :param int root_id:
+    :returns: Array of NordicEvent objects
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+    cur.execute(SELECT_ROOT_ID, (root_id,))
+    e_ids = cur.fetchall()
+    conn.close()
+    nordic_root = []
+
+    e_ids = [e_id[0] for e_id in e_ids]
+
+    return getNordics(e_ids)
+
+def getNordics(event_ids):
+    """
+    Method for getting multiple nordics from the database with a event_id array.
+    
+    :param Array event_ids:
+    :returns: Array of NordicEvent objects
+    """
+    events = []
+
+    for e_id in event_ids:
+        event = getNordic(e_id)
+        if event is not None:
+            events.append(event)
+
+    return events
+
 def getNordic(event_id):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query

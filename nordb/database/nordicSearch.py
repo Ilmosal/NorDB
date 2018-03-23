@@ -51,11 +51,11 @@ class NordicSearch:
             if crit.command_type == 1:
                criteria_string += " {0}: {1}\n".format(crit.search_type, crit.getValue()[0]) 
             elif crit.command_type == 2:
-               criteria_string += " {0}: {1} - {2}\n".format(crit.search_type, crit.getValue()[0], crit.getValue()[1]) 
+               criteria_string += " {0}: {1}-{2}\n".format(crit.search_type, crit.getValue()[0], crit.getValue()[1]) 
             elif crit.command_type == 3:
-               criteria_string += " {0}: {1} - \n".format(crit.search_type, crit.getValue()[0]) 
+               criteria_string += " {0}: {1}-> \n".format(crit.search_type, crit.getValue()[0]) 
             else:
-               criteria_string += " {0}: - {1} \n".format(crit.search_type, crit.getValue()[0]) 
+               criteria_string += " {0}: <-{1} \n".format(crit.search_type, crit.getValue()[0]) 
 
         return criteria_string
 
