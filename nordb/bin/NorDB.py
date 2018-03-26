@@ -214,7 +214,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
         click.echo("Event Search \nCriteria: \n{0}".format(search.getCriteriaString()[:-1]))
     else:
         click.echo("All events")
-    help_string = " YEAR MODA HRMN SEC  DT LAT     LON     DEP  REP ST RMS MAG REP MAG REP MAG REP"
+    help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP"
     click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
     click.echo((type_len+id_len+len(help_string)+5)*"-")
     for e in events:
@@ -466,33 +466,33 @@ def chgtype(repo, solution_type, event_id):
    
     nordicModify.changeEventType(event_id, solution_type)
 
-@cli.command("etype", short_help="add, remove and look event types")
-@click.option('--list', '-l', 'etype_option', flag_value='list', default=True, help="List all the event types in the database")
-@click.option('--add', '-a', 'etype_option', flag_value='add', help="add a new event type to the database")
-@click.option('--remove', '-r','etype_option', flag_value='remove', help="remove an old event type from the database")
+@cli.command("stype", short_help="add, remove and look solution types")
+@click.option('--list', '-l', 'stype_option', flag_value='list', default=True, help="List all the solution types in the database")
+@click.option('--add', '-a', 'stype_option', flag_value='add', help="add a new solution type to the database")
+@click.option('--remove', '-r','stype_option', flag_value='remove', help="remove an old solution type from the database")
 @click.pass_obj
-def etype(repo, etype_option):
+def etype(repo, stype_option):
     """
-    This command is for adding, removing and looking the event types in the database. They will prompt the necessary values from the user.
+    This command is for adding, removing and looking the solution types in the database. They will prompt the necessary values from the user.
     """ 
     try: 
-        if etype_option == "list":
-            types = solutionTypeHandler.getEventTypes()
-            click.echo("Type Id | Event Type Description           | Allow Multiple")
-            click.echo("-----------------------------------------------------------")
+        if stype_option == "list":
+            types = solutionTypeHandler.getSolutionTypes()
+            click.echo("Type Id | Type Description                 | Allow Multiple")
+            click.echo("--------+----------------------------------+---------------")
             for type in types:
                 click.echo(" {0:<6} | {1:<32} | {2}".format(type[0], type[1], type[2]))
-        elif etype_option == "add":
+        elif stype_option == "add":
             click
-            type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            type_id = click.prompt("Enter the solution type id(Press CTR-C to escape)")
             if len(type_id) > 6:
-                click.echo("{0} is too long! Maximum length of 3 characters".format(type_id))
+                click.echo("{0} is too long! Maximum length of 6 characters".format(type_id))
                 return
             if len(type_id) == 0:
-                click.echo("No event type given to the program!")
+                click.echo("No solution type given to the program!")
                 return
 
-            type_desc = click.prompt("Enter a short description for the event type id(CTR-C to escape)")
+            type_desc = click.prompt("Enter a short description for the solution type id(CTR-C to escape)")
             if len(type_desc) > 32:
                 click.echo("{0} is too long. Maximum length of 32 characters".format(type_desc))
                 return
@@ -500,22 +500,22 @@ def etype(repo, etype_option):
             type_allow = click.prompt("Allow multiple events of same type in same event root? ", type=bool)
 
             try:
-                solutionTypeHandler.addEventType(type_id, type_desc, type_allow)
+                solutionTypeHandler.addSolutionType(type_id, type_desc, type_allow)
             except:
-                click.echo("Event Type {0} already exists in the database!".format(type_id))
-        elif etype_option == "remove": 
+                click.echo("Solution Type {0} already exists in the database!".format(type_id))
+        elif stype_option == "remove": 
             
-            type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            type_id = click.prompt("Enter the solution type id(Press CTR-C to escape)")
             if len(type_id) > 6:
                 click.echo("{0} is too long! Maximum length of 6 characters".format(type_id))
                 return
             if len(type_id) == 0:
-                click.echo("No event type given to the program!")
+                click.echo("No solution type given to the program!")
                 return
 
-            existing = solutionTypeHandler.getEventTypes() 
+            existing = solutionTypeHandler.getSolutionTypes() 
             if type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
-                click.echo("Given event type does not exist in the database!")
+                click.echo("Given solution type does not exist in the database!")
                 return
 
             search = nordicSearch.NordicSearch()
@@ -526,18 +526,18 @@ def etype(repo, etype_option):
                 if not click.prompt("Events found with id {0}. Do you want to move them to another id?".format(type_id), type=bool):
                     return
 
-                new_type_id = click.prompt("Enter the event type id of the replacing event type(Press CTR-C to escape)")
+                new_type_id = click.prompt("Enter the solution type id of the replacing solution type(Press CTR-C to escape)")
                 if len(type_id) > 6:
-                    click.echo("{0} is too long! Maximum length of 3 characters".format(new_type_id))
+                    click.echo("{0} is too long! Maximum length of 6 characters".format(new_type_id))
                     return
                 if len(type_id) == 0:
-                    click.echo("No event type given to the program!")
+                    click.echo("No solution type given to the program!")
                     return
                 if new_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
                     click.echo("Solution type {0} does not exist!".format(new_type_id))
                     return
 
-            solutionTypeHandler.removeEventType(type_id, new_type_id)
+            solutionTypeHandler.removeSolutionType(type_id, new_type_id)
     except KeyboardInterrupt:
         pass
 
@@ -546,11 +546,11 @@ def etype(repo, etype_option):
 @click.option('--ignore-duplicates', '-iq', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
-@click.argument('event-type')
+@click.argument('solution-type')
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
-    """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
+    """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event. The suffix of the filename must be .n, .nordic or .nordicp)."""
 
     if verbose:
         ch = logging.StreamHandler(sys.stderr)
@@ -701,7 +701,10 @@ def get(repo, output_format, event_ids, output_name, event_root):
     n_events = [nordic_event for nordic_event in n_events if nordic_event is not None]
 
     if not n_events:
-        click.echo("No events with ids {0}".format(event_ids))
+        if event_root:
+            click.echo("No event roots with id {0}".format(event_ids))
+        else:
+            click.echo("No events with ids {0}".format(event_ids))
         return  
 
     f_output = open(output_name, 'w')

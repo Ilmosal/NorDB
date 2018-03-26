@@ -45,7 +45,7 @@ def getSolutionTypes():
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute("SELECT type_id, type_desc, allow_multiple FROM solution_type")
+    cur.execute("SELECT type_id, type_desc, allow_multiple FROM solution_type ORDER BY allow_multiple, type_id")
     ans = cur.fetchall()
 
     conn.close()
