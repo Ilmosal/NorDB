@@ -11,13 +11,13 @@ class TestNordicChangeType(object):
         creation_id = nordic2sql.createCreationInfo()
         nordic2sql.event2Database(event, "A", "dummy_name", creation_id, -1)
     
-        changeEventType(1, "F")
+        changeSolutionType(1, "F")
 
-        assert "F" == sql2nordic.getNordic(1).event_type
+        assert "F" == sql2nordic.getNordic(1).solution_type
 
     def testNordicChangeTypeWithNoEvent(self, setupdb):
         with pytest.raises(Exception):
-            changeEventType(1, "O")
+            changeSolutionType(1, "O")
 
     def testNordicChangeTypeWithSameType(self, setupdb, nordicEvents):
         event = createNordicEvent(nordicEvents[0], False)
@@ -25,7 +25,7 @@ class TestNordicChangeType(object):
         nordic2sql.event2Database(event, "F", "dummy_name", creation_id, -1)
 
         with pytest.raises(Exception):    
-            changeEventType(1, "F") 
+            changeSolutionType(1, "F") 
 
 @pytest.mark.usefixtures("setupdb", "nordicEvents")
 class TestNordicChangeRoot(object):

@@ -47,9 +47,9 @@ class SiteChan(object):
     S_ID = 10
     STATION_ID = 11
     CSS_ID = 12
-    sensors = []
  
     def __init__(self, data):
+        self.sensors = []
         self.station_code = data[self.STATION_CODE]
         self.channel_code = data[self.CHANNEL_CODE]
         self.on_date = data[self.ON_DATE]

@@ -41,7 +41,7 @@ class TestSQL2Sensor(object):
         for sen in sensors:
             sensor2sql.insertSensor2Database(sen)
 
-        sensors = sql2sensor.readAllSensors()
+        sensors = sql2sensor.getAllSensors()
     
         assert len(sensors) == len(sensorFiles)
 
@@ -74,7 +74,7 @@ class TestSQL2Sensor(object):
         for sen in sensors:
             sensor2sql.insertSensor2Database(sen)
 
-        sen = sql2sensor.readSensor(1)
+        sen = sql2sensor.getSensor(1)
     
         assert str(sen).strip() == str(sensors[0]).strip()
 

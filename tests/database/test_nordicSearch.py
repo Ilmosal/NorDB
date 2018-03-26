@@ -73,7 +73,7 @@ class TestNordicSearchWithCriteria(object):
 
     def testFindEventsWithEventType(self, setupdbWithEvents):
         search = NordicSearch()
-        search.addSearchExactly("event_type", "F")
+        search.addSearchExactly("solution_type", "F")
         foundEvents = search.searchEvents()
         assert len(foundEvents) == 3
 
@@ -135,7 +135,7 @@ class TestNordicSearchWithCriteria(object):
 
     def testNoEventsWithNonexistingEventType(self, setupdbWithEvents):
         search = NordicSearch()
-        search.addSearchExactly("event_type", "S")
+        search.addSearchExactly("solution_type", "S")
         foundEvents = search.searchEvents()
         assert len(foundEvents) == 0
 

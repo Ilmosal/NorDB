@@ -23,10 +23,10 @@ class NordicEvent:
     :param int event_id: id of the event in the database
     :param int root_id: root id of the event
     :param int creation_id: creation_id of the event
-    :param event_type string: event type of the event
+    :param solution_type string: solution type of the event
     :ivar int event_id: event id of the event
     """
-    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, event_type = "O"):
+    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O"):
         self.main_h = []
         self.macro_h = []
         self.comment_h = []
@@ -35,7 +35,7 @@ class NordicEvent:
         self.event_id = event_id
         self.root_id = root_id
         self.creation_id = creation_id
-        self.event_type = event_type
+        self.solution_type = solution_type
 
     event_id = property(operator.attrgetter('_event_id'), doc="")
 
@@ -58,12 +58,12 @@ class NordicEvent:
         val_creation_id = validateInteger(val_creation_id, "creation_id", None, None, 0)
         self._creation_id = val_creation_id
 
-    event_type = property(operator.attrgetter('_event_type'), doc="")
+    solution_type = property(operator.attrgetter('_solution_type'), doc="")
 
-    @event_type.setter
-    def event_type(self, val_event_type):
-        val_event_type = validateString(val_event_type, "event_type", 1, 6, None, 0)
-        self._event_type = val_event_type
+    @solution_type.setter
+    def solution_type(self, val_solution_type):
+        val_solution_type = validateString(val_solution_type, "solution_type", 1, 6, None, 0)
+        self._solution_type = val_solution_type
 
     def __eq__(self, other):
         return str(self) == str(other) 

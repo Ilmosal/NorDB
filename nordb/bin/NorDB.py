@@ -27,7 +27,7 @@ from nordb.database import norDBManagement
 from nordb.database import resetDB
 from nordb.database import undoRead
 from nordb.database import nordicModify
-from nordb.database import eventTypeHandler
+from nordb.database import solutionTypeHandler
 
 from nordb.database import sql2instrument
 from nordb.database import sql2nordic
@@ -116,8 +116,8 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
                         "mag":"magnitude_1",
                         "ma":"magnitude_1",
                         "m":"magnitude_1",
-                        "event_type":"event_type",
-                        "et":"event_type",
+                        "solution_type":"solution_type",
+                        "st":"solution_type",
                         "distance_indicator":"distance_indicator",
                         "di":"distance_indicator",
                         "event_desc_id":"event_desc_id",
@@ -205,8 +205,8 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
     id_len = 3
 
     for e in events:
-        if len(str(e.event_type)) > type_len:
-            type_len = len(str(e.event_type))
+        if len(str(e.solution_type)) > type_len:
+            type_len = len(str(e.solution_type))
         if len(str(e.event_id)) > id_len:
             id_len = len(str(e.event_id))
 
@@ -219,7 +219,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
     click.echo((type_len+id_len+len(help_string)+5)*"-")
     for e in events:
         if not verbose:
-            click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}").format(e.event_id, e.event_type, str(e.main_h[0])[:-1]))
+            click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}").format(e.event_id, e.solution_type, str(e.main_h[0])[:-1]))
         else:
             click.echo(str(e))
 
@@ -343,11 +343,11 @@ def getsta(repo, o_format, output_name, stat_ids):
     if o_format == "stationxml":
         stations = []
         if not stat_ids:
-            stations = sql2station.readAllStations()
+            stations = sql2station.getAllStations()
 
         for s_id in stat_ids:
             try:
-                stations.append(sql2station.readStation(s_id))
+                stations.append(sql2station.getStation(s_id))
             except:
                 click.echo("No station with id {0} in the database!".format(s_id)) 
 
@@ -362,11 +362,11 @@ def getsta(repo, o_format, output_name, stat_ids):
     if o_format == "site" or o_format == "all":
         stations = []
         if not stat_ids:
-            stations = sql2station.readAllStations()
+            stations = sql2station.getAllStations()
 
         for s_id in stat_ids:
             try:
-                stations.append(sql2station.readStation(s_id))
+                stations.append(sql2station.getStation(s_id))
             except:
                 click.echo("No station with id {0} in the database!".format(s_id))
 
@@ -381,11 +381,11 @@ def getsta(repo, o_format, output_name, stat_ids):
     if o_format == "sitechan" or o_format == "all":
         sitechans = []
         if not stat_ids:
-            sitechans = sql2sitechan.readAllSitechans()
+            sitechans = sql2sitechan.getAllSitechans()
         
         for s_id in stat_ids:
             try:
-                sitechans.append(sql2sitechan.readSitechan(s_id))
+                sitechans.append(sql2sitechan.getSitechan(s_id))
             except:
                 click.echo("No sitechan with id {0} in the database!".format(s_id))
 
@@ -400,11 +400,11 @@ def getsta(repo, o_format, output_name, stat_ids):
     if o_format == "sensor" or o_format == "all":
         sensors = []
         if not stat_ids:
-            sensors = sql2sensor.readAllSensors()
+            sensors = sql2sensor.getAllSensors()
 
         for s_id in stat_ids:
             try:
-                sensors.append(sql2sensor.readSensor(s_id))    
+                sensors.append(sql2sensor.getSensor(s_id))    
             except:
                 click.echo("No sensor with id {0} in the database!".format(s_id))        
        
@@ -419,11 +419,11 @@ def getsta(repo, o_format, output_name, stat_ids):
     if o_format == "instrument" or o_format == "all":
         instruments = []
         if not stat_ids:
-            instruments = sql2instrument.readAllInstruments()
+            instruments = sql2instrument.getAllInstruments()
 
         for i_id in stat_ids:
             try:
-                instruments.append(sql2instrument.readInstrument(i_id))
+                instruments.append(sql2instrument.getInstrument(i_id))
             except:
                 click.echo("No instrument with id {0} in the database!".format(i_id))
 
@@ -459,12 +459,12 @@ def chgroot(repo, root_id, event_id):
 @click.argument('event-type', type=click.STRING)
 @click.argument('event-id', type=click.INT)
 @click.pass_obj
-def chgtype(repo, event_type, event_id):
+def chgtype(repo, solution_type, event_id):
     """
-    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Event type refers to how final the analysis of the event is.
+    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Solution type refers to how final the analysis of the event is.
     """
    
-    nordicModify.changeEventType(event_id, event_type)
+    nordicModify.changeEventType(event_id, solution_type)
 
 @cli.command("etype", short_help="add, remove and look event types")
 @click.option('--list', '-l', 'etype_option', flag_value='list', default=True, help="List all the event types in the database")
@@ -477,67 +477,67 @@ def etype(repo, etype_option):
     """ 
     try: 
         if etype_option == "list":
-            e_types = eventTypeHandler.getEventTypes()
+            types = solutionTypeHandler.getEventTypes()
             click.echo("Type Id | Event Type Description           | Allow Multiple")
             click.echo("-----------------------------------------------------------")
-            for e_type in e_types:
-                click.echo(" {0:<6} | {1:<32} | {2}".format(e_type[0], e_type[1], e_type[2]))
+            for type in types:
+                click.echo(" {0:<6} | {1:<32} | {2}".format(type[0], type[1], type[2]))
         elif etype_option == "add":
             click
-            e_type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
-            if len(e_type_id) > 6:
-                click.echo("{0} is too long! Maximum length of 3 characters".format(e_type_id))
+            type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            if len(type_id) > 6:
+                click.echo("{0} is too long! Maximum length of 3 characters".format(type_id))
                 return
-            if len(e_type_id) == 0:
+            if len(type_id) == 0:
                 click.echo("No event type given to the program!")
                 return
 
-            e_type_desc = click.prompt("Enter a short description for the event type id(CTR-C to escape)")
-            if len(e_type_desc) > 32:
-                click.echo("{0} is too long. Maximum length of 32 characters".format(e_type_desc))
+            type_desc = click.prompt("Enter a short description for the event type id(CTR-C to escape)")
+            if len(type_desc) > 32:
+                click.echo("{0} is too long. Maximum length of 32 characters".format(type_desc))
                 return
 
-            e_type_allow = click.prompt("Allow multiple events of same type in same event root? ", type=bool)
+            type_allow = click.prompt("Allow multiple events of same type in same event root? ", type=bool)
 
             try:
-                eventTypeHandler.addEventType(e_type_id, e_type_desc, e_type_allow)
+                solutionTypeHandler.addEventType(type_id, type_desc, type_allow)
             except:
-                click.echo("Event Type {0} already exists in the database!".format(e_type_id))
+                click.echo("Event Type {0} already exists in the database!".format(type_id))
         elif etype_option == "remove": 
             
-            e_type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
-            if len(e_type_id) > 6:
-                click.echo("{0} is too long! Maximum length of 6 characters".format(e_type_id))
+            type_id = click.prompt("Enter the event type id(Press CTR-C to escape)")
+            if len(type_id) > 6:
+                click.echo("{0} is too long! Maximum length of 6 characters".format(type_id))
                 return
-            if len(e_type_id) == 0:
+            if len(type_id) == 0:
                 click.echo("No event type given to the program!")
                 return
 
-            existing = eventTypeHandler.getEventTypes() 
-            if e_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
+            existing = solutionTypeHandler.getEventTypes() 
+            if type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
                 click.echo("Given event type does not exist in the database!")
                 return
 
             search = nordicSearch.NordicSearch()
-            search.addSearchExactly("event_type", e_type_id) 
-            new_e_type_id = "O"
+            search.addSearchExactly("solution_type", type_id) 
+            new_type_id = "O"
 
             if len(search.searchEventIds()) > 0:
-                if not click.prompt("Events found with id {0}. Do you want to move them to another id?".format(e_type_id), type=bool):
+                if not click.prompt("Events found with id {0}. Do you want to move them to another id?".format(type_id), type=bool):
                     return
 
-                new_e_type_id = click.prompt("Enter the event type id of the replacing event type(Press CTR-C to escape)")
-                if len(e_type_id) > 6:
-                    click.echo("{0} is too long! Maximum length of 3 characters".format(new_e_type_id))
+                new_type_id = click.prompt("Enter the event type id of the replacing event type(Press CTR-C to escape)")
+                if len(type_id) > 6:
+                    click.echo("{0} is too long! Maximum length of 3 characters".format(new_type_id))
                     return
-                if len(e_type_id) == 0:
+                if len(type_id) == 0:
                     click.echo("No event type given to the program!")
                     return
-                if new_e_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
-                    click.echo("Event type {0} does not exist!".format(new_e_type_id))
+                if new_type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
+                    click.echo("Solution type {0} does not exist!".format(new_type_id))
                     return
 
-            eventTypeHandler.removeEventType(e_type_id, new_e_type_id)
+            solutionTypeHandler.removeEventType(type_id, new_type_id)
     except KeyboardInterrupt:
         pass
 
@@ -549,7 +549,7 @@ def etype(repo, etype_option):
 @click.argument('event-type')
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
+def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
     """This command adds an nordic file to the Database. The EVENT-TYPE tells the database what's the type of the event((A)utomatic, (R)evieved, (P)reliminary, (F)inal, (S)candic, (O)ther). The suffix of the filename must be .n, .nordic or .nordicp)."""
 
     if verbose:
@@ -572,7 +572,7 @@ def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames,
 
             for n_string in nordic_strings:
                 try:
-                    nordic_events.append(nordic.createNordicEvent(n_string, not nofix, -1, -1, event_type))
+                    nordic_events.append(nordic.createNordicEvent(n_string, not nofix, -1, -1, solution_type))
                 except Exception as e:
                     click.echo("Error reading nordic: {0}".format(e))
                     click.echo(n_string[0])
@@ -623,7 +623,7 @@ def insert(repo, event_type, nofix, ignore_duplicates, no_duplicates, filenames,
                                     click.echo("Not a valid id!")
 
                 try:
-                    nordic2sql.event2Database(nord, event_type, f_nordic.name, creation_id, event_id)
+                    nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id)
                 except Exception as e:
                     click.echo("Error pushing nordic to database: {0}".format(e))
                     click.echo(nord.main_h[0])

@@ -41,7 +41,7 @@ ALL_STATIONS =      (
                         "   network.id = network_id"
                     )
 
-def readAllStations():
+def getAllStations():
     """
     Function for reading all stations from database.
 
@@ -64,7 +64,7 @@ def readAllStations():
     conn.close()
     return stations
 
-def readStation(station_id):
+def getStation(station_id):
     """
     Function for reading a station from database by id.
 
@@ -78,6 +78,10 @@ def readStation(station_id):
 
     ans = cur.fetchone()
     conn.close()
+
+    if ans is None:
+        return None
+
     stat = Station(ans)
     
     sql2sitechan.sitechans2station(stat)

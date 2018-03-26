@@ -49,9 +49,9 @@ class Sensor(object):
     CHANNEL_CODE = 12
     CHANNEL_ID = 13
     INSTRUMENT_ID = 14
-    instruments = []
 
     def __init__(self, data):
+        self.instruments = []
         self.time = data[self.TIME]
         self.endtime = data[self.ENDTIME]
         self.jdate = data[self.JDATE]

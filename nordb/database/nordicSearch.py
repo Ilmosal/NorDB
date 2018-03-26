@@ -16,7 +16,7 @@ SEARCH_TYPES = {
                     "epicenter_latitude":[float], 
                     "epicenter_longitude":[float], 
                     "magnitude_1":[float],
-                    "event_type":[str],
+                    "solution_type":[str],
                     "distance_indicator":[str],
                     "event_desc_id":[str],
                     "event_id":[int],
@@ -28,7 +28,7 @@ SEARCH_TYPE_HEADERS =   {
                             "epicenter_latitude":"nordic_header_main", 
                             "epicenter_longitude":"nordic_header_main", 
                             "magnitude_1":"nordic_header_main",
-                            "event_type":"nordic_event",
+                            "solution_type":"nordic_event",
                             "distance_indicator":"nordic_header_main",
                             "event_desc_id":"nordic_header_main",
                             "event_id":"nordic_header_main",
@@ -205,7 +205,7 @@ class Command:
             raise Exception("Not a valid search type! ({0})".format(search_type))
         
         if command_type != 1:
-            if search_type in ["event_type", "distance_indicator", "event_desc_id"]:
+            if search_type in ["solution_type", "distance_indicator", "event_desc_id"]:
                 raise Exception("Cannot search between string values! ({0})".format(search_type))
 
         self.command_type = command_type

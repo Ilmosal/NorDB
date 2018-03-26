@@ -63,7 +63,7 @@ SELECT_SENSORS_TO_SITECHAN =    (
                                 "   sitechan.id = sensor.channel_id"
                                 )
 
-def readAllSensors():
+def getAllSensors():
     """
     Function for reading all sensors from the database and returning them to user.
 
@@ -98,11 +98,11 @@ def sensors2sitechan(sitechan):
 
     if sensor_ids:
         for sensor_id in sensor_ids:
-            sitechan.sensors.append(readSensor(sensor_id,))
+            sitechan.sensors.append(getSensor(sensor_id,))
 
     conn.close()
 
-def readSensor(sensor_id):
+def getSensor(sensor_id):
     """
     Function for reading a sensor from database by id 
 

@@ -101,19 +101,20 @@ INSERT_COMMANDS = {
                         ),
 }
   
-def event2Database(nordic_event, event_type = "O", nordic_filename = None, creation_id = None, e_id = -1):
+def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1):
     """
     Function that pushes a NordicEvent object to the database
     
     :param NordicEvent nordic_event: Event that will be pushed to the database
-    :param int event_type: event type id 
+    :param int solution_type: event type id 
     :param str nordic_filename: name of the file from which the nordic is read from
-    :param int creation_id: id of the creation_info entry in the database
+    :param int f_creation_id: id of the creation_info entry in the database
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
-    if creation_id is None:
+    if f_creation_id is None:
         creation_id = createCreationInfo() 
- 
+    else:
+        creation_id = f_creation_id 
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     author_id = None
@@ -127,11 +128,11 @@ def event2Database(nordic_event, event_type = "O", nordic_filename = None, creat
         author_id = '---' 
 
     try:
-        cur.execute("SELECT allow_multiple FROM event_type WHERE e_type_id = %s", (event_type,))
+        cur.execute("SELECT allow_multiple FROM solution_type WHERE type_id = %s", (solution_type,))
         ans = cur.fetchone() 
 
         if ans is None:
-            raise Exception("{0} is not a valid event_type! Either add the event type to the database or use another event_type".format(event_type))
+            raise Exception("{0} is not a valid solution_type! Either add the event type to the database or use another solution_type".format(solution_type))
 
         allow_multiple = ans[0]
     
@@ -144,9 +145,9 @@ def event2Database(nordic_event, event_type = "O", nordic_filename = None, creat
         root_id = -1
 
         if e_id >= 0:
-            cur.execute("SELECT root_id, event_type FROM nordic_event WHERE id = %s", (e_id,))
+            cur.execute("SELECT root_id, solution_type FROM nordic_event WHERE id = %s", (e_id,))
             try:
-                root_id, old_event_type = cur.fetchone()
+                root_id, old_solution_type = cur.fetchone()
             except:
                 raise Exception("Given linking event_id does not exist in the database!")
     
@@ -160,12 +161,12 @@ def event2Database(nordic_event, event_type = "O", nordic_filename = None, creat
 
         cur.execute("INSERT INTO  " +
                        "nordic_event  " +
-                       "(event_type, root_id, nordic_file_id, author_id, creation_id)  " +
+                       "(solution_type, root_id, nordic_file_id, author_id, creation_id)  " +
                     "VALUES  " +
                        "(%s, %s, %s, %s, %s)  " +
                     "RETURNING  " +
                        "id", 
-                    (event_type, 
+                    (solution_type, 
                     root_id, 
                     filename_id, 
                     author_id,
@@ -174,17 +175,17 @@ def event2Database(nordic_event, event_type = "O", nordic_filename = None, creat
         event_id = cur.fetchone()[0]
         nordic_event.event_id = event_id
 
-        if e_id != -1 and event_type == old_event_type and not allow_multiple:
+        if e_id != -1 and solution_type == old_solution_type and not allow_multiple:
             cur.execute("INSERT INTO  " +
                            "nordic_modified " + 
-                           "(event_id, replacement_event_id, old_event_type, replaced)  " +
+                           "(event_id, replacement_event_id, old_solution_type, replaced)  " +
                         "VALUES  " +
                            "(%s, %s, %s, %s)", 
                         (e_id, 
                         event_id, 
-                        event_type, 
+                        solution_type, 
                         '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())))
-            cur.execute("UPDATE nordic_event SET event_type = 'O' WHERE id = %s", (e_id,))
+            cur.execute("UPDATE nordic_event SET solution_type = 'O' WHERE id = %s", (e_id,))
     
         main_header_id = -1
 
@@ -237,6 +238,10 @@ def event2Database(nordic_event, event_type = "O", nordic_filename = None, creat
     except Exception as e:
         conn.close()
         raise e
+    finally:
+         if f_creation_id is None:
+            deleteCreationInfoIfUnnecessary(creation_info)
+
 
 def createCreationInfo():
     """

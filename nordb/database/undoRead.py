@@ -33,11 +33,11 @@ def removeEvent(event_id, cur):
     cur.execute("DELETE FROM nordic_header_macroseismic WHERE event_id = %s", (event_id,))
     cur.execute("DELETE FROM nordic_phase_data WHERE event_id = %s", (event_id,))
 
-    cur.execute("DELETE FROM nordic_modified WHERE replacement_event_id = %s RETURNING old_event_type, event_id", (event_id,))
+    cur.execute("DELETE FROM nordic_modified WHERE replacement_event_id = %s RETURNING old_solution_type, event_id", (event_id,))
     ans = cur.fetchone()
 
     if ans != None:
-        cur.execute("UPDATE nordic_event SET event_type = %s WHERE id = %s", (ans[0], ans[1]))
+        cur.execute("UPDATE nordic_event SET solution_type = %s WHERE id = %s", (ans[0], ans[1]))
 
     cur.execute("DELETE FROM nordic_event WHERE id = %s RETURNING nordic_file_id, root_id", (event_id,))
     ans = cur.fetchone()

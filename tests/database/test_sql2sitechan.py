@@ -8,7 +8,7 @@ from nordb.nordic import sitechan
 
 @pytest.mark.userfixtures("setupdb", "stationFiles", "siteChanFiles")
 class TestSQL2SiteChan(object):
-    def testReadAllSuccesfull(self, setupdb, stationFiles, siteChanFiles):
+    def testGetAllSuccesfull(self, setupdb, stationFiles, siteChanFiles):
         stations = []
         for stat in stationFiles:    
             stations.append(station.readStationStringToStation(stat, "HE"))
@@ -23,11 +23,11 @@ class TestSQL2SiteChan(object):
         for chan in sitechans:
             sitechan2sql.insertSiteChan2Database(chan)
 
-        chans = sql2sitechan.readAllSitechans()
+        chans = sql2sitechan.getAllSitechans()
    
         assert len(chans) == len(siteChanFiles)
 
-    def testReadOneSuccesfull(self, setupdb, stationFiles, siteChanFiles):
+    def testGetOneSuccesfull(self, setupdb, stationFiles, siteChanFiles):
         stations = []
         for stat in stationFiles:    
             stations.append(station.readStationStringToStation(stat, "HE"))
@@ -42,6 +42,6 @@ class TestSQL2SiteChan(object):
         for chan in sitechans:
             sitechan2sql.insertSiteChan2Database(chan)
 
-        chan = sql2sitechan.readSitechan(1)
+        chan = sql2sitechan.getSitechan(1)
    
         assert str(chan).strip() == siteChanFiles[0].strip()

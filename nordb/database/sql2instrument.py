@@ -49,7 +49,7 @@ SELECT_INSTRUMENTS_TO_SENSOR =  (
                                 "   instrument.id = sensor.instrument_id " 
                                 )
 
-def readAllInstruments():
+def getAllInstruments():
     """
     Function for reading all insturments from the database and returning them to user.
 
@@ -78,16 +78,16 @@ def instruments2sensor(sensor):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-    print("asd")
-    instrument_ids = cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
+    cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
+    instrument_ids = cur.fetchall()
 
     conn.close()
 
     if instrument_ids:
         for instrument_id in instrument_ids:
-            sensor.instruments.append(readInstrument(instrument_id))
+            sensor.instruments.append(getInstrument(instrument_id))
 
-def readInstrument(instrument_id):
+def getInstrument(instrument_id):
     """
     Function for reading a instrument from database by id
 

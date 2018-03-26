@@ -6,7 +6,7 @@ from nordb.database import sql2instrument
 
 @pytest.mark.userfixtures("setupdb", "instrumentFiles")
 class TestSQL2Instrument(object):
-    def testReadAllInstruments(self, setupdb, instrumentFiles):
+    def testGetAllInstruments(self, setupdb, instrumentFiles):
         instruments = []
         for ins in instrumentFiles:
             instruments.append(instrument.readInstrumentStringToInstrument(ins))
@@ -14,11 +14,11 @@ class TestSQL2Instrument(object):
         for ins in instruments:
             instrument2sql.insertInstrument2Database(ins)
 
-        instruments = sql2instrument.readAllInstruments()
+        instruments = sql2instrument.getAllInstruments()
 
         assert len(instrumentFiles) == len(instruments)
 
-    def testReadOneInstruments(self, setupdb, instrumentFiles):
+    def testGetOneInstruments(self, setupdb, instrumentFiles):
         instruments = []
         for ins in instrumentFiles:
             instruments.append(instrument.readInstrumentStringToInstrument(ins))
@@ -26,7 +26,7 @@ class TestSQL2Instrument(object):
         for ins in instruments:
             instrument2sql.insertInstrument2Database(ins)
 
-        ins = sql2instrument.readInstrument(1)
+        ins = sql2instrument.getInstrument(1)
 
         assert str(ins).strip() == instrumentFiles[0].strip()
 

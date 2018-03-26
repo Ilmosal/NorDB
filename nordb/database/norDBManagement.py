@@ -16,22 +16,22 @@ MODULE_PATH = os.path.realpath(__file__)[:-len("norDBManagement.py")]
 from nordb.core import usernameUtilities
 from nordb import settings
 
-def countEvents(event_type = None):
+def countEvents(solution_type = None):
     """
     Function for returning the number of all events in the database.
 
-    :param event_type str: If event_type is defined, countEvents will only count all events of the chosen type. Otherwise it will return the amount of all events in the database. 
+    :param solution_type str: If solution_type is defined, countEvents will only count all events of the chosen type. Otherwise it will return the amount of all events in the database. 
     :returns: The number of events of the chosen type or number of all events
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    if event_type is None:
+    if solution_type is None:
         cur.execute("SELECT COUNT(*) FROM nordic_event")
-    elif event_type in "OAPRFS":
-        cur.execute("SELECT COUNT(*) FROM nordic_event WHERE event_type = %s", (event_type,))
+    elif solution_type in "OAPRFS":
+        cur.execute("SELECT COUNT(*) FROM nordic_event WHERE solution_type = %s", (solution_type,))
     else:
-        raise Exception("Event type not a valid event type: ({0})".format(event_type))
+        raise Exception("Solution type not a valid solution type: ({0})".format(solution_type))
 
     return cur.fetchone()[0]
 

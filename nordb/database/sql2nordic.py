@@ -18,7 +18,7 @@ from nordb.nordic.nordicData import NordicData
 SELECT_QUERY =   {
                   0:(
                     "SELECT "
-                    "   id, root_id, creation_id, nordic_file_id, event_type, author_id "
+                    "   id, root_id, creation_id, nordic_file_id, solution_type, author_id "
                     "FROM "
                     "   nordic_event "
                     "WHERE id = %s"    

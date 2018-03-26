@@ -80,6 +80,11 @@ def resetDatabase():
     cur.execute("ALTER SEQUENCE nordic_header_error_id_seq RESTART WITH 1") 
     cur.execute("ALTER SEQUENCE nordic_header_macroseismic_id_seq RESTART WITH 1")  
     cur.execute("ALTER SEQUENCE nordic_header_waveform_id_seq RESTART WITH 1")  
+
+    cur.execute("DELETE FROM solution_type")
+    cur.execute("INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('O', 'Other', True);")
+    cur.execute("INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('A', 'Automatic', True);")
+    cur.execute("INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('F', 'Final', False);")
     
     end = time.time() - start
 

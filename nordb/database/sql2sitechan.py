@@ -25,7 +25,7 @@ SELECT_SITECHAN =   (
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             
                     "   sitechan.horizontal_angle, sitechan.vertical_angle,"            
                     "   sitechan.description, sitechan.load_date, " 
-                    "   station.id, sitechan.id,  sitechan_css_link.css_id "                                      
+                    "   sitechan.id, station.id, sitechan_css_link.css_id "                                      
                     "FROM "                                                             
                     "   sitechan, station, sitechan_css_link "                          
                     "WHERE "                                                            
@@ -42,7 +42,7 @@ ALL_SITECHANS =     (
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             
                     "   sitechan.horizontal_angle, sitechan.vertical_angle,"            
                     "   sitechan.description, sitechan.load_date," 
-                    "   station.id, sitechan.id,  sitechan_css_link.css_id "                                       
+                    "   sitechan.id, station.id, sitechan_css_link.css_id "                                       
                     "FROM "                                                             
                     "   sitechan, station, sitechan_css_link "                          
                     "WHERE "                                                            
@@ -51,7 +51,7 @@ ALL_SITECHANS =     (
                     "   sitechan_css_link.sitechan_id = sitechan.id"
                     )
 
-def readAllSitechans():
+def getAllSitechans():
     """
     Function for reading all sitechans from database and returning them to user.
 
@@ -84,14 +84,14 @@ def sitechans2station(station):
 
     cur.execute(SELECT_SITECHAN_OF_STATION, (station.s_id,))
     sitechan_ids = cur.fetchall()
-  
+ 
     if sitechan_ids:
         for chan_id in sitechan_ids:
-            station.sitechans.append(readSitechan(chan_id)) 
+            station.sitechans.append(getSitechan(chan_id)) 
 
     conn.close()
 
-def readSitechan(sitechan_id):
+def getSitechan(sitechan_id):
     """
     Function for reading a sitechan from database by id.
     

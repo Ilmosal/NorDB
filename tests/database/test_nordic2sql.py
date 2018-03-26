@@ -37,7 +37,7 @@ class TestNordic2SQL(object):
 
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
-        cur.execute("SELECT root_id, event_type FROM nordic_event")
+        cur.execute("SELECT root_id, solution_type FROM nordic_event")
         ans = cur.fetchall()
         conn.close()
 
