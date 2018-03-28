@@ -144,12 +144,16 @@ def destroyDatabase():
 
 def createBackup():
     """
+    Function that creates a backup of the database in its current form and saves it to the backups folder.
     """
     backup_name = BACKUP_PATH + "backup_" + datetime.datetime.now().strftime("%Y%jT%H%M%S")
     call(["pg_dump","-Fc", "nordb", "-f", backup_name])
 
 def loadBackup(backup_path):
     """
+    Function that destroys the database and loads a backup of the database into a new one.
+ 
+    :param str backup_path: path to the database backup 
     """
     destroyDatabase()
     
@@ -164,6 +168,5 @@ def loadBackup(backup_path):
     
     conn.commit()
     conn.close()
-    
-    call(["pg_restore", "-d", "nordb", backup_path])
 
+    call(["pg_restore", "-d", "nordb", BACKUP_PATH+backup_path])

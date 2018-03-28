@@ -468,7 +468,7 @@ def chgtype(repo, solution_type, event_id):
 @click.option('--add', '-a', 'stype_option', flag_value='add', help="add a new solution type to the database")
 @click.option('--remove', '-r','stype_option', flag_value='remove', help="remove an old solution type from the database")
 @click.pass_obj
-def etype(repo, stype_option):
+def stype(repo, stype_option):
     """
     This command is for adding, removing and looking the solution types in the database. They will prompt the necessary values from the user.
     """ 
@@ -725,9 +725,10 @@ def undo(repo):
         click.echo("No events in database")
 
 @cli.command('backup', short_help='manage backups')
-@click.option('--create', '-cr', 'backup_option', flag_value='create', help="create backup from the database")
-@click.option('--load', '-ld','backup_option', flag_value='load', help="load backup to the database")
+@click.option('--list', 'backup_option', flag_value='list', default=True, help="list all backups, default option")
+@click.option('--create', '-c', 'backup_option', flag_value='create', help="create backup from the database")
 @click.option('--delete', '-d', 'backup_option', flag_value='delete', help="remove a backup from the list")
+@click.option('--load', '-l','backup_option', flag_value='load', help="load backup to the database")
 @click.pass_obj
 def backup(repo, backup_option):
     """
@@ -754,7 +755,7 @@ def backup(repo, backup_option):
     key_bkup = {}
 
     click.echo("Backups")
-    click.echo(" backup date         | file name             | key ")
+    click.echo(" backup date         | filename              | key ")
     click.echo(" --------------------+-----------------------+-----")
     i = 1
 
@@ -763,7 +764,7 @@ def backup(repo, backup_option):
         key_bkup[i] = backup_files[key]
         i+=1
 
-    if backup_option in ["load", "delete"]:
+    if backup_option == "list":
         return
 
     try:
@@ -778,8 +779,8 @@ def backup(repo, backup_option):
     if backup_option == "load":
         norDBManagement.loadBackup(key_bkup[key]) 
 
-    if backup_option == "remove":
-        call(["rm", key_bkup[key]])
+    if backup_option == "delete":
+        call(["rm", os.path.dirname(MODULE_PATH) + os.sep + ".." + os.sep + "backups" + os.sep + key_bkup[key]])
 
 if __name__ == "__main__":
     cli()
