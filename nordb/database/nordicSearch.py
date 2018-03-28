@@ -331,11 +331,15 @@ def searchSameEvents(nordic_event):
     """
     m_header = nordic_event.main_h[0]
     search = NordicSearch()
-
-    search.addSearchExactly("origin_time", m_header.origin_time)
-    search.addSearchExactly("epicenter_latitude", m_header.epicenter_latitude)
-    search.addSearchExactly("epicenter_longitude", m_header.epicenter_longitude)
-    search.addSearchExactly("magnitude_1", m_header.magnitude_1)
+    
+    if m_header.origin_time is not None:
+        search.addSearchExactly("origin_time", m_header.origin_time)
+    if m_header.epicenter_latitude is not None:
+        search.addSearchExactly("epicenter_latitude", m_header.epicenter_latitude)
+    if m_header.epicenter_longitude is not None:
+        search.addSearchExactly("epicenter_longitude", m_header.epicenter_longitude)
+    if m_header.magnitude_1 is not None:
+        search.addSearchExactly("magnitude_1", m_header.magnitude_1)
 
     return search.searchEvents()
 
@@ -359,9 +363,13 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
     m_header = nordic_event.main_h[0]
     search = NordicSearch()
 
-    search.addSearchBetween("origin_time", m_header.origin_time - timedelta(seconds = time_diff), m_header.origin_time + timedelta(seconds = time_diff))
-    search.addSearchBetween("epicenter_latitude", m_header.epicenter_latitude - latitude_diff, m_header.epicenter_latitude + latitude_diff)
-    search.addSearchBetween("epicenter_longitude", m_header.epicenter_longitude - longitude_diff, m_header.epicenter_longitude + longitude_diff)
-    search.addSearchBetween("magnitude_1", m_header.magnitude_1 - magnitude_diff, m_header.magnitude_1 + magnitude_diff)
-
+    if m_header.origin_time is not None:
+        search.addSearchBetween("origin_time", m_header.origin_time - timedelta(seconds = time_diff), m_header.origin_time + timedelta(seconds = time_diff))
+    if m_header.epicenter_latitude is not None:
+        search.addSearchBetween("epicenter_latitude", m_header.epicenter_latitude - latitude_diff, m_header.epicenter_latitude + latitude_diff)
+    if m_header.epicenter_longitude is not None:
+        search.addSearchBetween("epicenter_longitude", m_header.epicenter_longitude - longitude_diff, m_header.epicenter_longitude + longitude_diff)
+    if m_header.magnitude_1 is not None:
+        search.addSearchBetween("magnitude_1", m_header.magnitude_1 - magnitude_diff, m_header.magnitude_1 + magnitude_diff)
+    
     return search.searchEvents()

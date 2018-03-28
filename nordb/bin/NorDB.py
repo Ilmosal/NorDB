@@ -6,8 +6,9 @@ This is the command line tool of the whole program. The command line tool is cre
 
 import os
 import sys
-from datetime import datetime
 import fnmatch
+from subprocess import call
+from datetime import datetime
 
 import click
 from lxml import etree
@@ -591,6 +592,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenam
                                 break
                             except:
                                 click.echo("Not a valid id!")
+                                return 
 
                     if event_id == -1:
                         similar_events = nordicSearch.searchSimilarEvents(nord)
@@ -723,8 +725,9 @@ def undo(repo):
         click.echo("No events in database")
 
 @cli.command('backup', short_help='manage backups')
-@click.option('--create', '-cr', 'backup_option', flag_value='create', help="add a new solution type to the database")
-@click.option('--load', '-ld','backup_option', flag_value='load', help="remove an old solution type from the database")
+@click.option('--create', '-cr', 'backup_option', flag_value='create', help="create backup from the database")
+@click.option('--load', '-ld','backup_option', flag_value='load', help="load backup to the database")
+@click.option('--delete', '-d', 'backup_option', flag_value='delete', help="remove a backup from the list")
 @click.pass_obj
 def backup(repo, backup_option):
     """
@@ -754,12 +757,13 @@ def backup(repo, backup_option):
     click.echo(" backup date         | file name             | key ")
     click.echo(" --------------------+-----------------------+-----")
     i = 1
+
     for key in sorted(backup_files.keys()):
         click.echo(" {0} | {1} | {2}".format(key.strftime("%Y-%m-%d %H:%M:%S"), backup_files[key], i))
         key_bkup[i] = backup_files[key]
         i+=1
 
-    if backup_option != "load":
+    if backup_option in ["load", "delete"]:
         return
 
     try:
@@ -773,6 +777,9 @@ def backup(repo, backup_option):
 
     if backup_option == "load":
         norDBManagement.loadBackup(key_bkup[key]) 
+
+    if backup_option == "remove":
+        call(["rm", key_bkup[key]])
 
 if __name__ == "__main__":
     cli()
