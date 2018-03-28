@@ -7,14 +7,12 @@ This is the command line tool of the whole program. The command line tool is cre
 import os
 import sys
 from datetime import datetime
-import logging
 import fnmatch
 
 import click
 from lxml import etree
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
-ERROR_PATH = MODULE_PATH +"../errorlogs/error_"+ str(datetime.now().strftime("%Y%j%H%M%S_%f")) +".log"
 
 from nordb.database import instrument2sql
 from nordb.database import nordic2sql
@@ -50,8 +48,6 @@ from nordb.nordic import station
 from nordb.nordic import nordicEvent
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
-logging.basicConfig(filename=ERROR_PATH, level=logging.ERROR)
 
 class Repo(object):
     def __init__(self):
@@ -551,12 +547,6 @@ def etype(repo, stype_option):
 @click.pass_obj
 def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event. The suffix of the filename must be .n, .nordic or .nordicp)."""
-
-    if verbose:
-        ch = logging.StreamHandler(sys.stderr)
-        ch.setLevel(logging.ERROR)
-        logging.root.addHandler(ch)
-
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         if (fnmatch.fnmatch(filename, "*.*n") or fnmatch.fnmatch(filename, "*.nordic") or fnmatch.fnmatch(filename, "*.nordicp")):
@@ -731,6 +721,58 @@ def undo(repo):
         undoRead.undoMostRecent()
     except:
         click.echo("No events in database")
+
+@cli.command('backup', short_help='manage backups')
+@click.option('--create', '-cr', 'backup_option', flag_value='create', help="add a new solution type to the database")
+@click.option('--load', '-ld','backup_option', flag_value='load', help="remove an old solution type from the database")
+@click.pass_obj
+def backup(repo, backup_option):
+    """
+    Create backups and load them.
+    """
+    if backup_option == "create":
+        norDBManagement.createBackup()
+        return
+
+    files = os.listdir(MODULE_PATH + "/../backups")
+    backup_files = {}
+
+    for f in files:
+        try:
+            time_stamp = datetime.strptime(f.split("_")[-1], "%Y%jT%H%M%S")
+            backup_files[time_stamp] = f
+        except:
+            pass
+
+    if not backup_files.keys():
+        click.echo("No backup files found!")
+        return
+
+    key_bkup = {}
+
+    click.echo("Backups")
+    click.echo(" backup date         | file name             | key ")
+    click.echo(" --------------------+-----------------------+-----")
+    i = 1
+    for key in sorted(backup_files.keys()):
+        click.echo(" {0} | {1} | {2}".format(key.strftime("%Y-%m-%d %H:%M:%S"), backup_files[key], i))
+        key_bkup[i] = backup_files[key]
+        i+=1
+
+    if backup_option != "load":
+        return
+
+    try:
+        key = int(click.prompt("To which backup you want to revert to (give key)"))
+    except:
+        click.echo("Not a valid key! Aborting...")
+
+    if key not in key_bkup.keys():
+        click.echo("Key not in keys!")
+        return
+
+    if backup_option == "load":
+        norDBManagement.loadBackup(key_bkup[key]) 
 
 if __name__ == "__main__":
     cli()
