@@ -1,7 +1,6 @@
 """
 This module contains all information for pushing a NordicEvent object into the database.
 
-
 Functions and Classes
 ---------------------
 """

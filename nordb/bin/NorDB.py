@@ -542,11 +542,12 @@ def stype(repo, stype_option):
 @click.option('--nofix', '-nf', is_flag=True, help="Do not use the fixing tool to add nordics with broken syntax the database")
 @click.option('--ignore-duplicates', '-iq', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
+@click.option('--add-automatic', '-a', is_flag=True, help="In case of duplicate events, the event will be added automatically to the first event found. All similar events will be ignored")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
 @click.argument('solution-type')
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenames, verbose):
+def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event. The suffix of the filename must be .n, .nordic or .nordicp)."""
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
@@ -576,7 +577,9 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenam
                 event_id = -1
                 if not no_duplicates:
                     same_events = nordicSearch.searchSameEvents(nord)
-                    if same_events:
+                    if add_automatic and same_events:
+                        event_id = same_events[0].event_id
+                    elif same_events:
                         if ignore_duplicates:
                             click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.main_h[0]))
                             continue
@@ -592,9 +595,10 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, filenam
                                 break
                             except:
                                 click.echo("Not a valid id!")
+                                nordic2sql.deleteCreationInfoIfUnnecessary(creation_id)
                                 return 
 
-                    if event_id == -1:
+                    if event_id == -1 and not add_automatic:
                         similar_events = nordicSearch.searchSimilarEvents(nord)
                        
                         if similar_events:
@@ -736,6 +740,7 @@ def backup(repo, backup_option):
     """
     if backup_option == "create":
         norDBManagement.createBackup()
+        click.echo("Backup created!")
         return
 
     files = os.listdir(MODULE_PATH + "/../backups")
@@ -754,7 +759,6 @@ def backup(repo, backup_option):
 
     key_bkup = {}
 
-    click.echo("Backups")
     click.echo(" backup date         | filename              | key ")
     click.echo(" --------------------+-----------------------+-----")
     i = 1
@@ -768,12 +772,19 @@ def backup(repo, backup_option):
         return
 
     try:
-        key = int(click.prompt("To which backup you want to revert to (give key)"))
+        msg = ""
+        if backup_option == "load":
+            msg = "To which backup you want to revert to (give key)"
+        elif backup_option == "delete":
+            msg = "Which backup you want to delete"
+ 
+        key = int(click.prompt(msg))
     except:
         click.echo("Not a valid key! Aborting...")
+        return
 
     if key not in key_bkup.keys():
-        click.echo("Key not in keys!")
+        click.echo("Key not in list!")
         return
 
     if backup_option == "load":

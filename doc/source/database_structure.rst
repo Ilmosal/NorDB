@@ -35,11 +35,3 @@ The 'nordic_phase_data' table has a column station_code, which is a undirect ref
 
     **1.2 The UML-diagram of NorDB**
 
-NorDB and Waveform data
------------------------
-
-The database itself doesn't contain waveform data, but the 'nordic_header_waveform' table contains the name of the waveform file from which the event is created from. The command::
-    
-    nordb getseed -id <dummy_id>
-
-can fetch all the relevant miniseed data for the event from the internal network of Institute of Seismology. This is ONLY for internal use and it needs to be modified heavily if it's going to be used elsewhere.

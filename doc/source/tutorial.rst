@@ -1,9 +1,10 @@
 ========
 Tutorial
 ========
+This is the hub page for the NorDB tutorials. The tutorials consists of two parts: the command line program tutorial and the API tutorial.
 
-.. figure:: pictures/screen.png
-    :scale: 100%
-    :alt: Screenshot of the terminal
+.. toctree::
+    :maxdepth: 1
 
-    **1. Screenshot of the NorDB terminal command**
+    nordb_cmdline_tool.rst
+

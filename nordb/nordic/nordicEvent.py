@@ -1,5 +1,5 @@
 """
-This module contains all class information related to Nordic Events.
+This module contains NordicEvent class and its methods.
 
 Functions and Classes
 ---------------------
@@ -23,7 +23,7 @@ class NordicEvent:
     :param int event_id: id of the event in the database
     :param int root_id: root id of the event
     :param int creation_id: creation_id of the event
-    :param solution_type string: solution type of the event
+    :param string solution_type: solution type of the event
     :ivar int event_id: event id of the event
     """
     def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O"):
@@ -90,21 +90,21 @@ class NordicEvent:
         for h_macro in self.macro_h:
             n_string += str(h_macro) + "\n"
 
-        n_string += createHelpHeaderString()
+        n_string += self.createHelpHeaderString()
        
         for p_data in self.data:
             n_string += str(p_data) + "\n"
  
         return n_string
     
-def createHelpHeaderString():
-    """
-    Function that returns the help header of type 7 as a string. 
-    
-    Header::
+    def createHelpHeaderString():
+        """
+        Function that returns the help header of type 7 as a string. 
         
-        " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\\n"
-    :return: The help header as a string
-    """
-    return " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
+        Header::
+            
+            " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\\n"
+        :return: The help header as a string
+        """
+        return " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
 
