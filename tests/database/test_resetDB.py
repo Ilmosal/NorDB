@@ -21,7 +21,7 @@ class TestResetEvents(object):
     def testResetEvents(self, nordicEvents, setupdb):
         events = []
         for e in nordicEvents:
-            events.append(nordic.createNordicEvent(e, False))
+            events.append(nordic.readNordic(e, False))
 
         creation_id = nordic2sql.createCreationInfo()
 
@@ -86,7 +86,7 @@ class TestResetAll(object):
     def testResetAll(self, nordicEvents, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles):
         events = []
         for e in nordicEvents:
-            events.append(nordic.createNordicEvent(e, False))
+            events.append(nordic.readNordic(e, False))
 
         creation_id = nordic2sql.createCreationInfo()
 

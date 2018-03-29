@@ -564,7 +564,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
 
             for n_string in nordic_strings:
                 try:
-                    nordic_events.append(nordic.createNordicEvent(n_string, not nofix, -1, -1, solution_type))
+                    nordic_events.append(nordic.readNordic(n_string, not nofix, -1, -1, solution_type))
                 except Exception as e:
                     click.echo("Error reading nordic: {0}".format(e))
                     click.echo(n_string[0])

@@ -69,84 +69,84 @@ class Station(object):
         self.network_id = data[self.NETWORK_ID]
         self.s_id = data[self.S_ID]
 
-    station_code = property(operator.attrgetter('_station_code'))
+    station_code = property(operator.attrgetter('_station_code'), doc="")
     
     @station_code.setter
     def station_code(self, val):
         val_station_code = validateString(val, "station_code", 0, 6, None, self.header_type)
         self._station_code = val_station_code
 
-    on_date = property(operator.attrgetter('_on_date'))
+    on_date = property(operator.attrgetter('_on_date'), doc="")
     
     @on_date.setter
     def on_date(self, val):
         val_on_date = validateDate(val, "on_date", self.header_type)
         self._on_date = val_on_date
 
-    off_date = property(operator.attrgetter('_off_date'))
+    off_date = property(operator.attrgetter('_off_date'), doc="")
     
     @off_date.setter
     def off_date(self, val):
         val_off_date = validateDate(val, "off_date", self.header_type)
         self._off_date = val_off_date
 
-    latitude = property(operator.attrgetter('_latitude'))
+    latitude = property(operator.attrgetter('_latitude'), doc="")
     
     @latitude.setter
     def latitude(self, val):
         val_latitude = validateFloat(val, "latitude", -90.0, 90.0, self.header_type)
         self._latitude = val_latitude
 
-    longitude = property(operator.attrgetter('_longitude'))
+    longitude = property(operator.attrgetter('_longitude'), doc="")
     
     @longitude.setter
     def longitude(self, val):
         val_longitude = validateFloat(val, "longitude", -180.0, 180.0, self.header_type)
         self._longitude = val_longitude
 
-    elevation = property(operator.attrgetter('_elevation'))
+    elevation = property(operator.attrgetter('_elevation'), doc="")
     
     @elevation.setter
     def elevation(self, val):
         val_elevation = validateFloat(val, "elevation", -10.0, 10.0, self.header_type)
         self._elevation = val_elevation
 
-    station_name = property(operator.attrgetter('_station_name'))
+    station_name = property(operator.attrgetter('_station_name'), doc="")
     
     @station_name.setter
     def station_name(self, val):
         val_station_name = validateString(val, "station_name", 0, 50, None, self.header_type)
         self._station_name = val_station_name
 
-    station_type = property(operator.attrgetter('_station_type'))
+    station_type = property(operator.attrgetter('_station_type'), doc="")
     
     @station_type.setter
     def station_type(self, val):
         val_station_type = validateString(val, "station_type", 1, 2, ['b', 'ss', 'bb', 'll', 'ar'], self.header_type)
         self._station_type = val_station_type
 
-    reference_station = property(operator.attrgetter('_reference_station'))
+    reference_station = property(operator.attrgetter('_reference_station'), doc="")
     
     @reference_station.setter
     def reference_station(self, val):
         val_reference_station = validateString(val, "reference_station", 0, 6, None, self.header_type)
         self._reference_station = val_reference_station
 
-    north_offset = property(operator.attrgetter('_north_offset'))
+    north_offset = property(operator.attrgetter('_north_offset'), doc="")
     
     @north_offset.setter
     def north_offset(self, val):
         val_north_offset = validateFloat(val, "north_offset", -100.0, 100.0, self.header_type)
         self._north_offset = val_north_offset
 
-    east_offset = property(operator.attrgetter('_east_offset'))
+    east_offset = property(operator.attrgetter('_east_offset'), doc="")
     
     @east_offset.setter
     def east_offset(self, val):
         val_east_offset = validateFloat(val, "east_offset", -100.0, 100.0, self.header_type)
         self._east_offset = val_east_offset
 
-    load_date = property(operator.attrgetter('_load_date'))
+    load_date = property(operator.attrgetter('_load_date'), doc="")
     
     @load_date.setter
     def load_date(self, val):

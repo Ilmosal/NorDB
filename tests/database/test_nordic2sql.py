@@ -9,7 +9,7 @@ class TestNordic2SQL(object):
     def testSuccesfulNordic(self, setupdb, nordicEvents):
         events = []
         for e in nordicEvents:
-            events.append(nordic.createNordicEvent(e, False))
+            events.append(nordic.readNordic(e, False))
 
         creation_id = nordic2sql.createCreationInfo()
 
@@ -29,7 +29,7 @@ class TestNordic2SQL(object):
         
             
     def testPutSameEventTwice(self, setupdb, nordicEvents):
-        event = nordic.createNordicEvent(nordicEvents[0], False) 
+        event = nordic.readNordic(nordicEvents[0], False) 
         creation_id = nordic2sql.createCreationInfo()
 
         nordic2sql.event2Database(event, "F", "dummy", creation_id, -1)
@@ -45,7 +45,7 @@ class TestNordic2SQL(object):
         assert ans[0][1] != ans[1][1]
         
     def testAttachToNonExistingEvent(self, setupdb, nordicEvents):
-        event = nordic.createNordicEvent(nordicEvents[0], False) 
+        event = nordic.readNordic(nordicEvents[0], False) 
         creation_id = nordic2sql.createCreationInfo()
 
         with pytest.raises(Exception): 

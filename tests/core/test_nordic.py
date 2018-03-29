@@ -5,12 +5,12 @@ from nordb.core.nordic import *
 class TestReadNordic(object):
     def testReadNordic(self, nordicEvents):
         for ev in nordicEvents:
-            nordic_event = createNordicEvent(ev, False)
+            nordic_event = readNordic(ev, False)
             assert str(nordic_event) == "".join(ev)
 
     def testFaultyReadNordic(self, faultyNordicEvents):
         for ev in faultyNordicEvents:
             with pytest.raises(Exception):
-                createNordicEvent(ev, False)
+                readNordic(ev, False)
 
 

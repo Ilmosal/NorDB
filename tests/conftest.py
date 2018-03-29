@@ -34,7 +34,7 @@ def setupdbWithEvents():
     creation_id = nordic2sql.createCreationInfo()
 
     for e in nordicEvents():
-        nordic2sql.event2Database(nordic.createNordicEvent(e, False), "F", "dummy_name", creation_id, -1)
+        nordic2sql.event2Database(nordic.readNordic(e, False), "F", "dummy_name", creation_id, -1)
 
     yield None
     usernameUtilities.confUser(username)

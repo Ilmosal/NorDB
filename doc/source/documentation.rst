@@ -1,9 +1,6 @@
 =============
 Documentation
 =============
-.. automodule:: nordb
-    :members:
-
 .. toctree::
     :maxdepth: 2
 

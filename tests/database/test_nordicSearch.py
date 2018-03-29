@@ -160,13 +160,13 @@ class TestNordicSearchWithCriteria(object):
 @pytest.mark.usefixtures("setupdbWithEvents", "nordicEvents")
 class TestSearchSameEvents(object):
     def testSearchSameEvent(self, setupdbWithEvents, nordicEvents):
-        e = nordic.createNordicEvent(nordicEvents[0], False)
+        e = nordic.readNordic(nordicEvents[0], False)
         assert len(searchSameEvents(e)) == 1
        
 @pytest.mark.usefixtures("setupdbWithEvents", "nordicEvents")
 class TestSearchSimilarEvents(object):
     def testSearchSimilarEvent(self, setupdbWithEvents, nordicEvents):
-        e = nordic.createNordicEvent(nordicEvents[0], False)
+        e = nordic.readNordic(nordicEvents[0], False)
         events = searchSimilarEvents(e)
         assert len(events) == 1
  

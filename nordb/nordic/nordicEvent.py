@@ -6,10 +6,20 @@ Functions and Classes
 """
 import operator
 
+from lxml import etree
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
 from nordb.core.validationTools import validateString
 from nordb.core.validationTools import validateDate
+from nordb.core.nordic2quakeml import nordicEvents2QuakeML
+from nordb.core.nordic2sc3 import nordicEvents2SC3
+from nordb.database.nordic2sql import event2Database
+from nordb.database.sql2station import getStation
+
+from nordb.nordic.misc import Magnitude
+from nordb.nordic.misc import OriginTime
+from nordb.nordic.misc import Coordinate
+from nordb.nordic.misc import Depth
 
 class NordicEvent:
     """
@@ -97,7 +107,7 @@ class NordicEvent:
  
         return n_string
     
-    def createHelpHeaderString():
+    def createHelpHeaderString(self):
         """
         Function that returns the help header of type 7 as a string. 
         
@@ -107,4 +117,131 @@ class NordicEvent:
         :return: The help header as a string
         """
         return " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
+
+    def getOriginTime(self):
+        """ 
+        Get origin time of the NordicEvent. Modifying this value will not modify the value inside the event.
+
+        :returns: OriginTime object
+        """
+        if self.main_h:
+            if self.main_h[0].error_h is not None:
+                return OriginTime(self.main_h[0].origin_time, self.main_h[0].error_h.second_error) 
+            else:
+                return OriginTime(self.main_h[0].origin_time)
+        return None
+
+    def getMagnitude(self):
+        """ 
+        Get magnitude of the NordicEvent. Modifying this value will not modify the value inside the event.
+
+        :returns: Magnitude object
+        """
+        if self.main_h:
+            if self.main_h[0].error_h is not None:
+                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1, self.main_h[0].error_h.magnitude_error) 
+            else:
+                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1)
+        return None
+
+
+    def getLatitude(self):
+        """ 
+        Get latitude of the NordicEvent. Modifying this value will not modify the value inside the event.
+
+        :returns: Coordinate object
+        """
+        if self.main_h:
+            if self.main_h[0].error_h is not None:
+                return Coordinate(self.main_h[0].epicenter_latitude, self.main_h[0].error_h.epicenter_latitude_error) 
+            else:
+                return Coordinate(self.main_h[0].epicenter_latitude)
+        return None
+
+    def getLongitude(self):
+        """ 
+        Get longitude of the NordicEvent. Modifying this value will not modify the value inside the event.
+
+        :returns: Coordinate object
+        """
+        if self.main_h:
+            if self.main_h[0].error_h is not None:
+                return Coordinate(self.main_h[0].epicenter_longitude, self.main_h[0].error_h.epicenter_longitude_error) 
+            else:
+                return Coordinate(self.main_h[0].epicenter_longitude)
+        return None
+
+    def getDepth(self):
+        """ 
+        Get depth of the NordicEvent. Modifying this value will not modify the value inside the event.
+
+        :returns: Depth object
+        """
+        if self.main_h:
+            if self.main_h[0].error_h is not None:
+                return Depth(self.main_h[0].depth, self.main_h[0].error_h.depth_error) 
+            else:
+                return Depth(self.main_h[0].depth)
+        return None
+
+    def getSC3(self, filepath = None):
+        """
+        GetSC3 returns the nordic event as a SC3-XML string or writes the event as a xml file named filepath.
+    
+        :param str filepath: filepath to to the file you want to write the file. Leave empty to only return the sc3 file as a string
+        :returns: SC3 xml file as a string
+        """
+        sc3 = nordicEvents2SC3([self])
+
+        if filepath is not None:
+            f_sc = open(filepath, 'w')
+            f_sc.write(etree.tostring(sc3, pretty_print=True).decode('utf-8'))
+            f_sc.close()
+
+        return etree.tostring(sc3, pretty_print=True).decode('utf-8')
+
+    def getQuakeML(self, filepath = None):
+        """
+        GetQuakeML returns the nordic event as a QuakeML string or writes the event as a xml file named filepath
+
+        :param str filepath: filepath to to the file you want to write the file. Leave empty to only return the quakeml file as a string
+        :returns: quakeml xml file as a string
+        """
+        quakeml = nordicEvents2QuakeML([self])
+
+        if filepath is not None:
+            f_quake = open(filepath, 'w')
+            f_quake.write(etree.tostring(quakeml, pretty_print=True).decode('utf-8'))
+            f_quake.close()
+
+        return etree.tostring(quakeml, pretty_print=True).decode('utf-8')
+
+    def insert2DB(self, solution_type= "O", filename = None, creation_id = None, e_id = -1):
+        """
+        Wrapper method for event2Database function. Works exactly the same exept this pushes this event to the database.
+
+        :param str solution_type: solution type of the event. Default is O
+        :param str filename: name of the file that created this event. Default is None
+        :param int creation_id: creation_id of the event. Default is None, if no creation id yet exist.
+        :param int e_id: id of the event to which this event will be attached to. Default -1, which will create a new root_id for the event.
+        """
+        nordic2sql.event2Database(self, solution_type, filename, creation_id, e_id)
+
+    def getStations(self):
+        """
+        Get all stations as an array that are in the data array of this event
+
+        :returns: array of Station objects
+        """
+        stations = []
+        stat_codes = []
+        for pick in self.data:
+            if pick.station_code not in stat_codes:
+                stat_codes.append(pick.station_code)
+
+        for stat_code in stat_codes:
+            stations.append(getStation(stat_code))
+
+        return [stat for stat in stations if stat is not None]
+
 

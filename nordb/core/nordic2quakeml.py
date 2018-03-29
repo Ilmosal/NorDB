@@ -15,12 +15,6 @@ import os
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
-from nordb.core.nordic import NordicEvent  
-from nordb.core.nordic import NordicMain 
-from nordb.core.nordic import NordicMacroseismic
-from nordb.core.nordic import NordicError
-from nordb.core.nordic import NordicWaveform
-
 QUAKEML_ROOT_STRING =   (
     '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'
     '<q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:ingv="http://webservices.ingv.it/fdsnws/event/1">'

@@ -13,7 +13,7 @@ class TestUndoRead(object):
     def testUndoWithEvents(self, setupdb, nordicEvents):
         events = []
         for e in nordicEvents:
-            events.append(nordic.createNordicEvent(e, False))
+            events.append(nordic.readNordic(e, False))
 
         creation_id = nordic2sql.createCreationInfo()
 
@@ -33,7 +33,7 @@ class TestUndoRead(object):
     def testRemoveWithCreationId(self, setupdb, nordicEvents):
         events = []
         for e in nordicEvents:
-            events.append(nordic.createNordicEvent(e, False))
+            events.append(nordic.readNordic(e, False))
 
         for e in events:
             creation_id = nordic2sql.createCreationInfo()

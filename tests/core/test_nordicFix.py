@@ -5,12 +5,12 @@ from nordb.core.nordic import *
 class TestNordicFix(object):
     def testFixNordic(self, fixableNordicEvent):
         with pytest.raises(Exception):
-            createNordicEvent(fixableNordicEvent[0], False)
-        nordic_event = createNordicEvent(fixableNordicEvent[0], True)
+            readNordic(fixableNordicEvent[0], False)
+        nordic_event = readNordic(fixableNordicEvent[0], True)
         assert str(nordic_event) == "".join(fixableNordicEvent[1])
 
     def testFixFaultyNordic(self, fixableNordicEvent):
         for fix_event in fixableNordicEvent[2:]:
             with pytest.raises(Exception):
-                createNordicEvent(fix_event, True)
+                readNordic(fix_event, True)
         

@@ -15,7 +15,7 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-SELECT_STATION =    (
+SELECT_STATION_ID = (
                         "SELECT " 
                         "   station_code, on_date, off_date, latitude, " 
                         "   longitude, elevation, station_name, station_type, " 
@@ -28,6 +28,21 @@ SELECT_STATION =    (
                         "AND "
                         "   network.id = network_id"
                     )
+
+SELECT_STATION_CODE =   (
+                        "SELECT " 
+                        "   station_code, on_date, off_date, latitude, " 
+                        "   longitude, elevation, station_name, station_type, " 
+                        "   reference_station, north_offset, east_offset, " 
+                        "   load_date, network.network, network_id, station.id " 
+                        "FROM " 
+                        "   station, network " 
+                        "WHERE " 
+                        "   station.station_code = %s " 
+                        "AND "
+                        "   network.id = network_id"
+                        )
+
 
 ALL_STATIONS =      (
                         "SELECT " 
@@ -66,15 +81,18 @@ def getAllStations():
 
 def getStation(station_id):
     """
-    Function for reading a station from database by id.
+    Function for reading a station from database by id or code
 
-    :param int station_id: id of the station wanted
+    :param int,str station_id: id of the station wanted or the station code of the station
     :returns: Station object
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute(SELECT_STATION, (station_id,))
+    if isinstance(station_id, int):
+        cur.execute(SELECT_STATION_ID, (station_id,))
+    elif isinstance(station_id, str):
+        cur.execute(SELECT_STATION_CODE, (station_id,))
 
     ans = cur.fetchone()
     conn.close()

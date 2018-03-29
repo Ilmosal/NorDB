@@ -229,7 +229,7 @@ def readHeaders(event, nordic_string, fix_nordic):
 
     return i
 
-def createNordicEvent(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, event_type = "O"):
+def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, event_type = "O"):
     """
     Function for creating a single NordicEvent object from a string.
 
