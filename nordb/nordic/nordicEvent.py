@@ -244,4 +244,45 @@ class NordicEvent:
 
         return [stat for stat in stations if stat is not None]
 
+    def getHeaderString(self, *args):
+        """
+        Get only the header rows as a string. If args is defined, these will determine which header riows are appended to the string. The possible args are 1 - Main header, 2 - Macroseismic header, 3- Comment header, 5 - Error Header, 6 - Waveform Header.
 
+        :param array args: header types which need to be printed
+        :returns: the header string
+        """
+        for arg in args:
+            if not isinstance(arg, int):
+                raise Exception("Argument given to getHeaderString not a integer: {0}".format(arg))
+
+        n_string = ""
+        if not args or 1 in args:
+            n_string += str(self.main_h[0]) + "\n"
+
+        if not args or 5 in args:
+            if self.main_h[0].error_h:
+                n_string += str(self.main_h[0].error_h) + "\n"
+
+        if not args or 6 in args:
+            if self.waveform_h:
+                n_string += str(self.waveform_h[0]) + "\n"
+
+        if not args or 3 in args:
+            for comment in self.comment_h:
+                n_string += str(comment) + "\n"
+
+        if not args or (1 in args or 5 in args):
+            for i in range(1, len(self.main_h)):
+                if not args or 1 in args:
+                    n_string += str(self.main_h[i]) + "\n"
+
+                if not args or 5 in args:
+                    if self.main_h[i].error_h:
+                        n_string += str(self.main_h[i].error_h) + "\n"
+
+        if not args or 2 in args:
+            for h_macro in self.macro_h:
+                n_string += str(h_macro) + "\n"
+     
+        return n_string
+     

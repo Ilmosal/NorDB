@@ -28,5 +28,4 @@ Each of the options have a simple command line interface as it prompts the requi
 
 Chgroot - Changing the root id of the event
 -------------------------------------------
-
-
+As described in Database Structure, the events in the database are attached to event roots, which are hub events which tie different analyses of same events together. You can change these events 
