@@ -1,5 +1,16 @@
+/*
++-------------------------+
+|INSTRUMENT TABLE CREATION|
++-------------------------+
+
+This sql file has all the commands for creating a instrument table.
+
+*/
+
+--Create table command for instrument
 CREATE TABLE instrument(
     id SERIAL PRIMARY KEY,
+    css_id INTEGER UNIQUE,
     instrument_name VARCHAR(50),
     instrument_type Varchar(6),
     band VARCHAR(1),
@@ -13,7 +24,5 @@ CREATE TABLE instrument(
     lddate DATE
 );
 
-CREATE TABLE instrument_css_link(
-    instrument_id INTEGER REFERENCES instrument(id),
-    css_id INTEGER
-);
+--Enable row level security
+ALTER TABLE instrument ENABLE ROW LEVEL SECURITY;

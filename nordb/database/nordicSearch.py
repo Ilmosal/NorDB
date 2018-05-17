@@ -125,20 +125,32 @@ class NordicSearch:
         """
         events = []
         query = (   "SELECT "
-                    "   DISTINCT ON (nordic_event.id) nordic_event.id, nordic_header_main.origin_time "
+                    "   id, origin_time "
                     "FROM "
-                    "   nordic_event, nordic_header_main "
-                    "WHERE "
-                    "   nordic_event.id = nordic_header_main.event_id "
+                    "   (SELECT "
+                    "       DISTINCT ON (nordic_event.id) nordic_event.id AS id, "
+                    "       nordic_header_main.origin_time AS origin_time, "
+                    "       nordic_event.root_id AS root_id "
+                    "   FROM "
+                    "       nordic_event, nordic_header_main "
+                    "   WHERE "
+                    "       nordic_event.id = nordic_header_main.event_id "
                 )
         query_str, query_vals = self.getSearchQueryAndValues() 
         query += query_str
 
+        query += ") AS subq ORDER BY root_id"
+
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
+        ans = None
+        try:
+            cur.execute(query, query_vals)
+            ans = cur.fetchall()
+        except Exception as e:
+            conn.close()
+            raise e
 
-        cur.execute(query, query_vals)
-        ans = cur.fetchall()
         conn.close() 
 
         return ans
@@ -169,7 +181,7 @@ class NordicSearch:
 
     def searchEventRoots(self):
         """
-        Search for event root ids that have events that git to the criteria given to the NordicSearch and return them.
+        Search for event root ids that have events that fit to the criteria given to the NordicSearch and return them.
         :returns: a list of event root ids
         """
         root_ids = []
@@ -185,11 +197,16 @@ class NordicSearch:
 
         query_str, query_vals = self.getSearchQueryAndValues()
         query += query_str
-
+        
+        ans = None
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
-        cur.execute(query, query_vals)
-        ans = cur.fetchall()
+        try:
+            cur.execute(query, query_vals)
+            ans = cur.fetchall()
+        except Exception as e:
+            conn.close()
+            raise e
         conn.close()
     
         return ans
@@ -327,7 +344,7 @@ def searchSameEvents(nordic_event):
     Function for searching and returning all events that are the same compared to the event given by the user.
 
     :param NordicEvent nordic_event: Event for which the search is done for
-    :returns: List of :class:`NordicEvent`s that are indentical to the event
+    :returns: List of :class:`NordicEvent` that are indentical to the event
     """
     m_header = nordic_event.main_h[0]
     search = NordicSearch()
@@ -358,7 +375,7 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
     :param float latitude_diff: maximum latitude difference in degrees
     :param float longitude_diff: maximum longitude difference in degrees
     :param float magnitude_diff: maximum magnitude difference
-    :returns: Array of :class:`NordicEvent`s that fit to the search criteria
+    :returns: Array of :class:`NordicEvent` that fit to the search criteria
     """
     m_header = nordic_event.main_h[0]
     search = NordicSearch()

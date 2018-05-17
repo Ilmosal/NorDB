@@ -1,8 +1,9 @@
 import pytest
 from nordb.core import usernameUtilities
 from nordb.database import norDBManagement
+from nordb import settings
 
-@pytest.mark.usefixture("setupdb")
+@pytest.mark.usefixtures("setupdb")
 class TestNorDBManagment(object):
     def testCreateDatabaseDoesntWorkIfThereIsDatabase(self, setupdb):
         with pytest.raises(Exception):

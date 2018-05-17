@@ -13,15 +13,13 @@ from nordb.core import usernameUtilities
 from nordb.core.utils import stringToDate
 
 INSTRUMENT_INSERT = (   
-                        "INSERT INTO instrument " +
-                            "(  instrument_name, instrument_type, " +
-                            "   band, digital, samprate, ncalib, " +
-                            "   ncalper, dir, dfile, rsptype, " +
-                            "   lddate) " +
-                        "VALUES " +
-                            "(  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
-                        "RETURNING " +
-                            "id"
+                        "INSERT INTO instrument " 
+                            "(  css_id, instrument_name, instrument_type, " 
+                            "   band, digital, samprate, ncalib, " 
+                            "   ncalper, dir, dfile, rsptype, " 
+                            "   lddate) " 
+                        "VALUES " 
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
                     )
 
 def insertInstrument2Database(instrument):
@@ -32,17 +30,11 @@ def insertInstrument2Database(instrument):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-
     try:
         cur.execute(INSTRUMENT_INSERT, instrument.getAsList())
-
-        db_id = cur.fetchone()[0]
-
-        cur.execute("INSERT INTO instrument_css_link (css_id, instrument_id) VALUES (%s, %s)", (instrument.css_id, db_id))
     except Exception as e:
         conn.close()
         raise e
-    
     conn.commit()
     conn.close()
 

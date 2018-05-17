@@ -12,6 +12,7 @@ import re
 import datetime
 
 from nordb.core import usernameUtilities
+from nordb.database import creationInfo
 
 INSERT_COMMANDS = {
                     1:  (
@@ -92,12 +93,6 @@ INSERT_COMMANDS = {
                         "RETURNING "
                             "id "
                         ),
-                    8:  (
-                        "INSERT INTO  " 
-                           "creation_info  " 
-                        "DEFAULT VALUES  " 
-                        "RETURNING id"
-                        ),
 }
   
 def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1):
@@ -111,11 +106,9 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
     if f_creation_id is None:
-        creation_id = createCreationInfo() 
+        creation_id = creationInfo.createCreationInfo() 
     else:
         creation_id = f_creation_id 
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
     author_id = None
 
     for header in nordic_event.comment_h:
@@ -126,6 +119,8 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
     if author_id is None:
         author_id = '---' 
 
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
     try:
         cur.execute("SELECT allow_multiple FROM solution_type WHERE type_id = %s", (solution_type,))
         ans = cur.fetchone() 
@@ -175,15 +170,6 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
         nordic_event.event_id = event_id
 
         if e_id != -1 and solution_type == old_solution_type and not allow_multiple:
-            cur.execute("INSERT INTO  " +
-                           "nordic_modified " + 
-                           "(event_id, replacement_event_id, old_solution_type, replaced)  " +
-                        "VALUES  " +
-                           "(%s, %s, %s, %s)", 
-                        (e_id, 
-                        event_id, 
-                        solution_type, 
-                        '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())))
             cur.execute("UPDATE nordic_event SET solution_type = 'O' WHERE id = %s", (e_id,))
     
         main_header_id = -1
@@ -239,53 +225,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
         raise e
     finally:
          if f_creation_id is None:
-            deleteCreationInfoIfUnnecessary(creation_info)
-
-
-def createCreationInfo():
-    """
-    Function for creating the creation_info entry to the database.
-
-    :returns: The creation id of the creation_info entry created
-    """
-    creation_id = -1
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute(INSERT_COMMANDS[8])
-    creation_id = cur.fetchone()[0]
-    
-    conn.commit()
-    conn.close()
-
-    return creation_id
-
-def deleteCreationInfoIfUnnecessary(creation_id):
-    """
-    Function for deleting an unnecessary creation info object
-    
-    :param int creation_id: id of the creation_info that needs to be deleted
-    :returns: creation_id of the deleted object
-    """
-    conn = usernameUtilities.log2nordb()
-    cur = conn.cursor()
-
-    cur.execute("SELECT  " +
-                   "COUNT(*)  " +
-                "FROM  " +
-                   "nordic_event, creation_info  " +
-                "WHERE  " +
-                   "nordic_event.creation_id = creation_info.id  " +
-                   "AND creation_info.id = %s;", 
-                (creation_id,))
-
-    if cur.fetchone()[0] == 0:
-        cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
-    
-    conn.commit()
-    conn.close()
-
-    return creation_id
+            creationInfo.deleteCreationInfoIfUnnecessary(creation_info)
 
 def executeCommand(cur, command, vals, returnValue):
     """

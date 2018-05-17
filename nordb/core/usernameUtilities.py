@@ -1,5 +1,5 @@
 """
-This file contains all functions for handling the .user.config file in the nordb folder that contains the name of the user handling all postgres operations. 
+This file contains all functions for handling the .nordb.config file in the nordb folder that contains the name of the user handling all postgres operations. 
 
 Functions and Classes
 ---------------------
@@ -15,25 +15,28 @@ MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 def confUser(username):
     """
-    Method for configuring the .user.config to the format user wants it to be.
+    Method for configuring the .nordb.config to the format user wants it to be.
 
     :param str username: the username given by user
     """
-    config_file = ".user.config"
-    f = open(MODULE_PATH + os.sep + config_file, "w")
-    f.write(username)
-    f.close()
-    settings.updateUsername()
+    #this needs to be rewritten
+#    config_file = ".nordb.config"
+#    f = open(MODULE_PATH + os.sep + config_file, "w")
+#    f.write(username)
+#    f.close()
+#    settings.updateUsername()
 
-def log2nordb():
+def log2nordb(password = None):
     """
     Function that logs to database and returns a psycopg2 Connect object.
     
     :return: psycopg2.Connect object
     """
-    if settings.test:
-        conn = psycopg2.connect("dbname = test_nordb user = {0}".format(settings.username))
-    else:
-        conn = psycopg2.connect("dbname = {0} user = {1}".format(settings.dbname, settings.username))
+    if password is not None:
+        settings.database_settings[settings.active_database]["password"] = password
 
-    return conn
+    if settings.test:
+        return psycopg2.connect(**settings.database_settings["test database"])
+    else:
+        return psycopg2.connect(**settings.database_settings[settings.active_database])
+

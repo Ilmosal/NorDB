@@ -25,15 +25,13 @@ SELECT_SITECHAN =   (
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             
                     "   sitechan.horizontal_angle, sitechan.vertical_angle,"            
                     "   sitechan.description, sitechan.load_date, " 
-                    "   sitechan.id, station.id, sitechan_css_link.css_id "                                      
+                    "   sitechan.id, station.id, sitechan.css_id "                                      
                     "FROM "                                                             
-                    "   sitechan, station, sitechan_css_link "                          
+                    "   sitechan, station "                          
                     "WHERE "                                                            
                     "   sitechan.id = %s "                                              
-                    "AND "                                                              
+                    "AND "                                                            
                     "   station.id = sitechan.station_id "                              
-                    "AND "                                                              
-                    "   sitechan_css_link.sitechan_id = sitechan.id"
                     )
 
 ALL_SITECHANS =     (
@@ -42,13 +40,11 @@ ALL_SITECHANS =     (
                     "   sitechan.channel_type, sitechan.emplacement_depth,"             
                     "   sitechan.horizontal_angle, sitechan.vertical_angle,"            
                     "   sitechan.description, sitechan.load_date," 
-                    "   sitechan.id, station.id, sitechan_css_link.css_id "                                       
+                    "   sitechan.id, station.id, sitechan.css_id "                                       
                     "FROM "                                                             
-                    "   sitechan, station, sitechan_css_link "                          
+                    "   sitechan, station "                          
                     "WHERE "                                                            
                     "   station.id = sitechan.station_id "                              
-                    "AND "                                                              
-                    "   sitechan_css_link.sitechan_id = sitechan.id"
                     )
 
 def getAllSitechans():

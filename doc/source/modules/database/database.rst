@@ -19,5 +19,4 @@ Database
     sql2sitechan.rst
     sql2station.rst
     station2sql.rst
-    undoRead.rst
     nordicSearch.rst    

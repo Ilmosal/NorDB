@@ -1,20 +1,22 @@
-CREATE TABLE solution_type (
-    type_id VARCHAR(6) PRIMARY KEY,
-    type_desc VARCHAR(32),
-    allow_multiple BOOLEAN
-);
+/*
++---------------------------+
+|NORDIC EVENT TABLE CREATION|
++---------------------------+
 
-INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('O', 'Other', True);
-INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('A', 'Automatic', True);
-INSERT INTO solution_type (type_id, type_desc, allow_multiple) VALUES ('F', 'Final', False);
+This sql file has all the commands for creating a nordic_event table.
+*/
 
+--Create nordic_event table
 CREATE TABLE nordic_event (
 	id SERIAL PRIMARY KEY,
-	root_id INTEGER REFERENCES nordic_event_root(id),
+    urn TEXT UNIQUE,
+	root_id INTEGER REFERENCES nordic_event_root(id) ON DELETE CASCADE,
     creation_id INTEGER REFERENCES creation_info(id),
 	nordic_file_id INTEGER REFERENCES nordic_file(id),
-	solution_type VARCHAR(6) REFERENCES solution_type(type_id),
+	solution_type VARCHAR(6) REFERENCES solution_type(type_id) ON DELETE CASCADE, 
 	author_id VARCHAR(3)
 );
 
+--Enable row level security
+ALTER TABLE nordic_event ENABLE ROW LEVEL SECURITY;
 

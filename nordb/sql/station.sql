@@ -1,6 +1,16 @@
+/*
++----------------------+
+|STATION TABLE CREATION|
++----------------------+
+
+This sql file has all the commands for creating a station table.
+
+*/
+
+--Create table command for station
 CREATE TABLE station(
     id SERIAL PRIMARY KEY,
-    network_id INTEGER REFERENCES network(id), 
+    network_id INTEGER REFERENCES network(id) ON DELETE CASCADE, 
     station_code VARCHAR(6),
     on_date DATE,
     off_date DATE,
@@ -13,4 +23,7 @@ CREATE TABLE station(
     north_offset FLOAT,
     east_offset FLOAT,
     load_date DATE
-)
+);
+
+--Enable row level security
+ALTER TABLE station ENABLE ROW LEVEL SECURITY;

@@ -19,6 +19,43 @@ BACKUP_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(_
 from nordb.core import usernameUtilities
 from nordb import settings
 
+def checkPermissions(required_role):
+    """
+    Function that checks the owner level of the current user and returns this.
+
+    :param required_role str: the required role level of the user
+    :returns: boolean value if the current_user has access rights of the required role
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+    cur.execute("SELECT role FROM nordb_user WHERE username = CURRENT_USER")
+    user_role = cur.fetchone()[0]
+
+    conn.close()
+    return (getRoleLevel(required_role) <= getRoleLevel(user_role))
+
+def getRoleLevel(role_str):
+    """
+    Helper function to calculate role level from the role string
+    :param role_str str: The role level string
+    :returns: the level of the role as a integer 
+    """
+    role_level = 0
+    if role_str == 'quest':
+        role_level = 1
+    elif role_str == 'default_user':
+        role_level = 2
+    elif role_str == 'station_manager':
+        role_level = 3
+    elif role_str == 'admin':
+        role_level = 4
+    elif role_str == 'owner':
+        role_level = 5
+    else:
+        raise Exception("No such role in the system! ({0})".format(role_str))
+
+    return role_level
+
 def countEvents(solution_type = None):
     """
     Function for returning the number of all events in the database.
@@ -31,12 +68,14 @@ def countEvents(solution_type = None):
 
     if solution_type is None:
         cur.execute("SELECT COUNT(*) FROM nordic_event")
-    elif solution_type in "OAPRFS":
+    elif len(solution_type) <= 6:
         cur.execute("SELECT COUNT(*) FROM nordic_event WHERE solution_type = %s", (solution_type,))
     else:
-        raise Exception("Solution type not a valid solution type: ({0})".format(solution_type))
+        raise Exception("Solution type too long")
 
-    return cur.fetchone()[0]
+    ans = cur.fetchone()[0]
+    conn.close()
+    return ans
 
 def countStations(network = None):
     """
@@ -57,16 +96,28 @@ def countStations(network = None):
 
 def createDatabase():
     """
-    Method for creating the database if the database doesn't exist.
+    Method for creating the database if the database doesn't exist. Postgres createdb rights required. You will be automatically the owner of the database.
     """
-    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
+    if not settings.test:
+        params = {
+            "dbname":"postgres",
+            "user":settings.database_settings[settings.active_database]["user"],
+            "password":settings.database_settings[settings.active_database]["password"]
+        }
+    else:
+        params = {
+            "dbname":"postgres",
+            "user":settings.database_settings['test database']["user"],
+            "password":settings.database_settings['test database']["password"]
+        }
+    conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
     
     if settings.test:
         cur.execute("SELECT 1 FROM pg_database WHERE datname = 'test_nordb'")
     else:
-        cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
+        cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.getDBName()))
 
     if cur.fetchall():
         conn.close()
@@ -75,47 +126,159 @@ def createDatabase():
     if settings.test:
         cur.execute("CREATE DATABASE test_nordb")
     else:
-        cur.execute("CREATE DATABASE {0}".format(settings.dbname))
+        cur.execute("CREATE DATABASE {0}".format(settings.getDBName()))
     
     conn.commit()
     conn.close()
     
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-    
+   
+    cur.execute(open(MODULE_PATH + "sql/create_roles.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordb_user.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/creation_info.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_event_root.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_file.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/creation_info.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/solution_type.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_event.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/scandia_header.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/nordic_modified.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_header_main.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/nordic_header_comment.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_header_error.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_comment.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_header_macroseismic.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordic_header_waveform.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_phase_data.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/network.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/station.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/sitechan.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/instrument.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/sensor.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/nordic_phase_data.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/response.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/fap_response.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/paz_response.sql", "r").read())
+
+    cur.execute(open(MODULE_PATH + "sql/nordb_user_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/creation_info_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_event_root_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_file_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/solution_type_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_event_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_main_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_error_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_comment_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_macroseismic_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_header_waveform_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/nordic_phase_data_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/network_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/station_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/sitechan_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/instrument_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/sensor_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/response_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/fap_response_policies.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/paz_response_policies.sql", "r").read())
+
+    cur.execute(open(MODULE_PATH + "sql/grant_access.sql", "r").read())
 
     conn.commit()
     conn.close()
 
+def createUser(username, user_role, password):
+    """
+    Creates a new user to the database. Admin rights required.
+    :param username str: the username of the new user
+    :param user_role str: the role of the new user
+    :param password str: the password of the new user
+    """
+    if not checkPermissions('admin'):
+        raise Exception('You are not an admin in the database so you cannot run this command')
+
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    if user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
+        raise Exception("User role not a valid user role ({0})".format(user_role))
+
+    cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
+    if cur.fetchone() is not None:
+        raise Exception("The user already exists! Chooose another username. ({0})".format(username))
+
+    if len(username) > 32:
+        raise Exception('Username too long!')
+
+    cur.execute("CREATE USER %s IN ROLE %s PASSWORD %s", (username, user_role, password))
+    cur.execute("ALTER USER %s WITH CREATEROLE")
+    cur.execute("INSERT INTO nordb_user (username, role) VALUES (%s, %s)".format())
+
+def removeUser(username):
+    """
+    Removes a user from the database and postgres system. Admin rights required.
+    :param username str:
+    """
+    if not checkPermissions('admin'):
+        raise Exception('You are not an admin in the database so you cannot run this command')
+    
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
+    if cur.fetchone() is None:
+        raise Exception("The user does not exist! Chooose another username. ({0})".format(username))
+
+    cur.execute("DELETE FROM nordb_user WHERE username = username")
+    cur.execute("DROP ROLE %s", (username,)) 
+
+def alterUser(username, new_username = None, new_user_role = None, new_password = None):
+    """
+    Alters user in the database. If you modify your own user, this is allowed for default_users, otherwise admin rights required
+    :param username str: the username of the user which will be modified
+    :param new_username str: The username which will be the new username of the user
+    :param new_user_role str: The role which will be the new role of the user. Options: guests, default_users, station_managers and admins
+    :param new_password str: The new password to the database
+    """
+    if username == settings.database_settings[settings.active_database]["user"]:
+        if not checkPermissions('default_user'):
+            raise Exception('You are not a user in the database so you cannot modify yourself')
+    else:
+        if not checkPermissions('admin'):
+            raise Exception('You are not an admin in the database so you cannot alter other users')
+
+    if len(new_username) > 32:
+        raise Exception("New username is too long! Maximum lenght of 32 characters")
+
+    if new_user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
+        raise Exception("User role not a valid user role ({0})".format(user_role))
+
+    pass 
+    
 def destroyDatabase():
     """
     Method for destroying the database if the database exists
     """
-    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
+    if not checkPermissions('owner'):
+        raise Exception('You are not the owner of the database so you cannot run this command')
+
+    if not settings.test:
+        params = {
+            "dbname":"postgres",
+            "user":settings.database_settings[settings.active_database]["user"],
+            "password":settings.database_settings[settings.active_database]["password"]
+        }
+    else:
+        params = {
+            "dbname":"postgres",
+            "user":settings.database_settings['test database']["user"],
+            "password":settings.database_settings['test database']["password"]
+        }
+
+    conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
     if settings.test:
         cur.execute("SELECT 1 FROM pg_database WHERE datname='test_nordb'")
     else:
-        cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.dbname))
+        cur.execute("SELECT 1 FROM pg_database WHERE datname='{0}'".format(settings.getDBName()))
+
     if not cur.fetchall():
         conn.close()
         raise Exception("Database does not exist")
@@ -130,14 +293,14 @@ def destroyDatabase():
     conn.commit()
     conn.close()
 
-    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
+    conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
 
     if settings.test:
         cur.execute("DROP DATABASE test_nordb")
     else:
-        cur.execute("DROP DATABASE {0}".format(settings.dbname))
+        cur.execute("DROP DATABASE {0}".format(settings.getDBName()))
 
     conn.commit()
     conn.close()
@@ -157,14 +320,19 @@ def loadBackup(backup_path):
     """
     destroyDatabase()
     
-    conn = psycopg2.connect("dbname = postgres user={0}".format(settings.username))
+    params = {
+        "dbname":"postgres",
+        "user":settings.database_settings[settings.active_database]["user"],
+        "password":settings.database_settings[settings.active_database]["password"]
+    }
+    conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
     
     if settings.test:
         cur.execute("CREATE DATABASE test_nordb")
     else:
-        cur.execute("CREATE DATABASE {0}".format(settings.dbname))
+        cur.execute("CREATE DATABASE {0}".format(settings.getDBName()))
     
     conn.commit()
     conn.close()

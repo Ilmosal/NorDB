@@ -1,0 +1,21 @@
+Active database: remote nordb
+
+-local nordb-
+name: nordb
+username: ilmosalm
+password: 
+location: local
+
+-remote nordb-
+name: nordb
+username: vagrant
+password: vagrant
+location: remote
+host_ip: 192.168.33.10
+host_port: 5432
+
+-test database-
+name: test_nordb
+username: ilmosalm
+password: 
+location: local

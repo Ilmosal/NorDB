@@ -186,6 +186,7 @@ class SiteChan(object):
 
     def getAsList(self):
         sitechan_list = [   self.station_id,
+                            self.css_id,
                             self.channel_code,
                             self.on_date,
                             self.off_date,

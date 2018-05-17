@@ -2,6 +2,7 @@ import os
 import pytest
 from nordb.database import norDBManagement
 from nordb.database import nordic2sql
+from nordb.database import creationInfo
 from nordb.core import usernameUtilities
 from nordb.core import nordic
 from nordb import settings
@@ -9,40 +10,30 @@ from nordb import settings
 @pytest.fixture(scope="function")
 def setupdb():
     settings.setTest()
-    username = settings.username
-    try:
-        norDBManagement.destroyDatabase()
-    except:
-        pass
     norDBManagement.createDatabase()
     yield None
-    usernameUtilities.confUser(username)
-    try:
+    try:    
         norDBManagement.destroyDatabase()
-    except:
+    except Exception as e:
+        print(e)
         pass
 
 @pytest.fixture(scope="module")
 def setupdbWithEvents():
     settings.setTest()
-    username = settings.username
-    try:
-        norDBManagement.destroyDatabase()
-    except:
-        pass
+    
     norDBManagement.createDatabase()
-    creation_id = nordic2sql.createCreationInfo()
+    creation_id = creationInfo.createCreationInfo('public')
 
     for e in nordicEvents():
         nordic2sql.event2Database(nordic.readNordic(e, False), "F", "dummy_name", creation_id, -1)
 
     yield None
-    usernameUtilities.confUser(username)
     try:
         norDBManagement.destroyDatabase()
-    except:
+    except Exception as e:
+        print(e)
         pass
-
 @pytest.fixture(scope="module")
 def nordicEvents():
     nordic_events = [

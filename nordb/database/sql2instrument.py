@@ -20,10 +20,8 @@ SELECT_INSTRUMENT = (
                         "   band, digital, samprate, ncalib, ncalper, dir, " 
                         "   dfile, rsptype, lddate, id, css_id " 
                         "FROM " 
-                        "   instrument, instrument_css_link " 
+                        "   instrument " 
                         "WHERE " 
-                        "   instrument.id = instrument_id " 
-                        "AND " 
                         "   instrument.id = %s")
 
 ALL_INSTRUMENTS =   (   
@@ -32,9 +30,7 @@ ALL_INSTRUMENTS =   (
                         "   band, digital, samprate, ncalib, ncalper, dir, " 
                         "   dfile, rsptype, lddate, id, css_id " 
                         "FROM " 
-                        "   instrument, instrument_css_link " 
-                        "WHERE " 
-                        "   instrument.id = instrument_id "
+                        "   instrument " 
                     )
 
 
@@ -57,10 +53,12 @@ def getAllInstruments():
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-
-    cur.execute(ALL_INSTRUMENTS)
-
-    ans = cur.fetchall()
+    try:
+        cur.execute(ALL_INSTRUMENTS)
+        ans = cur.fetchall()
+    except Exception as e:
+        conn.close()
+        raise e
     conn.close()
 
     instruments = []
@@ -78,9 +76,12 @@ def instruments2sensor(sensor):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-    cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
-    instrument_ids = cur.fetchall()
-
+    try:    
+        cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
+        instrument_ids = cur.fetchall()
+    except Exception as e:
+        conn.close()
+        raise e
     conn.close()
 
     if instrument_ids:

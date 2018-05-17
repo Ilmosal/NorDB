@@ -2,6 +2,7 @@ import pytest
 
 from nordb.database import resetDB
 from nordb.database import nordic2sql
+from nordb.database import creationInfo
 from nordb.database import station2sql
 from nordb.database import sitechan2sql
 from nordb.database import instrument2sql
@@ -23,7 +24,7 @@ class TestResetEvents(object):
         for e in nordicEvents:
             events.append(nordic.readNordic(e, False))
 
-        creation_id = nordic2sql.createCreationInfo()
+        creation_id = creationInfo.createCreationInfo('public')
 
         for e in events:
             nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)
@@ -88,7 +89,7 @@ class TestResetAll(object):
         for e in nordicEvents:
             events.append(nordic.readNordic(e, False))
 
-        creation_id = nordic2sql.createCreationInfo()
+        creation_id = creationInfo.createCreationInfo('public')
 
         for e in events:
             nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)

@@ -21,7 +21,7 @@ SENSOR_INSERT = (
                 "INSERT INTO sensor " 
                 "   (time, endtime, jdate, calratio, " 
                 "   calper, tshift, instant, lddate, " 
-                "   channel_id, instrument_id) " 
+                "   sitechan_id, instrument_id) " 
                 "VALUES " 
                 "(  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                 )
@@ -43,7 +43,7 @@ def genFakeChannel(sensor):
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
    
-        cur.execute("SELECT MAX(css_id) FROM sitechan_css_link;")
+        cur.execute("SELECT MAX(css_id) FROM sitechan;")
         ans = cur.fetchone()
         if ans is None:
             css_id = 0
@@ -64,7 +64,7 @@ def insertSensor2Database(sensor):
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT instrument_id FROM instrument_css_link WHERE css_id = %s", (sensor.instrument_css_id,))
+        cur.execute("SELECT id FROM instrument WHERE css_id = %s", (sensor.instrument_css_id,))
         ans = cur.fetchone()
     
         if ans is None:
@@ -72,14 +72,14 @@ def insertSensor2Database(sensor):
 
         sensor.instrument_id = ans[0]
 
-        cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (sensor.channel_css_id,))
+        cur.execute("SELECT id FROM sitechan WHERE css_id = %s", (sensor.channel_css_id,))
         ans = cur.fetchone()
 
         if ans is None:
             fakeChan = genFakeChannel(sensor)
             sitechan2sql.insertSiteChan2Database(fakeChan)
             sensor.channel_css_id = fakeChan.css_id
-            cur.execute("SELECT sitechan_id FROM sitechan_css_link WHERE css_id = %s", (fakeChan.css_id,))
+            cur.execute("SELECT id FROM sitechan WHERE css_id = %s", (fakeChan.css_id,))
             ans = cur.fetchone()
         
             if ans is None:

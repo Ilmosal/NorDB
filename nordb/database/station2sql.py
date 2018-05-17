@@ -11,7 +11,7 @@ import unidecode
 
 from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
-
+from nordb.database import creationInfo
 STATION_INSERT =    (  
                     "INSERT INTO station " 
                         "(   station_code, on_date, off_date, " 
@@ -56,7 +56,7 @@ SEARCH_STATIONS =   (
                     "   (off_date is null OR (off_date < %s OR on_date > %s ));"
                     )   
 
-def getNetworkID(network):
+def getNetworkID(network, privacy_level):
     """
     Function for inserting the information to the database. If network doesn't already exist, the function adds the network to the database.
 
@@ -65,42 +65,53 @@ def getNetworkID(network):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-
-    cur.execute("SELECT id FROM network WHERE network = %s", (network.strip(),))
-    ans = cur.fetchone()
-
-    if ans is None:
-        cur.execute("INSERT INTO network (network) VALUES (%s) RETURNING id", (network.strip(),))
+    try:
+        cur.execute("SELECT id FROM network WHERE network = %s", (network.strip(),))
         ans = cur.fetchone()
 
+        if ans is None:
+            c_id = creationInfo.createCreationInfo(privacy_level)
+            cur.execute("INSERT INTO network (network, creation_id) VALUES (%s, %s) RETURNING id", (network.strip(), c_id))
+            ans = cur.fetchone()
+    except Exception as e:
+        conn.close()
+        raise e
     conn.commit()
     conn.close()
 
     return ans[0]
 
-def insertStation2Database(station, network):
+def insertStation2Database(station, network, privacy_level = 'public'):
     """ 
     Function for inserting the station to the database. If the station with the given code already exists the function will replace the old one.
 
-    :param Station station: station that will be inserted to the database
+    :param station Station: station that will be inserted to the database
+    :param network str: network to which this station belongs to
+    :param privacy_level str: The privacy level of the network if it is going to be a new one
     """
-    network_id = getNetworkID(network)
+    if privacy_level not in ['public', 'secure', 'private']:
+        raise Exception("Privacy level not a valid one. Has to be one of: 'public', 'secure', 'private'. ({0})".format(privacy_level))
+
+    network_id = getNetworkID(network, privacy_level)
     station.network_id = network_id
 
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
+    try:
+        cur.execute(SEARCH_STATIONS, (  station.station_code, 
+                                        station.on_date,
+                                        station.off_date))
+        ans = cur.fetchone()
 
-    cur.execute(SEARCH_STATIONS, (  station.station_code, 
-                                    station.on_date,
-                                    station.off_date))
-    ans = cur.fetchone()
-
-    if ans is not None:
-        update_list = station.getAsList()
-        update_list.append(ans[0])
-        cur.execute(STATION_UPDATE, update_list)
-    else:
-        cur.execute(STATION_INSERT, station.getAsList())
+        if ans is not None:
+            update_list = station.getAsList()
+            update_list.append(ans[0])
+            cur.execute(STATION_UPDATE, update_list)
+        else:
+            cur.execute(STATION_INSERT, station.getAsList())
+    except Exception as e:
+        conn.close()
+        raise e
 
     conn.commit()
     conn.close()

@@ -1,6 +1,15 @@
+/*
++-----------------------------------------+
+|NORDIC HEADER MACROSEISMIC TABLE CREATION|
++-----------------------------------------+
+
+This sql file has all the commands for creating a nordic_header_macroseismic table.
+*/
+
+--Create the nordic_header_macroseismic table
 CREATE TABLE nordic_header_macroseismic(
 	id SERIAL PRIMARY KEY,
-	event_id INTEGER REFERENCES nordic_event(id),
+	event_id INTEGER REFERENCES nordic_event(id) ON DELETE CASCADE,
 	description VARCHAR(15),
 	diastrophism_code VARCHAR(1),
 	tsunami_code VARCHAR(1),
@@ -22,3 +31,6 @@ CREATE TABLE nordic_header_macroseismic(
 	quality_rank VARCHAR(1),
 	reporting_agency VARCHAR(3)	
 );
+
+--Enable row level security
+ALTER TABLE nordic_header_macroseismic ENABLE ROW LEVEL SECURITY;

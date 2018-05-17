@@ -1,6 +1,15 @@
+/*
++--------------------------------+
+|NORDIC PHASE DATA TABLE CREATION|
++--------------------------------+
+
+This sql file has all the commands for creating a nordic_phase_data table.
+*/
+
+--Create the nordic_phase_data table
 CREATE TABLE nordic_phase_data(
 	id SERIAL PRIMARY KEY,
-	event_id INTEGER REFERENCES nordic_event(id),
+	event_id INTEGER REFERENCES nordic_event(id) ON DELETE CASCADE,
 	station_code VARCHAR(6),
 	sp_instrument_type VARCHAR(1),
 	sp_component VARCHAR(1),  
@@ -21,3 +30,6 @@ CREATE TABLE nordic_phase_data(
 	epicenter_distance INTEGER,
 	epicenter_to_station_azimuth INTEGER
 );
+
+--Enable row level security
+ALTER TABLE nordic_phase_data ENABLE ROW LEVEL SECURITY;

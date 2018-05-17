@@ -209,7 +209,8 @@ class Instrument:
         return instrumentString
 
     def getAsList(self):
-        instrument_list = [ self.instrument_name,
+        instrument_list = [ self.css_id,
+                            self.instrument_name,
                             self.instrument_type,
                             self.band,
                             self.digital,

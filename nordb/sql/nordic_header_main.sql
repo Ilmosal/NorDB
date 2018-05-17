@@ -1,6 +1,16 @@
+/*
++---------------------------------+
+|NORDIC HEADER MAIN TABLE CREATION|
++---------------------------------+
+
+This sql file has all the commands for creating a nordic_header_main table.
+
+*/
+
+--Create nordic_header_main table
 CREATE TABLE nordic_header_main (
 	id SERIAL PRIMARY KEY,
-	event_id SERIAL REFERENCES nordic_event(id),
+	event_id SERIAL REFERENCES nordic_event(id) ON DELETE CASCADE,
 	origin_time timestamp,
 	location_model VARCHAR(1),
 	distance_indicator VARCHAR(1),
@@ -23,3 +33,6 @@ CREATE TABLE nordic_header_main (
 	type_of_magnitude_3 VARCHAR(1),
 	magnitude_reporting_agency_3 VARCHAR(3)
 );
+
+--Enable row level security
+ALTER TABLE nordic_header_main ENABLE ROW LEVEL SECURITY;

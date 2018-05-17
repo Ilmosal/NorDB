@@ -24,9 +24,9 @@ from nordb.database import station2sql
 from nordb.database import nordicSearch
 from nordb.database import norDBManagement
 from nordb.database import resetDB
-from nordb.database import undoRead
 from nordb.database import nordicModify
 from nordb.database import solutionTypeHandler
+from nordb.database import creationInfo
 
 from nordb.database import sql2instrument
 from nordb.database import sql2nordic
@@ -214,7 +214,11 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
     help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP"
     click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
     click.echo((type_len+id_len+len(help_string)+5)*"-")
+    root_id = -1
     for e in events:
+        if root_id != e.root_id:
+            root_id = e.root_id
+            click.echo("Root id: {0}".format(root_id))
         if not verbose:
             click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}").format(e.event_id, e.solution_type, str(e.main_h[0])[:-1]))
         else:
@@ -441,26 +445,33 @@ def getsta(repo, o_format, output_name, stat_ids):
         click.echo("{0}.{1} written!".format(output_name, o_format))
 
 @cli.command('chgroot', short_help='change root id')
-@click.option('--root-id', '-id', default=-999, type=click.INT, help="root to which the event is attached to")
 @click.argument('event-id', type=click.INT)
+@click.argument('root-id', type=click.INT)
 @click.pass_obj
 def chgroot(repo, root_id, event_id):
     """
-    This command changes the root id of a event to root id given by user or creates a new root for the event. If no root-id is given to the command, it will attach the event to a new root.
+    This command changes the root id of a event to root id given by user or creates a new root for the event. If root id is -9, it will attach the event to a new root.
 
     A root is an id to which different analyses of a same event will refer to. This groups the events together and makes it very simple to follow how the analysis of the single event has evolved. If the insert program fails to find proper root or the user accidentally attaches a event to a wrong root. This command can be used to change the root id to a new one.
     """
     nordicModify.changeEventRoot(event_id, root_id)
 
 @cli.command('chgtype', short_help='change event type')
-@click.argument('event-type', type=click.STRING)
 @click.argument('event-id', type=click.INT)
+@click.argument('solution-type', type=click.STRING)
 @click.pass_obj
 def chgtype(repo, solution_type, event_id):
     """
-    This command changes the event type of a event with id of event-id to event-type given by user or creates a new root for the event. Solution type refers to how final the analysis of the event is.
+    This command changes the solution type of a event with id of event-id to solution-type given by user or creates a new root for the event. Solution type refers to how final the analysis of the event is.
     """
-   
+    if solution_type not in solutionTypeHandler.getSolutionTypes(): 
+        click.echo("Solution type given is not a valid solution type! ({0})".format(solution_type))
+        click.echo("Solution types in database:")
+        click.echo("Type Id | Type Description                 | Allow Multiple")
+        click.echo("--------+----------------------------------+---------------")
+        for s_type in solutionTypeHandler.getSolutionTypes(): 
+            click.echo(" {0:<6} | {1:<32} | {2}".format(s_type[0], s_type[1], s_type[2]))
+        return
     nordicModify.changeEventType(event_id, solution_type)
 
 @cli.command("stype", short_help="add, remove and look solution types")
@@ -477,8 +488,8 @@ def stype(repo, stype_option):
             types = solutionTypeHandler.getSolutionTypes()
             click.echo("Type Id | Type Description                 | Allow Multiple")
             click.echo("--------+----------------------------------+---------------")
-            for type in types:
-                click.echo(" {0:<6} | {1:<32} | {2}".format(type[0], type[1], type[2]))
+            for s_type in types:
+                click.echo(" {0:<6} | {1:<32} | {2}".format(s_type[0], s_type[1], s_type[2]))
         elif stype_option == "add":
             click
             type_id = click.prompt("Enter the solution type id(Press CTR-C to escape)")
@@ -508,6 +519,9 @@ def stype(repo, stype_option):
                 return
             if len(type_id) == 0:
                 click.echo("No solution type given to the program!")
+                return
+            if type_id in ["O", "A", "F"]:
+                click.echo("Cannot remove the default solution types from the program as that would break the program")
                 return
 
             existing = solutionTypeHandler.getSolutionTypes() 
@@ -544,10 +558,11 @@ def stype(repo, stype_option):
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--add-automatic', '-a', is_flag=True, help="In case of duplicate events, the event will be added automatically to the first event found. All similar events will be ignored")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
-@click.argument('solution-type')
+@click.argument('privacy-level', required=True, type=click.Choice(['private', 'public', 'secure']))
+@click.argument('solution-type', required=True)
 @click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose):
+def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose, privacy_level):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event. The suffix of the filename must be .n, .nordic or .nordicp)."""
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
@@ -571,7 +586,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                     nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                     nordic_failed.append(n_string)
 
-            creation_id = nordic2sql.createCreationInfo()
+            creation_id = creationInfo.createCreationInfo(privacy_level)
             for nord in nordic_events:
                 
                 event_id = -1
@@ -587,15 +602,19 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                         click.echo("Identical events to current found! Is any of these a duplicate of yours?")
                         click.echo("{0} - (Yours)".format(nord.main_h[0]))
                         click.echo("-----------------------------------------------------------------------------------------")
+                        root_id = -1
                         for e in same_events:
-                            click.echo("{0} - ({1})".format(e.main_h[0], e.event_id))
+                            if root_id != e.root_id:
+                                root_id = e.root_id
+                                click.echo("Root id: {0}".format(root_id))
+                            click.echo(" id: {0} - {1}".format(e.event_id, e.main_h[0]))
                         while True:
                             try:
                                 event_id = int(input("Event id of the same event: "))
                                 break
                             except:
                                 click.echo("Not a valid id!")
-                                nordic2sql.deleteCreationInfoIfUnnecessary(creation_id)
+                                creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
                                 return 
 
                     if event_id == -1 and not add_automatic:
@@ -609,8 +628,12 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             click.echo("Similar events to current found! Is any of these a duplicate of yours?")
                             click.echo("{0} (Yours)".format(nord.main_h[0]))
                             click.echo("-----------------------------------------------------------------------------------------")
-                            for e in similar_events:
-                                click.echo("{0} - ({1})".format(e.main_h[0], e.event_id))
+                            root_id = -1
+                            for e in same_events:
+                                if root_id != e.root_id:
+                                    root_id = e.root_id
+                                    click.echo("Root id: {0}".format(root_id))
+                                click.echo(" id: {0} - {1}".format(e.event_id, e.main_h[0]))
                             while True:
                                 try:
                                     event_id = int(input("Event id of the same event: "))
@@ -626,7 +649,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                     nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                     nordic_failed.append(str(nord))
            
-            nordic2sql.deleteCreationInfoIfUnnecessary(creation_id)
+            creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
 
             if len(nordic_failed) > 0:
                 failed = open("f_" + os.path.basename(f_nordic.name), "w")
@@ -716,17 +739,6 @@ def get(repo, output_format, event_ids, output_name, event_root):
         f_output.write(etree.tostring(sc3, pretty_print=True).decode('utf8'))
 
     f_output.close()
-
-@cli.command('undo', short_help='undo last insert')
-@click.pass_obj
-def undo(repo):
-    """
-    Undo the last file insert made into the database. This will delete all events added to the db with a single insert command and modify the database to the way it was before the insert.
-    """
-    try:
-        undoRead.undoMostRecent()
-    except:
-        click.echo("No events in database")
 
 @cli.command('backup', short_help='manage backups')
 @click.option('--list', 'backup_option', flag_value='list', default=True, help="list all backups, default option")
