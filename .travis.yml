@@ -9,9 +9,11 @@ install:
     - pip install codecov
     - pip install pylint
 # command to run tests
-before_script:
-    - bash tests/create_usrconf.sh
 script:
     - python setup.py test
 after_script:
     - codecov
+addons:
+    postgresql: "10.3"
+before_script:
+    - bash tests/create_usrconf.sh

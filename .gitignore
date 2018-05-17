@@ -105,7 +105,9 @@ ENV/
 *.nordic*
 
 .user.config
+.nordb.config
 *.swp
 
 #Backups
 backup_*
+
