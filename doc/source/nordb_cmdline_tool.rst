@@ -68,3 +68,4 @@ This command will remove the nordb database from your computer. Remember to back
 
 Get - Get events from the database
 ----------------------------------
+As described in Database Structure, the events in the database are attached to event roots, which are hub events which tie different analyses of same events together. You can change these events 

@@ -333,9 +333,9 @@ def insertsta(repo, station_file, network, verbose, all_files):
                 click.echo("Line: {0}".format(sen))
 
 @cli.command('getsta', short_help='get station related info')
-@click.option('--o_format', '-f', default="stationxml", type=click.Choice(["site", "sitechan", "sensor", "instrument", "all", "stationxml"]), help="File that you want to get from the database")
-@click.argument('output_name', required=True, type=click.Path(exists=False, readable=True))
+@click.option('--format', '-f', default="stationxml", type=click.Choice(["site", "sitechan", "sensor", "instrument", "all", "stationxml"]), help="File that you want to get from the database")
 @click.argument('stat_ids', nargs=-1, type=click.INT)
+@click.argument('output_name', required=True, type=click.Path(exists=False, readable=True))
 @click.pass_obj
 def getsta(repo, o_format, output_name, stat_ids):
     """
@@ -554,7 +554,7 @@ def stype(repo, stype_option):
 
 @cli.command('insert', short_help="insert events")
 @click.option('--nofix', '-nf', is_flag=True, help="Do not use the fixing tool to add nordics with broken syntax the database")
-@click.option('--ignore-duplicates', '-iq', is_flag=True, help="In case of a duplicate event, ignore the new event")
+@click.option('--ignore-duplicates', '-ig', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--add-automatic', '-a', is_flag=True, help="In case of duplicate events, the event will be added automatically to the first event found. All similar events will be ignored")
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
