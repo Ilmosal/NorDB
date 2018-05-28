@@ -10,8 +10,10 @@ def init():
     global database_settings
     database_settings = {}
     global active_database 
-
-    config_file = open(config_file_name, 'r').readlines()
+    try:
+        config_file = open(config_file_name, 'r').readlines()
+    except:
+        raise Exception("No config file for the database! Run nordb conf to create the config file")
     read_info = -1
     database_config = {}
     read_name = None
@@ -75,8 +77,8 @@ def init():
             read_name = None
             database_config = {}
         
-    def updateUsername():
-        init()
+def updateUsername():
+    init()
 
 def setTest():
     global test

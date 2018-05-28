@@ -15,6 +15,11 @@ from lxml import etree
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
+from nordb.core.nordbConf import confUser, confExists
+
+if not confExists():
+    confUser()
+
 from nordb.database import instrument2sql
 from nordb.database import nordic2sql
 from nordb.database import sensor2sql
@@ -58,18 +63,17 @@ class Repo(object):
 @click.pass_context
 def cli(ctx):
     """
-    This is the command line tool for NorDB database. If this is your first time running the program remember to first configure your .user.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database
+    This is the command line tool for NorDB database. If this is your first time running the program remember to first configure your .nordb.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database
     
     You can request help for all the commands with -h or --help flags.
     """
     ctx.obj = Repo()
 
 @cli.command('conf', short_help='configure username')
-@click.option('--username', '-u', prompt=True, help="your postgres username")
 @click.pass_obj
-def conf(repo, username):
-    """Configures the userfile for the database. Give the username option your postgres username so the program can use your postgres-databased."""
-    usernameUtilities.confUser(username) 
+def conf(repo):
+    """Configures the config file for the nordb. Give the username option your postgres username so the program can use your postgres-databased."""
+    usernameUtilities.confUser() 
 
 @cli.command('search', short_help='search for events')
 @click.option('--verbose', '-v', is_flag=True, help="Print the whole nordic file instead of the main header.")
