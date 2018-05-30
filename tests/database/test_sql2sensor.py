@@ -3,16 +3,21 @@ from nordb.database import station2sql
 from nordb.database import sitechan2sql
 from nordb.database import sensor2sql
 from nordb.database import instrument2sql
+from nordb.database import response2sql
 from nordb.database import sql2sensor
 from nordb.core import usernameUtilities
 from nordb.nordic import station
 from nordb.nordic import sitechan
 from nordb.nordic import sensor
 from nordb.nordic import instrument
+from nordb.nordic import response 
 
-@pytest.mark.userfixtures("setupdb", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles")
+@pytest.mark.userfixtures("setupdb", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles", "responseFiles")
 class TestSQL2Sensor(object):
-    def testGetAllSensors(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles):
+    def testGetAllSensors(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles, responseFiles):
+        for resp in responseFiles:
+            response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
+
         stations = []
         for stat in stationFiles:    
             stations.append(station.readStationStringToStation(stat, "HE"))
@@ -45,7 +50,10 @@ class TestSQL2Sensor(object):
     
         assert len(sensors) == len(sensorFiles)
 
-    def testGetOneSensor(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles):
+    def testGetOneSensor(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles, responseFiles):
+        for resp in responseFiles:
+            response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
+
         stations = []
         for stat in stationFiles:    
             stations.append(station.readStationStringToStation(stat, "HE"))

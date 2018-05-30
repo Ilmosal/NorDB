@@ -1,1 +1,5 @@
-{}
+{
+  "tests/database/test_resetDB.py::TestResetAll::()": true,
+  "tests/database/test_resetDB.py::TestResetEvents::()": true,
+  "tests/database/test_resetDB.py::TestResetStations::()": true
+}

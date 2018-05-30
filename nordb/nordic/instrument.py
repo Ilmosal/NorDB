@@ -33,6 +33,7 @@ class Instrument:
     :ivar string dfile: Maximum of 32 characters
     :ivar string rsptype: response type. Maximum of 6 characters
     :ivar date lddate: load date
+    :ivar int response_id: id of the response of the instrument
     :ivar int I_ID: id of the instrument in the database
     :ivar int CSS_ID: css_id of the instrument in the database
     :ivar int INSTRUMENT_NAME: Location of the instrument_name in a array. Value of 0
@@ -48,6 +49,7 @@ class Instrument:
     :ivar int LDDATE: Location of the lddate in a array. Value of 10
     :ivar int ID: Location of the id in a array. Value of 11
     :ivar int CSS_ID: Location of the css_id in a array. Value of 12
+    :ivar int RESPONSE ID: Location of the response_id in a array. Value of 13
     """
     header_type = 12
     INSTRUMENT_NAME = 0
@@ -63,6 +65,7 @@ class Instrument:
     LDDATE = 10
     I_ID = 11
     CSS_ID = 12
+    RESPONSE_ID = 13
 
     def __init__(self, data):
         self.instrument_name = data[self.INSTRUMENT_NAME]
@@ -78,6 +81,7 @@ class Instrument:
         self.lddate = data[self.LDDATE]
         self.i_id = data[self.I_ID]
         self.css_id = data[self.CSS_ID]
+        self.response_id = data[self.RESPONSE_ID]
 
     instrument_name = property(operator.attrgetter('_instrument_name'), doc="")
     
@@ -163,6 +167,14 @@ class Instrument:
         val_css_id = validateInteger(val, "css_id", None, None, self.header_type)
         self._css_id = val_css_id
 
+    response_id = property(operator.attrgetter('_response_id'), doc="")
+
+    @response_id.setter
+    def response_id(self, val):
+        val_response_id = validateInteger(val, "response_id", None, None, self.header_type)
+        self._response_id = val_response_id
+
+
     def __str__(self):
         instrumentString = ""
     
@@ -220,7 +232,8 @@ class Instrument:
                             self.resp_dir,
                             self.dfile,
                             self.rsptype,
-                            self.lddate]
+                            self.lddate,
+                            self.response_id]
 
         return instrument_list
 
@@ -231,7 +244,7 @@ def readInstrumentStringToInstrument(ins_line):
     :param str ins_line: css intrument line
     :returns: Instrument object
     """
-    instrument = [None]*13
+    instrument = [None]*14
 
     instrument[Instrument.INSTRUMENT_NAME]  = unidecode.unidecode(ins_line[8:58].strip())
     instrument[Instrument.INSTRUMENT_TYPE]  = unidecode.unidecode(ins_line[60:67].strip())
@@ -246,6 +259,7 @@ def readInstrumentStringToInstrument(ins_line):
     instrument[Instrument.LDDATE]           = unidecode.unidecode(stringToDate(ins_line[228:].strip()))
     instrument[Instrument.I_ID]             = -1
     instrument[Instrument.CSS_ID]           = unidecode.unidecode(ins_line[:8].strip())
+    instrument[Instrument.RESPONSE_ID]      = -1
 
     return Instrument(instrument)
 

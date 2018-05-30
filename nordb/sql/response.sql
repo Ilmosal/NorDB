@@ -13,7 +13,7 @@ CREATE TYPE response_format AS ENUM ('paz', 'fap');
 --Create table command for response
 CREATE TABLE response(
     id SERIAL PRIMARY KEY,
-    instrument_id INTEGER REFERENCES instrument(id) ON DELETE CASCADE,
+    file_name VARCHAR(64),
     source VARCHAR(32),
     stage INTEGER,
     description VARCHAR(32),

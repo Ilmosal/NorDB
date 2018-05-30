@@ -1,18 +1,18 @@
 import pytest
-from nordb.database import station2sql
-from nordb.database import sitechan2sql
-from nordb.database import sensor2sql
+from nordb.database import response2sql
 from nordb.database import instrument2sql
 from nordb.core import usernameUtilities
-from nordb.nordic import station
-from nordb.nordic import sitechan
-from nordb.nordic import sensor
+from nordb.nordic import response
 from nordb.nordic import instrument
 
-@pytest.mark.userfixtures("setupdb", "instrumentFiles")
+@pytest.mark.userfixtures("setupdb", "instrumentFiles", "responesFiles")
 class TestInsertInstrument2Database(object):
-    def testInsertIsSuccesfull(self, setupdb, instrumentFiles):
+    def testInsertIsSuccesfull(self, setupdb, instrumentFiles, responseFiles):
         instruments = []
+
+        for resp in responseFiles:
+            response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
+
         for ins in instrumentFiles:
             instruments.append(instrument.readInstrumentStringToInstrument(ins))
 

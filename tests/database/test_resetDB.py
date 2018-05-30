@@ -7,6 +7,7 @@ from nordb.database import station2sql
 from nordb.database import sitechan2sql
 from nordb.database import instrument2sql
 from nordb.database import sensor2sql
+from nordb.database import response2sql
 
 from nordb.core import usernameUtilities
 from nordb.core import nordic
@@ -15,7 +16,7 @@ from nordb.nordic import station
 from nordb.nordic import sitechan
 from nordb.nordic import instrument
 from nordb.nordic import sensor
-
+from nordb.nordic import response
 
 @pytest.mark.usefixture("nordicEvents", "setupdb")
 class TestResetEvents(object):
@@ -39,9 +40,12 @@ class TestResetEvents(object):
 
         assert ans == 0
 
-@pytest.mark.userfixtures("setupdb", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles")
+@pytest.mark.userfixtures("setupdb", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles", "responseFiles")
 class TestResetStations(object):
-    def testResetStations(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles):
+    def testResetStations(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles, responseFiles):
+        for resp in responseFiles:
+            response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
+
         stations = []
         for stat in stationFiles:    
             stations.append(station.readStationStringToStation(stat, "HE"))
@@ -82,9 +86,9 @@ class TestResetStations(object):
     
         assert ans == 0
 
-@pytest.mark.userfixtures("setupdb", "nordicEvents", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles")
+@pytest.mark.userfixtures("setupdb", "nordicEvents", "stationFiles", "siteChanFiles", "instrumentFiles", "sensorFiles", "responseFiles")
 class TestResetAll(object):
-    def testResetAll(self, nordicEvents, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles):
+    def testResetAll(self, nordicEvents, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles, responseFiles):
         events = []
         for e in nordicEvents:
             events.append(nordic.readNordic(e, False))
@@ -93,6 +97,9 @@ class TestResetAll(object):
 
         for e in events:
             nordic2sql.event2Database(e, "F", "dummy_name", creation_id, -1)
+
+        for resp in responseFiles:
+            response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
 
         stations = []
         for stat in stationFiles:    

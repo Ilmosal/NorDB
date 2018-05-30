@@ -17,7 +17,7 @@ CREATE TABLE fap(
     fap_id INTEGER REFERENCES fap_response(id) ON DELETE CASCADE,
     frequency FLOAT NOT NULL,
     amplitude FLOAT NOT NULL,
-    phase FLOAT,
+    phase INTEGER,
     frequency_error FLOAT NOT NULL,
     amplitude_error FLOAT NOT NULL
 );

@@ -263,6 +263,68 @@ def faultyNordicEvents():
     return faulty_nordic_events
 
 @pytest.fixture(scope="module")
+def responseFiles():
+    response_files =    [
+                            [
+                                [
+                                "theoretical  0   instrument    fap Kortstrom",
+                                "31",
+                                "0.005         0.0229    1  0.0  0.0",
+                                "0.010         0.1114    1  0.0  0.0",
+                                "0.015         0.1958    1  0.0  0.0",
+                                "0.030         0.4199    1  0.0  0.0",
+                                "0.050         0.6930    1  0.0  0.0",
+                                "0.070         0.9682    1  0.0  0.0",
+                                "0.100         1.3857    1  0.0  0.0",
+                                "0.120         1.6650    1  0.0  0.0",
+                                "0.150         2.1009    1  0.0  0.0",
+                                "0.200         2.8082    1  0.0  0.0",
+                                "0.300         4.2234    1  0.0  0.0",
+                                "0.500         7.1712    1  0.0  0.0",
+                                "0.700        10.1545    1  0.0  0.0",
+                                "1.000        13.9598    1  0.0  0.0",
+                                "1.500        20.9456    1  0.0  0.0",
+                                "2.000        28.1589    1  0.0  0.0",
+                                "3.000        42.3953    1  0.0  0.0",
+                                "5.000        73.5891    1  0.0  0.0",
+                                "7.000       106.9870    1  0.0  0.0",
+                                "10.000      159.8350    1  0.0  0.0",
+                                "12.000      192.6820    1  0.0  0.0",
+                                "15.000      256.0200    1  0.0  0.0",
+                                "20.000      361.7280    1  0.0  0.0",
+                                "30.000      593.3300    1  0.0  0.0",
+                                "40.000      964.4180    1  0.0  0.0",
+                                "50.000     1479.0000    1  0.0  0.0",
+                                "60.000     2107.9000    1  0.0  0.0",
+                                "70.000     2206.1500    1  0.0  0.0",
+                                "90.000     1886.5300    1  0.0  0.0",
+                                "95.000     1884.2600    1  0.0  0.0",
+                                "99.000     1000.0000    1  0.0  0.0",
+                                ],
+                                "fap_response"
+                            ],
+                            [
+                                [ 
+                                "theoretical  0   instrument    paz Kortstrom",
+                                "578164367.3",
+                                "5",
+                                "-0.03701             0.03701             0.0                 0.0",
+                                "-0.03701            -0.03701             0.0                 0.0",
+                                "-197.9200            207.34500             0.0                 0.0",
+                                "-197.9200           -207.34500             0.0                 0.0",
+                                "-911.0600              0.0                 0.0                 0.0",
+                                "3",
+                                "0.0                 0.0                 0.0                 0.0",
+                                "0.0                 0.0                 0.0                 0.0",
+                                "0.0                 0.0                 0.0                 0.0",
+                                ],
+                                "paz_response"
+                            ]
+                        ]
+
+    return response_files
+
+@pytest.fixture(scope="module")
 def stationFiles():
     station_files =     [
                         "AFI     2004334       -1  -13.9093 -171.7773    0.7060 AFIAMALU, SAMOA                                    ar   AFI       0.0000    0.0000 2004-Nov-29\n",
@@ -337,12 +399,12 @@ def faultySensorFiles():
 @pytest.fixture(scope="module")
 def instrumentFiles():
     instrument_files =  [
-                            " 1116211 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
-                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
-                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
-                            " 1116214 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
-                            " 1116215 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
-                            " 1116216 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      RPN_bb_response_20040902         pazfir       2004-Nov-30\n",
+                            " 1116211 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      paz_response                     pazfir       2004-Nov-29\n",
+                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      paz_response                     pazfir       2004-Nov-29\n",
+                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      paz_response                     pazfir       2004-Nov-29\n",
+                            " 1116214 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-30\n",
+                            " 1116215 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-30\n",
+                            " 1116216 Streckeisen STS-2/VBB + IDA Mark 8                 STS-2  b d   40.000000         0.215000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-30\n",
                     ]
 
     return instrument_files
@@ -350,9 +412,9 @@ def instrumentFiles():
 @pytest.fixture(scope="module")
 def faultyInstrumentFiles():
     faulty_files =   [
-                            "    ads1 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
-                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STasdadsasd  40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
-                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      AFI_bb_response_20041107         pazfir       2004-Nov-29\n",
+                            "    ads1 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-29\n",
+                            " 1116212 Streckeisen STS-2/VBB + Quanterra Q680             STasdadsasd  40.000000         0.019000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-29\n",
+                            " 1116213 Streckeisen STS-2/VBB + Quanterra Q680             STS-2  b d   40.000000         0.019000         1.000000 ../response                                                      fap_response                     pazfir       2004-Nov-29\n",
                     ]
     return faulty_files
 

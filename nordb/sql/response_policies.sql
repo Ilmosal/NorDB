@@ -33,7 +33,7 @@ CREATE POLICY station_manager_view_policy ON response FOR SELECT TO station_mana
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
@@ -45,7 +45,7 @@ CREATE POLICY station_manager_view_policy ON response FOR SELECT TO station_mana
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 --Station Manager insert policy. Allows station_managers to insert response rows into public and secure network freely and to their own private networks.
@@ -61,7 +61,7 @@ CREATE POLICY station_manager_insert_policy ON response FOR INSERT TO station_ma
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
@@ -73,7 +73,7 @@ CREATE POLICY station_manager_insert_policy ON response FOR INSERT TO station_ma
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 
@@ -90,7 +90,7 @@ CREATE POLICY station_manager_delete_policy ON response FOR DELETE TO station_ma
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
@@ -102,7 +102,7 @@ CREATE POLICY station_manager_delete_policy ON response FOR DELETE TO station_ma
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 /*
@@ -123,7 +123,7 @@ CREATE POLICY user_view_policy ON response FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
@@ -135,7 +135,7 @@ CREATE POLICY user_view_policy ON response FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 --User insert policy. Allows user to insert private response rows
@@ -151,7 +151,7 @@ CREATE POLICY user_insert_policy ON response FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             AND 
             'private' = (  SELECT 
                                 privacy_setting 
@@ -163,7 +163,7 @@ CREATE POLICY user_insert_policy ON response FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 
@@ -180,7 +180,7 @@ CREATE POLICY user_delete_policy ON response FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id) 
+                                    instrument.response_id = response.id) 
             AND 
             'private' = (  SELECT 
                                 privacy_setting 
@@ -192,7 +192,7 @@ CREATE POLICY user_delete_policy ON response FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );
 
 /*
@@ -213,5 +213,5 @@ CREATE POLICY guest_view_policy ON response FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id)
+                                instrument.response_id = response.id)
             );

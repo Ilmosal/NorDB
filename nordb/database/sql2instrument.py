@@ -18,7 +18,7 @@ SELECT_INSTRUMENT = (
                         "SELECT " 
                         "   instrument_name, instrument_type, " 
                         "   band, digital, samprate, ncalib, ncalper, dir, " 
-                        "   dfile, rsptype, lddate, id, css_id " 
+                        "   dfile, rsptype, lddate, id, css_id, response_id " 
                         "FROM " 
                         "   instrument " 
                         "WHERE " 
@@ -28,7 +28,7 @@ ALL_INSTRUMENTS =   (
                         "SELECT " 
                         "   instrument_name, instrument_type, " 
                         "   band, digital, samprate, ncalib, ncalper, dir, " 
-                        "   dfile, rsptype, lddate, id, css_id " 
+                        "   dfile, rsptype, lddate, id, css_id, response_id " 
                         "FROM " 
                         "   instrument " 
                     )

@@ -33,7 +33,7 @@ CREATE POLICY station_manager_view_policy ON fap_response FOR SELECT TO station_
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id) 
             OR 
             'private' != (  SELECT 
@@ -46,7 +46,7 @@ CREATE POLICY station_manager_view_policy ON fap_response FOR SELECT TO station_
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -63,7 +63,7 @@ CREATE POLICY station_manager_view_policy ON fap FOR SELECT TO station_managers
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             OR 
@@ -77,7 +77,7 @@ CREATE POLICY station_manager_view_policy ON fap FOR SELECT TO station_managers
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -96,7 +96,7 @@ CREATE POLICY station_manager_insert_policy ON fap_response FOR INSERT TO statio
                                         station.id = sitechan.station_id AND
                                         sitechan.id = sensor.sitechan_id AND
                                         instrument.id = sensor.instrument_id AND
-                                        instrument.id = response.instrument_id AND
+                                        instrument.response_id = response.id AND
                                         response.id = fap_response.response_id)
                 OR 
                 'private' != (  SELECT 
@@ -109,7 +109,7 @@ CREATE POLICY station_manager_insert_policy ON fap_response FOR INSERT TO statio
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND 
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id)
                 );
 
@@ -126,7 +126,7 @@ CREATE POLICY station_manager_insert_policy ON fap FOR INSERT TO station_manager
                                         station.id = sitechan.station_id AND
                                         sitechan.id = sensor.sitechan_id AND
                                         instrument.id = sensor.instrument_id AND
-                                        instrument.id = response.instrument_id AND
+                                        instrument.response_id = response.id AND
                                         response.id = fap_response.response_id AND
                                         fap_response.id = fap.fap_id)
                 OR 
@@ -140,7 +140,7 @@ CREATE POLICY station_manager_insert_policy ON fap FOR INSERT TO station_manager
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND 
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id)
                 );
@@ -160,7 +160,7 @@ CREATE POLICY station_manager_delete_policy ON fap_response FOR DELETE TO statio
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -173,7 +173,7 @@ CREATE POLICY station_manager_delete_policy ON fap_response FOR DELETE TO statio
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -190,7 +190,7 @@ CREATE POLICY station_manager_delete_policy ON fap FOR DELETE TO station_manager
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
@@ -204,7 +204,7 @@ CREATE POLICY station_manager_delete_policy ON fap FOR DELETE TO station_manager
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -227,7 +227,7 @@ CREATE POLICY user_view_policy ON fap_response FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id) 
             OR 
             'private' != (  SELECT 
@@ -240,7 +240,7 @@ CREATE POLICY user_view_policy ON fap_response FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -257,7 +257,7 @@ CREATE POLICY user_view_policy ON fap FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             OR 
@@ -271,7 +271,7 @@ CREATE POLICY user_view_policy ON fap FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -290,7 +290,7 @@ CREATE POLICY user_insert_policy ON fap_response FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -303,7 +303,7 @@ CREATE POLICY user_insert_policy ON fap_response FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -320,7 +320,7 @@ CREATE POLICY user_insert_policy ON fap FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
@@ -334,7 +334,7 @@ CREATE POLICY user_insert_policy ON fap FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -353,7 +353,7 @@ CREATE POLICY user_delete_policy ON fap_response FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -366,7 +366,7 @@ CREATE POLICY user_delete_policy ON fap_response FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -383,7 +383,7 @@ CREATE POLICY user_delete_policy ON fap FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
@@ -397,7 +397,7 @@ CREATE POLICY user_delete_policy ON fap FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             ); 
@@ -421,7 +421,7 @@ CREATE POLICY guest_view_policy ON fap_response FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id)
             );
 
@@ -438,7 +438,7 @@ CREATE POLICY guest_view_policy ON fap FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );

@@ -150,11 +150,11 @@ def createDatabase():
     cur.execute(open(MODULE_PATH + "sql/network.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/station.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/sitechan.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/instrument.sql", "r").read())
-    cur.execute(open(MODULE_PATH + "sql/sensor.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/response.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/fap_response.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/paz_response.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/instrument.sql", "r").read())
+    cur.execute(open(MODULE_PATH + "sql/sensor.sql", "r").read())
 
     cur.execute(open(MODULE_PATH + "sql/nordb_user_policies.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/creation_info_policies.sql", "r").read())

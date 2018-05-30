@@ -11,8 +11,8 @@ def resetDatabase():
     Function for clearing the database from all of its data
 
     """
-    norDBManagement.destroyDatabase()
-    norDBManagement.createDatabase()
+    resetEvents()
+    resetStations()
 
 def resetEvents():
     """
@@ -47,7 +47,7 @@ def resetStations():
     cur = conn.cursor()
     try:
         cur.execute("DELETE FROM network")
-      
+        cur.execute("DELETE FROM instrument")      
         cur.execute("ALTER SEQUENCE instrument_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE sensor_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE response_id_seq RESTART WITH 1")

@@ -33,7 +33,7 @@ CREATE POLICY station_manager_view_policy ON paz_response FOR SELECT TO station_
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id) 
             OR 
             'private' != (  SELECT 
@@ -46,7 +46,7 @@ CREATE POLICY station_manager_view_policy ON paz_response FOR SELECT TO station_
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -63,7 +63,7 @@ CREATE POLICY station_manager_view_policy ON pole FOR SELECT TO station_managers
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id) 
             OR 
@@ -77,7 +77,7 @@ CREATE POLICY station_manager_view_policy ON pole FOR SELECT TO station_managers
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             );
@@ -95,7 +95,7 @@ CREATE POLICY station_manager_view_policy ON zero FOR SELECT TO station_managers
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id) 
             OR 
@@ -109,7 +109,7 @@ CREATE POLICY station_manager_view_policy ON zero FOR SELECT TO station_managers
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             );
@@ -127,7 +127,7 @@ CREATE POLICY station_manager_insert_policy ON paz_response FOR INSERT TO statio
                                         station.id = sitechan.station_id AND
                                         sitechan.id = sensor.sitechan_id AND
                                         instrument.id = sensor.instrument_id AND
-                                        instrument.id = response.instrument_id AND
+                                        instrument.response_id = response.id AND
                                         response.id = paz_response.response_id)
                 OR 
                 'private' != (  SELECT 
@@ -140,7 +140,7 @@ CREATE POLICY station_manager_insert_policy ON paz_response FOR INSERT TO statio
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND 
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id)
                 );
 
@@ -157,7 +157,7 @@ CREATE POLICY station_manager_insert_policy ON pole FOR INSERT TO station_manage
                                         station.id = sitechan.station_id AND
                                         sitechan.id = sensor.sitechan_id AND
                                         instrument.id = sensor.instrument_id AND
-                                        instrument.id = response.instrument_id AND
+                                        instrument.response_id = response.id AND
                                         response.id = paz_response.response_id AND
                                         paz_response.id = pole.paz_id)
                 OR 
@@ -171,7 +171,7 @@ CREATE POLICY station_manager_insert_policy ON pole FOR INSERT TO station_manage
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND 
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id)
                 );
@@ -189,7 +189,7 @@ CREATE POLICY station_manager_insert_policy ON zero FOR INSERT TO station_manage
                                         station.id = sitechan.station_id AND
                                         sitechan.id = sensor.sitechan_id AND
                                         instrument.id = sensor.instrument_id AND
-                                        instrument.id = response.instrument_id AND
+                                        instrument.response_id = response.id AND
                                         response.id = paz_response.response_id AND
                                         paz_response.id = zero.paz_id)
                 OR 
@@ -203,7 +203,7 @@ CREATE POLICY station_manager_insert_policy ON zero FOR INSERT TO station_manage
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND 
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id)
                 );
@@ -221,7 +221,7 @@ CREATE POLICY station_manager_delete_policy ON paz_response FOR DELETE TO statio
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -234,7 +234,7 @@ CREATE POLICY station_manager_delete_policy ON paz_response FOR DELETE TO statio
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -251,7 +251,7 @@ CREATE POLICY station_manager_delete_policy ON pole FOR DELETE TO station_manage
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id) 
             AND 
@@ -265,7 +265,7 @@ CREATE POLICY station_manager_delete_policy ON pole FOR DELETE TO station_manage
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             );
@@ -283,7 +283,7 @@ CREATE POLICY station_manager_delete_policy ON zero FOR DELETE TO station_manage
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id) 
             AND 
@@ -297,7 +297,7 @@ CREATE POLICY station_manager_delete_policy ON zero FOR DELETE TO station_manage
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             );
@@ -320,7 +320,7 @@ CREATE POLICY user_view_policy ON paz_response FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id) 
             OR 
             'private' != (  SELECT 
@@ -333,7 +333,7 @@ CREATE POLICY user_view_policy ON paz_response FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -350,7 +350,7 @@ CREATE POLICY user_view_policy ON pole FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id) 
             OR 
@@ -364,7 +364,7 @@ CREATE POLICY user_view_policy ON pole FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             );
@@ -382,7 +382,7 @@ CREATE POLICY user_view_policy ON zero FOR SELECT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id) 
             OR 
@@ -396,7 +396,7 @@ CREATE POLICY user_view_policy ON zero FOR SELECT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             );
@@ -414,7 +414,7 @@ CREATE POLICY user_insert_policy ON paz_response FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -427,7 +427,7 @@ CREATE POLICY user_insert_policy ON paz_response FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -444,7 +444,7 @@ CREATE POLICY user_insert_policy ON pole FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id) 
             AND 
@@ -458,7 +458,7 @@ CREATE POLICY user_insert_policy ON pole FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             );
@@ -476,7 +476,7 @@ CREATE POLICY user_insert_policy ON zero FOR INSERT TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id) 
             AND 
@@ -490,7 +490,7 @@ CREATE POLICY user_insert_policy ON zero FOR INSERT TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             );
@@ -508,7 +508,7 @@ CREATE POLICY user_delete_policy ON paz_response FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id) 
             AND 
             'private' = (   SELECT 
@@ -521,7 +521,7 @@ CREATE POLICY user_delete_policy ON paz_response FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -538,7 +538,7 @@ CREATE POLICY user_delete_policy ON pole FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = pole.paz_id) 
             AND 
@@ -552,7 +552,7 @@ CREATE POLICY user_delete_policy ON pole FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             ); 
@@ -570,7 +570,7 @@ CREATE POLICY user_delete_policy ON zero FOR DELETE TO default_users
                                     station.id = sitechan.station_id AND
                                     sitechan.id = sensor.sitechan_id AND
                                     instrument.id = sensor.instrument_id AND
-                                    instrument.id = response.instrument_id AND
+                                    instrument.response_id = response.id AND
                                     response.id = paz_response.response_id AND
                                     paz_response.id = zero.paz_id) 
             AND 
@@ -584,7 +584,7 @@ CREATE POLICY user_delete_policy ON zero FOR DELETE TO default_users
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             ); 
@@ -607,7 +607,7 @@ CREATE POLICY guest_view_policy ON paz_response FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id)
             );
 
@@ -624,7 +624,7 @@ CREATE POLICY guest_view_policy ON pole FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = pole.paz_id)
             );
@@ -642,7 +642,7 @@ CREATE POLICY guest_view_policy ON zero FOR SELECT TO guests
                                 station.id = sitechan.station_id AND
                                 sitechan.id = sensor.sitechan_id AND 
                                 instrument.id = sensor.instrument_id AND
-                                instrument.id = response.instrument_id AND
+                                instrument.response_id = response.id AND
                                 response.id = paz_response.response_id AND
                                 paz_response.id = zero.paz_id)
             );

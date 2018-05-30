@@ -13,14 +13,41 @@ from nordb.core import usernameUtilities
 from nordb.core.utils import stringToDate
 
 INSTRUMENT_INSERT = (   
-                        "INSERT INTO instrument " 
-                            "(  css_id, instrument_name, instrument_type, " 
-                            "   band, digital, samprate, ncalib, " 
-                            "   ncalper, dir, dfile, rsptype, " 
-                            "   lddate) " 
-                        "VALUES " 
-                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
+                    "INSERT INTO instrument " 
+                        "(  css_id, instrument_name, instrument_type, " 
+                        "   band, digital, samprate, ncalib, " 
+                        "   ncalper, dir, dfile, rsptype, " 
+                        "   lddate, response_id) " 
+                    "VALUES " 
+                        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
                     )
+
+FIND_RESPONSE =     (
+                    "SELECT "
+                    "   response.id "
+                    "FROM "
+                    "   response "
+                    "WHERE "
+                    "   response.file_name = %s "
+                    )
+
+def getResponseId(response_file_name):
+    """
+    Function for finding the correct response for the instrument
+
+    :param String response_file_name: filename of the response 
+    :returns: id of the response in the database 
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+    response_id = -1
+    try:
+        cur.execute(FIND_RESPONSE, (response_file_name,))
+        response_id = cur.fetchone()[0]
+    except Exception as e:
+        conn.close()
+        raise e
+    return response_id
 
 def insertInstrument2Database(instrument):
     """ 
@@ -31,6 +58,7 @@ def insertInstrument2Database(instrument):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     try:
+        instrument.response_id = getResponseId(instrument.dfile)
         cur.execute(INSTRUMENT_INSERT, instrument.getAsList())
     except Exception as e:
         conn.close()

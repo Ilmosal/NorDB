@@ -12,7 +12,7 @@ CREATE TABLE instrument(
     id SERIAL PRIMARY KEY,
     css_id INTEGER UNIQUE,
     instrument_name VARCHAR(50),
-    instrument_type Varchar(6),
+    instrument_type VARCHAR(6),
     band VARCHAR(1),
     digital VARCHAR(1),
     samprate FLOAT,
@@ -20,6 +20,7 @@ CREATE TABLE instrument(
     ncalper FLOAT,
     dir VARCHAR(64),
     dfile VARCHAR(32),
+    response_id INTEGER REFERENCES response(id) ON DELETE CASCADE, 
     rsptype VARCHAR(6),
     lddate DATE
 );
