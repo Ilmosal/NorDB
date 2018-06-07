@@ -107,7 +107,7 @@ ENV/
 nordb/.nordb.config
 
 .user.config
-.*.config
+*.config
 *.swp
 
 #Backups

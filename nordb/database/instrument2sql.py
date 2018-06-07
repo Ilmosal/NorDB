@@ -12,14 +12,14 @@ from nordb.nordic.instrument import Instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import stringToDate
 
-INSTRUMENT_INSERT = (   
-                    "INSERT INTO instrument " 
-                        "(  css_id, instrument_name, instrument_type, " 
-                        "   band, digital, samprate, ncalib, " 
-                        "   ncalper, dir, dfile, rsptype, " 
-                        "   lddate, response_id) " 
-                    "VALUES " 
-                        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " 
+INSTRUMENT_INSERT = (
+                    "INSERT INTO instrument "
+                        "(  css_id, instrument_name, instrument_type, "
+                        "   band, digital, samprate, ncalib, "
+                        "   ncalper, dir, dfile, rsptype, "
+                        "   lddate, response_id) "
+                    "VALUES "
+                        "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                     )
 
 FIND_RESPONSE =     (
@@ -35,8 +35,8 @@ def getResponseId(response_file_name):
     """
     Function for finding the correct response for the instrument
 
-    :param String response_file_name: filename of the response 
-    :returns: id of the response in the database 
+    :param String response_file_name: filename of the response
+    :returns: id of the response in the database
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
@@ -50,7 +50,7 @@ def getResponseId(response_file_name):
     return response_id
 
 def insertInstrument2Database(instrument):
-    """ 
+    """
     Function for inserting the instrument array to the database
 
     :param Instrument instrument: instrument that will be inserted to the database

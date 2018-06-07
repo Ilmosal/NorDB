@@ -3,7 +3,7 @@ Contains information relevant to Station class
 """
 
 import operator
-import unidecode 
+import unidecode
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateString
@@ -16,10 +16,10 @@ from nordb.core.utils import stringToDate
 class Station(object):
     """
     Class for information in station. Comes from the css site format.
- 
-    :param array data: all the relevant data for Station in an array. These values are accessed by its numerations. 
+
+    :param array data: all the relevant data for Station in an array. These values are accessed by its numerations.
     :ivar int STATION_CODE: code of the station. Value 0
-    :ivar int ON_DATE: date when the station started working. Value 1 
+    :ivar int ON_DATE: date when the station started working. Value 1
     :ivar int OFF_DATE: date when the station was closed. Value 2
     :ivar int LATITUDE: latitude of the station. Value 3
     :ivar int LONGITUDE: longitude of the staion. Value 4
@@ -42,7 +42,7 @@ class Station(object):
     LONGITUDE = 4
     ELEVATION = 5
     STATION_NAME = 6
-    STATION_TYPE = 7 
+    STATION_TYPE = 7
     REFERENCE_STATION = 8
     NORTH_OFFSET = 9
     EAST_OFFSET = 10
@@ -50,9 +50,9 @@ class Station(object):
     NETWORK = 12
     NETWORK_ID = 13
     S_ID = 14
-    sitechans = []
- 
+
     def __init__(self, data):
+        self.sitechans = []
         self.station_code = data[self.STATION_CODE]
         self.on_date = data[self.ON_DATE]
         self.off_date = data[self.OFF_DATE]
@@ -70,103 +70,115 @@ class Station(object):
         self.s_id = data[self.S_ID]
 
     station_code = property(operator.attrgetter('_station_code'), doc="")
-    
+
     @station_code.setter
     def station_code(self, val):
         val_station_code = validateString(val, "station_code", 0, 6, None, self.header_type)
         self._station_code = val_station_code
 
     on_date = property(operator.attrgetter('_on_date'), doc="")
-    
+
     @on_date.setter
     def on_date(self, val):
         val_on_date = validateDate(val, "on_date", self.header_type)
         self._on_date = val_on_date
 
     off_date = property(operator.attrgetter('_off_date'), doc="")
-    
+
     @off_date.setter
     def off_date(self, val):
         val_off_date = validateDate(val, "off_date", self.header_type)
         self._off_date = val_off_date
 
     latitude = property(operator.attrgetter('_latitude'), doc="")
-    
+
     @latitude.setter
     def latitude(self, val):
         val_latitude = validateFloat(val, "latitude", -90.0, 90.0, self.header_type)
         self._latitude = val_latitude
 
     longitude = property(operator.attrgetter('_longitude'), doc="")
-    
+
     @longitude.setter
     def longitude(self, val):
         val_longitude = validateFloat(val, "longitude", -180.0, 180.0, self.header_type)
         self._longitude = val_longitude
 
     elevation = property(operator.attrgetter('_elevation'), doc="")
-    
+
     @elevation.setter
     def elevation(self, val):
         val_elevation = validateFloat(val, "elevation", -10.0, 10.0, self.header_type)
         self._elevation = val_elevation
 
     station_name = property(operator.attrgetter('_station_name'), doc="")
-    
+
     @station_name.setter
     def station_name(self, val):
         val_station_name = validateString(val, "station_name", 0, 50, None, self.header_type)
         self._station_name = val_station_name
 
     station_type = property(operator.attrgetter('_station_type'), doc="")
-    
+
     @station_type.setter
     def station_type(self, val):
         val_station_type = validateString(val, "station_type", 1, 2, ['b', 'ss', 'bb', 'll', 'ar'], self.header_type)
         self._station_type = val_station_type
 
     reference_station = property(operator.attrgetter('_reference_station'), doc="")
-    
+
     @reference_station.setter
     def reference_station(self, val):
         val_reference_station = validateString(val, "reference_station", 0, 6, None, self.header_type)
         self._reference_station = val_reference_station
 
     north_offset = property(operator.attrgetter('_north_offset'), doc="")
-    
+
     @north_offset.setter
     def north_offset(self, val):
         val_north_offset = validateFloat(val, "north_offset", -100.0, 100.0, self.header_type)
         self._north_offset = val_north_offset
 
     east_offset = property(operator.attrgetter('_east_offset'), doc="")
-    
+
     @east_offset.setter
     def east_offset(self, val):
         val_east_offset = validateFloat(val, "east_offset", -100.0, 100.0, self.header_type)
         self._east_offset = val_east_offset
 
     load_date = property(operator.attrgetter('_load_date'), doc="")
-    
+
     @load_date.setter
     def load_date(self, val):
         val_load_date = validateDate(val, "load_date", self.header_type)
         self._load_date = val_load_date
 
+    def getResponse(self, channel):
+        """
+        :param str channel: channel code of the response file. One of bz,bn,be,sz,sn,se.
+        :returns: Response object or None if there is no response
+        """
+        try:
+            for sitechan in self.sitechans:
+                if sitechan.channel_type == channel:
+                    return sitechan.sensors[0].instruments[0].response
+        except:
+            return None
+
     def __str__(self):
         stationString = ""
         stationString += addString2String(self.station_code, 8, '<')
 
-        stationString += addInteger2String(self.on_date.year, 4, '<') 
-        stationString += addInteger2String(self.on_date.timetuple().tm_yday, 3, '0') 
-        
+        stationString += addInteger2String(self.on_date.year, 4, '<')
+        stationString += addInteger2String(self.on_date.timetuple().tm_yday, 3, '0')
+
         stationString += "  "
 
         if self.off_date is None:
             stationString += addInteger2String(-1, 7, '>')
         else:
-            stationString += addInteger2String(self.off_date.year, 4, '<') 
-            stationString += addInteger2String(self.off_date.timetuple().tm_yday, 3, '0') 
+            stationString += addInteger2String(self.off_date.year, 4, '<')
+            stationString += addInteger2String(self.off_date.timetuple().tm_yday, 3, '0')
 
         stationString += "  "
         stationString += addFloat2String(self.latitude, 8, 4, '>')
@@ -214,18 +226,18 @@ class Station(object):
                         self.network_id,]
 
         return station_list
- 
+
 def readStationStringToStation(stat_line, network):
-    """ 
+    """
     Function for reading Station object from a css site string
 
     :param str stat_line: css site string
     :param str network: network of the station
-    :returns: Station object   
+    :returns: Station object
     """
 
     stations = [None]*15
-    
+
     stations[Station.STATION_CODE]      = unidecode.unidecode(stat_line[0:6].strip())
     stations[Station.ON_DATE]           = unidecode.unidecode(stringToDate(stat_line[8:15].strip()))
     stations[Station.OFF_DATE]          = unidecode.unidecode(stringToDate(stat_line[17:24].strip()))

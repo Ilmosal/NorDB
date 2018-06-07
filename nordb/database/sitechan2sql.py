@@ -23,9 +23,9 @@ CHANNEL_INSERT = (  "INSERT INTO sitechan" +
                     "   id" )
 
 def insertSiteChan2Database(channel):
-    """ 
+    """
     Function for inserting the sitechan array to the database.
-        
+
     :param SiteChan channel: sitechan that will be inserted to the database
     """
     conn = usernameUtilities.log2nordb()
@@ -36,7 +36,7 @@ def insertSiteChan2Database(channel):
 
         if ans is None:
             raise Exception("No station for channel!")
-        
+
         channel.station_id = ans[0]
 
         cur.execute(CHANNEL_INSERT, channel.getAsList())

@@ -47,7 +47,7 @@ class SiteChan(object):
     S_ID = 10
     STATION_ID = 11
     CSS_ID = 12
- 
+
     def __init__(self, data):
         self.sensors = []
         self.station_code = data[self.STATION_CODE]
@@ -63,7 +63,7 @@ class SiteChan(object):
         self.s_id = data[self.S_ID]
         self.station_id = data[self.STATION_ID]
         self.css_id = data[self.CSS_ID]
-    
+
     station_code = property(operator.attrgetter('_station_code'), doc="")
 
     @station_code.setter
@@ -79,63 +79,63 @@ class SiteChan(object):
         self._channel_code = val_channel_code
 
     on_date = property(operator.attrgetter('_on_date'), doc="")
-    
+
     @on_date.setter
     def on_date(self, val):
         val_on_date = validateDate(val, "on_date", self.header_type)
         self._on_date = val_on_date
 
     off_date = property(operator.attrgetter('_off_date'), doc="")
-    
+
     @off_date.setter
     def off_date(self, val):
         val_off_date = validateDate(val, "off_date", self.header_type)
         self._off_date = val_off_date
 
     channel_type = property(operator.attrgetter('_channel_type'), doc="")
-    
+
     @channel_type.setter
     def channel_type(self, val):
         val_channel_type = validateString(val, "channel_type", 0, 4, None, self.header_type)
         self._channel_type = val_channel_type
 
     emplacement_depth = property(operator.attrgetter('_emplacement_depth'), doc="")
-    
+
     @emplacement_depth.setter
     def emplacement_depth(self, val):
         val_emplacement_depth = validateFloat(val, "emplacement_depth", 0.0, 5.0, self.header_type)
         self._emplacement_depth = val_emplacement_depth
 
     horizontal_angle = property(operator.attrgetter('_horizontal_angle'), doc="")
-    
+
     @horizontal_angle.setter
     def horizontal_angle(self, val):
         val_horizontal_angle = validateFloat(val, "horizontal_angle", -1.0, 360.0, self.header_type)
         self._horizontal_angle = val_horizontal_angle
 
     vertical_angle = property(operator.attrgetter('_vertical_angle'), doc="")
-    
+
     @vertical_angle.setter
     def vertical_angle(self, val):
         val_vertical_angle = validateFloat(val, "vertical_angle", -1.0, 180.0, self.header_type)
         self._vertical_angle = val_vertical_angle
 
     description = property(operator.attrgetter('_description'), doc="")
-    
+
     @description.setter
     def description(self, val):
         val_description = validateString(val, "description", 0, 50, None, self.header_type)
         self._description = val_description
 
     load_date = property(operator.attrgetter('_load_date'), doc="")
-    
+
     @load_date.setter
     def load_date(self, val):
         val_load_date = validateDate(val, "load_date", self.header_type)
         self._load_date = val_load_date
 
     css_id = property(operator.attrgetter('_css_id'), doc="")
-    
+
     @css_id.setter
     def css_id(self, val):
         val_css_id = validateInteger(val, "css_id", None, None, self.header_type)

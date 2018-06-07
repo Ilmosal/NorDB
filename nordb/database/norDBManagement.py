@@ -60,7 +60,7 @@ def countEvents(solution_type = None):
     """
     Function for returning the number of all events in the database.
 
-    :param solution_type str: If solution_type is defined, countEvents will only count all events of the chosen type. Otherwise it will return the amount of all events in the database. 
+    :param solution_type str: If solution_type is defined, countEvents will only count all events of the chosen type. Otherwise it will return the amount of all events in the database.
     :returns: The number of events of the chosen type or number of all events
     """
     conn = usernameUtilities.log2nordb()
@@ -113,7 +113,7 @@ def createDatabase():
     conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
-    
+
     if settings.test:
         cur.execute("SELECT 1 FROM pg_database WHERE datname = 'test_nordb'")
     else:
@@ -127,13 +127,13 @@ def createDatabase():
         cur.execute("CREATE DATABASE test_nordb")
     else:
         cur.execute("CREATE DATABASE {0}".format(settings.getDBName()))
-    
+
     conn.commit()
     conn.close()
-    
+
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-   
+
     cur.execute(open(MODULE_PATH + "sql/create_roles.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/nordb_user.sql", "r").read())
     cur.execute(open(MODULE_PATH + "sql/creation_info.sql", "r").read())
@@ -195,19 +195,28 @@ def createUser(username, user_role, password):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    if user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
-        raise Exception("User role not a valid user role ({0})".format(user_role))
+    try:
+        if user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
+            raise Exception("User role not a valid user role ({0})".format(user_role))
 
-    cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
-    if cur.fetchone() is not None:
-        raise Exception("The user already exists! Chooose another username. ({0})".format(username))
+        cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
+        if cur.fetchone() is not None:
+            raise Exception("The user already exists! Chooose another username. ({0})".format(username))
 
-    if len(username) > 32:
-        raise Exception('Username too long!')
+        if len(username) > 32:
+            raise Exception('Username too long!')
 
-    cur.execute("CREATE USER %s IN ROLE %s PASSWORD %s", (username, user_role, password))
-    cur.execute("ALTER USER %s WITH CREATEROLE")
-    cur.execute("INSERT INTO nordb_user (username, role) VALUES (%s, %s)".format())
+        cur.execute("CREATE USER {0} IN ROLE {1} PASSWORD %s".format(username,
+                                                                     user_role),
+                    (password,))
+        cur.execute("INSERT INTO nordb_user (username, role) VALUES (%s, %s)",
+                    (username, user_role))
+    except Exception as e:
+        conn.close()
+        raise e
+
+    conn.commit()
+    conn.close()
 
 def removeUser(username):
     """
@@ -216,16 +225,23 @@ def removeUser(username):
     """
     if not checkPermissions('admin'):
         raise Exception('You are not an admin in the database so you cannot run this command')
-    
+
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
-    if cur.fetchone() is None:
-        raise Exception("The user does not exist! Chooose another username. ({0})".format(username))
+    try:
+        cur.execute("SELECT * FROM pg_roles WHERE rolname = %s", (username,))
+        if cur.fetchone() is None:
+            raise Exception("The user does not exist! Chooose another username. ({0})".format(username))
 
-    cur.execute("DELETE FROM nordb_user WHERE username = username")
-    cur.execute("DROP ROLE %s", (username,)) 
+        cur.execute("DELETE FROM nordb_user WHERE username = %s", (username, ))
+        cur.execute("DROP ROLE {0}".format(username))
+    except Exception as e:
+        conn.close()
+        raise e
+
+    conn.commit()
+    conn.close()
 
 def alterUser(username, new_username = None, new_user_role = None, new_password = None):
     """

@@ -6,11 +6,10 @@ Functions and Classes
 """
 
 
-from nordb.database import sql2instrument
 from nordb.core import usernameUtilities
 from nordb.nordic.response import FapResponse, PazResponse
 
-SELECT_RESPONSE =   (   
+SELECT_RESPONSE =   (
                     "SELECT "
                     "   file_name, source, stage, description, "
                     "   format, author, id "
@@ -22,13 +21,15 @@ SELECT_RESPONSE =   (
 
 SELECT_FAP =    (
                 "SELECT "
-                "   frequency, amplitude, phase, frequency_error, amplitude_error "
+                "   frequency, amplitude, phase, amplitude_error, phase_error "
                 "FROM "
                 "   fap, fap_response, response "
                 "WHERE "
                 "   response.id = %s AND "
                 "   fap_response.response_id = response_id AND "
                 "   fap.fap_id = fap_response.id "
+                "ORDER BY "
+                "   frequency "
                 )
 
 SELECT_PAZ =    (
@@ -48,7 +49,9 @@ SELECT_POLES =  (
                 "WHERE "
                 "   response.id = %s AND "
                 "   pole.paz_id = paz_response.id AND "
-                "   paz_response.response_id = response.id"
+                "   paz_response.response_id = response.id "
+                "ORDER BY "
+                "   real "
                 )
 
 SELECT_ZEROS =  (
@@ -59,7 +62,9 @@ SELECT_ZEROS =  (
                 "WHERE "
                 "   response.id = %s AND "
                 "   zero.paz_id = paz_response.id AND "
-                "   paz_response.response_id = response.id"
+                "   paz_response.response_id = response.id "
+                "ORDER BY "
+                "   real"
                 )
 
 def getResponse(response_id):
@@ -76,6 +81,9 @@ def getResponse(response_id):
 
     cur.execute(SELECT_RESPONSE, (response_id, ))
     response_data = cur.fetchone()
+
+    if response_data is None:
+        return None
 
     if response_data[FapResponse.RESPONSE_FORMAT] == 'fap':
         cur.execute(SELECT_FAP, (response_id,))

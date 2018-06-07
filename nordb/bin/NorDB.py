@@ -25,6 +25,7 @@ from nordb.database import nordic2sql
 from nordb.database import sensor2sql
 from nordb.database import sitechan2sql
 from nordb.database import station2sql
+from nordb.database import response2sql
 
 from nordb.database import nordicSearch
 from nordb.database import norDBManagement
@@ -38,6 +39,7 @@ from nordb.database import sql2nordic
 from nordb.database import sql2sensor
 from nordb.database import sql2station
 from nordb.database import sql2sitechan
+from nordb.database import sql2response
 
 from nordb.core import nordic
 from nordb.core import nordic2quakeml
@@ -50,6 +52,7 @@ from nordb.nordic import instrument
 from nordb.nordic import sensor
 from nordb.nordic import sitechan
 from nordb.nordic import station
+from nordb.nordic import response
 
 from nordb.nordic import nordicEvent
 
@@ -64,7 +67,7 @@ class Repo(object):
 def cli(ctx):
     """
     This is the command line tool for NorDB database. If this is your first time running the program remember to first configure your .nordb.config file with conf and then create the database using create. You also have to initialize your postgresql user before working with the database
-    
+
     You can request help for all the commands with -h or --help flags.
     """
     ctx.obj = Repo()
@@ -73,7 +76,31 @@ def cli(ctx):
 @click.pass_obj
 def conf(repo):
     """Configures the config file for the nordb. Give the username option your postgres username so the program can use your postgres-databased."""
-    usernameUtilities.confUser() 
+    usernameUtilities.confUser()
+
+@cli.command('createuser', short_help = "add users to db")
+@click.argument('role', type=click.Choice(['default_users','admins', 'guests',
+                                           'station_managers']))
+@click.argument('username')
+@click.pass_obj
+def createuser(repo, role, username):
+    """
+    Create user to the database.
+    """
+    norDBManagement.createUser( username,
+                                role,
+                                click.prompt(   'Please enter password: ',
+                                                hide_input=True))
+
+@cli.command('removeuser', short_help = "remove user from db")
+@click.argument('username')
+@click.pass_obj
+def createuser(repo, username):
+    """
+    Remove user from the database.
+    """
+    click.confirm('Do you want to remove user {0}?'.format(username), abort=True)
+    norDBManagement.removeUser(username)
 
 @cli.command('search', short_help='search for events')
 @click.option('--verbose', '-v', is_flag=True, help="Print the whole nordic file instead of the main header.")
@@ -197,7 +224,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
         click.echo("No criteria given to search. NorDB will print all events. This might take a while. Ctrl-C will abort the search")
 
     events = search.searchEvents()
-    
+
     if not events:
         click.echo("No events found with criteria: \n{0}".format(search.getCriteriaString()[:-1]))
         return
@@ -233,7 +260,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
 
         if output_format == "n":
             for event in events:
-                f_output.write(str(event))         
+                f_output.write(str(event))
                 f_output.write("\n")
 
         elif output_format == "q":
@@ -246,6 +273,30 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
 
         f_output.close()
 
+@cli.command('insertresp', short_help = "insert response files")
+@click.argument('response_file',
+                nargs=-1,
+                type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def insertresp(repo, response_file):
+    """
+    This command adds a response file to the database.
+    """
+    for resp in response_file:
+        resp_file = open(resp, 'r').read().split('\n')
+        response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp_file,
+                                                                                 resp))
+
+@cli.command('getresp', short_help = "get response files")
+@click.argument('filename', type = click.Path(exists=False))
+@click.argument('response_id', type = click.INT)
+@click.pass_obj
+def getresp(repo, filename, response_id):
+    """
+    Get response file from the database by id and write it to a file.
+    """
+    open(filename, 'w').write(str(sql2response.getResponse(response_id)))
+
 @cli.command('insertsta', short_help='insert station related files')
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen in addition to error log")
 @click.option('--all_files', '-a', is_flag=True, help="add all four station files: .site, .sitechan, .instrument, .sensor to db")
@@ -254,13 +305,16 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
 @click.pass_obj
 def insertsta(repo, station_file, network, verbose, all_files):
     """
-    This command adds a site table to the database
+    This command adds a site file to the database
     """
     if fnmatch.fnmatch(station_file, "*.site"):
         f_stations = open(station_file, 'r')
         stations = []
 
         for line in f_stations:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue
+
             try:
                 stations.append(station.readStationStringToStation(line, network))
             except Exception as e:
@@ -273,7 +327,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
             except Exception as e:
                 click.echo("Error pushing station to the database: {0}".format(e))
                 click.echo("Line: {0}".format(sen))
-        
+
         if all_files:
             station_file = station_file.split(".")[0] + ".sitechan"
     if fnmatch.fnmatch(station_file, "*.sitechan"):
@@ -281,6 +335,9 @@ def insertsta(repo, station_file, network, verbose, all_files):
         sitechans = []
 
         for line in f_sitechans:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue
+
             try:
                 sitechans.append(sitechan.readSiteChanStringToSiteChan(line))
             except Exception as e:
@@ -302,6 +359,9 @@ def insertsta(repo, station_file, network, verbose, all_files):
         instruments = []
 
         for line in f_instruments:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue
+
             try:
                 instruments.append(instrument.readInstrumentStringToInstrument(line))
             except Exception as e:
@@ -321,8 +381,10 @@ def insertsta(repo, station_file, network, verbose, all_files):
     if fnmatch.fnmatch(station_file, "*.sensor"):
         f_sensors = open(station_file, 'r')
         sensors = []
-
         for line in f_sensors:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue
+
             try:
                 sensors.append(sensor.readSensorStringToSensor(line))
             except Exception as e:
@@ -337,7 +399,7 @@ def insertsta(repo, station_file, network, verbose, all_files):
                 click.echo("Line: {0}".format(sen))
 
 @cli.command('getsta', short_help='get station related info')
-@click.option('--format', '-f', default="stationxml", type=click.Choice(["site", "sitechan", "sensor", "instrument", "all", "stationxml"]), help="File that you want to get from the database")
+@click.option('--o_format', '-f', default="stationxml", type=click.Choice(["site", "sitechan", "sensor", "instrument", "all", "stationxml"]), help="File that you want to get from the database")
 @click.argument('stat_ids', nargs=-1, type=click.INT)
 @click.argument('output_name', required=True, type=click.Path(exists=False, readable=True))
 @click.pass_obj
@@ -354,7 +416,7 @@ def getsta(repo, o_format, output_name, stat_ids):
             try:
                 stations.append(sql2station.getStation(s_id))
             except:
-                click.echo("No station with id {0} in the database!".format(s_id)) 
+                click.echo("No station with id {0} in the database!".format(s_id))
 
         if not stations:
             return
@@ -383,11 +445,12 @@ def getsta(repo, o_format, output_name, stat_ids):
             f_write.write(str(stat) + "\n")
 
         f_write.close()
+
     if o_format == "sitechan" or o_format == "all":
         sitechans = []
         if not stat_ids:
             sitechans = sql2sitechan.getAllSitechans()
-        
+
         for s_id in stat_ids:
             try:
                 sitechans.append(sql2sitechan.getSitechan(s_id))
@@ -402,6 +465,7 @@ def getsta(repo, o_format, output_name, stat_ids):
             f_write.write(str(chan) + "\n")
 
         f_write.close()
+
     if o_format == "sensor" or o_format == "all":
         sensors = []
         if not stat_ids:
@@ -409,18 +473,19 @@ def getsta(repo, o_format, output_name, stat_ids):
 
         for s_id in stat_ids:
             try:
-                sensors.append(sql2sensor.getSensor(s_id))    
+                sensors.append(sql2sensor.getSensor(s_id))
             except:
-                click.echo("No sensor with id {0} in the database!".format(s_id))        
-       
+                click.echo("No sensor with id {0} in the database!".format(s_id))
+
         if not sensors:
             return
- 
+
         f_write = open(output_name+".sensor", "w")
         for sen in sensors:
             f_write.write(str(sen) + "\n")
 
         f_write.close()
+
     if o_format == "instrument" or o_format == "all":
         instruments = []
         if not stat_ids:
@@ -468,12 +533,12 @@ def chgtype(repo, solution_type, event_id):
     """
     This command changes the solution type of a event with id of event-id to solution-type given by user or creates a new root for the event. Solution type refers to how final the analysis of the event is.
     """
-    if solution_type not in solutionTypeHandler.getSolutionTypes(): 
+    if solution_type not in solutionTypeHandler.getSolutionTypes():
         click.echo("Solution type given is not a valid solution type! ({0})".format(solution_type))
         click.echo("Solution types in database:")
         click.echo("Type Id | Type Description                 | Allow Multiple")
         click.echo("--------+----------------------------------+---------------")
-        for s_type in solutionTypeHandler.getSolutionTypes(): 
+        for s_type in solutionTypeHandler.getSolutionTypes():
             click.echo(" {0:<6} | {1:<32} | {2}".format(s_type[0], s_type[1], s_type[2]))
         return
     nordicModify.changeEventType(event_id, solution_type)
@@ -486,8 +551,8 @@ def chgtype(repo, solution_type, event_id):
 def stype(repo, stype_option):
     """
     This command is for adding, removing and looking the solution types in the database. They will prompt the necessary values from the user.
-    """ 
-    try: 
+    """
+    try:
         if stype_option == "list":
             types = solutionTypeHandler.getSolutionTypes()
             click.echo("Type Id | Type Description                 | Allow Multiple")
@@ -515,8 +580,8 @@ def stype(repo, stype_option):
                 solutionTypeHandler.addSolutionType(type_id, type_desc, type_allow)
             except:
                 click.echo("Solution Type {0} already exists in the database!".format(type_id))
-        elif stype_option == "remove": 
-            
+        elif stype_option == "remove":
+
             type_id = click.prompt("Enter the solution type id(Press CTR-C to escape)")
             if len(type_id) > 6:
                 click.echo("{0} is too long! Maximum length of 6 characters".format(type_id))
@@ -528,13 +593,13 @@ def stype(repo, stype_option):
                 click.echo("Cannot remove the default solution types from the program as that would break the program")
                 return
 
-            existing = solutionTypeHandler.getSolutionTypes() 
+            existing = solutionTypeHandler.getSolutionTypes()
             if type_id not in [existing[i][:1][0] for i in range(0, len(existing))]:
                 click.echo("Given solution type does not exist in the database!")
                 return
 
             search = nordicSearch.NordicSearch()
-            search.addSearchExactly("solution_type", type_id) 
+            search.addSearchExactly("solution_type", type_id)
             new_type_id = "O"
 
             if len(search.searchEventIds()) > 0:
@@ -564,7 +629,7 @@ def stype(repo, stype_option):
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
 @click.argument('privacy-level', required=True, type=click.Choice(['private', 'public', 'secure']))
 @click.argument('solution-type', required=True)
-@click.argument('filenames', required=True, nargs=-1,type=click.Path(exists=True, readable=True))
+@click.argument('filenames', required=True, nargs=-1, type=click.Path(exists=True, readable=True))
 @click.pass_obj
 def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose, privacy_level):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event. The suffix of the filename must be .n, .nordic or .nordicp)."""
@@ -592,7 +657,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
 
             creation_id = creationInfo.createCreationInfo(privacy_level)
             for nord in nordic_events:
-                
+
                 event_id = -1
                 if not no_duplicates:
                     same_events = nordicSearch.searchSameEvents(nord)
@@ -619,11 +684,11 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             except:
                                 click.echo("Not a valid id!")
                                 creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
-                                return 
+                                return
 
                     if event_id == -1 and not add_automatic:
                         similar_events = nordicSearch.searchSimilarEvents(nord)
-                       
+
                         if similar_events:
                             if ignore_duplicates:
                                 click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.main_h[0]))
@@ -652,7 +717,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                     click.echo(nord.main_h[0])
                     nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                     nordic_failed.append(str(nord))
-           
+
             creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
 
             if len(nordic_failed) > 0:
@@ -660,7 +725,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
 
                 for n in nordic_failed:
                     for line in n:
-                        failed.write(line)  
+                        failed.write(line)
                     failed.write("\n")
 
             f_nordic.close()

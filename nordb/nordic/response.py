@@ -3,7 +3,7 @@ Contains information relevant to Responses.
 """
 
 import operator
-import unidecode 
+import unidecode
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
@@ -18,7 +18,7 @@ class Response(object):
     """
     Class for response information. Always use eihter PazResponse or FapResponse instead of this class.
 
-    :param array data: all the relevant data for response in an array. These values are accessed by its numerations. 
+    :param array data: all the relevant data for response in an array. These values are accessed by its numerations.
     :ivar int SOURCE: Source of the response
     :ivar int STAGE: Stage of the response
     :ivar int DESCRIPTION: Description of the response
@@ -45,42 +45,42 @@ class Response(object):
         self.response_id = data[self.ID]
 
     file_name = property(operator.attrgetter('_file_name'), doc="")
-    
+
     @file_name.setter
     def file_name(self, val):
         val_file_name = validateString(val, "file_name", 0, 32, None, self.header_type)
         self._file_name = val_file_name
 
     source = property(operator.attrgetter('_source'), doc="")
-    
+
     @source.setter
     def source(self, val):
         val_source = validateString(val, "source", 0, 32, None, self.header_type)
         self._source = val_source
 
     stage = property(operator.attrgetter('_stage'), doc="")
-    
+
     @stage.setter
     def stage(self, val):
         val_stage = validateInteger(val, "stage", 0, 10, self.header_type)
         self._stage = val_stage
 
     description = property(operator.attrgetter('_description'), doc="")
-    
+
     @description.setter
     def description(self, val):
         val_description = validateString(val, "description", 0, 32, None, self.header_type)
         self._description = val_description
 
     response_format = property(operator.attrgetter('_response_format'), doc="")
-    
+
     @response_format.setter
     def response_format(self, val):
         val_response_format = validateString(val, "response_format", 3, 3, ["paz", "fap"], self.header_type)
         self._response_format = val_response_format
 
     author = property(operator.attrgetter('_author'), doc="")
-    
+
     @author.setter
     def author(self, val):
         val_author = validateString(val, "author", 0, 32, None, self.header_type)
@@ -88,9 +88,9 @@ class Response(object):
 
     def __str__(self):
         response_string = "{0} {0} {0} {0} {0}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
-        
+
         return response_string
-  
+
     def getAsList(self):
         response_list = [
                         self.file_name,
@@ -115,7 +115,7 @@ class PazResponse(Response):
         self.zeros = zeros
 
     scale_factor = property(operator.attrgetter('_scale_factor'), doc="")
-    
+
     @scale_factor.setter
     def scale_factor(self, val):
         val_scale_factor = validateFloat(val, "scale_factor", None, None, self.header_type)
@@ -145,7 +145,7 @@ class FapResponse(Response):
         fap_string = "{0} {1} {2} {3} {4}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
         fap_string += "{0}\n".format(len(self.fap))
         for f in self.fap:
-            fap_string += "{0:9.4f}   {1:9.4f}   {2:d}   {3:9.4f}   {4:9.4f}\n".format(f[0], f[1], f[2], f[3], f[4])
+            fap_string += "{0:9.4f}   {1:9.4f}   {2:9.4f}   {3:9.4f}   {4:9.4f}\n".format(f[0], f[1], f[2], f[3], f[4])
 
         return fap_string
 
@@ -162,6 +162,8 @@ def readResponseArrayToResponse(resp, file_name):
         row_num += 1
     resp_data = [file_name]
     resp_data += resp[row_num].split()
+    if len(resp_data) == 5:
+        resp_data += [None]
     resp_data += [-1]
     if resp_data[4] == 'fap':
         fap = []
@@ -169,24 +171,24 @@ def readResponseArrayToResponse(resp, file_name):
 
         for i in range(row_num+2, row_num+2+fap_amount):
             fl = resp[i].split()
-            fap.append([float(fl[0]), float(fl[1]), int(fl[2]), float(fl[3]), float(fl[4])])
+            fap.append([float(fl[0]), float(fl[1]), float(fl[2]), float(fl[3]), float(fl[4])])
 
         return FapResponse(resp_data, fap)
 
-    elif resp_data[4] == 'paz': 
+    elif resp_data[4] == 'paz':
         poles = []
         zeros = []
         scale_factor = float(resp[row_num+1].strip())
         pole_amount = int(resp[row_num+2])
-        
+
         for i in range(row_num+3, row_num+3+pole_amount):
             poles.append([float(x) for x in resp[i].split()])
-        
+
         zero_amount = int(resp[row_num+3+pole_amount])
-        
+
         for i in range(row_num+4+pole_amount, row_num+4+pole_amount+zero_amount):
             zeros.append([float(x) for x in resp[i].split()])
-        
+
         return PazResponse(resp_data, scale_factor, poles, zeros)
     else:
         raise Exception("Response is not a paz or fap response")

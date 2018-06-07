@@ -68,6 +68,7 @@ class Instrument:
     RESPONSE_ID = 13
 
     def __init__(self, data):
+        self.response = None
         self.instrument_name = data[self.INSTRUMENT_NAME]
         self.instrument_type = data[self.INSTRUMENT_TYPE]
         self.band = data[self.BAND]

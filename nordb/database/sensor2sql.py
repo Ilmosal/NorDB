@@ -6,6 +6,7 @@ This module contains all functions and classes for reading a sensor file in `CSS
 Functions and Classes
 ---------------------
 """
+from datetime import datetime
 
 from nordb.nordic.sitechan import SiteChan
 from nordb.database import sitechan2sql
@@ -13,36 +14,40 @@ from nordb.core import usernameUtilities
 
 FAKE_CHANNEL_LINE = {
                         "n":[None, None, None, None, "n", 0.0,  0.0, 90.0, "% AUTOMATICALLY GENERATED CHANNEL! PROBABLY NOT OK", None, -1, -1, -1],
-                        "e":[None, None, None, None, "n", 0.0, 90.0, 90.0, "% AUTOMATICALLY GENERATED CHANNEL! PROBABLY NOT OK", None, -1, -1, -1],                       
+                        "e":[None, None, None, None, "n", 0.0, 90.0, 90.0, "% AUTOMATICALLY GENERATED CHANNEL! PROBABLY NOT OK", None, -1, -1, -1],
                         "z":[None, None, None, None, "n", 0.0, -1.0,  0.0, "% AUTOMATICALLY GENERATED CHANNEL! PROBABLY NOT OK", None, -1, -1, -1],
                     }
 
-SENSOR_INSERT = (   
-                "INSERT INTO sensor " 
-                "   (time, endtime, jdate, calratio, " 
-                "   calper, tshift, instant, lddate, " 
-                "   sitechan_id, instrument_id) " 
-                "VALUES " 
+SENSOR_INSERT = (
+                "INSERT INTO sensor "
+                "   (time, endtime, jdate, calratio, "
+                "   calper, tshift, instant, lddate, "
+                "   sitechan_id, instrument_id) "
+                "VALUES "
                 "(  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                 )
 
 def genFakeChannel(sensor):
     """
-    Function for generating a false SiteChan object related to the Sensor object given by user. 
+    Function for generating a false SiteChan object related to the Sensor object given by user.
     This is used to quarantee that all sensors are attached to a SiteChan in the database.
 
     :param Sensor sensor: Sensor object for which the SiteChan is generated for
-    :returns: SiteChan object 
+    :returns: SiteChan object
     """
     fakeChan = SiteChan(FAKE_CHANNEL_LINE[sensor.channel_code[-1].lower()])
     fakeChan.station_code = sensor.station_code
     fakeChan.channel_code = sensor.channel_code
     fakeChan.css_id = sensor.channel_css_id
-    
+    fakeChan.on_date = datetime.fromtimestamp(sensor.time).date()
+
+    if sensor.endtime != 9999999999.999:
+        fakeChan.off_date = datetime.fromtimestamp(sensor.endtime).date()
+
     if fakeChan.css_id == -1:
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
-   
+
         cur.execute("SELECT MAX(css_id) FROM sitechan;")
         ans = cur.fetchone()
         if ans is None:
@@ -55,7 +60,7 @@ def genFakeChannel(sensor):
     return fakeChan
 
 def insertSensor2Database(sensor):
-    """ 
+    """
     Function for inserting the sensor array to the database
 
     :param Sensor sensor: sensor that will be inserted to the database
@@ -66,7 +71,7 @@ def insertSensor2Database(sensor):
     try:
         cur.execute("SELECT id FROM instrument WHERE css_id = %s", (sensor.instrument_css_id,))
         ans = cur.fetchone()
-    
+
         if ans is None:
             raise Exception("No instrument for sensor")
 
@@ -81,12 +86,12 @@ def insertSensor2Database(sensor):
             sensor.channel_css_id = fakeChan.css_id
             cur.execute("SELECT id FROM sitechan WHERE css_id = %s", (fakeChan.css_id,))
             ans = cur.fetchone()
-        
+
             if ans is None:
                 raise Exception("Cannot find the fake channel for the sensor")
-   
+
         sensor.channel_id = ans[0]
-    
+
         cur.execute(SENSOR_INSERT, sensor.getAsList())
     except Exception as e:
         conn.close()

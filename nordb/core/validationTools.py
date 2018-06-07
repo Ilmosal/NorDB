@@ -10,19 +10,20 @@ import logging
 from datetime import date
 from datetime import datetime
 
-nTypes = {0: "Nordic Event",
-        1: "Nordic Main Header",
-        2: "Nordic Macroseismic Header",
-        3: "Nordic Comment Header",
-        5: "Nordic Error Header",
-        6: "Nordic Waveform Header",
-        8: "Nordic Phase Data",
-        9: "Scandic Header",
-        10: "Station Data",
-        11: "Sitechan Data",
-        12: "Instrument Data",
-        13: "Sensor Data",
-        -999: "Validation Test",}
+nTypes = {  0: "Nordic Event",
+            1: "Nordic Main Header",
+            2: "Nordic Macroseismic Header",
+            3: "Nordic Comment Header",
+            5: "Nordic Error Header",
+            6: "Nordic Waveform Header",
+            8: "Nordic Phase Data",
+            9: "Scandic Header",
+            10: "Station Data",
+            11: "Sitechan Data",
+            12: "Instrument Data",
+            13: "Sensor Data",
+            14: "Response Data",
+            -999: "Validation Test",}
 
 class values():
     maxInt = 9223372036854775807 

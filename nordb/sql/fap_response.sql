@@ -17,9 +17,9 @@ CREATE TABLE fap(
     fap_id INTEGER REFERENCES fap_response(id) ON DELETE CASCADE,
     frequency FLOAT NOT NULL,
     amplitude FLOAT NOT NULL,
-    phase INTEGER,
-    frequency_error FLOAT NOT NULL,
-    amplitude_error FLOAT NOT NULL
+    phase FLOAT,
+    amplitude_error FLOAT NOT NULL,
+    phase_error FLOAT NOT NULL
 );
 
 --Enable row level security

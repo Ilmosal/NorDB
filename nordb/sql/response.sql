@@ -13,7 +13,7 @@ CREATE TYPE response_format AS ENUM ('paz', 'fap');
 --Create table command for response
 CREATE TABLE response(
     id SERIAL PRIMARY KEY,
-    file_name VARCHAR(64),
+    file_name VARCHAR(64) UNIQUE,
     source VARCHAR(32),
     stage INTEGER,
     description VARCHAR(32),

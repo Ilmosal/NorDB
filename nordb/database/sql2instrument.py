@@ -8,29 +8,30 @@ Functions and Classes
 import logging
 import psycopg2
 
+from nordb.database.sql2response import getResponse
 from nordb.nordic.instrument import Instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
-SELECT_INSTRUMENT = (   
-                        "SELECT " 
-                        "   instrument_name, instrument_type, " 
-                        "   band, digital, samprate, ncalib, ncalper, dir, " 
-                        "   dfile, rsptype, lddate, id, css_id, response_id " 
-                        "FROM " 
-                        "   instrument " 
-                        "WHERE " 
+SELECT_INSTRUMENT = (
+                        "SELECT "
+                        "   instrument_name, instrument_type, "
+                        "   band, digital, samprate, ncalib, ncalper, dir, "
+                        "   dfile, rsptype, lddate, id, css_id, response_id "
+                        "FROM "
+                        "   instrument "
+                        "WHERE "
                         "   instrument.id = %s")
 
-ALL_INSTRUMENTS =   (   
-                        "SELECT " 
-                        "   instrument_name, instrument_type, " 
-                        "   band, digital, samprate, ncalib, ncalper, dir, " 
-                        "   dfile, rsptype, lddate, id, css_id, response_id " 
-                        "FROM " 
-                        "   instrument " 
+ALL_INSTRUMENTS =   (
+                        "SELECT "
+                        "   instrument_name, instrument_type, "
+                        "   band, digital, samprate, ncalib, ncalper, dir, "
+                        "   dfile, rsptype, lddate, id, css_id, response_id "
+                        "FROM "
+                        "   instrument "
                     )
 
 
@@ -42,7 +43,7 @@ SELECT_INSTRUMENTS_TO_SENSOR =  (
                                 "WHERE "
                                 "   sensor.id = %s "
                                 "AND "
-                                "   instrument.id = sensor.instrument_id " 
+                                "   instrument.id = sensor.instrument_id "
                                 )
 
 def getAllInstruments():
@@ -64,7 +65,9 @@ def getAllInstruments():
     instruments = []
 
     for a in ans:
-        instruments.append(Instrument(a))
+        instrument = Instrument(a)
+        instrument.response = getResponse(instrument.response_id)
+        instruments.append(instrument)
 
     return instruments
 
@@ -76,7 +79,7 @@ def instruments2sensor(sensor):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
-    try:    
+    try:
         cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
         instrument_ids = cur.fetchall()
     except Exception as e:
@@ -102,6 +105,7 @@ def getInstrument(instrument_id):
     ans = cur.fetchone()
 
     conn.close()
+    instrument = Instrument(ans)
+    instrument.response = getResponse(instrument.response_id)
 
-    return Instrument(ans)
-
+    return instrument

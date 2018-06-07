@@ -3,7 +3,7 @@ Contains information relevant to Sensor class
 """
 
 import operator
-import unidecode 
+import unidecode
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
@@ -18,7 +18,7 @@ class Sensor(object):
     """
     Class for sensor information. Comes from css sensor format.
 
-    :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations. 
+    :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations.
     :ivar int TIME: epoch time of start of recording period
     :ivar int ENDTIME: epoch time of end of recording period
     :ivar int JDATE: julian date
@@ -27,8 +27,8 @@ class Sensor(object):
     :ivar int TSHIFT: correction to data processing time
     :ivar int INSTANT: (y/n) discrete/continuing snapshot
     :ivar int LDDATE:
-    :ivar int CHANNEL_ID: id of the channel to which sensor refers to. 
-    :ivar int INTRUMENT_ID: id of the instrument to which the sensor refers to. 
+    :ivar int CHANNEL_ID: id of the channel to which sensor refers to.
+    :ivar int INTRUMENT_ID: id of the instrument to which the sensor refers to.
     :ivar int ID: id of the sensor
     :ivar int STATION_CODE: code of the station the sensor is attached to
     :ivar int CHANNEL_CODE: channel code of the sensor
@@ -69,98 +69,98 @@ class Sensor(object):
         self.channel_css_id = data[self.CHANNEL_CSS_ID]
 
     time = property(operator.attrgetter('_time'), doc="")
-    
+
     @time.setter
     def time(self, val):
         val_time = validateFloat(val, "time", -9999999999.99, 99999999999.999, self.header_type)
         self._time = val_time
 
     endtime = property(operator.attrgetter('_endtime'), doc="")
-    
+
     @endtime.setter
     def endtime(self, val):
         val_endtime = validateFloat(val, "endtime", 0.0, 9999999999.999, self.header_type)
         self._endtime = val_endtime
 
     jdate = property(operator.attrgetter('_jdate'), doc="")
-    
+
     @jdate.setter
     def jdate(self, val):
         val_jdate = validateDate(val, "jdate", self.header_type)
         self._jdate = val_jdate
 
     calratio = property(operator.attrgetter('_calratio'), doc="")
-    
+
     @calratio.setter
     def calratio(self, val):
         val_calratio = validateFloat(val, "calratio", -1.0, 10.0, self.header_type)
         self._calratio = val_calratio
 
     calper = property(operator.attrgetter('_calper'), doc="")
-    
+
     @calper.setter
     def calper(self, val):
         val_calper = validateFloat(val, "calper", -1.0, 100.0, self.header_type)
         self._calper = val_calper
 
     tshift = property(operator.attrgetter('_tshift'), doc="")
-    
+
     @tshift.setter
     def tshift(self, val):
         val_tshift = validateFloat(val, "tshift", -1.0, 9.9, self.header_type)
         self._tshift = val_tshift
 
     instant = property(operator.attrgetter('_instant'), doc="")
-    
+
     @instant.setter
     def instant(self, val):
         val_instant = validateString(val, "instant", 1, 1, "ynYN", self.header_type)
         self._instant = val_instant
 
     lddate = property(operator.attrgetter('_lddate'), doc="")
-    
+
     @lddate.setter
     def lddate(self, val):
         val_lddate = validateDate(val, "lddate", self.header_type)
         self._lddate = val_lddate
 
     station_code = property(operator.attrgetter('_station_code'), doc="")
-    
+
     @station_code.setter
     def station_code(self, val):
         val_station_code = validateString(val, "station_code", 0, 6, None, self.header_type)
         self._station_code = val_station_code
 
     channel_code = property(operator.attrgetter('_channel_code'), doc="")
-    
+
     @channel_code.setter
     def channel_code(self, val):
         val_channel_code = validateString(val, "channel_code", 0, 8, None, self.header_type)
         self._channel_code = val_channel_code
 
     channel_id = property(operator.attrgetter('_channel_id'), doc="")
-    
+
     @channel_id.setter
     def channel_id(self, val):
         val_channel_id = validateInteger(val, "channel_id", None, None, self.header_type)
         self._channel_id = val_channel_id
 
     instrument_id = property(operator.attrgetter('_instrument_id'), doc="")
-    
+
     @instrument_id.setter
     def instrument_id(self, val):
         val_instrument_id = validateInteger(val, "instrument_id", None, None, self.header_type)
         self._instrument_id = val_instrument_id
 
     channel_css_id = property(operator.attrgetter('_channel_css_id'), doc="")
-    
+
     @channel_css_id.setter
     def channel_css_id(self, val):
         val_channel_css_id = validateInteger(val, "channel_css_id", None, None, self.header_type)
         self._channel_css_id = val_channel_css_id
 
     instrument_css_id = property(operator.attrgetter('_instrument_css_id'), doc="")
-    
+
     @instrument_css_id.setter
     def instrument_css_id(self, val):
         val_instrument_css_id = validateInteger(val, "instrument_css_id", None, None, self.header_type)
@@ -181,19 +181,19 @@ class Sensor(object):
         sensorString += " "
         sensorString += addInteger2String(self.channel_css_id, 8, '>')
         sensorString += "  "
-        
+
         if self.jdate is None:
             sensorString += addInteger2String(-1, 7, '>')
         else:
             sensorString += addInteger2String(self.jdate.year, 4, '<')
             sensorString += addInteger2String(self.jdate.timetuple().tm_yday, 3, '0')
-        
+
         sensorString += " "
         sensorString += addFloat2String(self.calratio, 16, 6, '>')
         sensorString += " "
         sensorString += addFloat2String(self.calper, 16, 6, '>')
         sensorString += " "
-        sensorString += addFloat2String(self.tshift, 6, 4, '>') 
+        sensorString += addFloat2String(self.tshift, 6, 4, '>')
         sensorString += " "
         sensorString += addString2String(self.instant, 1, '>')
         sensorString += "       "
@@ -204,7 +204,7 @@ class Sensor(object):
             sensorString += addString2String(self.lddate.strftime("%Y-%b-%d"), 11, '<')
 
         return sensorString
-  
+
     def getAsList(self):
         sensor_list = [ self.time,
                         self.endtime,

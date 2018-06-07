@@ -18,9 +18,9 @@ RESPONSE_INSERT =   (
                     )
 
 PAZ_RESPONSE_INSERT =   (
-                        "INSERT INTO paz_response " 
-                        "   (response_id, scale_factor) " 
-                        "VALUES " 
+                        "INSERT INTO paz_response "
+                        "   (response_id, scale_factor) "
+                        "VALUES "
                         "   (%s, %s) "
                         "RETURNING id"
                         )
@@ -39,10 +39,10 @@ ZERO_INSERT =   (
                 "   (%s, %s, %s, %s, %s) "
                 )
 
-FAP_RESPONSE_INSERT =   (   
-                        "INSERT INTO fap_response " 
-                        "   (response_id) " 
-                        "VALUES " 
+FAP_RESPONSE_INSERT =   (
+                        "INSERT INTO fap_response "
+                        "   (response_id) "
+                        "VALUES "
                         "   (%s) "
                         "RETURNING id"
                         )
@@ -50,13 +50,13 @@ FAP_RESPONSE_INSERT =   (
 FAP_INSERT =    (
                 "INSERT INTO fap "
                 "   (frequency, amplitude, phase, "
-                "   frequency_error, amplitude_error, fap_id) "
+                "   amplitude_error, phase_error, fap_id) "
                 "VALUES "
                 "   (%s, %s, %s, %s, %s, %s)"
                 )
 
 def insertResponse2Database(response):
-    """ 
+    """
     Function for inserting the response object to the database
 
     :param Response response: response that will be inserted to the database
