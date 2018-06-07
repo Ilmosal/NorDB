@@ -26,12 +26,6 @@ SELECT_STATION_ID = (
                         "WHERE "
                         "   station.id = %s "
                         "AND "
-                        "   ( "
-                        "       (on_date <= %s AND off_date >= %s) "
-                        "   OR "
-                        "       (on_date <=%s AND off_date IS NULL) "
-                        "   ) "
-                        "AND "
                         "   network.id = network_id"
                     )
 
@@ -104,8 +98,7 @@ def getStation(station_id, station_date = datetime.datetime.now()):
 
     try:
         if isinstance(station_id, int):
-            cur.execute(SELECT_STATION_ID, (station_id, station_date,
-                                            station_date, station_date))
+            cur.execute(SELECT_STATION_ID, (station_id,))
         elif isinstance(station_id, str):
             cur.execute(SELECT_STATION_CODE, (station_id, station_date,
                                               station_date, station_date))

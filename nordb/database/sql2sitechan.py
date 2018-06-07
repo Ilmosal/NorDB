@@ -42,14 +42,6 @@ SELECT_SITECHAN =   (
                     "   sitechan.id = %s "
                     "AND "
                     "   station.id = sitechan.station_id "
-                    "AND "
-                    "   ( "
-                    "       (sitechan.on_date <= %s AND "
-                    "        sitechan.off_date >= %s) "
-                    "   OR "
-                    "       (sitechan.on_date <=%s AND "
-                    "        sitechan.off_date IS NULL) "
-                    "   ) "
                     )
 
 ALL_SITECHANS =     (
@@ -118,8 +110,7 @@ def getSitechan(sitechan_id, station_date=datetime.datetime.now()):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute(SELECT_SITECHAN, (sitechan_id, station_date, station_date,
-                                  station_date))
+    cur.execute(SELECT_SITECHAN, (sitechan_id,))
     ans = cur.fetchone()
 
     conn.close()

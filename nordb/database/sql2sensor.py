@@ -28,14 +28,6 @@ SELECT_SENSOR = (
                     "   instrument.id = sensor.instrument_id "
                     "AND "
                     "   station.id = sitechan.station_id "
-                    "AND "
-                    "   ( "
-                    "       (sensor.time <= %s AND "
-                    "        sensor.endtime >= %s) "
-                    "   OR "
-                    "       (sensor.time <= %s AND "
-                    "        sensor.endtime = 9999999999.999) "
-                    "   ) "
                     "ORDER BY "
                     "   station_code "
                 )
@@ -133,7 +125,7 @@ def getSensor(sensor_id, station_date=datetime.datetime.now()):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
-    cur.execute(SELECT_SENSOR, (sensor_id, unix_time, unix_time, unix_time))
+    cur.execute(SELECT_SENSOR, (sensor_id,))
     ans = cur.fetchone()
     conn.close()
     sen = Sensor(ans)

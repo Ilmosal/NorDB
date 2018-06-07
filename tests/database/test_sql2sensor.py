@@ -19,7 +19,7 @@ class TestSQL2Sensor(object):
             response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
 
         stations = []
-        for stat in stationFiles:    
+        for stat in stationFiles:
             stations.append(station.readStationStringToStation(stat, "HE"))
 
         sitechans = []
@@ -42,12 +42,12 @@ class TestSQL2Sensor(object):
 
         for ins in instruments:
             instrument2sql.insertInstrument2Database(ins)
-    
+
         for sen in sensors:
             sensor2sql.insertSensor2Database(sen)
 
         sensors = sql2sensor.getAllSensors()
-    
+
         assert len(sensors) == len(sensorFiles)
 
     def testGetOneSensor(self, setupdb, stationFiles, siteChanFiles, instrumentFiles, sensorFiles, responseFiles):
@@ -55,7 +55,7 @@ class TestSQL2Sensor(object):
             response2sql.insertResponse2Database(response.readResponseArrayToResponse(resp[0], resp[1]))
 
         stations = []
-        for stat in stationFiles:    
+        for stat in stationFiles:
             stations.append(station.readStationStringToStation(stat, "HE"))
 
         sitechans = []
@@ -78,12 +78,12 @@ class TestSQL2Sensor(object):
 
         for ins in instruments:
             instrument2sql.insertInstrument2Database(ins)
-    
+
         for sen in sensors:
             sensor2sql.insertSensor2Database(sen)
 
         sen = sql2sensor.getSensor(1)
-    
+
         assert str(sen).strip() == str(sensors[0]).strip()
 
 
