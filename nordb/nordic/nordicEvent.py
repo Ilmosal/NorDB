@@ -101,18 +101,18 @@ class NordicEvent:
             n_string += str(h_macro) + "\n"
 
         n_string += self.createHelpHeaderString()
-       
+
         for p_data in self.data:
             n_string += str(p_data) + "\n"
- 
+
         return n_string
-    
+
     def createHelpHeaderString(self):
         """
         Function that returns the help header of type 7 as a string. 
-        
+
         Header::
-            
+
             " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\\n"
         :return: The help header as a string
         """
@@ -240,7 +240,8 @@ class NordicEvent:
                 stat_codes.append(pick.station_code)
 
         for stat_code in stat_codes:
-            stations.append(getStation(stat_code))
+            stations.append(getStation(stat_code,
+                                       self.getOriginTime().val))
 
         return [stat for stat in stations if stat is not None]
 

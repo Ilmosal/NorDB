@@ -16,7 +16,7 @@ MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 def log2nordb(password = None):
     """
     Function that logs to database and returns a psycopg2 Connect object.
-    
+
     :return: psycopg2.Connect object
     """
     if password is not None:

@@ -257,7 +257,7 @@ def addOrigin(event, nordic, main):
         origin_depth_value.text = str(main.depth * 1000)
         if main.error_h is not None and main.error_h.depth_error is not None:
             origin_depth_uncertainty = etree.SubElement(origin_depth, "uncertainty")
-            origin_depth_uncertainty.text = str(main.error_h.epicenter_depth_error)
+            origin_depth_uncertainty.text = str(main.error_h.depth_error)
 
     #Adding value for rms time residuals
     if main.rms_time_residuals is not None:
