@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name="NorDB",
     version="0.3.3",
-    python_requires='>3.4.2',
+    python_requires='>3.6.4',
     author="Ilmo Salmenperä",
     author_email="ilmo.salmenpera@helsinki.fi",
     packages=find_packages(),
@@ -16,7 +16,7 @@ setup(
         "pytest-runner",
     ],
     install_requires=[
-        "psycopg2-binaries",
+        "psycopg2-binary",
         "Click",
         "lxml",
         "Sphinx",
