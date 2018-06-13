@@ -30,7 +30,7 @@ CREATE POLICY user_insert_policy ON nordic_header_waveform FOR INSERT TO default
     WITH CHECK  (
                 current_user = (SELECT owner FROM creation_info, nordic_event WHERE creation_info.id = nordic_event.creation_id AND nordic_event.id = nordic_header_waveform.event_id)
                 AND
-                null = (SELECT urn FROM nordic_event WHERE nordic_header_waveform.event_id = nordic_event.id)
+                (SELECT urn FROM nordic_event WHERE nordic_header_waveform.event_id = nordic_event.id) IS null
                 );
 
 --Default user delete policy. Allow users to delete their own private nordic_header_waveform rows freely.

@@ -26,24 +26,18 @@ CREATE POLICY station_manager_view_policy ON instrument FOR SELECT TO station_ma
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id) 
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id)
+                                creation_info.id = response.creation_id AND 
+                                response.id = instrument.response_id)
             );
 
 --Station Manager insert policy. Allows station_managers to insert instrument rows into public and secure network freely and to their own private networks.
@@ -52,24 +46,18 @@ CREATE POLICY station_manager_insert_policy ON instrument FOR INSERT TO station_
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor
+                                        creation_info, response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id) 
+                                        creation_info.id = response.creation_id AND 
+                                        instrument.response_id = response.id) 
                 OR 
                 'private' != (  SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id)
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id)
                 );
 
 
@@ -79,24 +67,18 @@ CREATE POLICY station_manager_delete_policy ON instrument FOR DELETE TO station_
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id) 
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id)
+                                creation_info.id = response.creation_id AND 
+                                instrument.response_id = response.id)
             );
 
 --Station Manager update policy. Allows station_managers to close instruments
@@ -105,24 +87,18 @@ CREATE POLICY station_manager_update_policy ON instrument FOR UPDATE TO station_
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor
+                                        creation_info, response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id) 
+                                        creation_info.id = response.creation_id AND 
+                                        instrument.response_id = response.id) 
                 OR 
                 'private' != (  SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id)
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id)
                 );
 
 
@@ -137,24 +113,18 @@ CREATE POLICY user_view_policy ON instrument FOR SELECT TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id) 
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id)
+                                creation_info.id = response.creation_id AND 
+                                instrument.response_id = response.id)
             );
 
 --User insert policy. Allows user to insert private instrument rows
@@ -163,24 +133,18 @@ CREATE POLICY user_insert_policy ON instrument FOR INSERT TO default_users
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor
+                                        creation_info, response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id) 
+                                        creation_info.id = response.creation_id AND 
+                                        instrument.response_id = response.id) 
                 AND 
                 'public' != (   SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id)
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.id = response.id)
                 );
 
 
@@ -190,24 +154,18 @@ CREATE POLICY user_delete_policy ON instrument FOR DELETE TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id) 
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id)
+                                creation_info.id = response.creation_id AND 
+                                instrument.response_id = response.id)
             );
 
 --User update policy. Allows user to close their own private instruments
@@ -216,24 +174,18 @@ CREATE POLICY user_update_policy ON instrument FOR UPDATE TO default_users
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor
+                                        creation_info, response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id) 
+                                        creation_info.id = response.creation_id AND 
+                                        instrument.response_id = response.id) 
                 AND 
                 'private' = (  SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id)
+                                    creation_info.id = response.creation_id AND 
+                                    instrument.response_id = response.id)
                 );
 
 /*
@@ -247,11 +199,8 @@ CREATE POLICY guest_view_policy ON instrument FOR SELECT TO guests
             'public' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id)
+                                creation_info.id = response.creation_id AND 
+                                instrument.response_id = response.id)
             );

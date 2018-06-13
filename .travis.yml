@@ -14,5 +14,5 @@ script:
 after_script:
     - codecov
 addons:
-    postgresql: "9.6"
+    postgresql: "10.4"
 

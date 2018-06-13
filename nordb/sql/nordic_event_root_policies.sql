@@ -25,7 +25,8 @@ CREATE POLICY user_view_policy ON nordic_event_root FOR SELECT TO default_users
     USING   (
             'public' IN (SELECT privacy_setting from nordic_event, creation_info WHERE nordic_event.root_id = nordic_event_root.id AND nordic_event.creation_id = creation_info.id) OR
             'secure' IN (SELECT privacy_setting from nordic_event, creation_info WHERE nordic_event.root_id = nordic_event_root.id AND nordic_event.creation_id = creation_info.id) OR
-            'private' IN (SELECT privacy_setting from nordic_event, creation_info WHERE nordic_event.root_id = nordic_event_root.id AND nordic_event.creation_id = creation_info.id AND owner = current_user)
+            'private' IN (SELECT privacy_setting from nordic_event, creation_info WHERE nordic_event.root_id = nordic_event_root.id AND nordic_event.creation_id = creation_info.id AND owner = current_user) OR
+	    0 = (SELECT COUNT(*) FROM nordic_event WHERE nordic_event.root_id = nordic_event_root.id)
             );
 
 --Default user insert policy. Allow users to insert event roots freely.

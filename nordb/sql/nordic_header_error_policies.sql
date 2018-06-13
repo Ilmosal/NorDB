@@ -48,15 +48,14 @@ CREATE POLICY user_insert_policy ON nordic_header_error FOR INSERT TO default_us
                                     AND
                                     nordic_header_error.header_id = nordic_header_main.id)
                 AND
-                null = (SELECT 
-                            urn 
-                        FROM 
-                            nordic_event, nordic_header_main 
-                        WHERE 
-                            nordic_header_main.event_id = nordic_event.id
-                            AND
-                            nordic_header_error.header_id = nordic_header_main.id)
-
+               		(SELECT 
+				urn 
+			FROM 
+				nordic_event, nordic_header_main
+			WHERE 
+				nordic_header_main.event_id = nordic_event.id
+			AND
+				nordic_header_error.header_id = nordic_header_main.id) IS null
                 );
 
 --Default user delete policy. Allow users to delete their own private nordic_header_error rows freely.

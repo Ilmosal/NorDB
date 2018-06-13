@@ -36,6 +36,7 @@ class Response(object):
     ID = 6
 
     def __init__(self, data):
+        self.c_id = -1
         self.file_name = data[self.FILE_NAME]
         self.source = data[self.SOURCE]
         self.stage = data[self.STAGE]
@@ -93,6 +94,7 @@ class Response(object):
 
     def getAsList(self):
         response_list = [
+                        self.c_id,
                         self.file_name,
                         self.source,
                         self.stage,

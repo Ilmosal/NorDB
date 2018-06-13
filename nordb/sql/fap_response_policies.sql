@@ -26,27 +26,17 @@ CREATE POLICY station_manager_view_policy ON fap_response FOR SELECT TO station_
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
@@ -56,28 +46,18 @@ CREATE POLICY station_manager_view_policy ON fap FOR SELECT TO station_managers
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -89,27 +69,17 @@ CREATE POLICY station_manager_insert_policy ON fap_response FOR INSERT TO statio
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor, instrument, response
+                                        creation_info, response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id AND
-                                        instrument.response_id = response.id AND
+                                        creation_info.id = response.creation_id AND 
                                         response.id = fap_response.response_id)
                 OR 
                 'private' != (  SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id)
                 );
 
@@ -119,28 +89,18 @@ CREATE POLICY station_manager_insert_policy ON fap FOR INSERT TO station_manager
                 current_user = (SELECT 
                                         owner 
                                     FROM 
-                                        creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                        creation_info, response, fap_response
                                     WHERE 
-                                        creation_info.id = network.creation_id AND 
-                                        network.id = station.network_id AND 
-                                        station.id = sitechan.station_id AND
-                                        sitechan.id = sensor.sitechan_id AND
-                                        instrument.id = sensor.instrument_id AND
-                                        instrument.response_id = response.id AND
+                                        creation_info.id = response.creation_id AND 
                                         response.id = fap_response.response_id AND
                                         fap_response.id = fap.fap_id)
                 OR 
                 'private' != (  SELECT 
                                     privacy_setting 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND 
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id)
                 );
@@ -153,27 +113,17 @@ CREATE POLICY station_manager_delete_policy ON fap_response FOR DELETE TO statio
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
@@ -183,28 +133,18 @@ CREATE POLICY station_manager_delete_policy ON fap FOR DELETE TO station_manager
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -220,58 +160,38 @@ CREATE POLICY user_view_policy ON fap_response FOR SELECT TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
 --User view policy. Allows user to see all fap rows except for private ones that do not belong to the user
 CREATE POLICY user_view_policy ON fap FOR SELECT TO default_users
     USING   (
-            current_user = (SELECT 
+            current_user = (    SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             OR 
             'private' != (  SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -283,27 +203,17 @@ CREATE POLICY user_insert_policy ON fap_response FOR INSERT TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, instrument, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
@@ -313,28 +223,18 @@ CREATE POLICY user_insert_policy ON fap FOR INSERT TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );
@@ -346,27 +246,17 @@ CREATE POLICY user_delete_policy ON fap_response FOR DELETE TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response
+                                    creation_info, response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
@@ -376,28 +266,18 @@ CREATE POLICY user_delete_policy ON fap FOR DELETE TO default_users
             current_user = (SELECT 
                                     owner 
                                 FROM 
-                                    creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                    creation_info, response, fap_response
                                 WHERE 
-                                    creation_info.id = network.creation_id AND 
-                                    network.id = station.network_id AND 
-                                    station.id = sitechan.station_id AND
-                                    sitechan.id = sensor.sitechan_id AND
-                                    instrument.id = sensor.instrument_id AND
-                                    instrument.response_id = response.id AND
+                                    creation_info.id = response.creation_id AND 
                                     response.id = fap_response.response_id AND
                                     fap_response.id = fap.fap_id) 
             AND 
             'private' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             ); 
@@ -414,14 +294,9 @@ CREATE POLICY guest_view_policy ON fap_response FOR SELECT TO guests
             'public' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response
+                                creation_info, response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id)
             );
 
@@ -431,14 +306,9 @@ CREATE POLICY guest_view_policy ON fap FOR SELECT TO guests
             'public' = (   SELECT 
                                 privacy_setting 
                             FROM 
-                                creation_info, network, station, sitechan, sensor, instrument, response, fap_response
+                                creation_info, response, fap_response
                             WHERE 
-                                creation_info.id = network.creation_id AND 
-                                network.id = station.network_id AND 
-                                station.id = sitechan.station_id AND
-                                sitechan.id = sensor.sitechan_id AND 
-                                instrument.id = sensor.instrument_id AND
-                                instrument.response_id = response.id AND
+                                creation_info.id = response.creation_id AND 
                                 response.id = fap_response.response_id AND
                                 fap_response.id = fap.fap_id)
             );

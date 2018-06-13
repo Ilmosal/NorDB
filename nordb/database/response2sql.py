@@ -7,13 +7,14 @@ Functions and Classes
 
 from nordb.database import sitechan2sql
 from nordb.core import usernameUtilities
+from nordb.database import creationInfo
 
 RESPONSE_INSERT =   (
                     "INSERT INTO response "
-                    "   (file_name, source, stage, description, "
+                    "   (creation_id, file_name, source, stage, description, "
                     "   format, author) "
                     "VALUES "
-                    "   (%s, %s, %s, %s, %s, %s)"
+                    "   (%s, %s, %s, %s, %s, %s, %s)"
                     "RETURNING id"
                     )
 
@@ -55,7 +56,7 @@ FAP_INSERT =    (
                 "   (%s, %s, %s, %s, %s, %s)"
                 )
 
-def insertResponse2Database(response):
+def insertResponse2Database(response, privacy_level = "public"):
     """
     Function for inserting the response object to the database
 
@@ -63,6 +64,9 @@ def insertResponse2Database(response):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
+    c_id = creationInfo.createCreationInfo(privacy_level)
+
+    response.c_id = c_id
 
     try:
         cur.execute(RESPONSE_INSERT, response.getAsList())

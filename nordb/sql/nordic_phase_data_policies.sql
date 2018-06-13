@@ -30,7 +30,7 @@ CREATE POLICY user_insert_policy ON nordic_phase_data FOR INSERT TO default_user
     WITH CHECK  (
                 current_user = (SELECT owner FROM creation_info, nordic_event WHERE creation_info.id = nordic_event.creation_id AND nordic_event.id = nordic_phase_data.event_id)
                 AND
-                null = (SELECT urn FROM nordic_event WHERE nordic_phase_data.event_id = nordic_event.id)
+                (SELECT urn FROM nordic_event WHERE nordic_phase_data.event_id = nordic_event.id) IS null
                 );
 
 --Default user delete policy. Allow users to delete their own private nordic_phase_data rows freely.

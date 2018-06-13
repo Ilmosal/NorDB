@@ -55,7 +55,7 @@ ON
     nordic_event_id_seq, nordic_event_root_id_seq, nordic_file_id_seq, nordic_header_comment_id_seq,
     nordic_header_error_id_seq, nordic_header_macroseismic_id_seq, nordic_header_main_event_id_seq,
     nordic_header_main_id_seq, nordic_header_waveform_id_seq, nordic_phase_data_id_seq,
-    paz_response_id_seq, response_id_seq, sensor_id_seq, station_id_seq
+    paz_response_id_seq, response_id_seq, sensor_id_seq, station_id_seq, sitechan_id_seq
 TO
     default_users;
 /*
