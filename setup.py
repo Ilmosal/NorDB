@@ -16,7 +16,7 @@ setup(
         "pytest-runner",
     ],
     install_requires=[
-        "psycopg2",
+        "psycopg2-binaries",
         "Click",
         "lxml",
         "Sphinx",
