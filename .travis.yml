@@ -9,17 +9,20 @@ install:
     - pip install codecov
     - pip install pylint
 # command to run tests
+before_script:
+  - psql -c "ALTER USER travis WITH PASSWORD 'travis';"
 script:
     - python setup.py test
 after_script:
     - codecov
 addons:
-    postgresql: "10"
     apt:
         packages:
             - postgresql-10
             - postgresql-client-10
+
+    postgresql: 10
 env:
     global:
-        - PGPORT=5432
+        - PGPORT=5433
 
