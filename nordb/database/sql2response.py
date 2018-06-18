@@ -119,7 +119,7 @@ def getResponseFromDB(response_id):
         cur.execute(SELECT_POLES, (response_id,))
         poles = cur.fetchall()
 
-        cur.execute(SELECT_POLES, (response_id,))
+        cur.execute(SELECT_ZEROS, (response_id,))
         zeros = cur.fetchall()
 
         response = PazResponse(response_data, scale_factor, poles, zeros)
