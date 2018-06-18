@@ -66,7 +66,7 @@ def getAllInstruments():
 
     for a in ans:
         instrument = Instrument(a)
-        instrument.response = getResponse(instrument.response_id)
+        instrument.response = getResponseFromDB(instrument.response_id)
         instruments.append(instrument)
 
     return instruments
