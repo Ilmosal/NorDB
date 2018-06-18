@@ -14,7 +14,7 @@ from nordb.database.nordicSearch import NordicSearch
 from nordb.database.sql2station import getAllStations, getStation
 from nordb.database.sql2nordic import getNordic
 from nordb.core.nordic import readNordic
-from nordb.database.sql2nordic import getResponse
+from nordb.database.sql2response import getResponse
 
 __all__ = ["Station", "NordicEvent", "NordicSearch", "getAllStations",
            "getStation", "getNordic", "readNordic", "getResponse"]
