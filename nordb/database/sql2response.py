@@ -41,7 +41,7 @@ SELECT_PAZ =    (
                 "FROM "
                 "   paz_response, response "
                 "WHERE "
-                "   paz_response.response_id = response.id"
+                "   paz_response.response_id = response.id "
                 "AND "
                 "   response.id = %s"
                 )
