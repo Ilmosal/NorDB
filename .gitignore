@@ -104,7 +104,7 @@ ENV/
 *.*n
 *.nordic*
 
-nordb/.nordb.config
+#nordb/.nordb.config
 
 .user.config
 *.config
