@@ -123,6 +123,32 @@ class PazResponse(Response):
         val_scale_factor = validateFloat(val, "scale_factor", None, None, self.header_type)
         self._scale_factor = val_scale_factor
 
+    def getObspyResponse(self, mode="dis"):
+        """
+        Method for getting the response in a format suited for obspy.
+        :param string mode: dis, vel or acc depending on which derivative of
+        paz file you want
+        :returns: response in a format fitting to obspy
+        """
+        if mode not in ["dis", "acc", "vel"]:
+            raise Exception("{0} not a valid mode!".format(mode))
+
+        obspy_resp = {poles:[], zeros:[], sensitivity:self.scale_factor, gain:1.0}
+        for p in poles:
+            obspy_resp[poles].append(complex(p.real, p.imag))
+
+        ceil = len(self.zeros)
+        if (mode == "vel"):
+            ceil -= 1
+        elif (mode == "acc"):
+            ceil -= 2
+
+        for i in range(0, ceil):
+            obspy_resp[zeros].append(complex(self.zeros[i].real,
+                                             self.zeros[i].imag))
+
+        return obspy_resp
+
     def __str__(self):
         paz_string = "{0} {1} {2} {3} {4}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
         paz_string += "{0}\n".format(self.scale_factor)

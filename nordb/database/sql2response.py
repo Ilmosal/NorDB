@@ -42,6 +42,8 @@ SELECT_PAZ =    (
                 "   paz_response, response "
                 "WHERE "
                 "   paz_response.response_id = response.id"
+                "AND "
+                "   response.id = %s"
                 )
 
 SELECT_POLES =  (
