@@ -1,23 +1,26 @@
 """
-This module contains all information for getting the response information out of the database. 
+This module contains all information for getting the response information out
+of the database.
 
 Functions and Classes
 ---------------------
 """
 
+import datetime
+import time
 
 from nordb.core import usernameUtilities
 from nordb.nordic.response import FapResponse, PazResponse
 
-SELECT_RESPONSE =   (
-                    "SELECT "
-                    "   file_name, source, stage, description, "
-                    "   format, author, id "
-                    "FROM "
-                    "   response "
-                    "WHERE "
-                    "   id = %s"
-                    )
+SELECT_RESPONSE_ID =    (
+                        "SELECT "
+                        "   file_name, source, stage, description, "
+                        "   format, author, id "
+                        "FROM "
+                        "   response "
+                        "WHERE "
+                        "   id = %s"
+                        )
 
 SELECT_FAP =    (
                 "SELECT "
@@ -67,9 +70,28 @@ SELECT_ZEROS =  (
                 "   real"
                 )
 
-def getResponse(response_id):
+SELECT_RESPONSE =   (
+                    "SELECT "
+                    "   response.id "
+                    "FROM "
+                    "   response, instrument, sitechan, station, sensor "
+                    "WHERE "
+                    "   response.id = instrument.response_id AND "
+                    "   instrument.id = sensor.instrument_id AND "
+                    "   sensor.sitechan_id = sitechan.id AND "
+                    "   sitechan.station_id = station.id AND "
+                    "   station_code = %s AND "
+                    "   sitechan.channel_code = %s AND "
+                    "   ("
+                    "       (sensor.time <= %s AND sensor.endtime >= %s) "
+                    "   OR "
+                    "       (sensor.time <= %s AND sensor.endtime IS NULL) "
+                    "   )"
+                    )
+
+def getResponseFromDB(response_id):
     """
-    Function for reading a response from database by id 
+    Function for reading a response from database by id
 
     :param int response_id: id of the Response wanted
     :returns: :class:`PazResponse` or :class:`FapResponse` object
@@ -79,7 +101,7 @@ def getResponse(response_id):
 
     response = None
 
-    cur.execute(SELECT_RESPONSE, (response_id, ))
+    cur.execute(SELECT_RESPONSE_ID, (response_id, ))
     response_data = cur.fetchone()
 
     if response_data is None:
@@ -104,3 +126,28 @@ def getResponse(response_id):
 
     conn.close()
     return response
+
+def getResponse(station, channel, date=datetime.datetime.now()):
+    """
+    Function for getting response information from the database.
+
+    :param string station: Station code of the station
+    :param string channel: Channel code of the channel
+    :param datetime date: date for which you want the response
+    :returns: Response object
+    """
+    conn = usernameUtilities.log2nordb()
+    cur = conn.cursor()
+
+    timestamp = time.mktime(date.timetuple())
+
+    cur.execute(SELECT_RESPONSE, (station, channel, timestamp, timestamp,
+                                  timestamp))
+    resp_id = cur.fetchone()
+
+    conn.close()
+
+    if resp_id is None:
+        return None
+
+    return getResponseFromDB(resp_id[0])

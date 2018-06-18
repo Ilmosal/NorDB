@@ -56,11 +56,11 @@ Generated tables in their recursive form
 \i network.sql
     \i station.sql
         \i sitechan.sql
-            \i instrument.sql
-                \i sensor.sql
-                \i response.sql
-                    \i fap_response.sql 
-                    \i paz_response.sql
+            \i response.sql
+                \i fap_response.sql 
+                \i paz_response.sql
+                \i instrument.sql
+                    \i sensor.sql
 
 --6. Run all policy files
 \i creation_info_policies.sql

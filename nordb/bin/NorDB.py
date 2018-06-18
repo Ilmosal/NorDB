@@ -15,6 +15,12 @@ from lxml import etree
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
+try:
+    from nordb.core import usernameUtilities
+except:
+    click.echo("NorDB has not been initialized! Please run the initNorDB.sh "
+               "command in the root folder of the program")
+    exit()
 from nordb.core.nordbConf import confUser, confExists
 
 if not confExists():
@@ -46,7 +52,6 @@ from nordb.core import nordic2quakeml
 from nordb.core import nordic2sc3
 from nordb.core import nordicRead
 from nordb.core import station2stationxml
-from nordb.core import usernameUtilities
 
 from nordb.nordic import instrument
 from nordb.nordic import sensor

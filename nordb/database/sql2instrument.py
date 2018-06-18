@@ -8,7 +8,7 @@ Functions and Classes
 import logging
 import psycopg2
 
-from nordb.database.sql2response import getResponse
+from nordb.database.sql2response import getResponseFromDB
 from nordb.nordic.instrument import Instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
@@ -106,6 +106,6 @@ def getInstrument(instrument_id):
 
     conn.close()
     instrument = Instrument(ans)
-    instrument.response = getResponse(instrument.response_id)
+    instrument.response = getResponseFromDB(instrument.response_id)
 
     return instrument
