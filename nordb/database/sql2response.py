@@ -7,7 +7,6 @@ Functions and Classes
 """
 
 import datetime
-import time
 
 from nordb.core import usernameUtilities
 from nordb.nordic.response import FapResponse, PazResponse
@@ -26,10 +25,9 @@ SELECT_FAP =    (
                 "SELECT "
                 "   frequency, amplitude, phase, amplitude_error, phase_error "
                 "FROM "
-                "   fap, fap_response, response "
+                "   fap, fap_response "
                 "WHERE "
-                "   response.id = %s AND "
-                "   fap_response.response_id = response_id AND "
+                "   response_id = %s AND "
                 "   fap.fap_id = fap_response.id "
                 "ORDER BY "
                 "   frequency "
@@ -112,8 +110,8 @@ def getResponseFromDB(response_id):
     if response_data[FapResponse.RESPONSE_FORMAT] == 'fap':
         cur.execute(SELECT_FAP, (response_id,))
         fap = cur.fetchall()
-
         response = FapResponse(response_data, fap)
+
     elif response_data[FapResponse.RESPONSE_FORMAT] == 'paz':
         cur.execute(SELECT_PAZ, (response_id,))
         scale_factor = cur.fetchone()[0]

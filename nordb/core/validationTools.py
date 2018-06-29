@@ -170,7 +170,6 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
     try:
         return datetime(datetime_val)
     except:
-#        try:
         return datetime (    
                             year = int(datetime_val[:4]),
                             month = int(datetime_val[5:7]),
@@ -180,14 +179,11 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
                             second = int(datetime_val[15:17]),
                             microsecond = int("{0:<06s}".format(datetime_val[18:]))
                         )
-#        except:
-#            msg = "Validation Error - {0}: {1} is not parsable into datetime!({2})"
-#            raise Exception(msg.format(nTypes[n_type], datetime_name, datetime_val))
-            
+
 def validateDate(dateS, dateName, nType):
     """
-    Function that determines if dateS is a valid date or empty.
-    
+    Function that determines if dateS is a valid date or
+
     :param str dateS: value to be validated
     :param str dateName: name of the parameter for messaging purposes
     :param int ntype: header name id. Used for messaging purposes
@@ -197,6 +193,8 @@ def validateDate(dateS, dateName, nType):
         return None
     if type(dateS) is date:
         return dateS
+    if type(dateS) is datetime:
+        return dateS.date()
 
     try:
         new_date = date(year=int(dateS[:4].strip()), month=int(dateS[5:7].strip()), day=int(dateS[8:].strip()))

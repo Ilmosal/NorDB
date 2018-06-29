@@ -160,9 +160,10 @@ class Station(object):
         """
         try:
             for sitechan in self.sitechans:
-                if sitechan.channel_type == channel:
+                if sitechan.channel_code == channel:
                     return sitechan.sensors[0].instruments[0].response
-        except:
+        except Exception as e:
+            print(e)
             return None
 
     def __str__(self):

@@ -388,5 +388,9 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
         search.addSearchBetween("epicenter_longitude", m_header.epicenter_longitude - longitude_diff, m_header.epicenter_longitude + longitude_diff)
     if m_header.magnitude_1 is not None:
         search.addSearchBetween("magnitude_1", m_header.magnitude_1 - magnitude_diff, m_header.magnitude_1 + magnitude_diff)
-    
+
     return search.searchEvents()
+
+def searchEventsCloseToPoint(latitude, longitude, distance = 100.0,
+                             date = datetime.now()):
+    pass

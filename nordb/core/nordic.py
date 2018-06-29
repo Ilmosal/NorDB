@@ -28,7 +28,7 @@ from nordb.nordic.nordicData import NordicData
 def createStringMainHeader(header, fix_nordic):
     """
     Function that creates NordicMain object with a list with values being strings
-    
+
     :param str header: string from where the data is parsed from
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :return: NordicMain object with list of values parsed from header
@@ -226,6 +226,8 @@ def readHeaders(event, nordic_string, fix_nordic):
             event.main_h[mheader_pos].error_h = createStringErrorHeader(nordic_string[x], fix_nordic)
         elif (nordic_string[x][79] == '6'):
             event.waveform_h.append(createStringWaveformHeader(nordic_string[x]))
+        elif (nordic_string[x][79] == 'I'):
+            pass #fetch root_id here
 
     return i
 

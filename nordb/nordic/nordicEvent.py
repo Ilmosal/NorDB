@@ -107,6 +107,14 @@ class NordicEvent:
 
         return n_string
 
+    def createIdHeaderString(self):
+        """
+        Function that returns the Id header of type I as a string.
+
+        :return: The id header string
+        """
+        return " ID:{:75d} \n".format(event_id)
+
     def createHelpHeaderString(self):
         """
         Function that returns the help header of type 7 as a string. 
