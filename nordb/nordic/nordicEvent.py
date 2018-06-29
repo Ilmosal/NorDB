@@ -100,7 +100,8 @@ class NordicEvent:
         for h_macro in self.macro_h:
             n_string += str(h_macro) + "\n"
 
-        n_string += self.createIdHeaderString()
+        if (self.event_id != -1):
+            n_string += self.createIdHeaderString()
         n_string += self.createHelpHeaderString()
 
         for p_data in self.data:
@@ -114,7 +115,7 @@ class NordicEvent:
 
         :return: The id header string
         """
-        return " ID:{:75d} \n".format(event_id)
+        return " ID:{:<74d} I\n".format(self.event_id)
 
     def createHelpHeaderString(self):
         """
