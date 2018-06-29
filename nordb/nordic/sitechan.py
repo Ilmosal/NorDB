@@ -2,7 +2,7 @@
 Contains information relevant to SiteChan object
 """
 import operator
-import unidecode 
+import unidecode
 
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateInteger
@@ -17,21 +17,35 @@ class SiteChan(object):
     """
     Class for site channel information. Comes from css sitechan format.
 
-    :param array data: all the relevant data for SiteChan in an array. These values are accessed by its numerations. 
-    :ivar array data: all the relevant data for SiteChan in an array. These values are accessed by its numerations.
-    :ivar int STATION_CODE: Id of the station to which sitechan refers to. Value 0
-    :ivar int CHANNEL_CODE: channel code of the channel. Value 1
-    :ivar int ON_DATE: date when the station started working. Value 2
-    :ivar int OFF_DATE: date when the station was closed. Value 3
-    :ivar int CHANNEL_TYPE: type of the channel. Value 4
-    :ivar int EMPLACEMENT_DEPTH: depth relative to station elevation. Value 5
-    :ivar int HORIZONTAL_ANGLE: angle horizontally. Value 6
-    :ivar int VERTICAL_ANGLE: angle verically. Value 7
-    :ivar int DESCRIPTION: description of the channel. Value 8
-    :ivar int LOAD_DATE: date of the time when this information was created. Value 9
-    :ivar int S_ID: id of the sitechan in the database. Value 10
-    :ivar int STATION_ID: id of the station in the database. Value of 11
-    :ivar int CSS_ID: id of the css id to which the sitechan is linked to. Value 12
+    :param array data: all the relevant data for SiteChan in an array. These values are accessed by its numerations.
+    :ivar Array sensors: All sensors attached to this sitechan
+    :ivar string station_code: Code of the station to which sitechan refers to.
+    :ivar string channel_code: channel code of the sitechan.
+    :ivar datetime on_date: date when the station started working.
+    :ivar datetime off_date: date when the station was closed.
+    :ivar string channel_type: type of the channel.
+    :ivar float emplacement_depth: depth relative to station elevation.
+    :ivar float horizontal_angle: angle horizontally.
+    :ivar float vertical_angle: angle verically.
+    :ivar string description: description of the channel.
+    :ivar datetime load_date: date of the time when this information was created.
+    :ivar int s_id: id of the sitechan in the database.
+    :ivar int station_id: id of the station in the database.
+    :ivar int css_id: id of the css id to which the sitechan is linked to.
+
+    :ivar int STATION_CODE: Enumeration of the data list. Value of 0
+    :ivar int CHANNEL_CODE: Enumeration of the data list. Value of 1
+    :ivar int ON_DATE: Enumeration of the data list. Value of 2
+    :ivar int OFF_DATE: Enumeration of the data list. Value of 3
+    :ivar int CHANNEL_TYPE: Enumeration of the data list. Value of 4
+    :ivar int EMPLACEMENT_DEPTH: Enumeration of the data list. Value of 5
+    :ivar int HORIZONTAL_ANGLE: Enumeration of the data list. Value of 6
+    :ivar int VERTICAL_ANGLE: Enumeration of the data list. Value of 7
+    :ivar int DESCRIPTION: Enumeration of the data list. Value of 8
+    :ivar int LOAD_DATE: Enumeration of the data list. Value of 9
+    :ivar int S_ID: Enumeration of the data list. Value of 10
+    :ivar int STATION_ID: Enumeration of the data list. Value of 11
+    :ivar int CSS_ID: Enumeration of the data list. Value of 12
     """
     header_type = 11
     STATION_CODE = 0
@@ -152,7 +166,7 @@ class SiteChan(object):
         else:
             sitechanString += addInteger2String(self.on_date.year, 4, '<') 
             sitechanString += addInteger2String(self.on_date.timetuple().tm_yday, 3, '0') 
-        
+
         sitechanString += "  "
 
         sitechanString += addInteger2String(self.css_id, 7, '>')
@@ -196,7 +210,7 @@ class SiteChan(object):
                             self.vertical_angle,
                             self.description,
                             self.load_date]
-                           
+
         return sitechan_list
 
 def readSiteChanStringToSiteChan(chan_line):

@@ -4,7 +4,7 @@ Contains information relevant to Station class
 
 import operator
 import unidecode
-
+from datetime import datetime
 from nordb.core.validationTools import validateFloat
 from nordb.core.validationTools import validateString
 from nordb.core.validationTools import validateDate
@@ -17,21 +17,38 @@ class Station(object):
     """
     Class for information in station. Comes from the css site format.
 
-    :param array data: all the relevant data for Station in an array. These values are accessed by its numerations.
-    :ivar int STATION_CODE: code of the station. Value 0
-    :ivar int ON_DATE: date when the station started working. Value 1
-    :ivar int OFF_DATE: date when the station was closed. Value 2
-    :ivar int LATITUDE: latitude of the station. Value 3
-    :ivar int LONGITUDE: longitude of the staion. Value 4
-    :ivar int ELEVATION: elevation of the station. Value 5
-    :ivar int STATION_NAME: the whole name of the station. Value 6
-    :ivar int STATION_TYPE: 2 letter string of the type of the station. Value 7
-    :ivar int REFERENCE_STATION: if the station is a part of an array, this is the reference to the station. Value 8
-    :ivar int NORTH_OFFSET: if the station is a part of an array, this is the offset of the north to the main station in km. Value 9
-    :ivar int EAST_OFFSET: if the station is a part of an array, this is the offset of the east to the main station in km. Value 10
-    :ivar int LOAD_DATE: date of the time when this information was created. Value 11
-    :ivar int NETWORK: network code the network where the station belongs to
-    :ivar int NETWORK_ID: id of the network where the station belongs to
+    :param array data: all the relevant data for Station in an array. These values are accessed by its numerations listed in the variables written with capital letters
+    :ivar Array sitechans: array of SiteChan objects relating to the station. Defaults to None which creates a dummy station
+    :ivar string station_code: code of the station. Maximum of six characters.
+    :ivar datetime on_date: date of when the station was opened.
+    :ivar datetime off_date: date of when the statoin was closed.
+    :ivar float latitude: latitude coordinate of the station in degrees.
+    :ivar float longitude: longitude coordinate of the station in degrees.
+    :ivar float elevation: of the station in kilometers.
+    :ivar string station_name: name of the station. Maximum of 50 characters.
+    :ivar string station_type: type of the station. One of 'b', 'ss', 'bb', 'll', 'ar'.
+    :ivar string reference_station: reference station of a array.
+    :ivar int north_offset: North offset from the main station in array
+    :ivar int east_offset: East offset from the main station in array
+    :ivar datetime load_date: date when this station info was loaded
+    :ivar string network: network of the station
+    :ivar int network_id: id of the network of the station
+    :ivar int s_id: id of this station in the database
+    :ivar int STATION_CODE: Enumeration of the data list. Value of 0
+    :ivar int ON_DATE: Enumeration of the data list. Value of 1
+    :ivar int OFF_DATE: Enumeration of the data list. Value of 2
+    :ivar int LATITUDE: Enumeration of the data list. Value of 3
+    :ivar int LONGITUDE: Enumeration of the data list. Value of 4
+    :ivar int ELEVATION: Enumeration of the data list. Value of 5
+    :ivar int STATION_NAME: Enumeration of the data list. Value of 6
+    :ivar int STATION_TYPE: Enumeration of the data list. Value of 7
+    :ivar int REFERENCE_STATION: Enumeration of the data list. Value of 8
+    :ivar int NORTH_OFFSET: Enumeration of the data list. Value of 9
+    :ivar int EAST_OFFSET: Enumeration of the data list. Value of 10
+    :ivar int LOAD_DATE: Enumeration of the data list. Value of 11
+    :ivar int NETWORK: Enumeration of the data list. Value of 12
+    :ivar int NETWORK_ID: Enumeration of the data list. Value of 13
+    :ivar int S_ID: Enumeration of the data list. Value of 14
 
     """
     header_type = 10
@@ -51,23 +68,40 @@ class Station(object):
     NETWORK_ID = 13
     S_ID = 14
 
-    def __init__(self, data):
+    def __init__(self, data = None):
         self.sitechans = []
-        self.station_code = data[self.STATION_CODE]
-        self.on_date = data[self.ON_DATE]
-        self.off_date = data[self.OFF_DATE]
-        self.latitude = data[self.LATITUDE]
-        self.longitude = data[self.LONGITUDE]
-        self.elevation = data[self.ELEVATION]
-        self.station_name = data[self.STATION_NAME]
-        self.station_type = data[self.STATION_TYPE]
-        self.reference_station = data[self.REFERENCE_STATION]
-        self.north_offset = data[self.NORTH_OFFSET]
-        self.east_offset = data[self.EAST_OFFSET]
-        self.load_date = data[self.LOAD_DATE]
-        self.network = data[self.NETWORK]
-        self.network_id = data[self.NETWORK_ID]
-        self.s_id = data[self.S_ID]
+        if data is not None:
+            self.station_code = data[self.STATION_CODE]
+            self.on_date = data[self.ON_DATE]
+            self.off_date = data[self.OFF_DATE]
+            self.latitude = data[self.LATITUDE]
+            self.longitude = data[self.LONGITUDE]
+            self.elevation = data[self.ELEVATION]
+            self.station_name = data[self.STATION_NAME]
+            self.station_type = data[self.STATION_TYPE]
+            self.reference_station = data[self.REFERENCE_STATION]
+            self.north_offset = data[self.NORTH_OFFSET]
+            self.east_offset = data[self.EAST_OFFSET]
+            self.load_date = data[self.LOAD_DATE]
+            self.network = data[self.NETWORK]
+            self.network_id = data[self.NETWORK_ID]
+            self.s_id = data[self.S_ID]
+        else:
+            self.station_code = ""
+            self.on_date = datetime.now()
+            self.off_date = None
+            self.latitude = None
+            self.longitude = 0.0
+            self.elevation = 0.0
+            self.station_name = ""
+            self.station_type = ""
+            self.reference_station = ""
+            self.north_offset = ""
+            self.east_offset = ""
+            self.load_date = datetime.now()
+            self.network = ""
+            self.network_id = -1
+            self.s_id = -1
 
     station_code = property(operator.attrgetter('_station_code'), doc="")
 
@@ -122,7 +156,7 @@ class Station(object):
 
     @station_type.setter
     def station_type(self, val):
-        val_station_type = validateString(val, "station_type", 1, 2, ['b', 'ss', 'bb', 'll', 'ar'], self.header_type)
+        val_station_type = validateString(val, "station_type", 1, 2, ['', 'b', 'ss', 'bb', 'll', 'ar'], self.header_type)
         self._station_type = val_station_type
 
     reference_station = property(operator.attrgetter('_reference_station'), doc="")
@@ -155,7 +189,7 @@ class Station(object):
 
     def getResponse(self, channel):
         """
-        :param str channel: channel code of the response file. One of bz,bn,be,sz,sn,se.
+        :param str channel: channel code of the sitechan that owns the response file.
         :returns: Response object or None if there is no response
         """
         try:

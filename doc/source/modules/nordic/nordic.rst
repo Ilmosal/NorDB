@@ -17,3 +17,4 @@ Nordic
     sensor.rst
     sitechan.rst
     station.rst
+    response.rst

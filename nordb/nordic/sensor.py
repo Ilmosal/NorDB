@@ -18,20 +18,39 @@ class Sensor(object):
     """
     Class for sensor information. Comes from css sensor format.
 
-    :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations.
-    :ivar int TIME: epoch time of start of recording period
-    :ivar int ENDTIME: epoch time of end of recording period
-    :ivar int JDATE: julian date
-    :ivar int CALRATIO: calibration
-    :ivar int CALPER: calibration period
-    :ivar int TSHIFT: correction to data processing time
-    :ivar int INSTANT: (y/n) discrete/continuing snapshot
-    :ivar int LDDATE:
-    :ivar int CHANNEL_ID: id of the channel to which sensor refers to.
-    :ivar int INTRUMENT_ID: id of the instrument to which the sensor refers to.
-    :ivar int ID: id of the sensor
-    :ivar int STATION_CODE: code of the station the sensor is attached to
-    :ivar int CHANNEL_CODE: channel code of the sensor
+    :param Array data: all the relevant data for Sensor in an array. These values are accessed by its numerations.
+    :ivar Array instruments: list of all instruments related to sensor
+    :ivar float time: epoch time of start of recording period
+    :ivar float endtime: epoch time of end of recording period
+    :ivar datetime jdate: julian date
+    :ivar float calratio: calibration ratio
+    :ivar float calper: calibration period
+    :ivar float tshift: correction to data processing time
+    :ivar string instant: (y/n) discrete/continuing snapshot
+    :ivar datetime lddate: loading date of this info
+    :ivar int channel_id: id of the channel to which sensor refers to.
+    :ivar int intrument_id: id of the instrument to which the sensor refers to.
+    :ivar int s_id: id of the sensor
+    :ivar int station_code: code of the station the sensor is attached to
+    :ivar int channel_code: channel code of the sensor
+    :ivar int channel_css_id: css id of the channel to which this sensor relates to
+    :ivar int instrument_css_id: css_id of the instrument to which this sensor relates to
+
+    :ivar int TIME: Enumeration of the data list. Value of 0
+    :ivar int ENDTIME: Enumeration of the data list. Value of 1
+    :ivar int JDATE: Enumeration of the data list. Value of 2
+    :ivar int CALRATIO: Enumeration of the data list. Value of 3
+    :ivar int CALPER: Enumeration of the data list. Value of 4
+    :ivar int TSHIFT: Enumeration of the data list. Value of 5
+    :ivar int INSTANT: Enumeration of the data list. Value of 6
+    :ivar int LDDATE: Enumeration of the data list. Value of 7
+    :ivar int CHANNEL_CSS_ID: Enumeration of the data list. Value of 8
+    :ivar int INSTRUMENT_CSS_ID: Enumeration of the data list. Value of 9
+    :ivar int CHANNEL_ID: Enumeration of the data list. Value of 10
+    :ivar int INTRUMENT_ID: Enumeration of the data list. Value of 11
+    :ivar int ID: Enumeration of the data list. Value of 12
+    :ivar int STATION_CODE: Enumeration of the data list. Value of 13
+    :ivar int CHANNEL_CODE: Enumeration of the data list. Value of 14
     """
     header_type = 13
     TIME = 0

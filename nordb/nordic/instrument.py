@@ -22,6 +22,7 @@ class Instrument:
 
     :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations. 
     :ivar int header_type: 12
+    :ivar Response response: response file to which this response is attached to
     :ivar string band: Frequency band. Maximum of 1 character
     :ivar string instrument_name: Name of the instrument. Maximum of 50 characters
     :ivar string instrument_type: Type of the instrument. Maximum of 6 characters
@@ -32,24 +33,25 @@ class Instrument:
     :ivar string resp_dir: Directory for instrument response file. Maximum of 64 characters
     :ivar string dfile: Maximum of 32 characters
     :ivar string rsptype: response type. Maximum of 6 characters
+    :ivar int i_id: id of this instrument
+    :ivar int css_id: css id of this instrument
+    :ivar int response_id: id of the response of this instrument
     :ivar date lddate: load date
     :ivar int response_id: id of the response of the instrument
-    :ivar int I_ID: id of the instrument in the database
-    :ivar int CSS_ID: css_id of the instrument in the database
-    :ivar int INSTRUMENT_NAME: Location of the instrument_name in a array. Value of 0
-    :ivar int INSTRUMENT_TYPE: Location of the instrument_type in a array. Value of 1
-    :ivar int BAND: Location of the band in a array. Value of 2
-    :ivar int DIGITAL: Location of the digital in a array. Value of 3
-    :ivar int SAMPRATE: Location of the samprate in a array. Value of 4
-    :ivar int NCALIB: Location of the ncalib in a array. Value of 5
-    :ivar int NCALPER: Location of the ncalper in a array. Value of 6
-    :ivar int RESP_DIR: Location of the resp_dir in a array. Value of 7
-    :ivar int DFILE: Location of the dfile in a array. Value of 8
-    :ivar int RSPTYPE: Location of the rsptype in a array. Value of 9
-    :ivar int LDDATE: Location of the lddate in a array. Value of 10
-    :ivar int ID: Location of the id in a array. Value of 11
-    :ivar int CSS_ID: Location of the css_id in a array. Value of 12
-    :ivar int RESPONSE ID: Location of the response_id in a array. Value of 13
+    :ivar int INSTRUMENT_NAME: Enumeration of the data list. Value of 0
+    :ivar int INSTRUMENT_TYPE: Enumeration of the data list. Value of 1
+    :ivar int BAND: Enumeration of the data list. Value of 2
+    :ivar int DIGITAL: Enumeration of the data list. Value of 3
+    :ivar int SAMPRATE: Enumeration of the data list. Value of 4
+    :ivar int NCALIB: Enumeration of the data list. Value of 5
+    :ivar int NCALPER: Enumeration of the data list. Value of 6
+    :ivar int RESP_DIR: Enumeration of the data list. Value of 7
+    :ivar int DFILE: Enumeration of the data list. Value of 8
+    :ivar int RSPTYPE: Enumeration of the data list. Value of 9
+    :ivar int LDDATE: Enumeration of the data list. Value of 10
+    :ivar int I_ID: Enumeration of the data list. Value of 11
+    :ivar int CSS_ID: Enumeration of the data list. Value of 12
+    :ivar int RESPONSE ID: Enumeration of the data list. Value of 13
     """
     header_type = 12
     INSTRUMENT_NAME = 0

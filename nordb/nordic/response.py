@@ -19,12 +19,20 @@ class Response(object):
     Class for response information. Always use eihter PazResponse or FapResponse instead of this class.
 
     :param array data: all the relevant data for response in an array. These values are accessed by its numerations.
-    :ivar int SOURCE: Source of the response
-    :ivar int STAGE: Stage of the response
-    :ivar int DESCRIPTION: Description of the response
-    :ivar int FORMAT: Format of the reposse. Either paz or fap
-    :ivar int AUTHOR: Author of the reponse
-    :ivar int ID: id of the response
+    :ivar int c_id: Id of the response in the database
+    :ivar string file_name: Name of the response file from which this object was read from
+    :ivar string source: Source of the response
+    :ivar string stage: stage of the response
+    :ivar string description: description of the response
+    :ivar string response_format: format of this response file. Either paz or fap
+    :ivar string author: author of the response
+    :ivar int FILE_NAME: Enumeration of the data list. Value of 0
+    :ivar int SOURCE: Enumeration of the data list. Value of 1
+    :ivar int STAGE: Enumeration of the data list. Value of 2
+    :ivar int DESCRIPTION: Enumeration of the data list. Value of 3
+    :ivar int RESPONSE_FORMAT: Enumeration of the data list. Value of 4
+    :ivar int AUTHOR: Enumeration of the data list. Value of 5
+    :ivar int ID: Enumeration of the data list. Value of 6
     """
     header_type = 14
     FILE_NAME = 0
@@ -109,6 +117,10 @@ class Response(object):
 class PazResponse(Response):
     """
     Class for poles and zeros type of response. Inherits Response class.
+
+    :ivar float scale_factor: scale factor of the response
+    :ivar Array poles: array of all the poles in the response. Poles are arrays of floats and contain the imaginary value of the pole and the error of the pole
+    :ivar Array zeros: array of all the zeros in the response. Poles are arrays of floats and contain the imaginary value of the zero and the error of the zero
     """
     def __init__(self, response_data, scale_factor, poles, zeros):
         Response.__init__(self, response_data)
@@ -126,8 +138,8 @@ class PazResponse(Response):
     def getObspyResponse(self, mode="dis"):
         """
         Method for getting the response in a format suited for obspy.
-        :param string mode: dis, vel or acc depending on which derivative of
-        paz file you want
+
+        :param string mode: dis, vel or acc depending on which derivative of paz file you want
         :returns: response in a format fitting to obspy
         """
         if mode not in ["dis", "acc", "vel"]:
@@ -164,6 +176,8 @@ class PazResponse(Response):
 class FapResponse(Response):
     """
     Class for frequency, amplitude and phase type response. Inherits Response class.
+
+    :ivar Array fap: an array of five float values which contain the frequency, amplitude, phase, amplitude_error, phase_error in that order
     """
     def __init__(self, response_data, fap):
         Response.__init__(self, response_data)

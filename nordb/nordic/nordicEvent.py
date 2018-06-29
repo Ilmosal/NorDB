@@ -100,6 +100,7 @@ class NordicEvent:
         for h_macro in self.macro_h:
             n_string += str(h_macro) + "\n"
 
+        n_string += self.createIdHeaderString()
         n_string += self.createHelpHeaderString()
 
         for p_data in self.data:
@@ -147,47 +148,47 @@ class NordicEvent:
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1, self.main_h[0].error_h.magnitude_error) 
+                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1, self.main_h[0].error_h.magnitude_error)
             else:
                 return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1)
         return None
 
 
     def getLatitude(self):
-        """ 
+        """
         Get latitude of the NordicEvent. Modifying this value will not modify the value inside the event.
 
         :returns: Coordinate object
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return Coordinate(self.main_h[0].epicenter_latitude, self.main_h[0].error_h.epicenter_latitude_error) 
+                return Coordinate(self.main_h[0].epicenter_latitude, self.main_h[0].error_h.epicenter_latitude_error)
             else:
                 return Coordinate(self.main_h[0].epicenter_latitude)
         return None
 
     def getLongitude(self):
-        """ 
+        """
         Get longitude of the NordicEvent. Modifying this value will not modify the value inside the event.
 
         :returns: Coordinate object
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return Coordinate(self.main_h[0].epicenter_longitude, self.main_h[0].error_h.epicenter_longitude_error) 
+                return Coordinate(self.main_h[0].epicenter_longitude, self.main_h[0].error_h.epicenter_longitude_error)
             else:
                 return Coordinate(self.main_h[0].epicenter_longitude)
         return None
 
     def getDepth(self):
-        """ 
+        """
         Get depth of the NordicEvent. Modifying this value will not modify the value inside the event.
 
         :returns: Depth object
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return Depth(self.main_h[0].depth, self.main_h[0].error_h.depth_error) 
+                return Depth(self.main_h[0].depth, self.main_h[0].error_h.depth_error)
             else:
                 return Depth(self.main_h[0].depth)
         return None
@@ -195,7 +196,7 @@ class NordicEvent:
     def getSC3(self, filepath = None):
         """
         GetSC3 returns the nordic event as a SC3-XML string or writes the event as a xml file named filepath.
-    
+
         :param str filepath: filepath to to the file you want to write the file. Leave empty to only return the sc3 file as a string
         :returns: SC3 xml file as a string
         """
@@ -292,6 +293,6 @@ class NordicEvent:
         if not args or 2 in args:
             for h_macro in self.macro_h:
                 n_string += str(h_macro) + "\n"
-     
+
         return n_string
-     
+
