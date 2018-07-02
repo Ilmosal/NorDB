@@ -4,7 +4,7 @@ This module contains all commands for searching the database for events with giv
 Functions and Classes
 ---------------------
 """
-
+import numpy as np
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -348,7 +348,7 @@ def searchSameEvents(nordic_event):
     """
     m_header = nordic_event.main_h[0]
     search = NordicSearch()
-    
+
     if m_header.origin_time is not None:
         search.addSearchExactly("origin_time", m_header.origin_time)
     if m_header.epicenter_latitude is not None:
@@ -391,6 +391,50 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
 
     return search.searchEvents()
 
-def searchEventsCloseToPoint(latitude, longitude, distance = 100.0,
-                             date = datetime.now()):
-    pass
+def searchEvents(latitude, longitude, distance = 100.0,
+                 magnitude = -9.0, magnitude_diff = 2.0,
+                 date=None, date_diff=-9.0):
+    """
+    Search all events close to a location close to a point.
+
+    :param float latitude: latitude coordinate of the point
+    :param float longitude: longitude coordinate of the point
+    :param float distance: distance from the point in kilometers
+    :param float magnitude: magnitude of the event
+    :param float magnitude_diff: maximum allowed magnitude difference of the event. Set negative value for searching exactly for a magnitude
+    :param date date: date of the event
+    :paran float date_diff: maximum allowed date difference from date in days. Set negative value for searching exactly at the date
+    """
+    search = NordicSearch()
+    lat_diff = (0.5*distance) / 110.574
+    lon_diff = (0.5*distance) / (float(np.cos(np.deg2rad(latitude))) * 111.32)
+
+    search.addSearchBetween("epicenter_latitude", latitude-lat_diff, latitude+lat_diff)
+    search.addSearchBetween("epicenter_longitude", longitude-lon_diff, longitude+lon_diff)
+
+    if magnitude > 0.0:
+        if magnitude_diff < 0:
+            search.addSearchExactly("magnitude_1", magnitude)
+        else:
+            search.addSearchBetween("magnitude_1",
+                                    magnitude-magnitude_diff,
+                                    magnitude+magnitude_diff)
+
+    if date is not None:
+        if date_diff < 0:
+            search.addSearchBetween("origin_time",
+                                    datetime.combine(date,
+                                                     datetime.min.time()),
+                                    datetime.combine(date,
+                                                     datetime.max.time()))
+        else:
+            search.addSearchBetween("origin_time",
+                                    datetime.combine(date,
+                                                     datetime.datetime.min.time())
+                                                    -   timedelta(days=date_diff),
+                                    datetime.combine(date,
+                                                     datetime.datetime.max.time())
+                                                    +   timedelta(days=date_diff)
+                                   )
+
+    return search.searchEvents()

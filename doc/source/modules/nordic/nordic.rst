@@ -7,6 +7,7 @@ Nordic
     :maxdepth: 1
     
     instrument.rst
+    misc.rst
     nordicComment.rst
     nordicData.rst
     nordicError.rst
