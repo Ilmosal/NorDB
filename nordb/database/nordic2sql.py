@@ -108,7 +108,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
     if f_creation_id is None:
         creation_id = creationInfo.createCreationInfo() 
     else:
-        creation_id = f_creation_id 
+        creation_id = f_creation_id
     author_id = None
 
     for header in nordic_event.comment_h:
@@ -225,7 +225,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
         raise e
     finally:
          if f_creation_id is None:
-            creationInfo.deleteCreationInfoIfUnnecessary(creation_info)
+            creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
 
 def executeCommand(cur, command, vals, returnValue):
     """

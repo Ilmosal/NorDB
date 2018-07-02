@@ -7,6 +7,7 @@ Functions and Classes
 """
 
 import datetime
+import time
 
 from nordb.core import usernameUtilities
 from nordb.nordic.response import FapResponse, PazResponse

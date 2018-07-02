@@ -850,7 +850,7 @@ def backup(repo, backup_option):
     i = 1
 
     for key in sorted(backup_files.keys()):
-        click.echo(" {0} | {1} | {2}".format(key.strftime("%Y-%m-%d %H:%M:%S"), backup_files[key], i))
+        click.echo(" {0} | {1} | {2}".format(key.strftime("%Y-%m-%d %H:%M:%S"), backup_files[key], i))
         key_bkup[i] = backup_files[key]
         i+=1
 
@@ -863,7 +863,7 @@ def backup(repo, backup_option):
             msg = "To which backup you want to revert to (give key)"
         elif backup_option == "delete":
             msg = "Which backup you want to delete"
- 
+
         key = int(click.prompt(msg))
     except:
         click.echo("Not a valid key! Aborting...")
@@ -874,7 +874,7 @@ def backup(repo, backup_option):
         return
 
     if backup_option == "load":
-        norDBManagement.loadBackup(key_bkup[key]) 
+        norDBManagement.loadBackup(key_bkup[key])
 
     if backup_option == "delete":
         call(["rm", os.path.dirname(MODULE_PATH) + os.sep + ".." + os.sep + "backups" + os.sep + key_bkup[key]])

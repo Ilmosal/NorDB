@@ -262,7 +262,7 @@ def alterUser(username, new_username = None, new_user_role = None, new_password 
         raise Exception("New username is too long! Maximum lenght of 32 characters")
 
     if new_user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
-        raise Exception("User role not a valid user role ({0})".format(user_role))
+        raise Exception("User role not a valid user role ({0})".format(new_user_role))
 
     pass 
     

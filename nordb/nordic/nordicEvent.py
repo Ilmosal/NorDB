@@ -15,6 +15,7 @@ from nordb.core.nordic2quakeml import nordicEvents2QuakeML
 from nordb.core.nordic2sc3 import nordicEvents2SC3
 from nordb.database.nordic2sql import event2Database
 from nordb.database.sql2station import getStation
+from nordb.database.nordic2sql import event2Database
 
 from nordb.nordic.misc import Magnitude
 from nordb.nordic.misc import OriginTime

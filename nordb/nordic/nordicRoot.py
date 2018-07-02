@@ -9,7 +9,9 @@ class NordicRoot:
     """
     NordicRoot class.
     """
-    def __init__(self, root_id=-1, events = []):
+    def __init__(self, root_id=-1, events = None):
+        self.events = []
         self.root_id = root_id
-        self.events = events
+        if events is not None:
+            self.events = events
 

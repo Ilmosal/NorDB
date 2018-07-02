@@ -96,7 +96,7 @@ class Response(object):
         self._author = val_author
 
     def __str__(self):
-        response_string = "{0} {0} {0} {0} {0}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
+        response_string = "{0} {1} {2} {3} {4}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
 
         return response_string
 
@@ -145,9 +145,9 @@ class PazResponse(Response):
         if mode not in ["dis", "acc", "vel"]:
             raise Exception("{0} not a valid mode!".format(mode))
 
-        obspy_resp = {poles:[], zeros:[], sensitivity:self.scale_factor, gain:1.0}
-        for p in poles:
-            obspy_resp[poles].append(complex(p.real, p.imag))
+        obspy_resp = {'poles':[], 'zeros':[], 'sensitivity':self.scale_factor, 'gain':1.0}
+        for p in self.poles:
+            obspy_resp['poles'].append(complex(p.real, p.imag))
 
         ceil = len(self.zeros)
         if (mode == "vel"):
@@ -156,8 +156,8 @@ class PazResponse(Response):
             ceil -= 2
 
         for i in range(0, ceil):
-            obspy_resp[zeros].append(complex(self.zeros[i].real,
-                                             self.zeros[i].imag))
+            obspy_resp['zeros'].append(complex(self.zeros[i].real,
+                                               self.zeros[i].imag))
 
         return obspy_resp
 

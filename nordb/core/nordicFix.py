@@ -104,7 +104,7 @@ def fixPhaseData(data, main_datetime):
         pass
 
     try:
-        if int(mhour) > int(data[NordicData.HOUR]):
+        if main_datetime.hour > int(data[NordicData.HOUR]):
             data[NordicData.TIME_INFO] = "+"
     except:
         pass
