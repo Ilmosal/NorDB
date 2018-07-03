@@ -15,7 +15,6 @@ from nordb.core.nordic2quakeml import nordicEvents2QuakeML
 from nordb.core.nordic2sc3 import nordicEvents2SC3
 from nordb.database.nordic2sql import event2Database
 from nordb.database.sql2station import getStation
-from nordb.database.nordic2sql import event2Database
 
 from nordb.nordic.misc import Magnitude
 from nordb.nordic.misc import OriginTime
@@ -236,7 +235,7 @@ class NordicEvent:
         :param int creation_id: creation_id of the event. Default is None, if no creation id yet exist.
         :param int e_id: id of the event to which this event will be attached to. Default -1, which will create a new root_id for the event.
         """
-        nordic2sql.event2Database(self, solution_type, filename, creation_id, e_id)
+        event2Database(self, solution_type, filename, creation_id, e_id)
 
     def getStations(self):
         """

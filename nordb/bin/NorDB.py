@@ -5,7 +5,6 @@ This is the command line tool of the whole program. The command line tool is cre
 """
 
 import os
-import sys
 import fnmatch
 from subprocess import call
 from datetime import datetime
@@ -15,12 +14,7 @@ from lxml import etree
 
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
-try:
-    from nordb.core import usernameUtilities
-except:
-    click.echo("NorDB has not been initialized! Please run the initNorDB.sh "
-               "command in the root folder of the program")
-    exit()
+from nordb.core import usernameUtilities
 from nordb.core.nordbConf import confUser, confExists
 
 if not confExists():
@@ -58,8 +52,6 @@ from nordb.nordic import sensor
 from nordb.nordic import sitechan
 from nordb.nordic import station
 from nordb.nordic import response
-
-from nordb.nordic import nordicEvent
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -100,7 +92,7 @@ def createuser(repo, role, username):
 @cli.command('removeuser', short_help = "remove user from db")
 @click.argument('username')
 @click.pass_obj
-def createuser(repo, username):
+def removeuser(repo, username):
     """
     Remove user from the database.
     """
@@ -112,10 +104,9 @@ def createuser(repo, username):
 @click.option('--output', '-o', type=click.Path(writable=True), help="file to which all events found are appended")
 @click.option('--output-format', '-f', default="n", type = click.Choice(["n", "q", "sc3"]))
 @click.option('--event-root', '-r', is_flag=True)
-@click.option('--silent', '-s', is_flag=True)
 @click.argument("criteria", nargs=-1, type=click.STRING)
 @click.pass_obj
-def search(repo, output_format, verbose, output, event_root, silent, criteria):
+def search(repo, output_format, verbose, output, event_root, criteria):
     """
     This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -127,13 +118,13 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
 
     WARNING: Do not use --verbose flag when there are serveral search results. The output will clog your terminal. You can pipeline them into a file with > in following way:
 
-    \b    
+    \b
         NorDB search --verbose -date=01.01.2009+
 
     This will print all nordic events from date 01.01.2009 onwards into the outputfile. Better way of getting files from the database is get command.
     """
     search = nordicSearch.NordicSearch()
-  
+
     search_types =  {
                         "date":"origin_time",
                         "d":"origin_time",
@@ -161,7 +152,7 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
                         "depth":"depth",
                         "de":"depth",
                     }
- 
+
     for crit in criteria:
         try:
             tpe, values = crit.split('=')
@@ -181,9 +172,9 @@ def search(repo, output_format, verbose, output, event_root, silent, criteria):
                 strvalues = [values[:-1]]
             else:
                 strvalues = [values]
-       
- 
-        real_vals = []        
+
+
+        real_vals = []
 
         for val in strvalues:
             if search_types[tpe] == "origin_time":

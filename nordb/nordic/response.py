@@ -147,7 +147,7 @@ class PazResponse(Response):
 
         obspy_resp = {'poles':[], 'zeros':[], 'sensitivity':self.scale_factor, 'gain':1.0}
         for p in self.poles:
-            obspy_resp['poles'].append(complex(p.real, p.imag))
+            obspy_resp['poles'].append(complex(p[0], p[1]))
 
         ceil = len(self.zeros)
         if (mode == "vel"):
@@ -156,8 +156,8 @@ class PazResponse(Response):
             ceil -= 2
 
         for i in range(0, ceil):
-            obspy_resp['zeros'].append(complex(self.zeros[i].real,
-                                               self.zeros[i].imag))
+            obspy_resp['zeros'].append(complex(self.zeros[i][0],
+                                               self.zeros[i][1]))
 
         return obspy_resp
 

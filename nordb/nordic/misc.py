@@ -41,7 +41,7 @@ class Depth(object):
     """
     A wrapper class for depth for the NordicEvent. Does not modify the actual value inside the NordicEvent. Can be cast into float with float()
 
-    :ivar float val: depth of the event in kilometers§
+    :ivar float val: depth of the event in kilometers
     :ivar float error: depth error of the value
     """
     def __init__(self, val, depth_control, error = 0.0):
