@@ -62,13 +62,17 @@ ALL_STATIONS =      (
                         "   network.id = network_id"
                     )
 
-def getAllStations():
+def getAllStations(db_conn = None):
     """
     Function for reading all stations from database.
 
+    :param psycopg2.connection db_conn: Connection to the database
     :returns: Array of Station objects
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(ALL_STATIONS)
@@ -78,41 +82,47 @@ def getAllStations():
     stations = []
     for a in ans:
         stat = Station(a)
-        sql2sitechan.sitechans2station(stat, datetime.datetime.now())
+        sql2sitechan.sitechans2station(stat, datetime.datetime.now(), conn)
 
         stations.append(stat)
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
+
     return stations
 
-def getStation(station_id, station_date = datetime.datetime.now()):
+def getStation(station_id, station_date = datetime.datetime.now(), db_conn = None):
     """
     Function for reading a station from database by id or code and datetime.
 
     :param int,str station_id: id of the station wanted or the station code of the station
+    :param psycopg2.connection db_conn: Connection to the database
     :param datetime station_date: date for which the station info will be taken
     :returns: Station object
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
-    try:
-        if isinstance(station_id, int):
-            cur.execute(SELECT_STATION_ID, (station_id,))
-        elif isinstance(station_id, str):
-            cur.execute(SELECT_STATION_CODE, (station_id, station_date,
-                                              station_date, station_date))
+    if isinstance(station_id, int):
+        cur.execute(SELECT_STATION_ID, (station_id,))
+    elif isinstance(station_id, str):
+        cur.execute(SELECT_STATION_CODE, (station_id, station_date,
+                                          station_date, station_date))
 
         ans = cur.fetchone()
-    finally:
-        conn.close()
 
     if ans is None:
         return None
 
     stat = Station(ans)
 
-    sql2sitechan.sitechans2station(stat, station_date)
+    sql2sitechan.sitechans2station(stat, station_date, conn)
+
+    if db_conn is None:
+        conn.close()
 
     return stat
 

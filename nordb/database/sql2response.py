@@ -90,14 +90,18 @@ SELECT_RESPONSE =   (
                     "   )"
                     )
 
-def getResponseFromDB(response_id):
+def getResponseFromDB(response_id, db_conn = None):
     """
     Function for reading a response from database by id
 
     :param int response_id: id of the Response wanted
     :returns: :class:`PazResponse` or :class:`FapResponse` object
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
 
     response = None
@@ -125,10 +129,11 @@ def getResponseFromDB(response_id):
 
         response = PazResponse(response_data, scale_factor, poles, zeros)
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
     return response
 
-def getResponse(station, channel, date=datetime.datetime.now()):
+def getResponse(station, channel, date=datetime.datetime.now(), db_conn = None):
     """
     Function for getting response information from the database.
 
@@ -137,7 +142,10 @@ def getResponse(station, channel, date=datetime.datetime.now()):
     :param datetime date: date for which you want the response
     :returns: Response object
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     timestamp = time.mktime(date.timetuple())
@@ -146,9 +154,12 @@ def getResponse(station, channel, date=datetime.datetime.now()):
                                   timestamp))
     resp_id = cur.fetchone()
 
-    conn.close()
-
     if resp_id is None:
         return None
 
-    return getResponseFromDB(resp_id[0])
+    response = getResponseFromDB(resp_id[0], conn)
+
+    if db_conn is None:
+        conn.close()
+
+    return response

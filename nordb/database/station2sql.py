@@ -82,7 +82,7 @@ def getNetworkID(network, privacy_level):
     return ans[0]
 
 def insertStation2Database(station, network, privacy_level = 'public'):
-    """ 
+    """
     Function for inserting the station to the database. If the station with the given code already exists the function will replace the old one.
 
     :param station Station: station that will be inserted to the database

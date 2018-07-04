@@ -69,35 +69,43 @@ SELECT_SENSORS_TO_SITECHAN =    (
                                 "   ) "
                                 )
 
-def getAllSensors():
+def getAllSensors(db_conn = None):
     """
     Function for reading all sensors from the database and returning them to user.
 
     :returns: Array of :class:`Sensor` objects
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(ALL_SENSORS)
 
     ans = cur.fetchall()
-    conn.close()
     sensors = []
     for a in ans:
         sen = Sensor(a)
-        sql2instrument.instruments2sensor(sen)
+        sql2instrument.instruments2sensor(sen, conn)
         sensors.append(sen)
+
+    if db_conn is None:
+        conn.close()
 
     return sensors
 
-def sensors2sitechan(sitechan, station_date=datetime.datetime.now()):
+def sensors2sitechan(sitechan, station_date=datetime.datetime.now(), db_conn = None):
     """
     Function for attaching all sensors related to a sitechan to the sitechan
 
     :param SiteChan sitechan: sitechan to which the sensors will be attached to
     :param datetime station_date: date for getting the right sensor files
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     unix_time = time.mktime(station_date.timetuple())
@@ -108,11 +116,12 @@ def sensors2sitechan(sitechan, station_date=datetime.datetime.now()):
 
     if sensor_ids:
         for sensor_id in sensor_ids:
-            sitechan.sensors.append(getSensor(sensor_id, station_date))
+            sitechan.sensors.append(getSensor(sensor_id, station_date, conn))
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
 
-def getSensor(sensor_id, station_date=datetime.datetime.now()):
+def getSensor(sensor_id, station_date=datetime.datetime.now(), db_conn = None):
     """
     Function for reading a sensor from database by id
 
@@ -122,14 +131,18 @@ def getSensor(sensor_id, station_date=datetime.datetime.now()):
     """
     unix_time = time.mktime(station_date.timetuple())
 
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(SELECT_SENSOR, (sensor_id,))
     ans = cur.fetchone()
-    conn.close()
     sen = Sensor(ans)
 
-    sql2instrument.instruments2sensor(sen)
+    sql2instrument.instruments2sensor(sen, conn)
 
+    if db_conn is None:
+        conn.close()
     return sen

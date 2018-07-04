@@ -57,36 +57,45 @@ ALL_SITECHANS =     (
                     "   station.id = sitechan.station_id "
                     )
 
-def getAllSitechans():
+def getAllSitechans(db_conn = None):
     """
     Function for reading all sitechans from database and returning them to user.
 
     :returns: Array of Sitechan objects
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
 
     cur.execute(ALL_SITECHANS)
     ans = cur.fetchall()
-    conn.close()
 
     sitechans = []
 
     for a in ans:
         chan = SiteChan(a)
-        sql2sensor.sensors2sitechan(chan)
+        sql2sensor.sensors2sitechan(chan, conn)
         sitechans.append(chan)
+
+    if db_conn is None:
+        conn.close()
 
     return sitechans
 
-def sitechans2station(station, station_date):
+def sitechans2station(station, station_date, db_conn = None):
     """
     Function for attaching all related sitechans to station
 
     :param Station station: station to which the sitechans will be attached to
     :param datetime station_date: date for getting the right sitechan files
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(SELECT_SITECHAN_OF_STATION, (station.s_id, station_date,
@@ -95,11 +104,12 @@ def sitechans2station(station, station_date):
 
     if sitechan_ids:
         for chan_id in sitechan_ids:
-            station.sitechans.append(getSitechan(chan_id, station_date))
+            station.sitechans.append(getSitechan(chan_id, station_date, conn))
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
 
-def getSitechan(sitechan_id, station_date=datetime.datetime.now()):
+def getSitechan(sitechan_id, station_date=datetime.datetime.now(), db_conn = None):
     """
     Function for reading a sitechan from database by id.
 
@@ -107,16 +117,20 @@ def getSitechan(sitechan_id, station_date=datetime.datetime.now()):
     :param datetime station_date: date for getting the right sitechan files
     :returns: Sitechan object
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(SELECT_SITECHAN, (sitechan_id,))
     ans = cur.fetchone()
 
-    conn.close()
-
     chan = SiteChan(ans)
 
-    sql2sensor.sensors2sitechan(chan, station_date)
+    sql2sensor.sensors2sitechan(chan, station_date, conn)
+
+    if db_conn is None:
+        conn.close()
 
     return chan

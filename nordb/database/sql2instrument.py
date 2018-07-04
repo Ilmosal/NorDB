@@ -46,66 +46,74 @@ SELECT_INSTRUMENTS_TO_SENSOR =  (
                                 "   instrument.id = sensor.instrument_id "
                                 )
 
-def getAllInstruments():
+def getAllInstruments(db_conn = None):
     """
     Function for reading all insturments from the database and returning them to user.
 
     :return: Array of :class:`.Instrument` objects
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
-    try:
-        cur.execute(ALL_INSTRUMENTS)
-        ans = cur.fetchall()
-    except Exception as e:
-        conn.close()
-        raise e
-    conn.close()
+
+    cur.execute(ALL_INSTRUMENTS)
+    ans = cur.fetchall()
 
     instruments = []
 
     for a in ans:
         instrument = Instrument(a)
-        instrument.response = getResponseFromDB(instrument.response_id)
+        instrument.response = getResponseFromDB(instrument.response_id, conn)
         instruments.append(instrument)
+
+    if db_conn is None:
+        conn.close()
 
     return instruments
 
-def instruments2sensor(sensor):
+def instruments2sensor(sensor, db_conn = None):
     """
     Function for attaching all related instruments to Sensor object.
 
     :param Sensor sensor: sensor to which its intruments will be attached to
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
-    try:
-        cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
-        instrument_ids = cur.fetchall()
-    except Exception as e:
-        conn.close()
-        raise e
-    conn.close()
+
+    cur.execute(SELECT_INSTRUMENTS_TO_SENSOR, (sensor.s_id,))
+    instrument_ids = cur.fetchall()
 
     if instrument_ids:
         for instrument_id in instrument_ids:
-            sensor.instruments.append(getInstrument(instrument_id))
+            sensor.instruments.append(getInstrument(instrument_id, conn))
 
-def getInstrument(instrument_id):
+    if db_conn is None:
+        conn.close()
+def getInstrument(instrument_id, db_conn = None):
     """
     Function for reading a instrument from database by id
 
     :param int instrument_id: id of the instrument wanted
     :return: :class:`.Instrument` object
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
 
     cur.execute(SELECT_INSTRUMENT, (instrument_id, ))
     ans = cur.fetchone()
 
-    conn.close()
     instrument = Instrument(ans)
-    instrument.response = getResponseFromDB(instrument.response_id)
+    instrument.response = getResponseFromDB(instrument.response_id, conn)
 
+    if db_conn is None:
+        conn.close()
     return instrument
