@@ -11,7 +11,8 @@ This sql file has all the commands for creating a nordic_header_main table.
 CREATE TABLE nordic_header_main (
 	id SERIAL PRIMARY KEY,
 	event_id SERIAL REFERENCES nordic_event(id) ON DELETE CASCADE,
-	origin_time timestamp,
+	origin_time TIME,
+    origin_date DATE,
 	location_model VARCHAR(1),
 	distance_indicator VARCHAR(1),
 	event_desc_id VARCHAR(1),

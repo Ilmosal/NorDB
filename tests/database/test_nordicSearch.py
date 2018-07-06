@@ -15,7 +15,7 @@ class TestNordicSearchWithCriteria(object):
 
     def testFindEventsWithDate(self, setupdbWithEvents):
         search = NordicSearch()
-        search.addSearchExactly("origin_time", date(2013, 1, 3))
+        search.addSearchExactly("origin_date", date(2013, 1, 3))
         foundEvents = search.searchEvents()
         for e in foundEvents:
             print(e)
@@ -105,7 +105,7 @@ class TestNordicSearchWithCriteria(object):
 
     def testNoEventsWithNonexistingDate(self, setupdbWithEvents):
         search = NordicSearch()
-        search.addSearchExactly("origin_time", date(2012,11,3))
+        search.addSearchExactly("origin_date", date(2012,11,3))
         foundEvents = search.searchEvents()
         assert len(foundEvents) == 0
 
@@ -162,11 +162,11 @@ class TestSearchSameEvents(object):
     def testSearchSameEvent(self, setupdbWithEvents, nordicEvents):
         e = nordic.readNordic(nordicEvents[0], False)
         assert len(searchSameEvents(e)) == 1
-       
+
 @pytest.mark.usefixtures("setupdbWithEvents", "nordicEvents")
 class TestSearchSimilarEvents(object):
     def testSearchSimilarEvent(self, setupdbWithEvents, nordicEvents):
         e = nordic.readNordic(nordicEvents[0], False)
         events = searchSimilarEvents(e)
         assert len(events) == 1
- 
+

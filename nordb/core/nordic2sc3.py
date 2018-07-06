@@ -15,7 +15,7 @@ from nordb.core import nordic2quakeml
 def nordicEvents2SC3(nordic_events):
     """
     Function that converts a NordicEvent object array into a lxml etree object in SC3 format.
-    
+
     :param array nordic_events: array of nordicEvent that will be converted into a single sc3 file
     :returns: SC3 file in lxml Etree object
     """
@@ -23,7 +23,7 @@ def nordicEvents2SC3(nordic_events):
         return None
 
     qmls = nordic2quakeml.nordicEvents2QuakeML(nordic_events, True)
-    
+
     f = open(os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep +"xml" + os.sep + "quakeml_1.2__sc3ml_0.9.xsl")
     qml2scc3 = etree.parse(f)
     f.close()

@@ -21,73 +21,73 @@ SELECT_QUERY =   {
                     "   id, root_id, creation_id, nordic_file_id, solution_type, author_id "
                     "FROM "
                     "   nordic_event "
-                    "WHERE id = %s"    
-                    ), 
+                    "WHERE id = %s"
+                    ),
                   1:(
-                    "SELECT " 
-                    "   origin_time, location_model, distance_indicator, " 
-                    "   event_desc_id, epicenter_latitude, epicenter_longitude, depth, " 
-                    "   depth_control, locating_indicator, epicenter_reporting_agency, " 
-                    "   stations_used, rms_time_residuals, " 
-                    "   magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, " 
-                    "   magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, " 
-                    "   magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, " 
-                    "   event_id, id " 
-                    "FROM " 
-                    "   nordic_header_main " 
+                    "SELECT "
+                    "   origin_time, origin_date, location_model, distance_indicator, "
+                    "   event_desc_id, epicenter_latitude, epicenter_longitude, depth, "
+                    "   depth_control, locating_indicator, epicenter_reporting_agency, "
+                    "   stations_used, rms_time_residuals, "
+                    "   magnitude_1, type_of_magnitude_1, magnitude_reporting_agency_1, "
+                    "   magnitude_2, type_of_magnitude_2, magnitude_reporting_agency_2, "
+                    "   magnitude_3, type_of_magnitude_3, magnitude_reporting_agency_3, "
+                    "   event_id, id "
+                    "FROM "
+                    "   nordic_header_main "
                     "WHERE "
                     "   event_id = %s"
                     ),
                   2:(
-                    "SELECT " 
-                    "   description, diastrophism_code, tsunami_code, seiche_code, " 
-                    "   cultural_effects, unusual_effects, maximum_observed_intensity, " 
-                    "   maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, " 
-                    "   macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, " 
-                    "   logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, " 
-                    "   logarithm_of_area_2, bordering_intensity_2, quality_rank,  " 
-                    "   reporting_agency, event_id, id " 
-                    "FROM " 
-                    "   nordic_header_macroseismic " 
-                    "WHERE " 
+                    "SELECT "
+                    "   description, diastrophism_code, tsunami_code, seiche_code, "
+                    "   cultural_effects, unusual_effects, maximum_observed_intensity, "
+                    "   maximum_intensity_qualifier, intensity_scale, macroseismic_latitude, "
+                    "   macroseismic_longitude, macroseismic_magnitude, type_of_magnitude, "
+                    "   logarithm_of_radius, logarithm_of_area_1, bordering_intensity_1, "
+                    "   logarithm_of_area_2, bordering_intensity_2, quality_rank,  "
+                    "   reporting_agency, event_id, id "
+                    "FROM "
+                    "   nordic_header_macroseismic "
+                    "WHERE "
                     "   event_id = %s"
                     ),
                   3:(
-                    "SELECT " 
-                    "   h_comment, event_id, id " 
-                    "FROM " 
-                    "   nordic_header_comment " 
-                    "WHERE " 
+                    "SELECT "
+                    "   h_comment, event_id, id "
+                    "FROM "
+                    "   nordic_header_comment "
+                    "WHERE "
                     "   event_id = %s"
                     ),
                   5:(
-                    "SELECT " 
-                    "   gap, second_error, epicenter_latitude_error, epicenter_longitude_error, " 
-                    "   depth_error, magnitude_error, header_id, id " 
-                    "FROM " 
-                    "   nordic_header_error " 
-                    "WHERE " 
+                    "SELECT "
+                    "   gap, second_error, epicenter_latitude_error, epicenter_longitude_error, "
+                    "   depth_error, magnitude_error, header_id, id "
+                    "FROM "
+                    "   nordic_header_error "
+                    "WHERE "
                     "   header_id = %s"
                     ),
                   6:(
-                    "SELECT " 
-                    "   waveform_info, event_id, id " 
-                    "FROM " 
-                    "   nordic_header_waveform " 
-                    "WHERE " 
+                    "SELECT "
+                    "   waveform_info, event_id, id "
+                    "FROM "
+                    "   nordic_header_waveform "
+                    "WHERE "
                     "   event_id = %s"
                     ),
                   8:(
-                    "SELECT " 
-                    "   station_code, sp_instrument_type, sp_component, quality_indicator,  " 
-                    "   phase_type, weight, first_motion, observation_time, " 
-                    "   signal_duration, max_amplitude, max_amplitude_period, back_azimuth, " 
-                    "   apparent_velocity, signal_to_noise, azimuth_residual, " 
-                    "   travel_time_residual, location_weight, epicenter_distance, "  
-                    "   epicenter_to_station_azimuth, event_id, id " 
-                    "FROM " 
-                    "   nordic_phase_data " 
-                    "WHERE " 
+                    "SELECT "
+                    "   station_code, sp_instrument_type, sp_component, quality_indicator,  "
+                    "   phase_type, weight, first_motion, observation_time, "
+                    "   signal_duration, max_amplitude, max_amplitude_period, back_azimuth, "
+                    "   apparent_velocity, signal_to_noise, azimuth_residual, "
+                    "   travel_time_residual, location_weight, epicenter_distance, "
+                    "   epicenter_to_station_azimuth, event_id, id "
+                    "FROM "
+                    "   nordic_phase_data "
+                    "WHERE "
                     "   event_id = %s"
                     )
                 }
@@ -101,14 +101,18 @@ SELECT_ROOT_ID =    (
                     "   nordic_event.root_id = %s"
                     )
 
-def getNordicsRoot(root_id):
+def getNordicsRoot(root_id, db_conn = None):
     """
     Method for getting all events attached to a root id from the database and returning them in a array.
 
-    :param int root_id:
+    :param int root_id: root id of the event root you want to fetch
     :returns: Array of NordicEvent objects
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
     cur.execute(SELECT_ROOT_ID, (root_id,))
     e_ids = cur.fetchall()
@@ -117,38 +121,56 @@ def getNordicsRoot(root_id):
 
     e_ids = [e_id[0] for e_id in e_ids]
 
-    return getNordics(e_ids)
+    nordics = getNordics(e_ids, db_conn = conn)
 
-def getNordics(event_ids):
+    if db_conn is None:
+        conn.close()
+
+    return nordics
+
+def getNordics(event_ids, db_conn = None):
     """
     Method for getting multiple nordics from the database with a event_id array.
-    
-    :param Array event_ids:
+
+    :param Array event_ids: Array of event id integers you want as events
     :returns: Array of NordicEvent objects
     """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     events = []
 
     for e_id in event_ids:
-        event = getNordic(e_id)
+        event = getNordic(e_id, db_conn = conn)
         if event is not None:
             events.append(event)
 
+    if db_conn is None:
+        conn.close()
+
     return events
 
-def getNordic(event_id):
+def getNordic(event_id, db_conn = None):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
     :param int event_id: Event id of the event
     :returns: NordicEvent object or None if no event is found
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     cur.execute(SELECT_QUERY[0], (event_id,))
     n_events = cur.fetchone()
 
     if not n_events:
+        if db_conn is None:
+            conn.close()
         return None
 
     event = NordicEvent(event_id, n_events[1], n_events[2], n_events[4])
@@ -183,12 +205,15 @@ def getNordic(event_id):
 
     for a in ans:
         event.waveform_h.append(NordicWaveform(a))
-    
+
     cur.execute(SELECT_QUERY[NordicData.header_type], (event_id,))
     ans = cur.fetchall()
 
     for a in ans:
         event.data.append(NordicData(a))
+
+    if db_conn is None:
+        conn.close()
 
     return event
 

@@ -33,9 +33,10 @@ def createStringMainHeader(header, fix_nordic):
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :return: NordicMain object with list of values parsed from header
     """
-    nordic_main = [None]*23
+    nordic_main = [None]*24
 
-    nordic_main[NordicMain.ORIGIN_TIME] = header[1:20]
+    nordic_main[NordicMain.ORIGIN_DATE] = header[1:10].strip()
+    nordic_main[NordicMain.ORIGIN_TIME] = header[11:20].strip()
     nordic_main[NordicMain.LOCATION_MODEL] = header[20].strip()
     nordic_main[NordicMain.DISTANCE_INDICATOR] = header[21].strip()
     nordic_main[NordicMain.EVENT_DESC_ID] = header[22].strip()
@@ -60,14 +61,14 @@ def createStringMainHeader(header, fix_nordic):
     nordic_main[NordicMain.H_ID] = -1
 
     if fix_nordic:
-        nordicFix.fixMainData(nordic_main) 
+        nordicFix.fixMainData(nordic_main)
 
     return NordicMain(nordic_main)
 
-def createStringMacroseismicHeader(header): 
+def createStringMacroseismicHeader(header):
     """
     Function that creates NordicMacroseismic list with values being strings
-    
+
     :param str header: string from where the data is parsed from
     :return: NordicMacroseismic object with list of values parsed from header
     """
@@ -135,7 +136,7 @@ def createStringErrorHeader(header, fix_nordic):
 
     if fix_nordic:
         nordicFix.fixErrorData(nordic_error)
-    
+
     return NordicError(nordic_error)
 
 def createStringWaveformHeader(header):
@@ -160,7 +161,7 @@ def createStringPhaseData(data, fix_nordic, obs_time):
 
     :param str data: string from where the data is parsed from
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
-    :param obs_time obs_time: obs_time of the first main header for creating the observation_time 
+    :param obs_time obs_time: obs_time of the first main header for creating the observation_time
     :return: NordicData object with alist of values parsed from data
     """
     phase_data = [None]*21
@@ -187,21 +188,21 @@ def createStringPhaseData(data, fix_nordic, obs_time):
     phase_data[NordicData.D_ID] = -1
 
     if fix_nordic:
-        nordicFix.fixPhaseData(phase_data, obs_time) 
+        nordicFix.fixPhaseData(phase_data, obs_time)
 
     return NordicData(phase_data)
 
 def readHeaders(event, nordic_string, fix_nordic):
     """
     Function for reading all the header files from the nordic file and returning them a header objects.
-    
-    :param NordicEvent event: nordic event to which the headers will be read to 
+
+    :param NordicEvent event: nordic event to which the headers will be read to
     :param Array nordic_string: nordic file in string array form
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :return: amount of headers read
     """
     i = 1
- 
+
     #find where the data starts 
     while (i < len(nordic_string)):
         if (nordic_string[i][79] == ' '):
@@ -239,14 +240,14 @@ def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, eve
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :param int root_id: id of the root event
     :param int creation_id: id of the creation id in the database
-    :param str event_type: Type of the event. 
+    :param str event_type: Type of the event.
     :return: Nordic Event object
     """
     nordic_string = None
     try:
         nordic_string = readNordicFile(nordic_file)[0]
     except:
-        nordic_string = nordic_file 
+        nordic_string = nordic_file
 
     event = NordicEvent(-1, root_id, creation_id, event_type)
 

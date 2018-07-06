@@ -21,12 +21,13 @@ from nordb.nordic.nordicMain import NordicMain
 from nordb.nordic.nordicError import NordicError
 from nordb.nordic.nordicData import NordicData
 from nordb.core.validationTools import validateDatetime
+from nordb.core.validationTools import validateTime
 from datetime import timedelta
 
 def fixMainData(header):
     """
     Method for fixing some of the common errors in main header.
-   
+
     :param NordicMain header: main header that needs to be fixed
     """
     try:
@@ -49,17 +50,17 @@ def fixMainData(header):
 
     if header[NordicMain.ORIGIN_TIME][-4:] == "60.0":
         temp = header[NordicMain.ORIGIN_TIME][:-4] + "00.0"
-       
-        time = validateDatetime(temp)
+
+        time = validateDatetime(header[NordicMain.ORIGIN_DATE]+" "+temp, "", "")
         time += timedelta(seconds=60)
-        new_time_string = time.strftime("%Y %m%d %H%M %S") 
+        new_time_string = time.strftime("%H%M %S")
         new_time_string += ".{0}".format(round(time.microsecond /100000))
         header[NordicMain.ORIGIN_TIME] = new_time_string
-        
+
 def fixErrorData(header):
     """
     Method for fixing some of the common errors in error header.
-   
+
     :param NordicError header: error header that need to be fixed
     """
     try:
@@ -72,7 +73,7 @@ def fixErrorData(header):
 def fixPhaseData(data, main_datetime):
     """
     Method for fixing some of the common errors in phase data.
-   
+
     :param NordicData data: phase data that need to be fixed
     :param main_datetime datetime: datetime of the first main header
     """

@@ -1,15 +1,18 @@
 import pytest
 from nordb.nordic.nordicMain import NordicMain
 from datetime import datetime
+from datetime import time
+
 class TestCreateNordicMain(object):
     def testCreateEmptyNordicMain(self):
-        nordic_header_main = NordicMain()        
+        nordic_header_main = NordicMain()
         assert type(nordic_header_main) == NordicMain
 
     def testFillWithCorrectValues(self):
         nordic_header_main = NordicMain()
 
-        nordic_header_main.origin_time = datetime.strptime("20120101 010101.123400", "%Y%m%d %H%M%S.%f")
+        nordic_header_main.origin_time = datetime.strptime("20121010 101010.123400", "%Y%m%d %H%M%S.%f").time()
+        nordic_header_main.origin_date = datetime.strptime("20121010 101010.123400", "%Y%m%d %H%M%S.%f").date()
         nordic_header_main.location_model = "A"
         nordic_header_main.distance_indicator = "L"
         nordic_header_main.event_desc_id = "Q"
@@ -30,4 +33,4 @@ class TestCreateNordicMain(object):
         nordic_header_main.magnitude_3 = 2.1
         nordic_header_main.type_of_magnitude_3 = "M"
         nordic_header_main.magnitude_reporting_agency_3 = "HEL"
-       
+

@@ -4,13 +4,13 @@ Module containing all the tools for validation.
 Functions and Classes
 ---------------------
 """
-
 import math
 import logging
+from datetime import time
 from datetime import date
 from datetime import datetime
 
-nTypes = {  0: "Nordic Event",
+n_types = {  0: "Nordic Event",
             1: "Nordic Main Header",
             2: "Nordic Macroseismic Header",
             3: "Nordic Comment Header",
@@ -26,20 +26,20 @@ nTypes = {  0: "Nordic Event",
             -999: "Validation Test",}
 
 class values():
-    maxInt = 9223372036854775807 
+    maxInt = 9223372036854775807
 
-def validateInteger(val, valueName, low, high, nType):
+def validateInteger(val, value_name, low, high, n_type):
     """
     Function that determines and returns a string as integer or None if the given value is valid integer and falls between given parameters or is empty. 
-    
+
     :param str val: value to be validated
-    :param str valueName: name of the parameter for messaging purposes
+    :param str value_name: name of the parameter for messaging purposes
     :param int low: lower limit of the val
     :param int high: upper limit of the val
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a integer or None if it's empty
-    """ 
-    
+    """
+
     if val == "" or val is None:
         return None
     value = -9
@@ -47,32 +47,31 @@ def validateInteger(val, valueName, low, high, nType):
     if type(val) is str:
         try:
             value = int(val)
-        except:     
+        except:
             msg = "Validation Error - {0}: {1} is not an integer! ({2})"
-            raise Exception(msg.format(nTypes[nType], valueName, val))
+            raise Exception(msg.format(n_types[n_type], value_name, val))
     elif type(val) is not int:
         msg = "Validation Error - {0}: {1} is of wrong type! ({2})"
-        raise Exception(msg.format(nTypes[nType], valueName, type(val)))
+        raise Exception(msg.format(n_types[n_type], value_name, type(val)))
     else:
         value = val
 
-
     if low is not None and value < low:
         msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], valueName, low, val))
+        raise Exception(msg.format(n_types[n_type], value_name, low, val))
 
     if high is not None and value > high:
         msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], valueName, high, val))
+        raise Exception(msg.format(n_types[n_type], value_name, high, val))
 
     return value
 
-def validateFloat(val, valueName, low, high, nType):
+def validateFloat(val, value_name, low, high, n_type):
     """
     Function that determines and returns string as float if the given value is valid float, falls between given parameters and is not nAn or inf.
-    
+
     :param str val: value to be validated
-    :param str valueName: name of the parameter for messaging purposes
+    :param str value_name: name of the parameter for messaging purposes
     :param float low: lower limit of the val
     :param float high: upper limit of the val
     :param int ntype: header name id. Used for messaging purposes
@@ -86,42 +85,42 @@ def validateFloat(val, valueName, low, high, nType):
     if type(val) is str:
         try:
             value = float(val)
-        except:     
+        except:
             msg = "Validation Error - {0}: {1} is not an float! ({2})"
-            raise Exception(msg.format(nTypes[nType], valueName, val))
+            raise Exception(msg.format(n_types[n_type], value_name, val))
     elif type(val) is not float:
         msg = "Validation Error - {0}: {1} is of wrong type! ({2})"
-        raise Exception(msg.format(nTypes[nType], valueName, type(val)))
+        raise Exception(msg.format(n_types[n_type], value_name, type(val)))
     else:
         value = val
 
     if math.isnan(value):
         msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-        raise Exception(msg.format(nTypes[nType], valueName, val))
+        raise Exception(msg.format(n_types[n_type], value_name, val))
 
     if math.isinf(value):
         msg = "Validation Error - {0}: {1} is {2} which is not allowed!"
-        raise Exception(msg.format(nTypes[nType], valueName, val))
+        raise Exception(msg.format(n_types[n_type], value_name, val))
 
     if low is not None and value < low:
         msg = "Validation Error - {0}: {1} is smaller than {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], valueName, low, val))
+        raise Exception(msg.format(n_types[n_type], value_name, low, val))
 
     if high is not None and value > high:
         msg = "Validation Error - {0}: {1} is larger than {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], valueName, high, val))
+        raise Exception(msg.format(n_types[n_type], value_name, high, val))
 
     return value
 
-def validateString(string, stringName, minlen, maxlen, listOfAllowed, nType):   
+def validateString(string, string_name, minlen, maxlen, list_of_allowed, n_type):
     """
     Function that determines if val is empty, falls between given parameters or can be found from a given list.
-    
+
     :param str string: value to be validated
-    :param str stringName: name of the parameter for messaging purposes
+    :param str string_name: name of the parameter for messaging purposes
     :param int minlen: lower limit of the string length
     :param int maxlen: upper limit of the string length
-    :param array listOfAllowed: list of valid string from where the string needs to be found
+    :param array list_of_allowed: list of valid string from where the string needs to be found
     :param int ntype: header name id. Used for messaging purposes
     :returns: the same string or None if it's empty
     """
@@ -130,20 +129,20 @@ def validateString(string, stringName, minlen, maxlen, listOfAllowed, nType):
         return None
     if type(string) is not str:
         msg = "Validation Error - {0}: {1} is of wrong type! ({2})"
-        raise Exception(msg.format(nTypes[nType], stringName, type(string)))
+        raise Exception(msg.format(n_types[n_type], string_name, type(string)))
 
-    if listOfAllowed is not None and string not in listOfAllowed:
+    if list_of_allowed is not None and string not in list_of_allowed:
         msg = "Validation Error - {0}: {1} not in the list of allowed strings! ({2})\nAllowed:\n"
-        for allowed in listOfAllowed:
+        for allowed in list_of_allowed:
             msg += "  -" + allowed + "\n"
-        raise Exception(msg.format(nTypes[nType], stringName, string))
-    
+        raise Exception(msg.format(n_types[n_type], string_name, string))
+
     if minlen >= -1  and len(string) < minlen:
         msg = "Validation Error - {0}: {1} is shorter than the minimum allowed length {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], stringName, minlen, string))
+        raise Exception(msg.format(n_types[n_type], string_name, minlen, string))
     if minlen >= -1  and len(string) > maxlen:
         msg = "Validation Error - {0}: {1} is longer than the maximum allowed length {2}! ({3})"
-        raise Exception(msg.format(nTypes[nType], stringName, maxlen, string))
+        raise Exception(msg.format(n_types[n_type], string_name, maxlen, string))
 
     return string
 
@@ -164,13 +163,13 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
         if datetime_name is None:
             raise TypeError
         msg = "Validation Error - {0}: {1} is wrong type {2}"
-        raise Exception(msg.format(nTypes[n_type], datetime_name, type(datetime_val)))
+        raise Exception(msg.format(n_types[n_type], datetime_name, type(datetime_val)))
     if datetime_val.strip() == "":
         return None
     try:
         return datetime(datetime_val)
     except:
-        return datetime (    
+        return datetime (
                             year = int(datetime_val[:4]),
                             month = int(datetime_val[5:7]),
                             day = int(datetime_val[7:9]),
@@ -180,26 +179,58 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
                             microsecond = int("{0:<06s}".format(datetime_val[18:]))
                         )
 
-def validateDate(dateS, dateName, nType):
+def validateDate(date_string, date_name, n_type):
     """
-    Function that determines if dateS is a valid date or
+    Function that determines if date_string is a valid date or not
 
-    :param str dateS: value to be validated
-    :param str dateName: name of the parameter for messaging purposes
+    :param str date_string: value to be validated
+    :param str date_name: name of the parameter for messaging purposes
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a date or None if it's empty
     """
-    if dateS == "" or dateS == None:
+    if date_string == "" or date_string == None:
         return None
-    if type(dateS) is date:
-        return dateS
-    if type(dateS) is datetime:
-        return dateS.date()
+    if type(date_string) is date:
+        return date_string
+    if type(date_string) is datetime:
+        return date_string.date()
 
     try:
-        new_date = date(year=int(dateS[:4].strip()), month=int(dateS[5:7].strip()), day=int(dateS[8:].strip()))
+        new_date = date(year=int(date_string[:4].strip()),
+                        month=int(date_string[5:7].strip()),
+                        day=int(date_string[7:].strip()))
     except:
-        msg = "Validation Error - {0}: {1} is not parsable into date!({2})"
-        raise Exception(msg.format(nTypes[nType], dateName, dateS))
+        try:
+            new_date = date(year=int(date_string[:4].strip()),
+                            month=int(date_string[5:7].strip()),
+                            day=int(date_string[8:].strip()))
+        except:
+            msg = "Validation Error - {0}: {1} is not parsable into date!({2})"
+            raise Exception(msg.format(n_types[n_type], date_name, date_string))
+
 
     return new_date
+
+def validateTime(time_string, time_name, n_type):
+    """
+    Function that determines if a time_string is a valid time or not
+
+    :param str time_string: value to be validated
+    :param str time_name: name of the parameter for messaging purposes
+    :param int ntype: header name id. Used for messaging purposes
+    :returns: correct value as a time or None if it's empty
+    """
+    if time_string == "" or time_string == None:
+        return None
+    if type(time_string) is time:
+        return time_string
+    try:
+        new_time = time(hour=int(time_string[:2]),
+                        minute=int(time_string[2:4]),
+                        second=int(time_string[5:7]),
+                        microsecond=100000*int(time_string[8:]))
+    except:
+        msg = "Validation Error - {0}: {1} is not parsable into time!({2})"
+        raise Exception(msg.format(n_types[n_type], time_name, time_string))
+
+    return new_time

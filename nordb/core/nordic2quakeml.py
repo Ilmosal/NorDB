@@ -224,7 +224,8 @@ def addOrigin(event, nordic, main):
 
     time = etree.SubElement(origin, "time")
     time_value = etree.SubElement(time, "value")
-    time_value.text = main.origin_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    time_value.text = main.origin_date.strftime("%Y-%m-%dT")
+    time_value.text += main.origin_time.strftime("%H:%M:%S.%fZ")
 
     if main.error_h:
         time_uncertainty = etree.SubElement(time, "uncertainty") 
