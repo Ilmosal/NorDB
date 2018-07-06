@@ -292,17 +292,24 @@ class NordicMain:
 
     def __str__(self):
         h_string = " "
-        h_string += addInteger2String(self.origin_date.year, 4, '<')
+
+        if self.origin_date is not None:
+            h_string += addInteger2String(self.origin_date.year, 4, '<')
+            h_string += " "
+            h_string += addInteger2String(self.origin_date.month, 2, '0')
+            h_string += addInteger2String(self.origin_date.day, 2, '0')
+        else:
+            h_string = "         "
         h_string += " "
-        h_string += addInteger2String(self.origin_date.month, 2, '0')
-        h_string += addInteger2String(self.origin_date.day, 2, '0')
-        h_string += " "
-        h_string += addInteger2String(self.origin_time.hour, 2, '0')
-        h_string += addInteger2String(self.origin_time.minute, 2, '0')
-        h_string += " "
-        h_string += addInteger2String(self.origin_time.second, 2, '0')
-        h_string += "."
-        h_string += addInteger2String(round(self.origin_time.microsecond/100000), 1, '<')
+        if self.origin_time is not None:    
+            h_string += addInteger2String(self.origin_time.hour, 2, '0')
+            h_string += addInteger2String(self.origin_time.minute, 2, '0')
+            h_string += " "
+            h_string += addInteger2String(self.origin_time.second, 2, '0')
+            h_string += "."
+            h_string += addInteger2String(round(self.origin_time.microsecond/100000), 1, '<')
+        else:
+            h_string += "         "
         h_string += addString2String(self.location_model, 1, '<')
         h_string += addString2String(self.distance_indicator, 1, '<')
         h_string += addString2String(self.event_desc_id, 1, '<')

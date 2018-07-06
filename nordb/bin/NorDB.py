@@ -126,9 +126,11 @@ def search(repo, output_format, verbose, output, event_root, criteria):
     search = nordicSearch.NordicSearch()
 
     search_types =  {
-                        "date":"origin_time",
-                        "d":"origin_time",
+                        "origin_date":"origin_date",
+                        "date":"origin_date",
+                        "d":"origin_date",
                         "origin_time":"origin_time",
+                        "time":"origin_time",
                         "latitude":"epicenter_latitude",
                         "la":"epicenter_latitude",
                         "epicenter_latitude":"epicenter_latitude",
@@ -177,7 +179,7 @@ def search(repo, output_format, verbose, output, event_root, criteria):
         real_vals = []
 
         for val in strvalues:
-            if search_types[tpe] == "origin_time":
+            if search_types[tpe] == "origin_date":
                 try:
                     real_vals.append(datetime.strptime(val, "%Y%jT%H:%M:%S"))
                 except:
