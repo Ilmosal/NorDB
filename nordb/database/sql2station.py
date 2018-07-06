@@ -82,7 +82,7 @@ def getAllStations(db_conn = None):
     stations = []
     for a in ans:
         stat = Station(a)
-        sql2sitechan.sitechans2station(stat, datetime.datetime.now(), conn)
+        sql2sitechan.sitechans2station(stat, datetime.datetime.now(), db_conn=conn)
 
         stations.append(stat)
 
@@ -112,14 +112,16 @@ def getStation(station_id, station_date = datetime.datetime.now(), db_conn = Non
         cur.execute(SELECT_STATION_CODE, (station_id, station_date,
                                           station_date, station_date))
 
-        ans = cur.fetchone()
+    ans = cur.fetchone()
 
     if ans is None:
+        if db_conn is None:
+            conn.close()
         return None
 
     stat = Station(ans)
 
-    sql2sitechan.sitechans2station(stat, station_date, conn)
+    sql2sitechan.sitechans2station(stat, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()

@@ -650,6 +650,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                     click.echo(n_string[0])
                     nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                     nordic_failed.append(n_string)
+                    raise e
 
             creation_id = creationInfo.createCreationInfo(privacy_level)
             for nord in nordic_events:

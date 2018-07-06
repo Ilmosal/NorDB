@@ -94,42 +94,46 @@ INSERT_COMMANDS = {
                             "id "
                         ),
 }
-  
-def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1):
+
+def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1, db_conn = None):
     """
     Function that pushes a NordicEvent object to the database
-    
+
     :param NordicEvent nordic_event: Event that will be pushed to the database
-    :param int solution_type: event type id 
+    :param int solution_type: event type id
     :param str nordic_filename: name of the file from which the nordic is read from
     :param int f_creation_id: id of the creation_info entry in the database
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
     """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     if f_creation_id is None:
-        creation_id = creationInfo.createCreationInfo() 
+        creation_id = creationInfo.createCreationInfo(conn)
     else:
         creation_id = f_creation_id
     author_id = None
 
     for header in nordic_event.comment_h:
-        search = re.search(r'\((\w{3})\)', header.h_comment) 
+        search = re.search(r'\((\w{3})\)', header.h_comment)
         if search is not None:
             author_id = search.group(0)[1:-1]
 
     if author_id is None:
-        author_id = '---' 
+        author_id = '---'
 
-    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     try:
         cur.execute("SELECT allow_multiple FROM solution_type WHERE type_id = %s", (solution_type,))
-        ans = cur.fetchone() 
+        ans = cur.fetchone()
 
         if ans is None:
             raise Exception("{0} is not a valid solution_type! Either add the event type to the database or use another solution_type".format(solution_type))
 
         allow_multiple = ans[0]
-    
+
         filename_id = -1
         cur.execute("SELECT id FROM nordic_file WHERE file_location = %s", (nordic_filename,))
         filenameids = cur.fetchone()
@@ -144,7 +148,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
                 root_id, old_solution_type = cur.fetchone()
             except:
                 raise Exception("Given linking event_id does not exist in the database!")
-    
+
         if e_id == -1:
             cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES RETURNING id;")
             root_id = cur.fetchone()[0]
@@ -159,10 +163,10 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
                     "VALUES  " +
                        "(%s, %s, %s, %s, %s)  " +
                     "RETURNING  " +
-                       "id", 
-                    (solution_type, 
-                    root_id, 
-                    filename_id, 
+                       "id",
+                    (solution_type,
+                    root_id,
+                    filename_id,
                     author_id,
                     creation_id)
                     )
@@ -171,61 +175,60 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
 
         if e_id != -1 and solution_type == old_solution_type and not allow_multiple:
             cur.execute("UPDATE nordic_event SET solution_type = 'O' WHERE id = %s", (e_id,))
-    
+
         main_header_id = -1
 
         for main in nordic_event.main_h:
             main.event_id = event_id
-            main.h_id = executeCommand( cur, 
-                                        INSERT_COMMANDS[1], 
-                                        main.getAsList(), 
+            main.h_id = executeCommand( cur,
+                                        INSERT_COMMANDS[1],
+                                        main.getAsList(),
                                         True)[0][0]
 
             if main.error_h is not None:
                 main.error_h.header_id = main.h_id
-                main.error_h.h_id = executeCommand( cur, 
-                                                    INSERT_COMMANDS[5], 
+                main.error_h.h_id = executeCommand( cur,
+                                                    INSERT_COMMANDS[5],
                                                     main.error_h.getAsList(),
                                                     True)[0][0]
 
         for macro in nordic_event.macro_h:
             macro.event_id = event_id
-            macro.h_id = executeCommand(cur, 
-                                        INSERT_COMMANDS[2], 
+            macro.h_id = executeCommand(cur,
+                                        INSERT_COMMANDS[2],
                                         macro.getAsList(),
                                         True)[0][0]
 
         for comment in nordic_event.comment_h:
             comment.event_id = event_id
-            comment.h_id = executeCommand(  cur, 
-                                            INSERT_COMMANDS[3], 
+            comment.h_id = executeCommand(  cur,
+                                            INSERT_COMMANDS[3],
                                             comment.getAsList(),
                                             True)[0][0]
 
         for waveform in nordic_event.waveform_h:
             waveform.event_id = event_id
-            waveform.h_id = executeCommand( cur, 
-                                            INSERT_COMMANDS[6], 
+            waveform.h_id = executeCommand( cur,
+                                            INSERT_COMMANDS[6],
                                             waveform.getAsList(),
                                             True)[0][0]
 
         for phase_data in nordic_event.data:
             phase_data.event_id = event_id
-            d_id = executeCommand(  cur, 
-                                    INSERT_COMMANDS[7], 
+            d_id = executeCommand(  cur,
+                                    INSERT_COMMANDS[7],
                                     phase_data.getAsList(),
                                     True)[0][0]
             phase_data.d_id = d_id
 
         conn.commit()
-        conn.close()
-
     except Exception as e:
-        conn.close()
         raise e
     finally:
-         if f_creation_id is None:
-            creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
+        if f_creation_id is None:
+            creationInfo.deleteCreationInfoIfUnnecessary(creation_id, conn)
+        if db_conn is None:
+            conn.close()
 
 def executeCommand(cur, command, vals, returnValue):
     """
@@ -239,7 +242,7 @@ def executeCommand(cur, command, vals, returnValue):
     :returns: Values returned by the query or None if returnValue is False
     """
     cur.execute(command, vals)
-        
+
     if returnValue:
         return cur.fetchall()
     else:

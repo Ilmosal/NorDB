@@ -63,27 +63,32 @@ def getAllSitechans(db_conn = None):
 
     :returns: Array of Sitechan objects
     """
-    if db_conn is None:
-        conn = usernameUtilities.log2nordb()
-    else:
-        conn = db_conn
+    try:
+        if db_conn is None:
+            conn = usernameUtilities.log2nordb()
+        else:
+            conn = db_conn
 
-    cur = conn.cursor()
+        cur = conn.cursor()
 
-    cur.execute(ALL_SITECHANS)
-    ans = cur.fetchall()
+        cur.execute(ALL_SITECHANS)
+        ans = cur.fetchall()
 
-    sitechans = []
+        sitechans = []
 
-    for a in ans:
-        chan = SiteChan(a)
-        sql2sensor.sensors2sitechan(chan, conn)
-        sitechans.append(chan)
+        for a in ans:
+            chan = SiteChan(a)
+            sql2sensor.sensors2sitechan(chan, db_conn=conn)
+            sitechans.append(chan)
 
-    if db_conn is None:
+        if db_conn is None:
+            conn.close()
+
+        return sitechans
+    except Exception as e:
+        print(e)
         conn.close()
-
-    return sitechans
+        return None
 
 def sitechans2station(station, station_date, db_conn = None):
     """
@@ -104,7 +109,7 @@ def sitechans2station(station, station_date, db_conn = None):
 
     if sitechan_ids:
         for chan_id in sitechan_ids:
-            station.sitechans.append(getSitechan(chan_id, station_date, conn))
+            station.sitechans.append(getSitechan(chan_id, station_date, db_conn=conn))
 
     if db_conn is None:
         conn.close()
@@ -128,7 +133,7 @@ def getSitechan(sitechan_id, station_date=datetime.datetime.now(), db_conn = Non
 
     chan = SiteChan(ans)
 
-    sql2sensor.sensors2sitechan(chan, station_date, conn)
+    sql2sensor.sensors2sitechan(chan, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()

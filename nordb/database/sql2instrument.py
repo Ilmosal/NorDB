@@ -65,7 +65,7 @@ def getAllInstruments(db_conn = None):
 
     for a in ans:
         instrument = Instrument(a)
-        instrument.response = getResponseFromDB(instrument.response_id, conn)
+        instrument.response = getResponseFromDB(instrument.response_id, db_conn=conn)
         instruments.append(instrument)
 
     if db_conn is None:
@@ -90,10 +90,11 @@ def instruments2sensor(sensor, db_conn = None):
 
     if instrument_ids:
         for instrument_id in instrument_ids:
-            sensor.instruments.append(getInstrument(instrument_id, conn))
+            sensor.instruments.append(getInstrument(instrument_id, db_conn=conn))
 
     if db_conn is None:
         conn.close()
+
 def getInstrument(instrument_id, db_conn = None):
     """
     Function for reading a instrument from database by id
@@ -112,8 +113,9 @@ def getInstrument(instrument_id, db_conn = None):
     ans = cur.fetchone()
 
     instrument = Instrument(ans)
-    instrument.response = getResponseFromDB(instrument.response_id, conn)
+    instrument.response = getResponseFromDB(instrument.response_id, db_conn=conn)
 
     if db_conn is None:
         conn.close()
+
     return instrument

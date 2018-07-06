@@ -19,19 +19,23 @@ BACKUP_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(_
 from nordb.core import usernameUtilities
 from nordb import settings
 
-def checkPermissions(required_role):
+def checkPermissions(required_role, db_conn = None):
     """
     Function that checks the owner level of the current user and returns this.
 
     :param required_role str: the required role level of the user
     :returns: boolean value if the current_user has access rights of the required role
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
     cur.execute("SELECT role FROM nordb_user WHERE username = CURRENT_USER")
     user_role = cur.fetchone()[0]
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
     return (getRoleLevel(required_role) <= getRoleLevel(user_role))
 
 def getRoleLevel(role_str):
@@ -56,14 +60,18 @@ def getRoleLevel(role_str):
 
     return role_level
 
-def countEvents(solution_type = None):
+def countEvents(solution_type = None, db_conn = None):
     """
     Function for returning the number of all events in the database.
 
     :param solution_type str: If solution_type is defined, countEvents will only count all events of the chosen type. Otherwise it will return the amount of all events in the database.
     :returns: The number of events of the chosen type or number of all events
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
 
     if solution_type is None:
@@ -71,26 +79,37 @@ def countEvents(solution_type = None):
     elif len(solution_type) <= 6:
         cur.execute("SELECT COUNT(*) FROM nordic_event WHERE solution_type = %s", (solution_type,))
     else:
+        if db_conn is None:
+            conn.close()
         raise Exception("Solution type too long")
 
     ans = cur.fetchone()[0]
-    conn.close()
+
+    if db_conn is None:
+        conn.close()
+
     return ans
 
-def countStations(network = None):
+def countStations(network = None, db_conn = None):
     """
     Function for returning the number of all stations in the database
 
     :param network str: If network is given, the function will only return the amount of stations in the given network.
     :returns: The number of stations in given network or number of all stations.
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
     cur = conn.cursor()
 
     if network is None:
         cur.execute("SELECT COUNT(*) FROM station")
     else:
         cur.execute("SELECT COUNT(*) FROM station WHERE network = %s", (network,))
+
+    if db_conn is None:
+        conn.close()
 
     return cur.fetchone()[0]
 
@@ -182,17 +201,21 @@ def createDatabase():
     conn.commit()
     conn.close()
 
-def createUser(username, user_role, password):
+def createUser(username, user_role, password, db_conn = None):
     """
     Creates a new user to the database. Admin rights required.
     :param username str: the username of the new user
     :param user_role str: the role of the new user
     :param password str: the password of the new user
     """
-    if not checkPermissions('admin'):
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    if not checkPermissions('admin', conn):
         raise Exception('You are not an admin in the database so you cannot run this command')
 
-    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -212,21 +235,27 @@ def createUser(username, user_role, password):
         cur.execute("INSERT INTO nordb_user (username, role) VALUES (%s, %s)",
                     (username, user_role))
     except Exception as e:
-        conn.close()
+        if db_conn is None:
+            conn.close()
         raise e
 
     conn.commit()
-    conn.close()
+    if db_conn is None:
+        conn.close()
 
-def removeUser(username):
+def removeUser(username, db_conn = None):
     """
     Removes a user from the database and postgres system. Admin rights required.
     :param username str:
     """
-    if not checkPermissions('admin'):
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    if not checkPermissions('admin', conn):
         raise Exception('You are not an admin in the database so you cannot run this command')
 
-    conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
 
     try:
@@ -237,20 +266,23 @@ def removeUser(username):
         cur.execute("DELETE FROM nordb_user WHERE username = %s", (username, ))
         cur.execute("DROP ROLE {0}".format(username))
     except Exception as e:
-        conn.close()
+        if db_conn is None:
+            conn.close()
         raise e
 
     conn.commit()
-    conn.close()
+    if db_conn is None:
+        conn.close()
 
-def alterUser(username, new_username = None, new_user_role = None, new_password = None):
+def alterUser(username, new_username = None, new_user_role = None, new_password = None, db_conn = None):
     """
-    Alters user in the database. If you modify your own user, this is allowed for default_users, otherwise admin rights required
+    Alters user in the database. If you modify your own user, this is allowed for default_users, otherwise admin rights required. NOT DONE YET!
     :param username str: the username of the user which will be modified
     :param new_username str: The username which will be the new username of the user
     :param new_user_role str: The role which will be the new role of the user. Options: guests, default_users, station_managers and admins
     :param new_password str: The new password to the database
     """
+
     if username == settings.database_settings[settings.active_database]["user"]:
         if not checkPermissions('default_user'):
             raise Exception('You are not a user in the database so you cannot modify yourself')
@@ -264,8 +296,8 @@ def alterUser(username, new_username = None, new_user_role = None, new_password 
     if new_user_role not in ['guests', 'default_users', 'station_managers', 'admins']:
         raise Exception("User role not a valid user role ({0})".format(new_user_role))
 
-    pass 
-    
+    pass
+
 def destroyDatabase():
     """
     Method for destroying the database if the database exists
@@ -331,11 +363,11 @@ def createBackup():
 def loadBackup(backup_path):
     """
     Function that destroys the database and loads a backup of the database into a new one.
- 
-    :param str backup_path: path to the database backup 
+
+    :param str backup_path: path to the database backup
     """
     destroyDatabase()
-    
+
     params = {
         "dbname":"postgres",
         "user":settings.database_settings[settings.active_database]["user"],
@@ -344,12 +376,12 @@ def loadBackup(backup_path):
     conn = psycopg2.connect(**params)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
-    
+
     if settings.test:
         cur.execute("CREATE DATABASE test_nordb")
     else:
         cur.execute("CREATE DATABASE {0}".format(settings.getDBName()))
-    
+
     conn.commit()
     conn.close()
 

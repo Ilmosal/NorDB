@@ -37,7 +37,7 @@ DELETE_UNNECESSARY_CREATION_INFO =  (
                                     "   )"
                                     )
 
-def createCreationInfo(privacy_level):
+def createCreationInfo(privacy_level, db_conn = None):
     """
     Function for creating the creation_info entry to the database.
 
@@ -45,43 +45,50 @@ def createCreationInfo(privacy_level):
     :returns: The creation id of the creation_info entry created
     """
     creation_id = -1
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn()
     cur = conn.cursor()
-    try:    
-        if privacy_level not in ["public", "secure", "private"]:
-            raise Exception("Privacy level not a valid privacy level! ({0})".format(privacy_level))
 
-        cur.execute(CREATE_CREATION_INFO, (privacy_level,))
-        creation_id = cur.fetchone()[0]
-    except Exception as e:
-        conn.close()
-        raise e
+    if privacy_level not in ["public", "secure", "private"]:
+        raise Exception("Privacy level not a valid privacy level! ({0})".format(privacy_level))
+
+    cur.execute(CREATE_CREATION_INFO, (privacy_level,))
+    creation_id = cur.fetchone()[0]
 
     conn.commit()
-    conn.close()
+
+    if db_conn is None:
+        conn.close()
 
     return creation_id
 
-def deleteCreationInfoIfUnnecessary(creation_id):
+def deleteCreationInfoIfUnnecessary(creation_id, db_conn = None):
     """
     Function for deleting an unnecessary creation info object
-    
+
     :param int creation_id: id of the creation_info that needs to be deleted
     """
-    conn = usernameUtilities.log2nordb()
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
     cur = conn.cursor()
-    try:
-        cur.execute(DELETE_UNNECESSARY_CREATION_INFO, (creation_id,))
 
-        if cur.fetchone()[0] != 0:
-            return 
+    cur.execute(DELETE_UNNECESSARY_CREATION_INFO, (creation_id,))
 
-        cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
-    except Exception as e:
-        conn.close()
-        raise e
+    if cur.fetchone()[0] != 0:
+        if db_conn is None:
+            conn.close()
+        return
+
+    cur.execute("DELETE FROM creation_info WHERE id = %s", (creation_id,))
 
 
     conn.commit()
-    conn.close()
+
+    if db_conn is None:
+        conn.close()
 

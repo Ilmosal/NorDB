@@ -87,7 +87,7 @@ def getAllSensors(db_conn = None):
     sensors = []
     for a in ans:
         sen = Sensor(a)
-        sql2instrument.instruments2sensor(sen, conn)
+        sql2instrument.instruments2sensor(sen, db_conn=conn)
         sensors.append(sen)
 
     if db_conn is None:
@@ -116,7 +116,7 @@ def sensors2sitechan(sitechan, station_date=datetime.datetime.now(), db_conn = N
 
     if sensor_ids:
         for sensor_id in sensor_ids:
-            sitechan.sensors.append(getSensor(sensor_id, station_date, conn))
+            sitechan.sensors.append(getSensor(sensor_id, station_date, db_conn=conn))
 
     if db_conn is None:
         conn.close()
@@ -141,7 +141,7 @@ def getSensor(sensor_id, station_date=datetime.datetime.now(), db_conn = None):
     ans = cur.fetchone()
     sen = Sensor(ans)
 
-    sql2instrument.instruments2sensor(sen, conn)
+    sql2instrument.instruments2sensor(sen, db_conn=conn)
 
     if db_conn is None:
         conn.close()
