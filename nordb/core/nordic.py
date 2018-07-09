@@ -11,6 +11,7 @@ Functions and Classes
 """
 
 from datetime import date
+from datetime import datetime
 from nordb.core import nordicRead
 from nordb.core import nordicFix
 from nordb.core.nordicRead import readNordicFile
@@ -155,7 +156,7 @@ def createStringWaveformHeader(header):
 
     return NordicWaveform(nordic_waveform)
 
-def createStringPhaseData(data, fix_nordic, obs_time):
+def createStringPhaseData(data, fix_nordic, obs_datetime):
     """
     Function that creates Nordic phase data list with values being strings
 
@@ -172,7 +173,7 @@ def createStringPhaseData(data, fix_nordic, obs_time):
     phase_data[NordicData.QUALITY_INDICATOR] = data[9].strip()
     phase_data[NordicData.PHASE_TYPE] = data[10:14].strip()
     phase_data[NordicData.WEIGHT] = data[14].strip()
-    phase_data[NordicData.OBSERVATION_TIME] = obs_time.strftime("%Y %m%d ") + data[18:28]
+    phase_data[NordicData.OBSERVATION_TIME] = obs_datetime.strftime("%Y %m%d ") + data[18:28]
     phase_data[NordicData.SIGNAL_DURATION] = data[29:33].strip()
     phase_data[NordicData.MAX_AMPLITUDE] = data[34:40].strip()
     phase_data[NordicData.MAX_AMPLITUDE_PERIOD] = data[41:45].strip()
@@ -188,7 +189,7 @@ def createStringPhaseData(data, fix_nordic, obs_time):
     phase_data[NordicData.D_ID] = -1
 
     if fix_nordic:
-        nordicFix.fixPhaseData(phase_data, obs_time)
+        nordicFix.fixPhaseData(phase_data, obs_datetime)
 
     return NordicData(phase_data)
 
@@ -257,6 +258,9 @@ def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, eve
         raise Exception("No headers!")
 
     for x in range(headers_size, len(nordic_string)):
-        event.data.append(createStringPhaseData(nordic_string[x], fix_nordic, event.main_h[0].origin_time))
+        event.data.append(createStringPhaseData(nordic_string[x],
+                                                fix_nordic,
+                                                datetime.combine(event.main_h[0].origin_date,
+                                                                 event.main_h[0].origin_time)))
 
     return event

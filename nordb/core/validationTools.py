@@ -167,17 +167,20 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
     if datetime_val.strip() == "":
         return None
     try:
-        return datetime(datetime_val)
-    except:
         return datetime (
-                            year = int(datetime_val[:4]),
-                            month = int(datetime_val[5:7]),
-                            day = int(datetime_val[7:9]),
-                            hour = int(datetime_val[10:12]),
-                            minute = int(datetime_val[12:14]),
-                            second = int(datetime_val[15:17]),
-                            microsecond = int("{0:<06s}".format(datetime_val[18:]))
+                        year = int(datetime_val[:4]),
+                        month = int(datetime_val[5:7]),
+                        day = int(datetime_val[7:9]),
+                        hour = int(datetime_val[10:12]),
+                        minute = int(datetime_val[12:14]),
+                        second = int(datetime_val[15:17]),
+                        microsecond = int("{0:<06s}".format(datetime_val[18:]))
                         )
+    except:
+        raise Exception("Validation Error - {0}: {1} is not in valid format ({2})".format(n_types[n_type],
+                                                                                          datetime_name,
+                                                                                          datetime_val))
+
 
 def validateDate(date_string, date_name, n_type):
     """
