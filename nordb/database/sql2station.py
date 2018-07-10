@@ -7,13 +7,30 @@ Functions and Classes
 
 import datetime
 import psycopg2
-
+import numpy 
 from nordb.database import sql2sitechan
 from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
+
+SELECT_STATIONS_NEAR_POINT =    (
+                                "SELECT "
+                                "   id "
+                                "FROM "
+                                "   station "
+                                "WHERE "
+                                "   ABS(latitude - %(p_lat)s) <= %(lat_diff)s "
+                                "AND "
+                                "   ABS(longitude - %(p_lon)s) <= %(lon_diff)s "
+                                "AND "
+                                "   ( "
+                                "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
+                                "   OR "
+                                "       (on_date <= %(station_date)s AND off_date IS NULL) "
+                                "   ) "
+                                )
 
 SELECT_STATION_ID = (
                         "SELECT "
@@ -128,3 +145,42 @@ def getStation(station_id, station_date = datetime.datetime.now(), db_conn = Non
 
     return stat
 
+def getStationsNearPoint(latitude, longitude, distance = 10.0, station_date = datetime.datetime.now(), db_conn = None):
+    """
+    Function for getting all stations that are less than distance away from point (latitude, longitude) distance is in kilometers.
+
+    :param float latitude: latitude of the point
+    :param float lognitude: longitude of the point
+    :param float distance: maximum distance allowed by the program in kilometers. Defaults to 10.0 km
+    :param datetime station_date: date for the station fetching. Defaults to this date
+    :param psycopg2.connection db_conn: Existing connection to the database. Defaults to None
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    cur = conn.cursor()
+
+    lat_diff = distance*(1/110.574)
+    lon_diff = distance*(1/(111.320*numpy.cos(numpy.radians(latitude))))
+    print(lat_diff, lon_diff)
+    cur.execute(SELECT_STATIONS_NEAR_POINT, {'p_lat':latitude,
+                                             'lat_diff':lat_diff,
+                                             'p_lon':longitude,
+                                             'lon_diff':lon_diff,
+                                             'station_date':station_date})
+
+    ans = cur.fetchall()
+    stations = []
+
+    if ans is None:
+        return None
+
+    for a in ans:
+        stations.append(getStation(a[0], station_date, db_conn = conn))
+
+    if db_conn is None:
+        conn.close()
+
+    return stations

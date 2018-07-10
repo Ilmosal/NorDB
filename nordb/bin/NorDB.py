@@ -631,6 +631,7 @@ def stype(repo, stype_option):
 @click.pass_obj
 def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose, privacy_level):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event."""
+    conn = usernameUtilities.log2nordb()
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         f_nordic = open(filename, 'r')
@@ -638,7 +639,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
             nordic_strings = nordicRead.readNordicFile(f_nordic)
         except Exception as e:
             click.echo("Error reading nordic file: {0}".format(e))
-            return
+            continue
 
         nordic_events = []
         nordic_failed = []
@@ -651,14 +652,13 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                 click.echo(n_string[0])
                 nordic_failed.append("Errors:\n{0}\n------------------------------\n".format(e))
                 nordic_failed.append(n_string)
-                raise e
 
-        creation_id = creationInfo.createCreationInfo(privacy_level)
+        creation_id = creationInfo.createCreationInfo(privacy_level, db_conn=conn)
         for nord in nordic_events:
 
             event_id = -1
             if not no_duplicates:
-                same_events = nordicSearch.searchSameEvents(nord)
+                same_events = nordicSearch.searchSameEvents(nord, db_conn=conn)
                 if add_automatic and same_events:
                     event_id = same_events[0].event_id
                 elif same_events:
@@ -681,11 +681,9 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             break
                         except:
                             click.echo("Not a valid id!")
-                            creationInfo.deleteCreationInfoIfUnnecessary(creation_id)
-                            return
 
                 if event_id == -1 and not add_automatic:
-                    similar_events = nordicSearch.searchSimilarEvents(nord)
+                    similar_events = nordicSearch.searchSimilarEvents(nord, db_conn=conn)
 
                     if similar_events:
                         if ignore_duplicates:
@@ -709,7 +707,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                                 click.echo("Not a valid id!")
 
             try:
-                nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id)
+                nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id, db_conn=conn)
             except Exception as e:
                 click.echo("Error pushing nordic to database: {0}".format(e))
                 click.echo(nord.main_h[0])
@@ -727,6 +725,8 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                 failed.write("\n")
 
         f_nordic.close()
+        conn.commit()
+        conn.close()
 
 @cli.command('create', short_help='create database')
 @click.pass_obj
@@ -775,12 +775,13 @@ def get(repo, output_format, event_ids, output_name, event_root):
 
     You can create an output file by searching events with search command using --output or -o flag or simply writing event_ids on a blank file with every id being on a new line.
     """
+    conn = usernameUtilities.log2nordb()
     n_events = []
     if event_root:
         for e_id in event_ids:
-            n_events.extend(sql2nordic.getNordicsRoot(e_id))
+            n_events.extend(sql2nordic.getNordicsRoot(e_id, db_conn=conn))
     else:
-        n_events = sql2nordic.getNordics(event_ids)
+        n_events = sql2nordic.getNordics(event_ids, db_conn=conn)
 
     n_events = [nordic_event for nordic_event in n_events if nordic_event is not None]
 
@@ -789,12 +790,13 @@ def get(repo, output_format, event_ids, output_name, event_root):
             click.echo("No event roots with id {0}".format(event_ids))
         else:
             click.echo("No events with ids {0}".format(event_ids))
-        return  
+        conn.close()
+        return
 
     f_output = open(output_name, 'w')
     if output_format == "n":
         for n_event in n_events:
-            f_output.write(str(n_event))         
+            f_output.write(str(n_event))
             f_output.write("\n")
     elif output_format == "q":
         qml = nordic2quakeml.nordicEvents2QuakeML(n_events, True)
@@ -804,6 +806,7 @@ def get(repo, output_format, event_ids, output_name, event_root):
         f_output.write(etree.tostring(sc3, pretty_print=True).decode('utf8'))
 
     f_output.close()
+    conn.close()
 
 @cli.command('backup', short_help='manage backups')
 @click.option('--list', 'backup_option', flag_value='list', default=True, help="list all backups, default option")

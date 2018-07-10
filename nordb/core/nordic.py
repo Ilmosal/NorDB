@@ -12,6 +12,7 @@ Functions and Classes
 
 from datetime import date
 from datetime import datetime
+from datetime import time
 from nordb.core import nordicRead
 from nordb.core import nordicFix
 from nordb.core.nordicRead import readNordicFile
@@ -36,8 +37,8 @@ def createStringMainHeader(header, fix_nordic):
     """
     nordic_main = [None]*24
 
-    nordic_main[NordicMain.ORIGIN_DATE] = header[1:10].strip()
-    nordic_main[NordicMain.ORIGIN_TIME] = header[11:20].strip()
+    nordic_main[NordicMain.ORIGIN_DATE] = header[1:10]
+    nordic_main[NordicMain.ORIGIN_TIME] = header[11:20]
     nordic_main[NordicMain.LOCATION_MODEL] = header[20].strip()
     nordic_main[NordicMain.DISTANCE_INDICATOR] = header[21].strip()
     nordic_main[NordicMain.EVENT_DESC_ID] = header[22].strip()
@@ -258,9 +259,15 @@ def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, eve
         raise Exception("No headers!")
 
     for x in range(headers_size, len(nordic_string)):
+        if event.main_h[0].origin_time is None:
+            obs_date = datetime.combine(event.main_h[0].origin_date,
+                                       time(hour=0, minute=0, second= 0))
+        else:
+            obs_date = datetime.combine(event.main_h[0].origin_date,
+                                        event.main_h[0].origin_time)
+
         event.data.append(createStringPhaseData(nordic_string[x],
                                                 fix_nordic,
-                                                datetime.combine(event.main_h[0].origin_date,
-                                                                 event.main_h[0].origin_time)))
+                                                obs_date))
 
     return event

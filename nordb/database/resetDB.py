@@ -22,6 +22,7 @@ def resetEvents():
     cur = conn.cursor()
 
     cur.execute("DELETE FROM nordic_event_root")
+    cur.execute("DELETE FROM nordic_file")
     try:
         cur.execute("ALTER SEQUENCE nordic_event_root_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE nordic_file_id_seq RESTART WITH 1")

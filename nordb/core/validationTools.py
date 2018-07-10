@@ -174,7 +174,7 @@ def validateDatetime(datetime_val, datetime_name = None, n_type = None):
                         hour = int(datetime_val[10:12]),
                         minute = int(datetime_val[12:14]),
                         second = int(datetime_val[15:17]),
-                        microsecond = int("{0:<06s}".format(datetime_val[18:]))
+                        microsecond = int("{0:<06s}".format(datetime_val[18:].strip()))
                         )
     except:
         raise Exception("Validation Error - {0}: {1} is not in valid format ({2})".format(n_types[n_type],
