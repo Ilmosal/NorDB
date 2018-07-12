@@ -129,7 +129,6 @@ def sitechans2stations(stations, station_date, db_conn = None):
         conn = db_conn
 
     cur = conn.cursor()
-
     cur.execute(SELECT_SITECHAN_OF_STATIONS, {'station_ids':tuple(stations.keys()), 'station_date':station_date})
 
     ans = cur.fetchall()
@@ -137,6 +136,9 @@ def sitechans2stations(stations, station_date, db_conn = None):
     for a in ans:
         chan = SiteChan(a)
         stations[chan.station_id].sitechans.append(chan)
+
+    if len(ans) != 0:
+        sql2sensor.sensors2stations(stations, station_date, db_conn = conn)
 
     if db_conn is None:
         conn.close()

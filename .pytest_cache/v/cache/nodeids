@@ -125,6 +125,7 @@
   "tests/database/test_sql2sitechan.py::TestSQL2SiteChan::()::testGetAllSuccesfull",
   "tests/database/test_sql2sitechan.py::TestSQL2SiteChan::()::testGetOneSuccesfull",
   "tests/database/test_sql2station.py::TestSQL2Station::()::testGetAllWorks",
+  "tests/database/test_sql2station.py::TestSQL2Station::()::testGetStationsWorks",
   "tests/database/test_sql2station.py::TestSQL2Station::()::testGetOneWorks",
   "tests/database/test_station2sql.py::TestInsertStation2Database::()::testInsertIsSuccesfull",
   "tests/database/test_station2sql.py::TestInsertStation2Database::()::testInsertTwice",

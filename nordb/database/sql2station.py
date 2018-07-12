@@ -143,6 +143,9 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
         conn = db_conn
     cur = conn.cursor()
 
+    if isinstance(station_ids, type([])):
+        station_ids = tuple(station_ids)
+
     cur.execute(SELECT_STATIONS, {'station_ids':station_ids,
                                   'station_date':station_date})
 
@@ -157,12 +160,13 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
     for a in ans:
         stations[a[-1]] = Station(a)
 
-    sql2sitechan.sitechans2stations(stations, station_date, db_conn=conn)
+    if len(stations.keys()) != 0:
+        sql2sitechan.sitechans2stations(stations, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()
 
-    return stations
+    return list(stations.values())
 
 
 def getStation(station_id, station_date = datetime.datetime.now(), db_conn = None):
