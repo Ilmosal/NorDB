@@ -7,7 +7,8 @@ Functions and Classes
 
 import datetime
 import psycopg2
-import numpy 
+import numpy
+
 from nordb.database import sql2sitechan
 from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
@@ -31,6 +32,26 @@ SELECT_STATIONS_NEAR_POINT =    (
                                 "       (on_date <= %(station_date)s AND off_date IS NULL) "
                                 "   ) "
                                 )
+
+SELECT_STATIONS =   (
+                        "SELECT "
+                        "   station_code, on_date, off_date, latitude, "
+                        "   longitude, elevation, station_name, station_type, "
+                        "   reference_station, north_offset, east_offset, "
+                        "   load_date, network.network, network_id, station.id "
+                        "FROM "
+                        "   station, network "
+                        "WHERE "
+                        "   station.id in %(station_ids)s "
+                        "AND "
+                        "   ( "
+                        "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
+                        "   OR "
+                        "       (on_date <=%(station_date)s AND off_date IS NULL) "
+                        "   ) "
+                        "AND "
+                        "   network_id = network.id "
+                    )
 
 SELECT_STATION_ID = (
                         "SELECT "
@@ -108,12 +129,48 @@ def getAllStations(db_conn = None):
 
     return stations
 
+def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = None):
+    """
+    Function that returns all stations with id in station_ids to the user.
+
+    :param Array station_ids: array of ids to be fetched
+    :param datetime station_date: date for which the station info will be taken
+    :param psycopg2.connection db_conn: Existing connection to the database. Defaults to None
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+    cur = conn.cursor()
+
+    cur.execute(SELECT_STATIONS, {'station_ids':station_ids,
+                                  'station_date':station_date})
+
+    ans = cur.fetchall()
+
+    if ans is None:
+        if db_conn is None:
+            conn.close()
+        return
+
+    stations = {}
+    for a in ans:
+        stations[a[-1]] = Station(a)
+
+    sql2sitechan.sitechans2stations(stations, station_date, db_conn=conn)
+
+    if db_conn is None:
+        conn.close()
+
+    return stations
+
+
 def getStation(station_id, station_date = datetime.datetime.now(), db_conn = None):
     """
     Function for reading a station from database by id or code and datetime.
 
     :param int,str station_id: id of the station wanted or the station code of the station
-    :param psycopg2.connection db_conn: Connection to the database
+    :param psycopg2.connection db_conn: Existing connection to the database. Defaults to None
     :param datetime station_date: date for which the station info will be taken
     :returns: Station object
     """
@@ -145,13 +202,13 @@ def getStation(station_id, station_date = datetime.datetime.now(), db_conn = Non
 
     return stat
 
-def getStationsNearPoint(latitude, longitude, distance = 10.0, station_date = datetime.datetime.now(), db_conn = None):
+def getStationsNearPoint(latitude, longitude, radius = 10.0, station_date = datetime.datetime.now(), db_conn = None):
     """
-    Function for getting all stations that are less than distance away from point (latitude, longitude) distance is in kilometers.
+    Function for getting all stations that are less than radius away from point (latitude, longitude) radius is in kilometers.
 
     :param float latitude: latitude of the point
     :param float lognitude: longitude of the point
-    :param float distance: maximum distance allowed by the program in kilometers. Defaults to 10.0 km
+    :param float radius: maximum radius allowed by the program in kilometers. Defaults to 10.0 km
     :param datetime station_date: date for the station fetching. Defaults to this date
     :param psycopg2.connection db_conn: Existing connection to the database. Defaults to None
     """
@@ -162,9 +219,8 @@ def getStationsNearPoint(latitude, longitude, distance = 10.0, station_date = da
 
     cur = conn.cursor()
 
-    lat_diff = distance*(1/110.574)
-    lon_diff = distance*(1/(111.320*numpy.cos(numpy.radians(latitude))))
-    print(lat_diff, lon_diff)
+    lat_diff = radius*(1/110.574)
+    lon_diff = radius*(1/(111.320*numpy.cos(numpy.radians(latitude))))
     cur.execute(SELECT_STATIONS_NEAR_POINT, {'p_lat':latitude,
                                              'lat_diff':lat_diff,
                                              'p_lon':longitude,
