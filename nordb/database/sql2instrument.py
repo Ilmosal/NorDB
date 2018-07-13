@@ -9,6 +9,7 @@ import logging
 import psycopg2
 
 from nordb.database.sql2response import getResponseFromDB
+from nordb.database.sql2response import responses2stations
 from nordb.nordic.instrument import Instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
@@ -125,6 +126,8 @@ def instruments2stations(stations, db_conn = None):
             for sen in chan.sensors:
                 if sen.s_id == a[-1]:
                     sen.instruments.append(instrument)
+
+    responses2stations(stations, db_conn=conn)
 
     if db_conn is None:
         conn.close()
