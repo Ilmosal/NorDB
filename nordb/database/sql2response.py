@@ -227,7 +227,7 @@ def responses2stations(stations, db_conn = None):
                                         poles.append(pole[:-1])
                                 for zero in zeros_resp:
                                     if zero[-1] == resp[-1][-1]:
-                                        zeros.append(zeros[:-1])
+                                        zeros.append(zero[:-1])
                                 for paz in paz_resp:
                                     if paz[-1] == resp[-1][-1]:
                                         instrument.response = PazResponse(resp[-1],
