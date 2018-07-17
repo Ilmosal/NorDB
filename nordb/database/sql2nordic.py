@@ -101,6 +101,40 @@ SELECT_ROOT_ID =    (
                     "   nordic_event.root_id = %s"
                     )
 
+SELECT_EVENT_ROOT_ID =  (
+                        "SELECT "
+                        "   nordic_event.root_id "
+                        "FROM "
+                        "   nordic_event "
+                        "WHERE "
+                        "   nordic_event.id = %s "
+                        )
+
+def getEventRootId(event_id, db_conn = None):
+    """
+    Function for getting nordic event root id from nordic event.
+
+    :param int event_id: event_id of the event
+    :returns: event root id as integer or None if event with event_id does not exist
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    cur.execute(SELECT_EVENT_ROOT_ID, (event_id,))
+    ans = cur.fetchone()
+
+    root_id = -1
+
+    if ans is not None:
+        root_id = ans[0]
+
+    if db_conn is None:
+        conn.close()
+
+    return root_id
+
 def getNordicsRoot(root_id, db_conn = None):
     """
     Method for getting all events attached to a root id from the database and returning them in a array.

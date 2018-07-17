@@ -12,16 +12,17 @@ import unidecode
 from nordb.nordic.station import Station
 from nordb.core import usernameUtilities
 from nordb.database import creationInfo
-STATION_INSERT =    (  
-                    "INSERT INTO station " 
-                        "(   station_code, on_date, off_date, " 
-                            "latitude, longitude, elevation, " 
-                            "station_name, station_type," 
-                            "reference_station, north_offset, " 
-                            "east_offset, load_date, network_id) " 
-                    "VALUES " 
-                        "(   %s, %s, %s, %s, %s, %s, %s, %s, " 
-                            "%s, %s, %s, %s, %s);" 
+
+STATION_INSERT =    (
+                    "INSERT INTO station "
+                        "(   station_code, on_date, off_date, "
+                            "latitude, longitude, elevation, "
+                            "station_name, station_type,"
+                            "reference_station, north_offset, "
+                            "east_offset, load_date, network_id) "
+                    "VALUES "
+                        "(   %s, %s, %s, %s, %s, %s, %s, %s, "
+                            "%s, %s, %s, %s, %s);"
                     )
 
 STATION_UPDATE =    (
@@ -45,8 +46,8 @@ STATION_UPDATE =    (
                     "   id = %s;"
                     )
 
-SEARCH_STATIONS =   ( 
-                    "SELECT " 
+SEARCH_STATIONS =   (
+                    "SELECT "
                     "   id "
                     "FROM "
                     "   station "
@@ -54,7 +55,31 @@ SEARCH_STATIONS =   (
                     "   station_code = %s "
                     "AND "
                     "   (off_date is null OR (off_date < %s OR on_date > %s ));"
-                    )   
+                    )
+
+def closeStationInDB(station_id, off_date, db_conn = None):
+    """
+    Function for closing a station in the database. If the station doesn't exist or it has already been closed the function will do nothing
+
+    :param int station_id: id of the station in the database
+    :param datetime off_date: the new off_date of the station
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    cur = conn.cursor()
+
+    cur.execute("SELECT station_code, off_date FROM station WHERE id = %s", (station_id, ))
+    ans = cur.fetchone()
+
+    if ans is not None and ans[1] is None:
+        cur.execute("UPDATE station SET off_date = %s WHERE id = %s", (off_date, station_id))
+
+    conn.commit()
+    if db_conn is None:
+        conn.close()
 
 def getNetworkID(network, privacy_level):
     """
@@ -98,7 +123,7 @@ def insertStation2Database(station, network, privacy_level = 'public'):
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
     try:
-        cur.execute(SEARCH_STATIONS, (  station.station_code, 
+        cur.execute(SEARCH_STATIONS, (  station.station_code,
                                         station.on_date,
                                         station.off_date))
         ans = cur.fetchone()

@@ -141,15 +141,16 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
             filename_id = filenameids[0]
 
         root_id = -1
-
+        if nordic_event.root_id != -1:
+            root_id = nordic_event.root_id
         if e_id >= 0:
             cur.execute("SELECT root_id, solution_type FROM nordic_event WHERE id = %s", (e_id,))
             try:
                 root_id, old_solution_type = cur.fetchone()
             except:
-                raise Exception("Given linking event_id does not exist in the database!")
+                raise Exception("Given linking even_id does not exist in the database!")
 
-        if e_id == -1:
+        if e_id == -1 and nordic_event.root_id == -1:
             cur.execute("INSERT INTO nordic_event_root DEFAULT VALUES RETURNING id;")
             root_id = cur.fetchone()[0]
 
@@ -170,6 +171,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
                     author_id,
                     creation_id)
                     )
+
         event_id = cur.fetchone()[0]
         nordic_event.event_id = event_id
 

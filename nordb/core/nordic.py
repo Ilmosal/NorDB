@@ -26,6 +26,7 @@ from nordb.nordic.nordicComment import NordicComment
 from nordb.nordic.nordicError import NordicError
 from nordb.nordic.nordicWaveform import NordicWaveform
 from nordb.nordic.nordicData import NordicData
+from nordb.database.sql2nordic import getEventRootId
 
 def createStringMainHeader(header, fix_nordic):
     """
@@ -230,7 +231,7 @@ def readHeaders(event, nordic_string, fix_nordic):
         elif (nordic_string[x][79] == '6'):
             event.waveform_h.append(createStringWaveformHeader(nordic_string[x]))
         elif (nordic_string[x][79] == 'I'):
-            pass #fetch root_id here
+            event.root_id = getEventRootId(int(nordic_string[x][4:78]))
 
     return i
 

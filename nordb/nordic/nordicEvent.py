@@ -129,29 +129,34 @@ class NordicEvent:
         return " STAT SP IPHASW D HRMM SECON CODA AMPLIT PERI AZIMU VELO SNR AR TRES W  DIS CAZ7\n"
 
     def getOriginTime(self):
-        """ 
+        """
         Get origin time of the NordicEvent. Modifying this value will not modify the value inside the event.
 
         :returns: OriginTime object
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return OriginTime(self.main_h[0].origin_time, self.main_h[0].error_h.second_error) 
+                return OriginTime(self.main_h[0].origin_time, self.main_h[0].error_h.second_error)
             else:
                 return OriginTime(self.main_h[0].origin_time)
         return None
 
     def getMagnitude(self):
-        """ 
+        """
         Get magnitude of the NordicEvent. Modifying this value will not modify the value inside the event.
 
         :returns: Magnitude object
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1, self.main_h[0].error_h.magnitude_error)
+                return Magnitude(self.main_h[0].magnitude_1,
+                                 self.main_h[0].type_of_magnitude_1,
+                                 self.main_h[0].magnitude_reporting_agency_1,
+                                 self.main_h[0].error_h.magnitude_error)
             else:
-                return Magnitude(self.main_h[0].magnitude_1, self.main_h[0].type_of_magnitude_1, self.main_h[0].magnitude_reporting_agency_1)
+                return Magnitude(self.main_h[0].magnitude_1,
+                                 self.main_h[0].type_of_magnitude_1,
+                                 self.main_h[0].magnitude_reporting_agency_1)
         return None
 
 

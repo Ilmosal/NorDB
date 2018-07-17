@@ -48,7 +48,7 @@ def createCreationInfo(privacy_level, db_conn = None):
     if db_conn is None:
         conn = usernameUtilities.log2nordb()
     else:
-        conn = db_conn()
+        conn = db_conn
     cur = conn.cursor()
 
     if privacy_level not in ["public", "secure", "private"]:

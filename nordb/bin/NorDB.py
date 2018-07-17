@@ -657,7 +657,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
         for nord in nordic_events:
 
             event_id = -1
-            if not no_duplicates:
+            if not no_duplicates and nord.root_id != -1:
                 same_events = nordicSearch.searchSameEvents(nord, db_conn=conn)
                 if add_automatic and same_events:
                     event_id = same_events[0].event_id
