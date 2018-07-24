@@ -5,6 +5,7 @@ Functions and Classes
 ---------------------
 """
 import operator
+from datetime import datetime
 
 from lxml import etree
 from nordb.core.validationTools import validateFloat
@@ -136,7 +137,9 @@ class NordicEvent:
         """
         if self.main_h:
             if self.main_h[0].error_h is not None:
-                return OriginTime(self.main_h[0].origin_time, self.main_h[0].error_h.second_error)
+                return OriginTime(datetime.combine( self.main_h[0].origin_date,
+                                                    self.main_h[0].origin_time),
+                                  self.main_h[0].error_h.second_error)
             else:
                 return OriginTime(self.main_h[0].origin_time)
         return None
@@ -301,4 +304,5 @@ class NordicEvent:
                 n_string += str(h_macro) + "\n"
 
         return n_string
+
 

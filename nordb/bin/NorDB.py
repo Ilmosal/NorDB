@@ -15,10 +15,6 @@ from lxml import etree
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + os.sep
 
 from nordb.core import usernameUtilities
-from nordb.core.nordbConf import confUser, confExists
-
-if not confExists():
-    confUser()
 
 from nordb.database import instrument2sql
 from nordb.database import nordic2sql
@@ -46,6 +42,7 @@ from nordb.core import nordic2quakeml
 from nordb.core import nordic2sc3
 from nordb.core import nordicRead
 from nordb.core import station2stationxml
+from nordb.core import nordbConf
 
 from nordb.nordic import instrument
 from nordb.nordic import sensor
@@ -89,6 +86,72 @@ def createuser(repo, role, username):
                                 click.prompt(   'Please enter password: ',
                                                 hide_input=True))
 
+@cli.command('conf', short_help = "manage nordb configurations")
+@click.argument('conf_arg', nargs=-1)
+@click.pass_obj
+def conf(repo, conf_arg):
+    """
+    Configuration managment command for the nordb database. Without parameters this command will list all database configurations that hav been configured before. There are four subcommands which are: 'add', 'remove', 'change' and 'alter'. The commands have their own 
+
+    add: adds a new configuration to the database.\n
+    remove: removes a existing database configuration from the database. You can give the command the database name after the remove command or with the interactive tool\n
+    change: changes the active database to another configured database. You can give the command the database name after the change command or with the interactive tool\n
+    alter: lets you alter an existing database configuration\n
+    """
+    if len(conf_arg) == 0:
+        click.echo("Active database: {0}".format(nordbConf.getActiveDatabase()))
+        configurations = nordbConf.listConfigurations()
+        for key in configurations.keys():
+            if key == 'test database':
+                continue
+            click.echo("{0}: ".format(key))
+            click.echo("database name: {0} - username: {1} ".format(configurations[key]['dbname'], configurations[key]['user']))
+            click.echo("location: {0}".format(configurations[key]['location']))
+            if configurations[key]['location'] == 'remote':
+                click.echo("host ip: {0} - port: {1}".format(configurations[key]['host'], configurations[key]['port']))
+            click.echo("")
+    elif conf_arg[0] == "add":
+        conf_name = click.prompt("Configuration name")
+        db_name = click.prompt("Database name")
+        db_username = click.prompt("Username")
+        db_password = click.prompt("Password")
+        db_location = click.prompt("Location")
+        host_ip = click.prompt("Host Ip")
+        host_port = click.prompt("Host port")
+        try:
+            nordbConf.addDBToConf(conf_name, db_name, db_username, db_password, db_location, host_ip, host_port)
+        except Exception as e:
+            click.echo(e)
+    elif conf_arg[0] == "remove":
+        if len(conf_arg) == 2:
+            try:
+                nordbConf.removeDBFromConf(conf_arg[1])
+            except Exception as e:
+                click.echo(e)
+            return
+
+        db_name = click.prompt("Database configuration name")
+        try:
+            nordbConf.removeDBFromConf(db_name)
+        except Exception as e:
+            click.echo(e)
+
+    elif conf_arg[0] == "change":
+        if len(conf_arg) == 2:
+            try:
+                nordbConf.changeActiveDatabase(conf_arg[1])
+            except Exception as e:
+                click.echo(e)
+            return
+
+        db_name = click.prompt("Database configuration name")
+        try:
+            nordbConf.changeActiveDatabase(db_name)
+        except Exception as e:
+            click.echo(e)
+
+    elif conf_arg[0] == "alter":
+        pass
 @cli.command('removeuser', short_help = "remove user from db")
 @click.argument('username')
 @click.pass_obj
@@ -202,7 +265,7 @@ def search(repo, output_format, verbose, output, event_root, criteria):
                     return
             elif search_types[tpe] in ["event_id"]:
                 try:
-                   real_vals.append(int(val)) 
+                   real_vals.append(int(val))
                 except:
                     click.echo("{0} not in a int! ({1})".format(tpe, val))
                     return

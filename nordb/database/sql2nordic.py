@@ -122,6 +122,8 @@ def getEventRootId(event_id, db_conn = None):
     else:
         conn = db_conn
 
+    cur = conn.cursor()
+
     cur.execute(SELECT_EVENT_ROOT_ID, (event_id,))
     ans = cur.fetchone()
 

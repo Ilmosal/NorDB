@@ -95,7 +95,7 @@ INSERT_COMMANDS = {
                         ),
 }
 
-def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1, db_conn = None):
+def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_creation_id = None, e_id = -1, privacy_level='public', db_conn = None):
     """
     Function that pushes a NordicEvent object to the database
 
@@ -104,6 +104,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
     :param str nordic_filename: name of the file from which the nordic is read from
     :param int f_creation_id: id of the creation_info entry in the database
     :param int e_id: id of the event to which this event will be attached to by event_root. If -1 then this event will not be attached to aything.
+    :param string privacy_level: privacy level of the event in the database
     """
     if db_conn is None:
         conn = usernameUtilities.log2nordb()
@@ -111,7 +112,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
         conn = db_conn
 
     if f_creation_id is None:
-        creation_id = creationInfo.createCreationInfo(conn)
+        creation_id = creationInfo.createCreationInfo(privacy_level, conn)
     else:
         creation_id = f_creation_id
     author_id = None

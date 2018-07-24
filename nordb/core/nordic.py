@@ -272,3 +272,28 @@ def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, eve
                                                 obs_date))
 
     return event
+
+def createNordicEvents(nordic_file, solution_type="O"):
+    """
+    Function for creating a finalised Array of NordicEvent objects from a python file object
+
+    :param file nordic_file: file to be read
+    :param string solution_type: solution type of the event
+    :returns: Array of NordicEvent Objects and Array of failed Events as string
+    """
+    nordic_strings = nordicRead.readNordicFile(nordic_file)
+    nordic_events = []
+    nordic_failed = []
+
+    for n_string in nordic_strings:
+        try:
+            nordic_events.append(readNordic(    n_string,
+                                                True,
+                                                -1,
+                                                -1,
+                                                solution_type))
+        except Exception as e:
+            nordic_failed.append("Errors:\n{0}\n--------------\n".format(e))
+            raise e
+
+    return nordic_events, nordic_failed
