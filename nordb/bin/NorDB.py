@@ -116,8 +116,12 @@ def conf(repo, conf_arg):
         db_username = click.prompt("Username")
         db_password = click.prompt("Password")
         db_location = click.prompt("Location")
-        host_ip = click.prompt("Host Ip")
-        host_port = click.prompt("Host port")
+        if db_location ==  'local':
+            host_ip = "dummy"
+            host_port = "dummy"
+        else:
+            host_ip = click.prompt("Host Ip")
+            host_port = click.prompt("Host port")
         try:
             nordbConf.addDBToConf(conf_name, db_name, db_username, db_password, db_location, host_ip, host_port)
         except Exception as e:

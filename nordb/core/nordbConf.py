@@ -104,7 +104,7 @@ def addDBToConf(conf_name, db_name, db_username, db_password, db_location = 'loc
 
     db_settings[conf_name] = {  'dbname':db_name,
                                 'user':db_username,
-                                'password':db_username,
+                                'password':db_password,
                                 'location':db_location,
                                 'host':host_ip,
                                 'port':host_port}
