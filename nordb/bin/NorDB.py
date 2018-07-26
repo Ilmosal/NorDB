@@ -178,15 +178,30 @@ def search(repo, output_format, verbose, output, event_root, criteria):
     This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
     \b
-        --parameter=A   -> Parameter has to be exactly A
-        --parameter=A+  -> Parameter has to be over or equal to A
-        --parameter=A-  -> Parameter has to be under or equal to A
-        --parameter=A-B -> Parameter has to be equal to or in between of A and B
+        parameter=A   -> Parameter has to be exactly A
+        parameter=A+  -> Parameter has to be over or equal to A
+        parameter=A-  -> Parameter has to be under or equal to A
+        parameter=A-B -> Parameter has to be equal to or in between of A and B
 
     WARNING: Do not use --verbose flag when there are serveral search results. The output will clog your terminal. You can pipeline them into a file with > in following way:
 
     \b
-        NorDB search --verbose -date=01.01.2009+
+        NorDB search --verbose date=01.01.2009+ > output.n
+
+    You can also create a file from your search results with -o/--output flag
+
+    Valid search parameters:
+    \b
+        origin_date: origin_date, date, d
+        origin_time: origin_time, time, t
+        epicenter_latitude: epicenter_latitude, latitude, la
+        epicenter_longitude: epicenter_longitude, longitude, lo
+        magnitude_1: magnitude_1, magnitude, mag, ma, m
+        depth: depth, de
+        solution_type: solution_type, st
+        distance_indicator: distance_indicator, di
+        event_desc_id: event_desc_id, ed, eid
+        event_id: event_id, id
 
     This will print all nordic events from date 01.01.2009 onwards into the outputfile. Better way of getting files from the database is get command.
     """
@@ -198,6 +213,7 @@ def search(repo, output_format, verbose, output, event_root, criteria):
                         "d":"origin_date",
                         "origin_time":"origin_time",
                         "time":"origin_time",
+                        "t":"origin_time",
                         "latitude":"epicenter_latitude",
                         "la":"epicenter_latitude",
                         "epicenter_latitude":"epicenter_latitude",
@@ -259,8 +275,20 @@ def search(repo, output_format, verbose, output, event_root, criteria):
                             try:
                                 real_vals.append(datetime.strptime(val, "%d.%m.%Y").date())
                             except:
-                                click.echo("origin_time not in a correct format! ({0})".format(val))
+                                click.echo("origin_date not in a correct format! ({0})".format(val))
                                 return
+            elif search_types[tpe] == 'origin_time':
+                try:
+                    real_vals.append(datetime.strptime(val, "%H%:%M:%S").time())
+                except:
+                    try:
+                        real_vals.append(datetime.strptime(val, "%H:%M").time())
+                    except:
+                        try:
+                            real_vals.append(datetime.strptime(val, "%H").time())
+                        except:
+                            click.echo('origin_time not in a correct format ({0})'.format(val))
+                            return
             elif search_types[tpe] in ["epicenter_latitude", "epicenter_longitude", "magnitude_1", "depth"]:
                 try:
                     real_vals.append(float(val))

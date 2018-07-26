@@ -13,6 +13,7 @@ ADMIN RIGHTS
 
 --Grant all privileges for admins
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admins;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admins;
 --Give admins a right to create new roles
 ALTER USER admins WITH CREATEROLE;
 

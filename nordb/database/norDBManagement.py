@@ -45,13 +45,13 @@ def getRoleLevel(role_str):
     :returns: the level of the role as a integer 
     """
     role_level = 0
-    if role_str == 'quest':
+    if role_str == 'quests':
         role_level = 1
-    elif role_str == 'default_user':
+    elif role_str == 'default_users':
         role_level = 2
-    elif role_str == 'station_manager':
+    elif role_str == 'station_managers':
         role_level = 3
-    elif role_str == 'admin':
+    elif role_str == 'admins':
         role_level = 4
     elif role_str == 'owner':
         role_level = 5
@@ -213,7 +213,7 @@ def createUser(username, user_role, password, db_conn = None):
     else:
         conn = db_conn
 
-    if not checkPermissions('admin', conn):
+    if not checkPermissions('admins', conn):
         raise Exception('You are not an admin in the database so you cannot run this command')
 
     cur = conn.cursor()
@@ -234,6 +234,8 @@ def createUser(username, user_role, password, db_conn = None):
                     (password,))
         cur.execute("INSERT INTO nordb_user (username, role) VALUES (%s, %s)",
                     (username, user_role))
+        if user_role == 'admins':
+            cur.execute("ALTER USER {0} WITH CREATEROLE".format(username))
     except Exception as e:
         if db_conn is None:
             conn.close()
