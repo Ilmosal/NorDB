@@ -23,7 +23,7 @@ setup(
         "unidecode",
         "alabaster",
         "numpy",
-        "dateutil"
+        "python-dateutil"
     ],
     tests_require=[
         "pytest",
