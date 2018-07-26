@@ -22,7 +22,8 @@ setup(
         "Sphinx",
         "unidecode",
         "alabaster",
-        "numpy"
+        "numpy",
+        "dateutil"
     ],
     tests_require=[
         "pytest",
