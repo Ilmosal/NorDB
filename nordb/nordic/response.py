@@ -142,6 +142,7 @@ class PazResponse(Response):
         :param string mode: dis, vel or acc depending on which derivative of paz file you want
         :returns: response in a format fitting to obspy
         """
+        self.zeros = sorted(self.zeros)
         if mode not in ["dis", "acc", "vel"]:
             raise Exception("{0} not a valid mode!".format(mode))
 
