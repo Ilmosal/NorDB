@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access station freely 
-CREATE POLICY admin_all_policy ON station TO admins
+CREATE POLICY admin_all_policy ON station FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

@@ -13,7 +13,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access all operations freely.
-CREATE POLICY admin_all_policy ON nordic_event_root TO admins USING (true) WITH CHECK (true);
+CREATE POLICY admin_all_policy ON nordic_event_root FOR ALL TO admins USING (true) WITH CHECK (true);
 
 /*
 DEFAULT USER POLICIES

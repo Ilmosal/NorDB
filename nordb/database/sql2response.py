@@ -282,6 +282,7 @@ def getResponseFromDB(response_id, db_conn = None):
 
         response = PazResponse(response_data, scale_factor, poles, zeros)
 
+
     if db_conn is None:
         conn.close()
     return response

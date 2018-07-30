@@ -13,7 +13,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access creation info freely
-CREATE POLICY admin_all_policy ON creation_info TO admins
+CREATE POLICY admin_all_policy ON creation_info FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

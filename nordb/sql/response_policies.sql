@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access response freely 
-CREATE POLICY admin_all_policy ON response TO admins
+CREATE POLICY admin_all_policy ON response FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

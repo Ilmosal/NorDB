@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access sitechan freely 
-CREATE POLICY admin_all_policy ON sitechan TO admins
+CREATE POLICY admin_all_policy ON sitechan FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

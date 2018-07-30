@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access sensor freely 
-CREATE POLICY admin_all_policy ON sensor TO admins
+CREATE POLICY admin_all_policy ON sensor FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

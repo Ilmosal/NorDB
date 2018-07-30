@@ -13,7 +13,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access all users except the owner of the database freely
-CREATE POLICY admin_all ON nordb_user TO admins
+CREATE POLICY admin_all ON nordb_user FOR ALL TO admins
     USING (role != 'owner') WITH CHECK (role != 'owner');
 
 /*

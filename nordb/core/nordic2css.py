@@ -49,7 +49,7 @@ def nordic2Arrival(data, arrival_id):
     if data.max_amplitude_period is not None:
         per = data.max_amplitude_period
     else:
-        amp = -1.0
+        per = -1.0
 
     per = -1.0
 

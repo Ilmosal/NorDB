@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access instrument freely 
-CREATE POLICY admin_all_policy ON instrument TO admins
+CREATE POLICY admin_all_policy ON instrument FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

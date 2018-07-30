@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access all operations freely.
-CREATE POLICY admin_all_policy ON nordic_phase_data TO admins USING (true) WITH CHECK (true);
+CREATE POLICY admin_all_policy ON nordic_phase_data FOR ALL TO admins USING (true) WITH CHECK (true);
 
 /*
 DEFAULT USER POLICIES

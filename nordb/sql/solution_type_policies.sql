@@ -13,7 +13,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access solution type freely except for default solutions A, O, F
-CREATE POLICY admin_all_policy ON solution_type TO admins
+CREATE POLICY admin_all_policy ON solution_type FOR ALL TO admins
     USING (true) WITH CHECK (
                             type_id != 'A' OR 
                             type_id != 'O' OR

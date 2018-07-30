@@ -12,7 +12,13 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access paz_response freely 
-CREATE POLICY admin_all_policy ON paz_response TO admins
+CREATE POLICY admin_all_policy ON paz_response FOR ALL TO admins
+    USING (true) WITH CHECK (true);
+
+CREATE POLICY admin_all_policy ON pole FOR ALL TO admins
+    USING (true) WITH CHECK (true);
+
+CREATE POLICY admin_all_policy ON zero FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*

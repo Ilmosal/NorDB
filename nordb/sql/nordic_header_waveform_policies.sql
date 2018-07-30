@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access all operations freely.
-CREATE POLICY admin_all_policy ON nordic_header_waveform TO admins USING (true) WITH CHECK (true);
+CREATE POLICY admin_all_policy ON nordic_header_waveform FOR ALL TO admins USING (true) WITH CHECK (true);
 
 /*
 DEFAULT USER POLICIES

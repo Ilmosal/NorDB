@@ -12,8 +12,12 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access fap_response freely 
-CREATE POLICY admin_all_policy ON fap_response TO admins
+CREATE POLICY admin_all_policy ON fap_response FOR ALL TO admins
     USING (true) WITH CHECK (true);
+
+CREATE POLICY admin_all_policy ON fap FOR ALL TO admins
+    USING (true) WITH CHECK (true);
+
 
 /*
 STATION MANAGER POLICIES

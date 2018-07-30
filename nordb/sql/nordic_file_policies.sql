@@ -12,7 +12,7 @@ ADMIN POLICIES
 */
 
 --Admin policy. Allow admins to access nordic_file freely 
-CREATE POLICY admin_all_policy ON nordic_file TO admins
+CREATE POLICY admin_all_policy ON nordic_file FOR ALL TO admins
     USING (true) WITH CHECK (true);
 
 /*
