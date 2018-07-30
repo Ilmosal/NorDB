@@ -155,6 +155,10 @@ class PazResponse(Response):
         elif (mode == "acc"):
             ceil -= 2
 
+        zero_list = []
+
+        print(self.zeros)
+
         for i in range(0, ceil):
             obspy_resp['zeros'].append(complex(self.zeros[i][0],
                                                self.zeros[i][1]))

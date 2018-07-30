@@ -68,7 +68,7 @@ SELECT_ZEROS =  (
                 "   zero.paz_id = paz_response.id AND "
                 "   paz_response.response_id = response.id "
                 "ORDER BY "
-                "   ABS(real)"
+                "   ABS(real) DESC"
                 )
 
 SELECT_RESPONSE =   (
