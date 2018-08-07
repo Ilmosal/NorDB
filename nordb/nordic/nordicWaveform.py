@@ -28,13 +28,18 @@ class NordicWaveform:
     EVENT_ID = 1
     H_ID = 2
 
-    def __init__(self, header):
-        self.waveform_info = header[self.WAVEFORM_INFO]
-        self.event_id = header[self.EVENT_ID]
-        self.h_id = header[self.H_ID]
+    def __init__(self, header = None):
+        if header is None:
+            self.waveform_info = None
+            self.event_id = -1
+            self.h_id = -1
+        else:
+            self.waveform_info = header[self.WAVEFORM_INFO]
+            self.event_id = header[self.EVENT_ID]
+            self.h_id = header[self.H_ID]
 
     waveform_info = property(operator.attrgetter('_waveform_info'))
-    
+
     @waveform_info.setter
     def waveform_info(self, val):
         val_waveform_info = validateString(val, "waveform_info", 0, 78, None, self.header_type)

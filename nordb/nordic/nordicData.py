@@ -84,28 +84,51 @@ class NordicData:
     EVENT_ID = 19
     D_ID = 20
 
-    def __init__(self, data):
-        self.station_code = data[self.STATION_CODE]
-        self.sp_instrument_type = data[self.SP_INSTRUMENT_TYPE]
-        self.sp_component = data[self.SP_COMPONENT]
-        self.quality_indicator = data[self.QUALITY_INDICATOR]
-        self.phase_type = data[self.PHASE_TYPE]
-        self.weight = data[self.WEIGHT]
-        self.first_motion = data[self.FIRST_MOTION]
-        self.observation_time = data[self.OBSERVATION_TIME]
-        self.signal_duration = data[self.SIGNAL_DURATION]
-        self.max_amplitude = data[self.MAX_AMPLITUDE]
-        self.max_amplitude_period = data[self.MAX_AMPLITUDE_PERIOD]
-        self.back_azimuth = data[self.BACK_AZIMUTH]
-        self.apparent_velocity = data[self.APPARENT_VELOCITY]
-        self.signal_to_noise = data[self.SIGNAL_TO_NOISE]
-        self.azimuth_residual = data[self.AZIMUTH_RESIDUAL]
-        self.travel_time_residual = data[self.TRAVEL_TIME_RESIDUAL]
-        self.location_weight = data[self.LOCATION_WEIGHT]
-        self.epicenter_distance = data[self.EPICENTER_DISTANCE]
-        self.epicenter_to_station_azimuth = data[self.EPICENTER_TO_STATION_AZIMUTH]
-        self.event_id = data[self.EVENT_ID]
-        self.d_id = data[self.D_ID]
+    def __init__(self, data=None):
+        if data is None:
+            self.station_code = None
+            self.sp_instrument_type = None
+            self.sp_component = None
+            self.quality_indicator = None
+            self.phase_type = None
+            self.weight = None
+            self.first_motion = None
+            self.observation_time = None
+            self.signal_duration = None
+            self.max_amplitude = None
+            self.max_amplitude_period = None
+            self.back_azimuth = None
+            self.apparent_velocity = None
+            self.signal_to_noise = None
+            self.azimuth_residual = None
+            self.travel_time_residual = None
+            self.location_weight = None
+            self.epicenter_distance = None
+            self.epicenter_to_station_azimuth = None
+            self.event_id = -1
+            self.d_id = -1
+        else:
+            self.station_code = data[self.STATION_CODE]
+            self.sp_instrument_type = data[self.SP_INSTRUMENT_TYPE]
+            self.sp_component = data[self.SP_COMPONENT]
+            self.quality_indicator = data[self.QUALITY_INDICATOR]
+            self.phase_type = data[self.PHASE_TYPE]
+            self.weight = data[self.WEIGHT]
+            self.first_motion = data[self.FIRST_MOTION]
+            self.observation_time = data[self.OBSERVATION_TIME]
+            self.signal_duration = data[self.SIGNAL_DURATION]
+            self.max_amplitude = data[self.MAX_AMPLITUDE]
+            self.max_amplitude_period = data[self.MAX_AMPLITUDE_PERIOD]
+            self.back_azimuth = data[self.BACK_AZIMUTH]
+            self.apparent_velocity = data[self.APPARENT_VELOCITY]
+            self.signal_to_noise = data[self.SIGNAL_TO_NOISE]
+            self.azimuth_residual = data[self.AZIMUTH_RESIDUAL]
+            self.travel_time_residual = data[self.TRAVEL_TIME_RESIDUAL]
+            self.location_weight = data[self.LOCATION_WEIGHT]
+            self.epicenter_distance = data[self.EPICENTER_DISTANCE]
+            self.epicenter_to_station_azimuth = data[self.EPICENTER_TO_STATION_AZIMUTH]
+            self.event_id = data[self.EVENT_ID]
+            self.d_id = data[self.D_ID]
 
     station_code = property(operator.attrgetter('_station_code'), doc="")
 
@@ -115,7 +138,7 @@ class NordicData:
         self._station_code = val_station_code
 
     sp_instrument_type = property(operator.attrgetter('_sp_instrument_type'), doc="")
-    
+
     @sp_instrument_type.setter
     def sp_instrument_type(self, val):
         val_sp_instrument_type = validateString(val, "sp_instrument_type", 0, 1, "LSBHE", self.header_type)

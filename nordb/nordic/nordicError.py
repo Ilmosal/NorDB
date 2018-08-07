@@ -47,69 +47,79 @@ class NordicError:
     HEADER_ID = 6
     H_ID = 7
 
-    def __init__(self, header):
-        self.gap = header[self.GAP]
-        self.second_error = header[self.SECOND_ERROR]
-        self.epicenter_latitude_error = header[self.EPICENTER_LATITUDE_ERROR]
-        self.epicenter_longitude_error = header[self.EPICENTER_LONGITUDE_ERROR]
-        self.depth_error = header[self.DEPTH_ERROR]
-        self.magnitude_error = header[self.MAGNITUDE_ERROR]
-        self.header_id = header[self.HEADER_ID]
-        self.h_id = header[self.H_ID]
+    def __init__(self, header = None):
+        if header is None:
+            self.gap = None
+            self.second_error = None
+            self.epicenter_latitude_error = None
+            self.epicenter_longitude_error = None
+            self.depth_error = None
+            self.magnitude_error = None
+            self.header_id  = -1
+            self.h_id = -1
+        else:
+            self.gap = header[self.GAP]
+            self.second_error = header[self.SECOND_ERROR]
+            self.epicenter_latitude_error = header[self.EPICENTER_LATITUDE_ERROR]
+            self.epicenter_longitude_error = header[self.EPICENTER_LONGITUDE_ERROR]
+            self.depth_error = header[self.DEPTH_ERROR]
+            self.magnitude_error = header[self.MAGNITUDE_ERROR]
+            self.header_id = header[self.HEADER_ID]
+            self.h_id = header[self.H_ID]
 
     gap = property(operator.attrgetter('_gap'), doc="")
-    
+
     @gap.setter
     def gap(self, val):
         val_gap = validateInteger(val, "gap", 0, 359, self.header_type)
         self._gap = val_gap
 
     second_error = property(operator.attrgetter('_second_error'), doc="")
-    
+
     @second_error.setter
     def second_error(self, val):
         val_second_error = validateFloat(val, "second_error", 0.0, 99.9, self.header_type)
         self._second_error = val_second_error
 
     epicenter_latitude_error = property(operator.attrgetter('_epicenter_latitude_error'), doc="")
-    
+
     @epicenter_latitude_error.setter
     def epicenter_latitude_error(self, val):
         val_epicenter_latitude_error = validateFloat(val, "epicenter_latitude_error", 0.0, 99.99, self.header_type)
         self._epicenter_latitude_error = val_epicenter_latitude_error
 
     epicenter_longitude_error = property(operator.attrgetter('_epicenter_longitude_error'), doc="")
-    
+
     @epicenter_longitude_error.setter
     def epicenter_longitude_error(self, val):
         val_epicenter_longitude_error = validateFloat(val, "epicenter_longitude_error", 0.0, 99.99, self.header_type)
         self._epicenter_longitude_error = val_epicenter_longitude_error
 
     depth_error = property(operator.attrgetter('_depth_error'), doc="")
-    
+
     @depth_error.setter
     def depth_error(self, val):
         val_depth_error = validateFloat(val, "depth_error", 0.0, 999.9, self.header_type)
         self._depth_error = val_depth_error
 
     magnitude_error = property(operator.attrgetter('_magnitude_error'), doc="")
-    
+
     @magnitude_error.setter
     def magnitude_error(self, val):
         val_magnitude_error = validateFloat(val, "magnitude_error", 0.0, 9.9, self.header_type)
         self._magnitude_error = val_magnitude_error
-   
+
     def __str__(self):
         h_string = " "
         h_string += "GAP="
         h_string += addInteger2String(self.gap, 3,'>')
         h_string += "        "
         h_string += addFloat2String(self.second_error, 4, 1, '>')
-        h_string += "   "   
+        h_string += "   "
         h_string += addFloat2String(self.epicenter_latitude_error, 7, 3, '>')
         h_string += addFloat2String(self.epicenter_longitude_error, 8, 3, '>')
         h_string += addFloat2String(self.depth_error, 5, 1, '>')
-        h_string += "             " 
+        h_string += "             "
         h_string += addFloat2String(self.magnitude_error, 3, 1, '>')
         h_string += "                    5"
 
@@ -124,7 +134,7 @@ class NordicError:
         header_list.append(self.depth_error)
         header_list.append(self.magnitude_error)
         header_list.append(self.header_id)
-   
-        return header_list 
+
+        return header_list
 
 

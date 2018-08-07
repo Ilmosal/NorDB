@@ -20,7 +20,7 @@ class Instrument:
     """
     Class for instrument information. Comes from css instrument format.
 
-    :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations. 
+    :param array data: all the relevant data for Sensor in an array. These values are accessed by its numerations.
     :ivar int header_type: 12
     :ivar Response response: response file to which this response is attached to
     :ivar string band: Frequency band. Maximum of 1 character
@@ -56,7 +56,7 @@ class Instrument:
     header_type = 12
     INSTRUMENT_NAME = 0
     INSTRUMENT_TYPE = 1
-    BAND = 2 
+    BAND = 2
     DIGITAL = 3
     SAMPRATE = 4
     NCALIB = 5
@@ -69,95 +69,112 @@ class Instrument:
     CSS_ID = 12
     RESPONSE_ID = 13
 
-    def __init__(self, data):
-        self.response = None
-        self.instrument_name = data[self.INSTRUMENT_NAME]
-        self.instrument_type = data[self.INSTRUMENT_TYPE]
-        self.band = data[self.BAND]
-        self.digital = data[self.DIGITAL]
-        self.samprate = data[self.SAMPRATE]
-        self.ncalib = data[self.NCALIB]
-        self.ncalper = data[self.NCALPER]
-        self.resp_dir = data[self.RESP_DIR]
-        self.dfile = data[self.DFILE]
-        self.rsptype = data[self.RSPTYPE]
-        self.lddate = data[self.LDDATE]
-        self.i_id = data[self.I_ID]
-        self.css_id = data[self.CSS_ID]
-        self.response_id = data[self.RESPONSE_ID]
+    def __init__(self, data = None):
+        if data is None:
+            self.response = None
+            self.instrument_name = None
+            self.instrument_type = None
+            self.band = None
+            self.digital = None
+            self.samprate = None
+            self.ncalib = None
+            self.ncalper = None
+            self.resp_dir = None
+            self.dfile = None
+            self.rsptype = None
+            self.lddate = None
+            self.i_id = -1
+            self.css_id = -1
+            self.response_id = -1
+        else:
+            self.response = None
+            self.instrument_name = data[self.INSTRUMENT_NAME]
+            self.instrument_type = data[self.INSTRUMENT_TYPE]
+            self.band = data[self.BAND]
+            self.digital = data[self.DIGITAL]
+            self.samprate = data[self.SAMPRATE]
+            self.ncalib = data[self.NCALIB]
+            self.ncalper = data[self.NCALPER]
+            self.resp_dir = data[self.RESP_DIR]
+            self.dfile = data[self.DFILE]
+            self.rsptype = data[self.RSPTYPE]
+            self.lddate = data[self.LDDATE]
+            self.i_id = data[self.I_ID]
+            self.css_id = data[self.CSS_ID]
+            self.response_id = data[self.RESPONSE_ID]
 
     instrument_name = property(operator.attrgetter('_instrument_name'), doc="")
-    
+
     @instrument_name.setter
     def instrument_name(self, val):
         val_instrument_name = validateString(val, "instrument_name", 0, 50, None, self.header_type)
         self._instrument_name = val_instrument_name
 
     instrument_type = property(operator.attrgetter('_instrument_type'), doc="")
-    
+
     @instrument_type.setter
     def instrument_type(self, val):
         val_instrument_type = validateString(val, "instrument_type", 0, 6, None, self.header_type)
         self._instrument_type = val_instrument_type
 
     band = property(operator.attrgetter('_band'), doc="")
-    
+
     @band.setter
     def band(self, val):
         val_band = validateString(val, "band", 0, 1, None, self.header_type)
         self._band = val_band
 
     digital = property(operator.attrgetter('_digital'), doc="")
-    
+
     @digital.setter
     def digital(self, val):
         val_digital = validateString(val, "digital", 0, 1, None, self.header_type)
         self._digital = val_digital
 
     samprate = property(operator.attrgetter('_samprate'), doc="")
-    
+
     @samprate.setter
     def samprate(self, val):
         val_samprate = validateFloat(val, "samprate", 0.0, 1000.0, self.header_type)
         self._samprate = val_samprate
 
     ncalib = property(operator.attrgetter('_ncalib'), doc="")
-    
+
     @ncalib.setter
     def ncalib(self, val):
         val_ncalib = validateFloat(val, "ncalib", -1.0, 10000.0, self.header_type)
         self._ncalib = val_ncalib
 
     ncalper = property(operator.attrgetter('_ncalper'), doc="")
-    
+
     @ncalper.setter
     def ncalper(self, val):
         val_ncalper = validateFloat(val, "ncalper", -1.0, 10000.0, self.header_type)
         self._ncalper = val_ncalper
 
     resp_dir = property(operator.attrgetter('_resp_dir'), doc="")
-    
+
     @resp_dir.setter
     def resp_dir(self, val):
         val_resp_dir = validateString(val, "resp_dir", 0, 64, None, self.header_type)
         self._resp_dir = val_resp_dir
 
     dfile = property(operator.attrgetter('_dfile'), doc="")
-    
+
     @dfile.setter
     def dfile(self, val):
         val_dfile = validateString(val, "dfile", 0, 32, None, self.header_type)
         self._dfile = val_dfile
 
     rsptype = property(operator.attrgetter('_rsptype'), doc="")
-    
+
     @rsptype.setter
     def rsptype(self, val):
         val_rsptype = validateString(val, "rsptype", 0, 6, None, self.header_type)
         self._rsptype = val_rsptype
 
     lddate = property(operator.attrgetter('_lddate'), doc="")
-    
+
     @lddate.setter
     def lddate(self, val):
         val_lddate = validateDate(val, "lddate", self.header_type)
@@ -180,15 +197,15 @@ class Instrument:
 
     def __str__(self):
         instrumentString = ""
-    
+
         instrumentString += addInteger2String(self.css_id, 8, '>')
-        
+
         instrumentString += " "
 
         instrumentString += addString2String(self.instrument_name, 50, '<')
 
         instrumentString += " "
-        
+
         instrumentString += addString2String(self.instrument_type, 6, '<')
 
         instrumentString += " "
@@ -198,25 +215,25 @@ class Instrument:
         instrumentString += addFloat2String (self.samprate, 11, 6, '>')
 
         instrumentString += "    "
-        
+
         instrumentString += addFloat2String (self.ncalib, 13, 6, '>')
-        
+
         instrumentString += "    "
-        
+
         instrumentString += addFloat2String(self.ncalper, 13, 6, '>')
 
         instrumentString += " "
 
         instrumentString += addString2String(self.resp_dir, 64, '<')
-            
+
         instrumentString += " "
-        
+
         instrumentString += addString2String(self.dfile, 32, '<')
 
         instrumentString += " "
 
         instrumentString += addString2String(self.rsptype, 6, '<')
-    
+
         instrumentString += "       "
 
         instrumentString += addString2String(self.lddate.strftime("%Y-%b-%d"), 11, '<')
@@ -242,7 +259,7 @@ class Instrument:
 
 def readInstrumentStringToInstrument(ins_line):
     """
-    Function for reading instrument info to a Instrument object 
+    Function for reading instrument info to a Instrument object
 
     :param str ins_line: css intrument line
     :returns: Instrument object

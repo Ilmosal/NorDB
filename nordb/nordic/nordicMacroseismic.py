@@ -69,7 +69,7 @@ class NordicMacroseismic:
     DESCRIPTION = 0
     DIASTROPHISM_CODE = 1
     TSUNAMI_CODE = 2
-    SEICHE_CODE = 3 
+    SEICHE_CODE = 3
     CULTURAL_EFFECTS = 4
     UNUSUAL_EFFECTS = 5
     MAXIMUM_OBSERVED_INTENSITY = 6
@@ -89,29 +89,53 @@ class NordicMacroseismic:
     EVENT_ID = 20
     H_ID = 21
 
-    def __init__(self, header):
-        self.description = header[self.DESCRIPTION]
-        self.diastrophism_code = header[self.DIASTROPHISM_CODE]
-        self.tsunami_code = header[self.TSUNAMI_CODE]
-        self.seiche_code = header[self.SEICHE_CODE]
-        self.cultural_effects = header[self.CULTURAL_EFFECTS]
-        self.unusual_effects = header[self.UNUSUAL_EFFECTS]
-        self.maximum_observed_intensity = header[self.MAXIMUM_OBSERVED_INTENSITY]
-        self.maximum_intensity_qualifier = header[self.MAXIMUM_INTENSITY_QUALIFIER]
-        self.intensity_scale = header[self.INTENSITY_SCALE]
-        self.macroseismic_latitude = header[self.MACROSEISMIC_LATITUDE]
-        self.macroseismic_longitude = header[self.MACROSEISMIC_LONGITUDE]
-        self.macroseismic_magnitude = header[self.MACROSEISMIC_MAGNITUDE]
-        self.type_of_magnitude = header[self.TYPE_OF_MAGNITUDE]
-        self.logarithm_of_radius = header[self.LOGARITHM_OF_RADIUS]
-        self.logarithm_of_area_1 = header[self.LOGARITHM_OF_AREA_1]
-        self.bordering_intensity_1 = header[self.BORDERING_INTENSITY_1]
-        self.logarithm_of_area_2 = header[self.LOGARITHM_OF_AREA_2]
-        self.bordering_intensity_2 = header[self.BORDERING_INTENSITY_2]
-        self.quality_rank = header[self.QUALITY_RANK]
-        self.reporting_agency = header[self.REPORTING_AGENCY]
-        self.event_id = header[self.EVENT_ID]
-        self.h_id = header[self.H_ID]
+    def __init__(self, header = None):
+        if header is None:
+            self.description = None
+            self.diastrophism_code = None
+            self.tsunami_code = None
+            self.seiche_code = None
+            self.cultural_effects = None
+            self.unusual_effects = None
+            self.maximum_observed_intensity = None
+            self.maximum_intensity_qualifier = None
+            self.intensity_scale = None
+            self.macroseismic_latitude = None
+            self.macroseismic_longitude = None
+            self.macroseismic_magnitude = None
+            self.type_of_magnitude = None
+            self.logarithm_of_radius = None
+            self.logarithm_of_area_1 = None
+            self.bordering_intensity_1 = None
+            self.logarithm_of_area_2 = None
+            self.bordering_intensity_2 = None
+            self.quality_rank = None
+            self.reporting_agency = None
+            self.event_id = -1
+            self.h_id = -1
+        else:
+            self.description = header[self.DESCRIPTION]
+            self.diastrophism_code = header[self.DIASTROPHISM_CODE]
+            self.tsunami_code = header[self.TSUNAMI_CODE]
+            self.seiche_code = header[self.SEICHE_CODE]
+            self.cultural_effects = header[self.CULTURAL_EFFECTS]
+            self.unusual_effects = header[self.UNUSUAL_EFFECTS]
+            self.maximum_observed_intensity = header[self.MAXIMUM_OBSERVED_INTENSITY]
+            self.maximum_intensity_qualifier = header[self.MAXIMUM_INTENSITY_QUALIFIER]
+            self.intensity_scale = header[self.INTENSITY_SCALE]
+            self.macroseismic_latitude = header[self.MACROSEISMIC_LATITUDE]
+            self.macroseismic_longitude = header[self.MACROSEISMIC_LONGITUDE]
+            self.macroseismic_magnitude = header[self.MACROSEISMIC_MAGNITUDE]
+            self.type_of_magnitude = header[self.TYPE_OF_MAGNITUDE]
+            self.logarithm_of_radius = header[self.LOGARITHM_OF_RADIUS]
+            self.logarithm_of_area_1 = header[self.LOGARITHM_OF_AREA_1]
+            self.bordering_intensity_1 = header[self.BORDERING_INTENSITY_1]
+            self.logarithm_of_area_2 = header[self.LOGARITHM_OF_AREA_2]
+            self.bordering_intensity_2 = header[self.BORDERING_INTENSITY_2]
+            self.quality_rank = header[self.QUALITY_RANK]
+            self.reporting_agency = header[self.REPORTING_AGENCY]
+            self.event_id = header[self.EVENT_ID]
+            self.h_id = header[self.H_ID]
 
     description = property(operator.attrgetter('_description'), doc="")
 

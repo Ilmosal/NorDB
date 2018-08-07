@@ -43,15 +43,25 @@ class Response(object):
     AUTHOR = 5
     ID = 6
 
-    def __init__(self, data):
-        self.c_id = -1
-        self.file_name = data[self.FILE_NAME]
-        self.source = data[self.SOURCE]
-        self.stage = data[self.STAGE]
-        self.description = data[self.DESCRIPTION]
-        self.response_format = data[self.RESPONSE_FORMAT]
-        self.author = data[self.AUTHOR]
-        self.response_id = data[self.ID]
+    def __init__(self, data = None):
+        if data is None:
+            self.c_id = -1
+            self.file_name = None
+            self.source = None
+            self.stage = None
+            self.description = None
+            self.response_format = None
+            self.author = None
+            self.response_id = -1
+        else:
+            self.c_id = -1
+            self.file_name = data[self.FILE_NAME]
+            self.source = data[self.SOURCE]
+            self.stage = data[self.STAGE]
+            self.description = data[self.DESCRIPTION]
+            self.response_format = data[self.RESPONSE_FORMAT]
+            self.author = data[self.AUTHOR]
+            self.response_id = data[self.ID]
 
     file_name = property(operator.attrgetter('_file_name'), doc="")
 
@@ -122,7 +132,7 @@ class PazResponse(Response):
     :ivar Array poles: array of all the poles in the response. Poles are arrays of floats and contain the imaginary value of the pole and the error of the pole
     :ivar Array zeros: array of all the zeros in the response. Poles are arrays of floats and contain the imaginary value of the zero and the error of the zero
     """
-    def __init__(self, response_data, scale_factor, poles, zeros):
+    def __init__(self, response_data = None, scale_factor=None, poles=[], zeros=[]):
         Response.__init__(self, response_data)
         self.scale_factor = scale_factor
         self.poles = poles
@@ -183,7 +193,7 @@ class FapResponse(Response):
 
     :ivar Array fap: an array of five float values which contain the frequency, amplitude, phase, amplitude_error, phase_error in that order
     """
-    def __init__(self, response_data, fap):
+    def __init__(self, response_data = None, fap = []):
         Response.__init__(self, response_data)
         self.fap = fap
 

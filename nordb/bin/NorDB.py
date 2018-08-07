@@ -29,6 +29,7 @@ from nordb.database import resetDB
 from nordb.database import nordicModify
 from nordb.database import solutionTypeHandler
 from nordb.database import creationInfo
+from nordb.database import networks
 
 from nordb.database import sql2instrument
 from nordb.database import sql2nordic
@@ -366,6 +367,37 @@ def search(repo, output_format, verbose, output, event_root, criteria):
 
         f_output.close()
 
+@cli.command('network', short_help = "Manage networks")
+@click.argument('network_command',
+                type=click.Choice(['list', 'add', 'remove']))
+@click.pass_obj
+def network(repo, network_command):
+    if network_command in ['list']:
+        click.echo("Networks: ")
+        for n in networks.getNetworks():
+            click.echo(" {0}".format(n))
+
+    elif network_command == 'add':
+        network_name = click.prompt("Network name")
+        if network_name in networks.getNetworks():
+            click.echo("Network {0} already exists!".format(network_name))
+            return
+        privacy_level = click.prompt("Network privacy")
+
+        if privacy_level not in ['public', 'private', 'secure']:
+            click.echo("Privacy level {0} isn't a valid privacy level".format(privacy_level))
+            return
+
+        networks.addNetwork(network_name, privacy_level)
+
+    elif network_command == 'remove':
+        network_name = click.prompt("Network name")
+        if network_name not in networks.getNetworks():
+            click.echo("Network {0} doesn't exist!".format(network_name))
+            return
+
+        networks.removeNetwork(network_name, privacy_level)
+
 @cli.command('insertresp', short_help = "insert response files")
 @click.argument('response_file',
                 nargs=-1,
@@ -394,7 +426,7 @@ def getresp(repo, filename, response_id):
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen in addition to error log")
 @click.option('--all_files', '-a', is_flag=True, help="add all four station files: .site, .sitechan, .instrument, .sensor to db")
 @click.argument('station-file', required=True, type=click.Path(exists=True, readable=True))
-@click.argument('network', default="HEL")
+@click.argument('network', default="HE")
 @click.pass_obj
 def insertsta(repo, station_file, network, verbose, all_files):
     """
@@ -753,7 +785,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
 
             event_id = -1
             if not no_duplicates and nord.root_id != -1:
-                same_events = nordicSearch.searchSameEvents(nord, db_conn=conn)
+                same_events = nordicSearch.searchSameEvents(nord)
                 if add_automatic and same_events:
                     event_id = same_events[0].event_id
                 elif same_events:
@@ -778,7 +810,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             click.echo("Not a valid id!")
 
                 if event_id == -1 and not add_automatic:
-                    similar_events = nordicSearch.searchSimilarEvents(nord, db_conn=conn)
+                    similar_events = nordicSearch.searchSimilarEvents(nord)
 
                     if similar_events:
                         if ignore_duplicates:

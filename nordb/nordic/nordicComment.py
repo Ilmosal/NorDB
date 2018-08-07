@@ -32,13 +32,18 @@ class NordicComment:
     EVENT_ID = 1
     H_ID = 2
 
-    def __init__(self, header):
-        self.h_comment = header[self.H_COMMENT]
-        self.event_id = header[self.EVENT_ID]
-        self.h_id = header[self.H_ID]
+    def __init__(self, header = None):
+        if header is None:
+            self.h_comment = None
+            self.event_id = -1
+            self.h_id = -1
+        else:
+            self.h_comment = header[self.H_COMMENT]
+            self.event_id = header[self.EVENT_ID]
+            self.h_id = header[self.H_ID]
 
     h_comment = property(operator.attrgetter('_h_comment'), doc="")
-    
+
     @h_comment.setter
     def h_comment(self, val):
         val_h_comment = validateString(val, "h_comment", 0, 78, None, self.header_type)
@@ -51,7 +56,7 @@ class NordicComment:
         h_string += "3"
 
         return h_string
-    
+
     def getAsList(self):
         header_list = []
         header_list.append(self.h_comment)

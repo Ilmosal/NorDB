@@ -101,7 +101,32 @@ class NordicMain:
 
     def __init__(self, header=None, error_h = None):
         self.error_h = error_h
-        if header is not None:
+        if header is None:
+            self.origin_time = None
+            self.origin_date = None
+            self.location_model = None
+            self.distance_indicator = None
+            self.event_desc_id = None
+            self.epicenter_latitude = None
+            self.epicenter_longitude = None
+            self.depth = None
+            self.depth_control = None
+            self.locating_indicator = None
+            self.epicenter_reporting_agency = None
+            self.stations_used = None
+            self.rms_time_residuals = None
+            self.magnitude_1 = None
+            self.type_of_magnitude_1 = None
+            self.magnitude_reporting_agency_1 = None
+            self.magnitude_2 = None
+            self.type_of_magnitude_2 = None
+            self.magnitude_reporting_agency_2 = None
+            self.magnitude_3 = None
+            self.type_of_magnitude_3 = None
+            self.magnitude_reporting_agency_3 = None
+            self.event_id = -1
+            self.h_id = -1
+        else:
             self.origin_time = header[self.ORIGIN_TIME]
             self.origin_date = header[self.ORIGIN_DATE]
             self.location_model = header[self.LOCATION_MODEL]

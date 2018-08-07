@@ -57,6 +57,14 @@ def insertInstrument2Database(instrument):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
+
+    if instrument.css_id == -1:
+        cur.execute("SELECT MAX(css_id) FROM instrument")
+        ans = cur.fetchone()
+        if ans[0] is None:
+            instrument.css_id = 1
+        else:
+            instrument.css_id = ans[0] + 1
     try:
         instrument.response_id = getResponseId(instrument.dfile)
         cur.execute(INSTRUMENT_INSERT, instrument.getAsList())
