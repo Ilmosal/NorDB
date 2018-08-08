@@ -326,13 +326,12 @@ class NordicMain:
         else:
             h_string = "         "
         h_string += " "
-        if self.origin_time is not None:    
+        if self.origin_time is not None:
             h_string += addInteger2String(self.origin_time.hour, 2, '0')
             h_string += addInteger2String(self.origin_time.minute, 2, '0')
             h_string += " "
-            h_string += addInteger2String(self.origin_time.second, 2, '0')
-            h_string += "."
-            h_string += addInteger2String(round(self.origin_time.microsecond/100000), 1, '<')
+            second = float(self.origin_time.second) + float(self.origin_time.microsecond)/100000
+            h_string += addFloat2String(second, 4, 1, '0')
         else:
             h_string += "         "
         h_string += addString2String(self.location_model, 1, '<')
