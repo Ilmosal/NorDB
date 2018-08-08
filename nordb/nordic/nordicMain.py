@@ -330,7 +330,7 @@ class NordicMain:
             h_string += addInteger2String(self.origin_time.hour, 2, '0')
             h_string += addInteger2String(self.origin_time.minute, 2, '0')
             h_string += " "
-            second = float(self.origin_time.second) + float(self.origin_time.microsecond)/100000
+            second = float(self.origin_time.second) + float(self.origin_time.microsecond)/1000000
             h_string += addFloat2String(second, 4, 1, '0')
         else:
             h_string += "         "
