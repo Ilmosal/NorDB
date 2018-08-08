@@ -137,10 +137,14 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
     :param datetime station_date: date for which the station info will be taken
     :param psycopg2.connection db_conn: Existing connection to the database. Defaults to None
     """
+    if len(station_ids) == 0:
+        return []
+
     if db_conn is None:
         conn = usernameUtilities.log2nordb()
     else:
         conn = db_conn
+
     cur = conn.cursor()
 
     if isinstance(station_ids, type([])):

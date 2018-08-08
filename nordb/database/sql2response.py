@@ -76,7 +76,7 @@ SELECT_RESPONSE =   (
                     "   response.id "
                     "FROM "
                     "   response, instrument, sitechan, station, sensor "
-                    "WHERE "
+                    "WHERE496, "
                     "   response.id = instrument.response_id AND "
                     "   instrument.id = sensor.instrument_id AND "
                     "   sensor.sitechan_id = sitechan.id AND "
@@ -95,15 +95,14 @@ SELECT_RESPONSES =  (
                     "   response.file_name, response.source, "
                     "   response.stage, response.description, "
                     "   response.format, response.author, response.id, "
-                    "   station.id, sitechan.id, sensor.id "
+                    "   sitechan.station_id, sitechan.id, sensor.id "
                     "FROM "
-                    "   response, instrument, sitechan, station, sensor "
+                    "   response, instrument, sitechan, sensor "
                     "WHERE "
-                    "   instrument.id IN %(instrument_ids)s AND "
+                    "   (sitechan.station_id, instrument.id) IN %(instrument_ids)s AND "
                     "   response.id = instrument.response_id AND "
                     "   instrument.id = sensor.instrument_id AND "
-                    "   sensor.sitechan_id = sitechan.id AND "
-                    "   sitechan.station_id = station.id"
+                    "   sensor.sitechan_id = sitechan.id"
                     )
 
 SELECT_FAPS =   (
@@ -167,14 +166,13 @@ def responses2stations(stations, db_conn = None):
         conn = usernameUtilities.log2nordb()
     else:
         conn = db_conn
-
     try:
         instrument_ids = []
 
         for stat in stations.values():
             for sitechan in stat.sitechans:
                 for sensor in sitechan.sensors:
-                    instrument_ids.append(sensor.instrument_id)
+                    instrument_ids.append((stat.s_id, sensor.instrument_id))
 
         instrument_ids = tuple(instrument_ids)
 
@@ -205,7 +203,6 @@ def responses2stations(stations, db_conn = None):
         poles_resp = cur.fetchall()
         cur.execute(SELECT_ALL_ZEROS, {'response_ids':response_ids})
         zeros_resp = cur.fetchall()
-
 
         for resp in responses:
             for sitechan in stations[resp[0]].sitechans:
