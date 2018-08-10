@@ -53,58 +53,19 @@ SELECT_STATIONS =   (
                         "   network_id = network.id "
                     )
 
-SELECT_STATION_ID = (
-                        "SELECT "
-                        "   station_code, on_date, off_date, latitude, "
-                        "   longitude, elevation, station_name, station_type, "
-                        "   reference_station, north_offset, east_offset, "
-                        "   load_date, network.network, network_id, station.id "
-                        "FROM "
-                        "   station, network "
-                        "WHERE "
-                        "   station.id = %s "
-                        "AND "
-                        "   network.id = network_id"
-                    )
+SELECT_ALL_STATION_IDS =    (
+                            "SELECT "
+                            "   station_id "
+                            "FROM "
+                            "   station "
+                            )
 
-SELECT_STATION_CODE =   (
-                        "SELECT "
-                        "   station_code, on_date, off_date, latitude, "
-                        "   longitude, elevation, station_name, station_type, "
-                        "   reference_station, north_offset, east_offset, "
-                        "   load_date, network.network, network_id, station.id "
-                        "FROM "
-                        "   station, network "
-                        "WHERE "
-                        "   station.station_code = %s "
-                        "AND "
-                        "   ( "
-                        "       (on_date <= %s AND off_date >= %s) "
-                        "   OR "
-                        "       (on_date <=%s AND off_date IS NULL) "
-                        "   ) "
-                        "AND "
-                        "   network.id = network_id"
-                        )
-
-
-ALL_STATIONS =      (
-                        "SELECT "
-                        "   station_code, on_date, off_date, latitude, "
-                        "   longitude, elevation, station_name, station_type, "
-                        "   reference_station, north_offset, east_offset, "
-                        "   load_date, network.network, network_id, station.id "
-                        "FROM "
-                        "   station, network "
-                        "WHERE "
-                        "   network.id = network_id"
-                    )
-
-def getAllStations(db_conn = None):
+def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
     """
     Function for reading all stations from database.
 
     :param psycopg2.connection db_conn: Connection to the database
+    :param datetime station_date: date for which the station info will be taken
     :returns: Array of Station objects
     """
     if db_conn is None:
@@ -113,16 +74,14 @@ def getAllStations(db_conn = None):
         conn = db_conn
     cur = conn.cursor()
 
-    cur.execute(ALL_STATIONS)
+    cur.execute(SELECT_ALL_STATION_IDS)
 
     ans = cur.fetchall()
-
-    stations = []
+    station_ids = []
     for a in ans:
-        stat = Station(a)
-        sql2sitechan.sitechans2station(stat, datetime.datetime.now(), db_conn=conn)
+        station_ids.append(a[0])
 
-        stations.append(stat)
+    getStations(station_ids, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()
@@ -188,22 +147,7 @@ def getStation(station_id, station_date = datetime.datetime.now(), db_conn = Non
         conn = db_conn
     cur = conn.cursor()
 
-    if isinstance(station_id, int):
-        cur.execute(SELECT_STATION_ID, (station_id,))
-    elif isinstance(station_id, str):
-        cur.execute(SELECT_STATION_CODE, (station_id, station_date,
-                                          station_date, station_date))
-
-    ans = cur.fetchone()
-
-    if ans is None:
-        if db_conn is None:
-            conn.close()
-        return None
-
-    stat = Station(ans)
-
-    sql2sitechan.sitechans2station(stat, station_date, db_conn=conn)
+    getStations([station_id], station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()
@@ -241,8 +185,11 @@ def getStationsNearPoint(latitude, longitude, radius = 10.0, station_date = date
     if ans is None:
         return None
 
+    station_ids = []
     for a in ans:
-        stations.append(getStation(a[0], station_date, db_conn = conn))
+        station_ids.append(a[0])
+
+    stations = getStations(station_ids, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()
