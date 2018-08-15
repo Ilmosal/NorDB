@@ -76,7 +76,7 @@ SELECT_RESPONSE =   (
                     "   response.id "
                     "FROM "
                     "   response, instrument, sitechan, station, sensor "
-                    "WHERE496, "
+                    "WHERE "
                     "   response.id = instrument.response_id AND "
                     "   instrument.id = sensor.instrument_id AND "
                     "   sensor.sitechan_id = sitechan.id AND "
