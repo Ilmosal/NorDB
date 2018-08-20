@@ -33,7 +33,7 @@ SELECT_STATIONS_NEAR_POINT =    (
                                 "   ) "
                                 )
 
-SELECT_STATIONS =   (
+SELECT_STATIONS_ID =   (
                         "SELECT "
                         "   station_code, on_date, off_date, latitude, "
                         "   longitude, elevation, station_name, station_type, "
@@ -52,6 +52,26 @@ SELECT_STATIONS =   (
                         "AND "
                         "   network_id = network.id "
                     )
+
+SELECT_STATIONS_CODE =  (
+                        "SELECT "
+                        "   station_code, on_date, off_date, latitude, "
+                        "   longitude, elevation, station_name, station_type, "
+                        "   reference_station, north_offset, east_offset, "
+                        "   load_date, network.network, network_id, station.id "
+                        "FROM "
+                        "   station, network "
+                        "WHERE "
+                        "   station_code in %(station_codes)s "
+                        "AND "
+                        "   ( "
+                        "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
+                        "   OR "
+                        "       (on_date <=%(station_date)s AND off_date IS NULL) "
+                        "   ) "
+                        "AND "
+                        "   network_id = network.id "
+                        )
 
 SELECT_ALL_STATION_IDS =    (
                             "SELECT "
@@ -109,8 +129,12 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
     if isinstance(station_ids, type([])):
         station_ids = tuple(station_ids)
 
-    cur.execute(SELECT_STATIONS, {'station_ids':station_ids,
-                                  'station_date':station_date})
+    if isinstance(station_ids[0], str):
+        cur.execute(SELECT_STATIONS_CODE, { 'station_codes':station_ids,
+                                            'station_date':station_date})
+    else:
+        cur.execute(SELECT_STATIONS_ID, {   'station_ids':station_ids,
+                                            'station_date':station_date})
 
     ans = cur.fetchall()
 
@@ -131,7 +155,6 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
 
     return list(stations.values())
 
-
 def getStation(station_id, station_date = datetime.datetime.now(), db_conn = None):
     """
     Function for reading a station from database by id or code and datetime.
@@ -147,7 +170,12 @@ def getStation(station_id, station_date = datetime.datetime.now(), db_conn = Non
         conn = db_conn
     cur = conn.cursor()
 
-    getStations([station_id], station_date, db_conn=conn)
+    temp = getStations([station_id], station_date, db_conn=conn)
+
+    if len(temp) == 0:
+        stat = None
+    else:
+        stat = temp[0]
 
     if db_conn is None:
         conn.close()
