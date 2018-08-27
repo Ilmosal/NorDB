@@ -108,10 +108,12 @@ def countStations(network = None, db_conn = None):
     else:
         cur.execute("SELECT COUNT(*) FROM station WHERE network = %s", (network,))
 
+    num_stations = cur.fetchone()[0]
+
     if db_conn is None:
         conn.close()
 
-    return cur.fetchone()[0]
+    return num_stations
 
 def createDatabase():
     """

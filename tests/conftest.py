@@ -12,7 +12,8 @@ def setupdb():
     settings.setTest()
     norDBManagement.createDatabase()
     yield None
-    try:    
+
+    try:
         norDBManagement.destroyDatabase()
     except Exception as e:
         print(e)
@@ -21,7 +22,7 @@ def setupdb():
 @pytest.fixture(scope="module")
 def setupdbWithEvents():
     settings.setTest()
-    
+
     norDBManagement.createDatabase()
     creation_id = creationInfo.createCreationInfo('public')
 

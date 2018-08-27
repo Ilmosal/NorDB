@@ -6,6 +6,7 @@ from nordb.database import sensor2sql
 from nordb.database import instrument2sql
 from nordb.database import response2sql
 from nordb.database import sql2station
+from nordb.database.norDBManagement import countStations
 from nordb.core import usernameUtilities
 from nordb.nordic import station
 from nordb.nordic import sitechan
@@ -24,6 +25,8 @@ class TestSQL2Station(object):
             station2sql.insertStation2Database(stat, stat.network)
 
         stations = sql2station.getAllStations()
+
+        print(countStations())
 
         assert len(stations) == len(stationFiles)
 

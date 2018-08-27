@@ -44,12 +44,6 @@ SELECT_STATIONS_ID =   (
                         "WHERE "
                         "   station.id in %(station_ids)s "
                         "AND "
-                        "   ( "
-                        "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
-                        "   OR "
-                        "       (on_date <=%(station_date)s AND off_date IS NULL) "
-                        "   ) "
-                        "AND "
                         "   network_id = network.id "
                     )
 
@@ -75,7 +69,7 @@ SELECT_STATIONS_CODE =  (
 
 SELECT_ALL_STATION_IDS =    (
                             "SELECT "
-                            "   station_id "
+                            "   station.id "
                             "FROM "
                             "   station "
                             )
@@ -101,7 +95,10 @@ def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
     for a in ans:
         station_ids.append(a[0])
 
-    getStations(station_ids, station_date, db_conn=conn)
+    stations = getStations(station_ids, station_date, db_conn=conn)
+
+    for stat in stations:
+        print(stat)
 
     if db_conn is None:
         conn.close()
@@ -133,8 +130,7 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
         cur.execute(SELECT_STATIONS_CODE, { 'station_codes':station_ids,
                                             'station_date':station_date})
     else:
-        cur.execute(SELECT_STATIONS_ID, {   'station_ids':station_ids,
-                                            'station_date':station_date})
+        cur.execute(SELECT_STATIONS_ID, {'station_ids':station_ids})
 
     ans = cur.fetchall()
 

@@ -5,7 +5,7 @@ from nordb.core import usernameUtilities
 from nordb.nordic import response
 from nordb.nordic import instrument
 
-@pytest.mark.userfixtures("setupdb", "instrumentFiles", "responesFiles")
+@pytest.mark.userfixtures("setupdb", "instrumentFiles", "responseFiles")
 class TestInsertInstrument2Database(object):
     def testInsertIsSuccesfull(self, setupdb, instrumentFiles, responseFiles):
         instruments = []
@@ -22,8 +22,7 @@ class TestInsertInstrument2Database(object):
         conn = usernameUtilities.log2nordb()
         cur = conn.cursor()
 
-        cur.execute("SELECT COUNT(*) FROM instrument") 
+        cur.execute("SELECT COUNT(*) FROM instrument")
         ans = cur.fetchone()
- 
+
         conn.close()
-   

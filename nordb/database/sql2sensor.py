@@ -38,9 +38,9 @@ SELECT_SENSORS =    (
                     "   ) "
                     )
 
-def sensors2stations(stations, station_date=datetime.datetime.now(), db_conn = None):
+def sensors2sitechans(sitechans, station_date=datetime.datetime.now(), db_conn = None):
     """
-    Function for getting all sensors quickly attached to a array of stations.
+    Function for getting all sensors quickly attached to a array of sitechans.
     """
     if db_conn is None:
         conn = usernameUtilities.log2nordb()
@@ -49,9 +49,8 @@ def sensors2stations(stations, station_date=datetime.datetime.now(), db_conn = N
 
     sitechan_ids = []
 
-    for stat in stations.values():
-        for sitechan in stat.sitechans:
-            sitechan_ids.append(sitechan.s_id)
+    for site in sitechans:
+        sitechan_ids.append(site.s_id)
 
     sitechan_ids = tuple(sitechan_ids)
 
@@ -63,14 +62,17 @@ def sensors2stations(stations, station_date=datetime.datetime.now(), db_conn = N
 
     ans = cur.fetchall()
 
+    sensors = []
+
     for a in ans:
         sensor = Sensor(a[:-1])
-        for chan in stations[a[-1]].sitechans:
+        sensors.append(sensor)
+        for chan in sitechans:
             if chan.s_id == sensor.channel_id:
                 chan.sensors.append(sensor)
 
     if len(ans) != 0:
-        sql2instrument.instruments2stations(stations,
+        sql2instrument.instruments2sensors( sensors,
                                             db_conn=conn)
 
     if db_conn is None:

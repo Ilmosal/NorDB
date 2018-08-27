@@ -9,12 +9,24 @@ import logging
 import psycopg2
 
 from nordb.database.sql2response import getResponseFromDB
-from nordb.database.sql2response import responses2stations
+from nordb.database.sql2response import responses2instruments
 from nordb.nordic.instrument import Instrument
 from nordb.core import usernameUtilities
 from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
+
+SELECT_INSTRUMENT =     (
+                        "SELECT "
+                        "   instrument_name, instrument_type, "
+                        "   band, digital, samprate, ncalib, ncalper, dir, "
+                        "   dfile, rsptype, instrument.lddate, instrument.id, "
+                        "   instrument.css_id, response_id, "
+                        "FROM "
+                        "   instrument "
+                        "WHERE "
+                        "   instrument.id = %(instrument_id)s"
+                        )
 
 SELECT_INSTRUMENTS =    (
                         "SELECT "
@@ -35,11 +47,39 @@ SELECT_INSTRUMENTS =    (
                         "   station.id = sitechan.station_id "
                         )
 
-def instruments2stations(stations, db_conn = None):
+def getInstrument(instrument_id, db_conn = None):
     """
-    Function for fetching all instrument data related to stations into the station objects.
+    Function for fetching an instrument from the database and returning it to the user.
 
-    :param Dict stations: dictionary of stations
+    :param int instrument_id: id of the instrumnent wanted
+    :param psycopg2.connection db_conn: connection object to the database
+    :returns: Instrument object
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    cur = conn.cursor()
+
+    cur.execute(SELECT_INSTRUMENT, {'instrument_id':instrument_id})
+
+    ans = cur.fetchone()
+
+    instrument = Instrument(ans)
+
+    responses2instruments([instrument], db_conn=conn)
+
+    if conn is None:
+        conn.close()
+
+    return instrument
+
+def instruments2sensors(sensors, db_conn = None):
+    """
+    Function for fetching all instrument data related to sensors to a list of sensor objects.
+
+    :param list sensor: list of sensors
     :param psycopg2.connection db_conn: connection object to the database
     """
     if db_conn is None:
@@ -49,10 +89,8 @@ def instruments2stations(stations, db_conn = None):
 
     sensor_ids = []
 
-    for stat in stations.values():
-        for sitechan in stat.sitechans:
-            for sensor in sitechan.sensors:
-                sensor_ids.append(sensor.s_id)
+    for sensor in sensors:
+        sensor_ids.append(sensor.s_id)
 
     sensor_ids = tuple(sensor_ids)
 
@@ -62,14 +100,16 @@ def instruments2stations(stations, db_conn = None):
 
     ans = cur.fetchall()
 
+    instruments = []
+
     for a in ans:
         instrument = Instrument(a[:-2])
-        for chan in stations[a[-2]].sitechans:
-            for sen in chan.sensors:
-                if sen.s_id == a[-1]:
-                    sen.instruments.append(instrument)
+        instruments.append(instrument)
+        for sen in sensors:
+            if sen.s_id == a[-1]:
+                sen.instruments.append(instrument)
 
-    responses2stations(stations, db_conn=conn)
+    responses2instruments(instruments, db_conn=conn)
 
     if db_conn is None:
         conn.close()

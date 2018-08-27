@@ -51,12 +51,15 @@ def sitechans2stations(stations, station_date, db_conn = None):
 
     ans = cur.fetchall()
 
+    sitechans = []
+
     for a in ans:
         chan = SiteChan(a)
+        sitechans.append(chan)
         stations[chan.station_id].sitechans.append(chan)
 
     if len(ans) != 0:
-        sql2sensor.sensors2stations(stations, station_date, db_conn = conn)
+        sql2sensor.sensors2sitechans(sitechans, station_date, db_conn = conn)
 
     if db_conn is None:
         conn.close()
