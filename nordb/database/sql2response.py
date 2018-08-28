@@ -168,6 +168,7 @@ def responses2instruments(instruments, db_conn = None):
     for instrument in instruments:
         response_ids.append(instrument.response_id)
 
+
     response_ids = tuple(response_ids)
 
     if len(response_ids) == 0:

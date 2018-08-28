@@ -21,7 +21,7 @@ SELECT_INSTRUMENT =     (
                         "   instrument_name, instrument_type, "
                         "   band, digital, samprate, ncalib, ncalper, dir, "
                         "   dfile, rsptype, instrument.lddate, instrument.id, "
-                        "   instrument.css_id, response_id, "
+                        "   instrument.css_id, response_id "
                         "FROM "
                         "   instrument "
                         "WHERE "
@@ -65,6 +65,11 @@ def getInstrument(instrument_id, db_conn = None):
     cur.execute(SELECT_INSTRUMENT, {'instrument_id':instrument_id})
 
     ans = cur.fetchone()
+
+    if ans is None:
+        if conn is None:
+            conn.close()
+        return None
 
     instrument = Instrument(ans)
 

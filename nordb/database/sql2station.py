@@ -67,12 +67,42 @@ SELECT_STATIONS_CODE =  (
                         "   network_id = network.id "
                         )
 
+ALL_STATION_CODES = (
+                    "SELECT "
+                    "   station_code "
+                    "FROM "
+                    "   station "
+                    "ORDER BY "
+                    "   station_code"
+                    )
+
 SELECT_ALL_STATION_IDS =    (
                             "SELECT "
                             "   station.id "
                             "FROM "
                             "   station "
                             )
+
+def getStationCodes(db_conn = None):
+    """
+    Function for reading all station_codes from the database.
+
+    :param psycopg2.connection db_conn: Connection object to the database
+    :returns: Array of strings
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+    cur = conn.cursor()
+
+    cur.execute(ALL_STATION_CODES)
+
+    ans = cur.fetchall()
+
+    stations = [stat[0] for stat in ans]
+
+    return stations
 
 def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
     """
