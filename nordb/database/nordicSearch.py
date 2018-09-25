@@ -172,11 +172,8 @@ class NordicSearch:
             conn = usernameUtilities.log2nordb()
         else:
             conn = db_conn
-        event_ids = self.searchEventIdAndDate(db_conn = conn)
-        events = []
-
-        for e_id in event_ids:
-            events.append(sql2nordic.getNordic(e_id[0], db_conn=conn))
+        event_ids = self.searchEventIds(db_conn = conn)
+        events = sql2nordic.getNordic(event_ids, db_conn = conn)
 
         if db_conn is None:
             conn.close()

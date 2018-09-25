@@ -21,7 +21,7 @@ SELECT_QUERY =   {
                     "   id, root_id, creation_id, nordic_file_id, solution_type, author_id "
                     "FROM "
                     "   nordic_event "
-                    "WHERE id = %s"
+                    "WHERE id in %s"
                     ),
                   1:(
                     "SELECT "
@@ -36,7 +36,7 @@ SELECT_QUERY =   {
                     "FROM "
                     "   nordic_header_main "
                     "WHERE "
-                    "   event_id = %s"
+                    "   event_id in %s"
                     ),
                   2:(
                     "SELECT "
@@ -50,7 +50,7 @@ SELECT_QUERY =   {
                     "FROM "
                     "   nordic_header_macroseismic "
                     "WHERE "
-                    "   event_id = %s"
+                    "   event_id in %s"
                     ),
                   3:(
                     "SELECT "
@@ -58,16 +58,19 @@ SELECT_QUERY =   {
                     "FROM "
                     "   nordic_header_comment "
                     "WHERE "
-                    "   event_id = %s"
+                    "   event_id in %s"
                     ),
                   5:(
                     "SELECT "
                     "   gap, second_error, epicenter_latitude_error, epicenter_longitude_error, "
-                    "   depth_error, magnitude_error, header_id, id "
+                    "   depth_error, magnitude_error, nordic_header_error.header_id, "
+                    "   nordic_header_error.id, event_id "
                     "FROM "
-                    "   nordic_header_error "
+                    "   nordic_header_error, nordic_header_main "
                     "WHERE "
-                    "   header_id = %s"
+                    "   header_id in %s "
+                    "AND "
+                    "   header_id = nordic_header_main.id "
                     ),
                   6:(
                     "SELECT "
@@ -75,7 +78,7 @@ SELECT_QUERY =   {
                     "FROM "
                     "   nordic_header_waveform "
                     "WHERE "
-                    "   event_id = %s"
+                    "   event_id in %s"
                     ),
                   8:(
                     "SELECT "
@@ -88,7 +91,7 @@ SELECT_QUERY =   {
                     "FROM "
                     "   nordic_phase_data "
                     "WHERE "
-                    "   event_id = %s"
+                    "   event_id in %s"
                     )
                 }
 
@@ -157,36 +160,12 @@ def getNordicsRoot(root_id, db_conn = None):
 
     e_ids = [e_id[0] for e_id in e_ids]
 
-    nordics = getNordics(e_ids, db_conn = conn)
+    nordics = getNordic(e_ids, db_conn = conn)
 
     if db_conn is None:
         conn.close()
 
     return nordics
-
-def getNordics(event_ids, db_conn = None):
-    """
-    Method for getting multiple nordics from the database with a event_id array.
-
-    :param Array event_ids: Array of event id integers you want as events
-    :returns: Array of NordicEvent objects
-    """
-    if db_conn is None:
-        conn = usernameUtilities.log2nordb()
-    else:
-        conn = db_conn
-
-    events = []
-
-    for e_id in event_ids:
-        event = getNordic(e_id, db_conn = conn)
-        if event is not None:
-            events.append(event)
-
-    if db_conn is None:
-        conn.close()
-
-    return events
 
 def getNordic(event_id, db_conn = None):
     """
@@ -201,55 +180,77 @@ def getNordic(event_id, db_conn = None):
         conn = db_conn
     cur = conn.cursor()
 
-    cur.execute(SELECT_QUERY[0], (event_id,))
-    n_events = cur.fetchone()
+    if isinstance(event_id, int):
+        event_ids = tuple([event_id])
+    elif isinstance(event_id, list):
+        event_ids = tuple(event_id)
+    else:
+        conn.close()
+        raise Exception('event_id is not in a integer or list!')
+
+    if len(event_ids) == 0:
+        if db_conn is None:
+            conn.close()
+        return []
+
+    cur.execute(SELECT_QUERY[0], (event_ids,))
+    n_events = cur.fetchall()
 
     if not n_events:
         if db_conn is None:
             conn.close()
-        return None
+        return []
 
-    event = NordicEvent(event_id, n_events[1], n_events[2], n_events[4])
+    nordic_events = {}
 
-    cur.execute(SELECT_QUERY[NordicMain.header_type], (event_id,))
+    for n_event in n_events:
+        nordic_events[n_event[0]] = NordicEvent(n_event[0], n_event[1], n_event[2], n_event[4])
+
+    cur.execute(SELECT_QUERY[NordicMain.header_type], (event_ids,))
+    ans = cur.fetchall()
+
+    main_ids = []
+
+    for a in ans:
+       nordic_events[a[-2]].main_h.append(NordicMain(a))
+       main_ids.append(a[-1])
+
+    main_ids = tuple(main_ids)
+
+    cur.execute(SELECT_QUERY[NordicMacroseismic.header_type], (event_ids,))
     ans = cur.fetchall()
 
     for a in ans:
-        event.main_h.append(NordicMain(a))
+        nordic_events[a[-2]].macro_h.append(NordicMacroseismic(a))
 
-    cur.execute(SELECT_QUERY[NordicMacroseismic.header_type], (event_id,))
+    cur.execute(SELECT_QUERY[NordicComment.header_type], (event_ids,))
     ans = cur.fetchall()
 
     for a in ans:
-        event.macro_h.append(NordicMacroseismic(a))
+        nordic_events[a[-2]].comment_h.append(NordicComment(a))
 
-    cur.execute(SELECT_QUERY[NordicComment.header_type], (event_id,))
+    cur.execute(SELECT_QUERY[NordicError.header_type], (main_ids, ))
     ans = cur.fetchall()
 
     for a in ans:
-        event.comment_h.append(NordicComment(a))
+        for main_h in nordic_events[a[-1]].main_h:
+            if main_h.h_id == a[-2]:
+                main_h.error_h = NordicError(a[:-1])
+                break
 
-    for main_h in event.main_h:
-        cur.execute(SELECT_QUERY[5], (main_h.h_id,))
-        ans = cur.fetchone()
-
-        if ans is not None:
-            main_h.error_h = NordicError(ans)
-
-    cur.execute(SELECT_QUERY[NordicWaveform.header_type], (event_id,))
+    cur.execute(SELECT_QUERY[NordicWaveform.header_type], (event_ids,))
     ans = cur.fetchall()
 
     for a in ans:
-        event.waveform_h.append(NordicWaveform(a))
+        nordic_events[a[-2]].waveform_h.append(NordicWaveform(a))
 
-    cur.execute(SELECT_QUERY[NordicData.header_type], (event_id,))
+    cur.execute(SELECT_QUERY[NordicData.header_type], (event_ids,))
     ans = cur.fetchall()
 
     for a in ans:
-        event.data.append(NordicData(a))
+        nordic_events[a[-2]].data.append(NordicData(a))
 
     if db_conn is None:
         conn.close()
 
-    return event
-
+    return list(nordic_events.values())
