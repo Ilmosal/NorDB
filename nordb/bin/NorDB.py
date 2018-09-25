@@ -336,9 +336,12 @@ def search(repo, output_format, verbose, output, event_root, criteria):
         click.echo("Event Search \nCriteria: \n{0}".format(search.getCriteriaString()[:-1]))
     else:
         click.echo("All events")
-    help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP"
-    click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
-    click.echo((type_len+id_len+len(help_string)+5)*"-")
+
+    if (not verbose):
+        help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP"
+        click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
+        click.echo((type_len+id_len+len(help_string)+5)*"-")
+
     root_id = -1
     for e in events:
         if root_id != e.root_id:
