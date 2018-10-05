@@ -32,6 +32,8 @@ SELECT_SITECHAN_OF_STATIONS =   (
                                     "        sitechan.off_date IS NULL) "
                                     "   ) "
                                 )
+def getFreeCSSSitechanID():
+    pass
 
 def sitechans2stations(stations, station_date, db_conn = None):
     """

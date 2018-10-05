@@ -127,9 +127,6 @@ def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
 
     stations = getStations(station_ids, station_date, db_conn=conn)
 
-    for stat in stations:
-        print(stat)
-
     if db_conn is None:
         conn.close()
 

@@ -47,6 +47,9 @@ SELECT_INSTRUMENTS =    (
                         "   station.id = sitechan.station_id "
                         )
 
+def getFreeCSSInstrumentID():
+    pass
+
 def getInstrument(instrument_id, db_conn = None):
     """
     Function for fetching an instrument from the database and returning it to the user.
