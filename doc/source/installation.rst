@@ -1,13 +1,19 @@
 ============
 Installation
 ============
-First download or clone the program from the `Github page`_. After fetching, it to a location of your choosing run::
+First download or clone the program from the `Github page`_. Remember that NorDB requires Python3. After fetching it to a location of your choosing run the next command in the projects root folder::
     
-    pip install --editable .
+    pip install --user .
 
-on the main folder which contains the setup.py file. This should also install all relevant python libraries for the program. You might need sudo rights for the installation. You can also use the programs commandline tool by executing the NorDB/nordb/bin/NorDB.py file. 
+or just::
 
-After installing run the command::
+    pip install .
+
+if your are using pyenv or some other virtual python environment
+
+This also installs all relevant python libraries for the program. 
+
+After installation run the command::
     
     nordb
 
@@ -19,15 +25,38 @@ Before you can do anything with the NorDB program you have to initialise postgre
 
 Initialising NorDB 
 ------------------
-Before doing anything you have to initialise the database. This can be done in following way. First you have to initialise the username file to tell your username for the program::
+Before doing anything you have to initialise the database. First you have to configure your database for the program::
 
-    nordb conf --username <your postgres username>
+    nordb conf add
 
-This creates a username file in the program so you don't have to give the program your username all the time. Then you have to create the database::
+If your want to use a local database, the configuration should be the following::
+
+    Configuration name: my_db_config_name (This can be anything, but you should avoid spaces)
+    Database name: nordb (The database can have an other name, but this is not supported yet)
+    Username: my_postgresql_username (your postgresql username that is allowed to create)
+    Password: my_postgresql_password (This password is not safe, so you should avoid using any real passwords until a safe method for password safekeeping is found)
+    Location: local
+
+Then change your current config into your newly created one::
+
+    nordb conf change my_db_config_name
+
+
+Then you need to create the database::
 
     nordb create
 
-At this point you should be ready to use the Program.
+If your organization has already a nordb database running on a computer, you can just configure your connection to that::
+
+    Configuration name: my_db_config_name (This can be anything, but you should avoid spaces)
+    Database name: organization_db_name (Usually just nordb)
+    Username: my_postgresql_username (Your database username. Ask your nordb admin to create one for you)
+    Password: my_postgresql_password (Remainder: This password is not safe yet)
+    Location: remote
+    Host Ip: ip_of_hosting_computer
+    Host port: host port (Usually 5432)
+
+At this point you should be ready to use the database.
 
 .. _Github page: https://github.com/MrCubanfrog/NorDB
 .. _Here: https://wiki.postgresql.org/wiki/Detailed_installation_guides

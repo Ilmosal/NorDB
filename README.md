@@ -3,17 +3,17 @@
 
 Database project for reading seismic data from .nordic files into a postgres database.
 
+## Documentation
+
+NorDBs documentation is located in the documentation page [here](https://nordb.readthedocs.io/en/latest/index.html)
+
 ## Installation
 
 NorDB works with only with python 3.2=> so remember to install your most recent python version. Clone the module to somewhere, go into its root folder and run
 
 > pip install --user .
 
-This should install the module correctly. If you want to build the documentation just run the build\_docs.sh script to build the documentation page for this project. The documentation will be located in the docs folder. To open the index page for the project just open the file /docs/build/index.html with your preferred browser. 
-
-> ./build_docs.sh
-> firefox docs/build/index.html
-
+This should install the module correctly. 
 
 ## Database
 
