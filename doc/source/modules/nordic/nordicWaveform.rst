@@ -1,5 +1,5 @@
 ==============
 NordicWaveform
 ==============
-.. automodule:: nordb.nordic.nordicWaveform
+.. automodule:: nordic.nordicWaveform
     :members:

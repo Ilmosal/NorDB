@@ -1,5 +1,5 @@
 ========
 Response
 ========
-.. automodule:: nordb.nordic.response
+.. automodule:: nordic.response
     :members:

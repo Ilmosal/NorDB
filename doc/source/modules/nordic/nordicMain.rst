@@ -1,5 +1,5 @@
 ==========
 NordicMain
 ==========
-.. automodule:: nordb.nordic.nordicMain
+.. automodule:: nordic.nordicMain
     :members:

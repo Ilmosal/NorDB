@@ -1,6 +1,6 @@
 =================
 UsernameUtilities
 =================
-.. automodule:: nordb.core.usernameUtilities
+.. automodule:: core.usernameUtilities
     :members:
 

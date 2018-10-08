@@ -1,5 +1,5 @@
 ===========
 NordicEvent
 ===========
-.. automodule:: nordb.nordic.nordicEvent
+.. automodule:: nordic.nordicEvent
     :members:

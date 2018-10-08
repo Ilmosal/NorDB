@@ -1,5 +1,5 @@
 ==========
 NordicData
 ==========
-.. automodule:: nordb.nordic.nordicData
+.. automodule:: nordic.nordicData
     :members:

@@ -1,7 +1,7 @@
 ========
 Binaries
 ========
-.. automodule:: nordb.bin
+.. automodule:: bin
 
 .. toctree::
     :maxdepth: 1

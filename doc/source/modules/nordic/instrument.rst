@@ -1,5 +1,5 @@
 ==========
 Instrument
 ==========
-.. automodule:: nordb.nordic.instrument
+.. automodule:: nordic.instrument
     :members:

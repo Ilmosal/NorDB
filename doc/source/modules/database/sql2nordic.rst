@@ -1,5 +1,5 @@
 ==========
 Sql2Nordic
 ==========
-.. automodule:: nordb.database.sql2nordic
+.. automodule:: database.sql2nordic
     :members:

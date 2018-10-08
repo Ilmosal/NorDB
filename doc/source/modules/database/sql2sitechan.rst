@@ -1,5 +1,5 @@
 ============
 Sql2Sitechan
 ============
-.. automodule:: nordb.database.sql2sitechan
+.. automodule:: database.sql2sitechan
     :members:

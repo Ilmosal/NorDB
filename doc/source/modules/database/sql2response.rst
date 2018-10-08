@@ -1,5 +1,5 @@
 ============
 Sql2Response
 ============
-.. automodule:: nordb.database.sql2response
+.. automodule:: database.sql2response
     :members:

@@ -1,7 +1,7 @@
 ======
 Nordic
 ======
-.. automodule:: nordb.nordic
+.. automodule:: nordic
 
 .. toctree::
     :maxdepth: 1

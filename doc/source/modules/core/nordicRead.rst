@@ -1,6 +1,6 @@
 ==========
 NordicRead
 ==========
-.. automodule:: nordb.core.nordicRead
+.. automodule:: core.nordicRead
     :members:
 

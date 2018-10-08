@@ -1,5 +1,5 @@
 =============
 NordicComment
 =============
-.. automodule:: nordb.nordic.nordicComment
+.. automodule:: nordic.nordicComment
     :members:

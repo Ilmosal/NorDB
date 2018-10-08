@@ -1,5 +1,5 @@
 ============
 Abreviations
 ============
-.. automodule:: nordb.core.abbreviations
+.. automodule:: core.abbreviations
     :members:

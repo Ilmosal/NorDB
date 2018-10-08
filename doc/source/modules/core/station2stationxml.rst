@@ -1,5 +1,5 @@
 ==================
 Station2StationXML
 ==================
-.. automodule:: nordb.core.station2stationxml
+.. automodule:: core.station2stationxml
     :members:

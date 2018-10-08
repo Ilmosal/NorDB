@@ -1,5 +1,5 @@
 ========
 Networks
 ========
-.. automodule:: nordb.database.networks
+.. automodule:: database.networks
     :members:

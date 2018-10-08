@@ -1,5 +1,5 @@
 ==================
 NordicMacroseismic
 ==================
-.. automodule:: nordb.nordic.nordicMacroseismic
+.. automodule:: nordic.nordicMacroseismic
     :members:

@@ -1,5 +1,5 @@
 ========
 SiteChan  
 ========
-.. automodule:: nordb.nordic.sitechan
+.. automodule:: nordic.sitechan
     :members:

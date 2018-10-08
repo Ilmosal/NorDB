@@ -1,5 +1,5 @@
 ===============
 NorDBManagement
 ===============
-.. automodule:: nordb.database.norDBManagement
+.. automodule:: database.norDBManagement
    :members:

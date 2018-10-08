@@ -1,5 +1,5 @@
 =====
 Utils
 =====
-.. automodule:: nordb.core.utils
+.. automodule:: core.utils
     :members:

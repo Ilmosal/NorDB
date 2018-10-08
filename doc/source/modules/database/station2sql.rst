@@ -1,5 +1,5 @@
 ===========
 Station2Sql
 ===========
-.. automodule:: nordb.database.station2sql
+.. automodule:: database.station2sql
     :members:

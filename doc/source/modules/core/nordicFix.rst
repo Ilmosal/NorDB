@@ -1,6 +1,6 @@
 =========
 NordicFix
 =========
-.. automodule:: nordb.core.nordicFix
+.. automodule:: core.nordicFix
     :members:
 

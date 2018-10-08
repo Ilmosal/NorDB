@@ -1,5 +1,5 @@
 =======
 ResetDB
 =======
-.. automodule:: nordb.database.resetDB
+.. automodule:: database.resetDB
     :members:

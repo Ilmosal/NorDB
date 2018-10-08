@@ -1,7 +1,7 @@
 ====
 Core
 ====
-.. automodule:: nordb.core
+.. automodule:: core
 
 .. toctree::
     :maxdepth: 1

@@ -1,5 +1,5 @@
 ======
 Sensor
 ======
-.. automodule:: nordb.nordic.sensor
+.. automodule:: nordic.sensor
     :members:

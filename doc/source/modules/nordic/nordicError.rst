@@ -1,5 +1,5 @@
 ===========
 NordicError
 ===========
-.. automodule:: nordb.nordic.nordicError
+.. automodule:: nordic.nordicError
     :members:

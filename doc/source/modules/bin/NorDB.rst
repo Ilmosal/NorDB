@@ -1,5 +1,5 @@
 =====
 NorDB
 =====
-.. automodule:: nordb.bin.NorDB
+.. automodule:: bin.NorDB
     :members:

@@ -1,5 +1,5 @@
 ====
 Misc
 ====
-.. automodule:: nordb.nordic.misc
+.. automodule:: nordic.misc
     :members:

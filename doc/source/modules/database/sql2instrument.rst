@@ -1,5 +1,5 @@
 ==============
 Sql2Instrument
 ==============
-.. automodule:: nordb.database.sql2instrument
+.. automodule:: database.sql2instrument
     :members:

@@ -1,6 +1,6 @@
 ============
 NordicSearch
 ============
-.. automodule:: nordb.database.nordicSearch
+.. automodule:: database.nordicSearch
     :members:
 

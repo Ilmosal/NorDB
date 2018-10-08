@@ -1,6 +1,6 @@
 ============
 NordicModify
 ============
-.. automodule:: nordb.database.nordicModify
+.. automodule:: database.nordicModify
     :members:
 

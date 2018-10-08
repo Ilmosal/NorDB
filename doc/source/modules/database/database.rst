@@ -1,7 +1,7 @@
 ========
 Database
 ========
-.. automodule:: nordb.database
+.. automodule:: database
 
 .. toctree::
     :maxdepth: 1

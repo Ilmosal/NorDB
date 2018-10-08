@@ -1,5 +1,5 @@
 ===============
 ValidationTools
 ===============
-.. automodule:: nordb.core.validationTools
+.. automodule:: core.validationTools
     :members:

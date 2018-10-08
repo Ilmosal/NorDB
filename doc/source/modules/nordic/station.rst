@@ -1,5 +1,5 @@
 =======
 Station   
 =======
-.. automodule:: nordb.nordic.station
+.. automodule:: nordic.station
     :members:
