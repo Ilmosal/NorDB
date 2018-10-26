@@ -8,7 +8,7 @@ The NorDB database runs on postgres and is created by the terminal command::
     
     nordb create
 
-The name of the database is nordb and it can be easily accessed with the postgres terminal based front-end psql::
+The name of the database is nordb and it can be easily accessed with the postgresql commandline tool psql::
     
     psql nordb
 

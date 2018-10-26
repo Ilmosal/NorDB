@@ -171,10 +171,9 @@ def removeuser(repo, username):
 @click.option('--verbose', '-v', is_flag=True, help="Print the whole nordic file instead of the main header.")
 @click.option('--output', '-o', type=click.Path(writable=True), help="file to which all events found are appended")
 @click.option('--output-format', '-f', default="n", type = click.Choice(["n", "q", "sc3"]))
-@click.option('--event-root', '-r', is_flag=True)
 @click.argument("criteria", nargs=-1, type=click.STRING)
 @click.pass_obj
-def search(repo, output_format, verbose, output, event_root, criteria):
+def search(repo, output_format, verbose, output, criteria):
     """
     This command searches for events by given criteria and prints them to the screen. Output works in a following way:
 
@@ -375,6 +374,9 @@ def search(repo, output_format, verbose, output, event_root, criteria):
                 type=click.Choice(['list', 'add', 'remove']))
 @click.pass_obj
 def network(repo, network_command):
+    """
+    Command for managing networks. Argument 'list' lists all current network in the database, 'add' adds a new one and 'remove' removes an existing one.
+    """
     if network_command in ['list']:
         click.echo("Networks: ")
         for n in networks.getNetworks():
@@ -399,7 +401,7 @@ def network(repo, network_command):
             click.echo("Network {0} doesn't exist!".format(network_name))
             return
 
-        networks.removeNetwork(network_name, privacy_level)
+        networks.removeNetwork(network_name)
 
 @cli.command('insertresp', short_help = "insert response files")
 @click.argument('response_file',

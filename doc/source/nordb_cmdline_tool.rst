@@ -124,6 +124,11 @@ Nordb get will append the correct filename extension to your output-name, which 
 
 Getresp - Get response files from the database
 ----------------------------------------------
+Get response file from the database by id and write it to a file::
+
+    nordb getresp [OPTIONS] FILENAME RESPONSE_ID
+
+This requires you to know the id of the response, which in it's current form is hard to find. Hopefully this will be solved later.
 
 Getsta - Get station files from the database
 --------------------------------------------
@@ -143,7 +148,7 @@ This command is the main way of adding nordic files to the nordb database. It on
 
 SOLUTION_TYPE tells the command the type of the solution of the nordic files to be pushed into the database. Filenames refer to all files that will be read and pushed to the database.
 
-The options for nordb insert are
+The options for nordb insert are:
 
     - -nf/--nofix
     - -ig/--ignore-duplicates
@@ -154,21 +159,62 @@ The options for nordb insert are
 
 Insertresp - Insert response files to the database
 --------------------------------------------------
+Add a response file to the database. Currently it only reads responses in FAP or PAZ response format. You can give the command any amount of response files you want.
 
 Insersta - Insert station files to the database
 -----------------------------------------------
+This command adds a site file to the database. If you have a collection of station related information in CSS3.0 format(site, sitechan, sensor, instrument) you can add all of them by naming them similarly and using the correct filename extensions (for example station_network.site, station_network.sitechan, station_network.sensor, station_network.instrument) and using the -a/--all_files flag for the insert command.::
+
+    nordb insertsta [OPTIONS] STATION_FILE [NETWORK]
+
+The options for nordb insertsta are:
+    -a, --all-files 
+
+NETWORK tells the program to which network you want to add the files. Make sure they already exists with network command
 
 Network - Manage station Networks
 ---------------------------------
+This command is for managing station networks. Argument 'list' lists all existing networks. Argument 'add' adds a new network to the database. Argument 'remove' removes a network from database. Both 'add' and 'remove' command are interactive so no further arguments are needed. 'add' command also asks for the privacy level of the network. See more information about privacy levels in the 'Database Structure' page.::
+
+    nordb network [OPTIONS] NETWORK_COMMAND
 
 Removeuser - Remove users from the database
 -------------------------------------------
+This command removes a user from the database.You have to be admin to run this command and you cannot remove the database owner with the command. Give the username of the user to be removed as a parameter to the command.::
+
+    nordb removeuser [OPTIONS] USERNAME
 
 Reset - Reset database 
 ----------------------
+Resets the database to it's orginal form but keeps the tables intact. WARNING: this command will delete all information in the database. Possible options for RESET_TYPE: 'all', 'events', 'stations'. Defaults to resetting everything::
+
+    nordb reset [OPTIONS] [RESET_TYPE]
 
 Search - Search for events in the database
 ------------------------------------------
+Search database for events. Search command without any parameters will print out all events in the database so be careful with your queries if you have a lot of events in a database.::
+
+    nordb search [OPTIONS] [CRITERIA]...
+
+search command options are: 
+    - -v/--verbose: Print the whole nordic file in search instead of only the main header
+    - -o/--output: path to a file to which all the events which fall under your query will be written into
+    - -f/--output-format: Format of the output. Either nordic, quakeml or sc3 format. Defaults to nordic('n', 'q', 'sc3')  
+
+You can give as many criteria for the command as you want, but multiples of same type of criteria don't work yet. The possible search parameters are with their possible abbreviations:
+
+    - origin_date: origin_date, date, d
+    - origin_time: origin_time, time, t
+    - epicenter_latitude: epicenter_latitude, latitude, la 
+    - epicenter_longitude: epicenter_longitude, longitude, lo
+    - magnitude_1: magnitude_1, magnitude, mag, ma, m
+    - depth: depth, de
+    - solution_type: solution_type, st
+    - distance_indicator: distance_indicator, di
+    - event_desc_id: event_desc_id, ed, eid 
+    - event_id: event_id, id
+
+
 
 Stype - Manage database solution types
 --------------------------------------
