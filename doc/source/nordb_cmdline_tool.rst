@@ -201,21 +201,50 @@ search command options are:
     - -o/--output: path to a file to which all the events which fall under your query will be written into
     - -f/--output-format: Format of the output. Either nordic, quakeml or sc3 format. Defaults to nordic('n', 'q', 'sc3')  
 
-You can give as many criteria for the command as you want, but multiples of same type of criteria don't work yet. The possible search parameters are with their possible abbreviations:
+You can give as many criteria for the command as you want, but multiples of same type of criteria don't work yet. There are four types of searches you can do: exact, upper-bound, lower-bound and inbetween searches. The syntax for those are:
 
-    - origin_date: origin_date, date, d
-    - origin_time: origin_time, time, t
-    - epicenter_latitude: epicenter_latitude, latitude, la 
-    - epicenter_longitude: epicenter_longitude, longitude, lo
-    - magnitude_1: magnitude_1, magnitude, mag, ma, m
-    - depth: depth, de
-    - solution_type: solution_type, st
-    - distance_indicator: distance_indicator, di
-    - event_desc_id: event_desc_id, ed, eid 
-    - event_id: event_id, id
+    - exact: value=10 -> Everything that has exactly a value of 10
+    - upper-bound: value=10- -> Everything that has value lower than 10
+    - lower-bound: value=10+ -> Everything that has value higher than 10
+    - inbetween: value=10-15 -> Everything with their value being between the range of 10 and 15
 
+The possible search parameters are with their possible abbreviations:
 
+origin_date: origin_date, date or d
+Search for events that happened on a certain date range. Syntax for date can either be in form of 'date=29.08.2015' or in julian date form 'd=2015013'
+
+origin_time: origin_time, time or t
+Search for events that happened on a certain time frame. Syntax for time can be like 'origin_time=16:12:01', 'time=16:12' without the seconds or 't=16' only with the hour.
+
+epicenter_latitude: epicenter_latitude, latitude, la 
+Search for events with latitude. Syntax for latitude will always be a float: 'latitude=30.123+'
+
+epicenter_longitude: epicenter_longitude, longitude, lo
+Search for events with longitude. Syntax for longitude will always be a float: 'lo=60.312-'
+
+magnitude_1: magnitude_1, magnitude, mag, ma, m
+Search for events with magnitude. Syntax for magnitude will always be a float 'mag=3.0-5.0'
+
+depth: depth, de
+Search for events with depth. Syntax for depth will always be a float 'de=5.0+'
+
+solution_type: solution_type, st
+Searh for events with solution type. This will be one of the allowed solution type characters(see Database structure): 'st=A'
+
+distance_indicator: distance_indicator, di
+Search for events with distance indicator. This can be one of allowed distance indicator characters(See Nordic format): 'di=L'
+
+event_desc_id: event_desc_id, ed, eid 
+Search for events with event description id. This can be one of allowed event description id characters(See Nordic Format): 'eid=Q'
+
+event_id: event_id, id
+Search for events with their event id. This will be a integer value: 'id=74123'
 
 Stype - Manage database solution types
 --------------------------------------
+This command lets you manage your event solution types with one command. You can list add or remove solution types by using option flags for the command and then the command prompts the user for all necessary values. Possible options for the command are:
+
+    - -l/--list: List all existing solution types
+    - -r/--remove: Remove an existing solution type from the database
+    - -a/--add: Add a new solution type to the database
 
