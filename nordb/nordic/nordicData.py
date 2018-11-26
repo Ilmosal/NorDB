@@ -141,14 +141,14 @@ class NordicData:
 
     @sp_instrument_type.setter
     def sp_instrument_type(self, val):
-        val_sp_instrument_type = validateString(val, "sp_instrument_type", 0, 1, "LSBHE", self.header_type)
+        val_sp_instrument_type = validateString(val, "sp_instrument_type", 0, 1, "LSBHEPD", self.header_type)
         self._sp_instrument_type = val_sp_instrument_type
 
     sp_component = property(operator.attrgetter('_sp_component'), doc="")
 
     @sp_component.setter
     def sp_component(self, val):
-        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH12VRT", self.header_type)
+        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH12VRTP", self.header_type)
         self._sp_component = val_sp_component
 
     quality_indicator = property(operator.attrgetter('_quality_indicator'), doc="")

@@ -141,7 +141,8 @@ class NordicEvent:
                                                     self.main_h[0].origin_time),
                                   self.main_h[0].error_h.second_error)
             else:
-                return OriginTime(self.main_h[0].origin_time)
+                return OriginTime(datetime.combine( self.main_h[0].origin_date,
+                                                    self.main_h[0].origin_time))
         return None
 
     def getMagnitude(self):
@@ -236,7 +237,7 @@ class NordicEvent:
 
     def insert2DB(self, solution_type= "O", filename = None, creation_id = None, e_id = -1):
         """
-        Wrapper method for event2Database function. Works exactly the same exept this pushes this event to the database.
+        Wrapper method for event2Database function. Works exactly the same as the latter function except this method pushes only this event to the database.
 
         :param str solution_type: solution type of the event. Default is O
         :param str filename: name of the file that created this event. Default is None
