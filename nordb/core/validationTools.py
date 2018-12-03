@@ -223,10 +223,12 @@ def validateTime(time_string, time_name, n_type):
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a time or None if it's empty
     """
-    if time_string == "" or time_string == None:
+    if time_string == None:
         return None
     if type(time_string) is time:
         return time_string
+    if type(time_string) is str and time_string.strip() == "":
+        return None
     try:
         new_time = time(hour=int(time_string[:2]),
                         minute=int(time_string[2:4]),

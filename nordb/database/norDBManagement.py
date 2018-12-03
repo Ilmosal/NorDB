@@ -19,6 +19,18 @@ BACKUP_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(_
 from nordb.core import usernameUtilities
 from nordb import settings
 
+def databaseIsRunning():
+    """
+    Function for checking out if database is running and can be connected to
+
+    :returns: True if database is running
+    """
+    try:
+        conn = usernameUtilities.log2nordb()
+    except:
+        return False
+    return True
+
 def checkPermissions(required_role, db_conn = None):
     """
     Function that checks the owner level of the current user and returns this.

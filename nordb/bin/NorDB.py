@@ -756,12 +756,13 @@ def stype(repo, stype_option):
 @click.option('--ignore-duplicates', '-ig', is_flag=True, help="In case of a duplicate event, ignore the new event")
 @click.option('--no-duplicates', '-n', is_flag=True, help="Inform the program that there are no duplicate events, add all as new events with new root ids")
 @click.option('--add-automatic', '-a', is_flag=True, help="In case of duplicate events, the event will be added automatically to the first event found. All similar events will be ignored")
+@click.option('--force-add', '-f', is_flag=True)
 @click.option('--verbose', '-v', is_flag=True, help="print all errors to screen instead of errorlog")
 @click.argument('privacy-level', required=True, type=click.Choice(['private', 'public', 'secure']))
 @click.argument('solution-type', required=True)
 @click.argument('filenames', required=True, nargs=-1, type=click.Path(exists=True, readable=True))
 @click.pass_obj
-def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, filenames, verbose, privacy_level):
+def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, force_add, filenames, verbose, privacy_level):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event."""
     conn = usernameUtilities.log2nordb()
     for filename in filenames:
@@ -787,9 +788,8 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
 
         creation_id = creationInfo.createCreationInfo(privacy_level, db_conn=conn)
         for nord in nordic_events:
-
             event_id = -1
-            if not no_duplicates and nord.root_id != -1:
+            if not no_duplicates and nord.root_id == -1:
                 same_events = nordicSearch.searchSameEvents(nord)
                 if add_automatic and same_events:
                     event_id = same_events[0].event_id
@@ -813,33 +813,39 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             break
                         except:
                             click.echo("Not a valid id!")
-
                 if event_id == -1 and not add_automatic:
                     similar_events = nordicSearch.searchSimilarEvents(nord)
+                    print(similar_events)
 
                     if similar_events:
                         if ignore_duplicates:
                             click.echo("Duplicate found! Ignoring event:\n{0}".format(nord.main_h[0]))
                             continue
 
-                        click.echo("Similar events to current found! Is any of these a duplicate of yours?")
-                        click.echo("{0} (Yours)".format(nord.main_h[0]))
-                        click.echo("-----------------------------------------------------------------------------------------")
-                        root_id = -1
-                        for e in same_events:
-                            if root_id != e.root_id:
-                                root_id = e.root_id
-                                click.echo("Root id: {0}".format(root_id))
-                            click.echo(" id: {0} - {1}".format(e.event_id, e.main_h[0]))
-                        while True:
-                            try:
-                                event_id = int(input("Event id of the same event: "))
-                                break
-                            except:
-                                click.echo("Not a valid id!")
+                        if force_add:
+                            click.echo(similar_events[0].main_h[0])
+                            root_id = similar_events[0].root_id
+                        else:
+                            click.echo("Similar events to current found! Is any of these a duplicate of yours?")
+                            click.echo("{0} (Yours)".format(nord.main_h[0]))
+                            click.echo("-----------------------------------------------------------------------------------------")
+                            root_id = -1
+                            print(similar_events)
+                            for e in similar_events:
+                                if root_id != e.root_id:
+                                    root_id = e.root_id
+                                    click.echo("Root id: {0}".format(root_id))
+                                click.echo(" id: {0} - {1}".format(e.event_id, e.main_h[0]))
+                            while True:
+                                try:
+                                    event_id = int(input("Event id of the same event: "))
+                                    break
+                                except:
+                                    click.echo("Not a valid id!")
 
             try:
-                nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id, db_conn=conn)
+                pass
+                #nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id, db_conn=conn)
             except Exception as e:
                 click.echo("Error pushing nordic to database: {0}".format(e))
                 click.echo(nord.main_h[0])
@@ -857,8 +863,8 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                 failed.write("\n")
 
         f_nordic.close()
-        conn.commit()
-        conn.close()
+    conn.commit()
+    conn.close()
 
 @cli.command('create', short_help='create database')
 @click.pass_obj
