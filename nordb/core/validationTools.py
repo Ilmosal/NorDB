@@ -130,6 +130,7 @@ def validateString(string, string_name, minlen, maxlen, list_of_allowed, n_type)
     if type(string) is not str:
         msg = "Validation Error - {0}: {1} is of wrong type! ({2})"
         raise Exception(msg.format(n_types[n_type], string_name, type(string)))
+    string = string.strip()
 
     if list_of_allowed is not None and string not in list_of_allowed:
         msg = "Validation Error - {0}: {1} not in the list of allowed strings! ({2})\nAllowed:\n"
@@ -191,12 +192,14 @@ def validateDate(date_string, date_name, n_type):
     :param int ntype: header name id. Used for messaging purposes
     :returns: correct value as a date or None if it's empty
     """
-    if date_string == "" or date_string == None:
+    if date_string == None:
         return None
     if type(date_string) is date:
         return date_string
     if type(date_string) is datetime:
         return date_string.date()
+    if type(date_string) is str and date_string.strip() == "":
+        return None
 
     try:
         new_date = date(year=int(date_string[:4].strip()),
