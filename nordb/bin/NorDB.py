@@ -815,7 +815,6 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             click.echo("Not a valid id!")
                 if event_id == -1 and not add_automatic:
                     similar_events = nordicSearch.searchSimilarEvents(nord)
-                    print(similar_events)
 
                     if similar_events:
                         if ignore_duplicates:
