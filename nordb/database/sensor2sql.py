@@ -37,7 +37,7 @@ def genFakeChannel(sensor):
     """
     fakeChan = SiteChan(FAKE_CHANNEL_LINE[sensor.channel_code[-1].lower()])
     fakeChan.station_code = sensor.station_code
-    fakeChan.channel_code = sensor.channel_code
+    fakeChan.channel_code = sensor.channel_code[0].upper() + "H" + sensor.channel_code[-1].upper()
     fakeChan.css_id = sensor.channel_css_id
     fakeChan.on_date = datetime.fromtimestamp(sensor.time).date()
 

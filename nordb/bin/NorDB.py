@@ -765,6 +765,7 @@ def stype(repo, stype_option):
 def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_automatic, force_add, filenames, verbose, privacy_level):
     """This command adds an nordic file to the Database. The SOLUTION-TYPE tells the database what's the  solution type of the event."""
     conn = usernameUtilities.log2nordb()
+
     for filename in filenames:
         click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
         f_nordic = open(filename, 'r')
@@ -843,8 +844,7 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                                     click.echo("Not a valid id!")
 
             try:
-                pass
-                #nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id, db_conn=conn)
+                nordic2sql.event2Database(nord, solution_type, f_nordic.name, creation_id, event_id, db_conn=conn)
             except Exception as e:
                 click.echo("Error pushing nordic to database: {0}".format(e))
                 click.echo(nord.main_h[0])
