@@ -64,6 +64,11 @@ def fixErrorData(header):
     :param NordicError header: error header that need to be fixed
     """
     try:
+        if int(header[NordicError.GAP]) == 360:
+            header[NordicError.GAP] == 359
+    except ValueError:
+        pass
+    try:
         if math.isnan(float(header[NordicError.MAGNITUDE_ERROR])):
             header[NordicError.MAGNITUDE_ERROR] = ""
     except ValueError:

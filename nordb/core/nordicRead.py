@@ -19,14 +19,14 @@ def readNordicFile(f):
 
     for line in f:
         if line.strip() == "" or line is None:
+            if len(nordics[i]) == 0:
+                continue
             i += 1;
             nordics.append([])
         elif(len(line) < 81):
             raise Exception("Line not long enough (len:{0}):\n{1}".format(len(line), line))
         elif (line[79] == "7"):
-            pass
-        elif (line[79] == " "):
-            nordics[i].append(line)
+            continue 
         else:
             nordics[i].append(line)
 

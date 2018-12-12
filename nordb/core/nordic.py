@@ -235,23 +235,17 @@ def readHeaders(event, nordic_string, fix_nordic):
 
     return i
 
-def readNordic(nordic_file, fix_nordic=True, root_id = -1, creation_id = -1, event_type = "O"):
+def readNordic(nordic_string, fix_nordic=True, root_id = -1, creation_id = -1, event_type = "O"):
     """
     Function for creating a single NordicEvent object from a string.
 
-    :param Array File nordic_file: String array representation of a nordic or a file object
+    :param Array nordic_file: String array representation of a nordic or a file object
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :param int root_id: id of the root event
     :param int creation_id: id of the creation id in the database
     :param str event_type: Type of the event.
     :return: Nordic Event object
     """
-    nordic_string = None
-    try:
-        nordic_string = readNordicFile(nordic_file)[0]
-    except:
-        nordic_string = nordic_file
-
     event = NordicEvent(-1, root_id, creation_id, event_type)
 
     headers_size = readHeaders(event, nordic_string, fix_nordic)

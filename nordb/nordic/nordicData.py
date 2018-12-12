@@ -148,7 +148,7 @@ class NordicData:
 
     @sp_component.setter
     def sp_component(self, val):
-        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH12VRTP", self.header_type)
+        val_sp_component = validateString(val, "sp_component", 0, 1, "ZNEH012VRTP", self.header_type)
         self._sp_component = val_sp_component
 
     quality_indicator = property(operator.attrgetter('_quality_indicator'), doc="")
@@ -197,7 +197,7 @@ class NordicData:
 
     @max_amplitude.setter
     def max_amplitude(self, val):
-        val_max_amplitude = validateFloat(val, "max_amplitude", -1.0, 9999.9, self.header_type)
+        val_max_amplitude = validateFloat(val, "max_amplitude", -1.0, 99999.9, self.header_type)
         self._max_amplitude = val_max_amplitude
 
     max_amplitude_period = property(operator.attrgetter('_max_amplitude_period'), doc="")
@@ -246,7 +246,7 @@ class NordicData:
 
     @location_weight.setter
     def location_weight(self, val):
-        val_location_weight = validateInteger(val, "location_weight", 0, 10, self.header_type)
+        val_location_weight = validateInteger(val, "location_weight", -9, 99, self.header_type)
         self._location_weight = val_location_weight
 
     epicenter_distance = property(operator.attrgetter('_epicenter_distance'), doc="")

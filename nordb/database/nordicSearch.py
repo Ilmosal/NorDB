@@ -393,16 +393,17 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
     m_header = nordic_event.main_h[0]
     search = NordicSearch()
 
+    if (m_header.origin_date is None or m_header.origin_time is None):
+        return []
+
     origin_datetime = datetime.combine(m_header.origin_date, m_header.origin_time)
 
-    if m_header.origin_date is not None:
-        search.addSearchBetween("origin_date",
-                                (origin_datetime - timedelta(seconds = time_diff)).date(),
-                                (origin_datetime + timedelta(seconds = time_diff)).date())
-    if m_header.origin_time is not None:
-        search.addSearchBetween("origin_time",
-                                (origin_datetime - timedelta(seconds = time_diff)).time(),
-                                (origin_datetime + timedelta(seconds = time_diff)).time())
+    search.addSearchBetween("origin_date",
+                            (origin_datetime - timedelta(seconds = time_diff)).date(),
+                            (origin_datetime + timedelta(seconds = time_diff)).date())
+    search.addSearchBetween("origin_time",
+                            (origin_datetime - timedelta(seconds = time_diff)).time(),
+                            (origin_datetime + timedelta(seconds = time_diff)).time())
     if m_header.epicenter_latitude is not None:
         search.addSearchBetween("epicenter_latitude", m_header.epicenter_latitude - latitude_diff, m_header.epicenter_latitude + latitude_diff)
     if m_header.epicenter_longitude is not None:
