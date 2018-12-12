@@ -865,6 +865,33 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
     conn.commit()
     conn.close()
 
+@cli.command('validate', short_help='validate a nordic file')
+@click.argument('filenames', required=True, nargs=-1, type=click.Path(exists=True, readable=True))
+@click.pass_obj
+def validate(repo, filenames):
+    """Command for validating a nordic files"""
+    valid = True
+    for filename in filenames:
+        click.echo("reading {0}".format(filename.split("/")[len(filename.split("/")) - 1]))
+        f_nordic = open(filename, 'r')
+        try:
+            nordic_strings = nordicRead.readNordicFile(f_nordic)
+        except Exception as e:
+            valid = False
+            click.echo("Error reading nordic file: {0}".format(e))
+            continue
+
+        for n_string in nordic_strings:
+            try:
+                nordic.readNordic(n_string, True, -1, -1, 'O')
+            except Exception as e:
+                valid = False
+                click.echo("Error reading nordic: {0}".format(e))
+                click.echo(n_string[0])
+
+    if valid:
+        click.echo('All nordic files are valid')
+
 @cli.command('create', short_help='create database')
 @click.pass_obj
 def create(repo):
