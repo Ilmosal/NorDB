@@ -134,7 +134,7 @@ class NordicData:
 
     @station_code.setter
     def station_code(self, val):
-        val_station_code = validateString(val, "station_code", 0, 4, None, self.header_type)
+        val_station_code = validateString(val, "station_code", 0, 5, None, self.header_type)
         self._station_code = val_station_code
 
     sp_instrument_type = property(operator.attrgetter('_sp_instrument_type'), doc="")
@@ -265,8 +265,7 @@ class NordicData:
 
     def __str__(self):
         phase_string = " "
-        phase_string += addString2String(self.station_code, 4, '<')
-        phase_string += " "
+        phase_string += addString2String(self.station_code, 5, '<')
         phase_string += addString2String(self.sp_instrument_type, 1, '<')
         phase_string += addString2String(self.sp_component, 1, '<')
         phase_string += " "

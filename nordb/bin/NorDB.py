@@ -945,7 +945,7 @@ def get(repo, output_format, event_ids, output_name, event_root):
         for e_id in event_ids:
             n_events.extend(sql2nordic.getNordicsRoot(e_id, db_conn=conn))
     else:
-        n_events = sql2nordic.getNordics(event_ids, db_conn=conn)
+        n_events = sql2nordic.getNordic(event_ids, db_conn=conn)
 
     n_events = [nordic_event for nordic_event in n_events if nordic_event is not None]
 

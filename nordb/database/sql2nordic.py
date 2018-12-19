@@ -171,8 +171,8 @@ def getNordic(event_id, db_conn = None):
     """
     Method that reads a nordic event with id event_id from the database and creates NordicEvent object from the query
 
-    :param int event_id: Event id of the event
-    :returns: NordicEvent object or None if no event is found
+    :param list int event_id: Event id of the event or list of event_ids
+    :returns: List of NordicEvent objects or an empty list if none are found
     """
     if db_conn is None:
         conn = usernameUtilities.log2nordb()
@@ -184,6 +184,8 @@ def getNordic(event_id, db_conn = None):
         event_ids = tuple([event_id])
     elif isinstance(event_id, list):
         event_ids = tuple(event_id)
+    elif isinstance(event_id, tuple):
+        event_ids = event_id
     else:
         conn.close()
         raise Exception('event_id is not in a integer or list!')
