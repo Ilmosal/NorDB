@@ -169,7 +169,7 @@ def createStringPhaseData(data, fix_nordic, obs_datetime):
     """
     phase_data = [None]*21
 
-    phase_data[NordicData.STATION_CODE] = data[1:5].strip()
+    phase_data[NordicData.STATION_CODE] = data[1:6].strip()
     phase_data[NordicData.SP_INSTRUMENT_TYPE] = data[6].strip()
     phase_data[NordicData.SP_COMPONENT] = data[7].strip()
     phase_data[NordicData.QUALITY_INDICATOR] = data[9].strip()

@@ -26,7 +26,7 @@ def readNordicFile(f):
         elif(len(line) < 81):
             raise Exception("Line not long enough (len:{0}):\n{1}".format(len(line), line))
         elif (line[79] == "7"):
-            continue 
+            continue
         else:
             nordics[i].append(line)
 
