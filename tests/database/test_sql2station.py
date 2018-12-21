@@ -24,9 +24,7 @@ class TestSQL2Station(object):
         for stat in stations:
             station2sql.insertStation2Database(stat, stat.network)
 
-        stations = sql2station.getAllStations()
-
-        print(countStations())
+        stations = sql2station.getAllStations(station_date = None)
 
         assert len(stations) == len(stationFiles)
 
@@ -77,5 +75,4 @@ class TestSQL2Station(object):
         stat = sql2station.getStation(1)
 
         assert str(stat).strip() == stationFiles[0].strip()
-
 

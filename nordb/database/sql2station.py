@@ -16,6 +16,28 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
+SELECT_ALL_CLOSED_STATIONS = (
+                            "SELECT "
+                            "   station_code, on_date, off_date, latitude, "
+                            "   longitude, elevation, station_name, station_type, "
+                            "   reference_station, north_offset, east_offset, "
+                            "   load_date, network.network, network_id, station.id "
+                            "FROM "
+                            "   station, network "
+                            "WHERE "
+                            "   off_date IS NOT NULL"
+                            )
+
+SELECT_ALL_STATIONS =   (
+                        "SELECT "
+                        "   station_code, on_date, off_date, latitude, "
+                        "   longitude, elevation, station_name, station_type, "
+                        "   reference_station, north_offset, east_offset, "
+                        "   load_date, network.network, network_id, station.id "
+                        "FROM "
+                        "   station, network "
+                        )
+
 SELECT_STATIONS_NEAR_POINT =    (
                                 "SELECT "
                                 "   id "
@@ -43,6 +65,12 @@ SELECT_STATIONS_ID =   (
                         "   station, network "
                         "WHERE "
                         "   station.id in %(station_ids)s "
+                        "AND "
+                        "   ( "
+                        "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
+                        "   OR "
+                        "       (on_date <=%(station_date)s AND off_date IS NULL) "
+                        "   ) "
                         "AND "
                         "   network_id = network.id "
                     )
@@ -81,7 +109,39 @@ SELECT_ALL_STATION_IDS =    (
                             "   station.id "
                             "FROM "
                             "   station "
+                            "WHERE "
+                            "   ( "
+                            "       (on_date <= %(station_date)s AND off_date >= %(station_date)s) "
+                            "   OR "
+                            "       (on_date <=%(station_date)s AND off_date IS NULL) "
+                            "   ) "
                             )
+
+def getAllClosedStations(db_conn = None):
+    """
+    Function for getting all closed stations from the database
+    :param psycopg2.connection db_conn: Connection object to the database
+    :returns: Array of Station objects
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+    cur = conn.cursor()
+
+    cur.execute(SELECT_ALL_CLOSED_STATIONS)
+    ans = cur.fetchall()
+
+    stations = {}
+    for a in ans:
+        stations[a[-1]] = Station(a)
+
+    if len(stations.keys()) != 0:
+        sql2sitechan.allSitechans2Stations(stations, db_conn=conn)
+
+    conn.close()
+
+    return list(stations.values())
 
 def getStationCodes(db_conn = None):
     """
@@ -106,7 +166,7 @@ def getStationCodes(db_conn = None):
 
 def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
     """
-    Function for reading all stations from database.
+    Function for reading all stations from database. station_date will default to current date. If None is passed as station_date, the function will fetch all station information in the database which will include all closed stations and sitechans.
 
     :param psycopg2.connection db_conn: Connection to the database
     :param datetime station_date: date for which the station info will be taken
@@ -116,16 +176,33 @@ def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
         conn = usernameUtilities.log2nordb()
     else:
         conn = db_conn
+
     cur = conn.cursor()
 
-    cur.execute(SELECT_ALL_STATION_IDS)
+    if station_date is None:
+        cur.execute(SELECT_ALL_STATIONS)
+        ans = cur.fetchall()
 
-    ans = cur.fetchall()
-    station_ids = []
-    for a in ans:
-        station_ids.append(a[0])
+        stations = {}
+        for a in ans:
+            stations[a[-1]] = Station(a)
 
-    stations = getStations(station_ids, station_date, db_conn=conn)
+        if len(stations.keys()) != 0:
+            sql2sitechan.allSitechans2Stations(stations, db_conn=conn)
+
+        if db_conn is None:
+            conn.close()
+
+        return list(stations.values())
+    else:
+        cur.execute(SELECT_ALL_STATION_IDS, {'station_date': station_date })
+
+        ans = cur.fetchall()
+        station_ids = []
+        for a in ans:
+            station_ids.append(a[0])
+
+        stations = getStations(station_ids, station_date, db_conn=conn)
 
     if db_conn is None:
         conn.close()
@@ -157,7 +234,8 @@ def getStations(station_ids, station_date = datetime.datetime.now(), db_conn = N
         cur.execute(SELECT_STATIONS_CODE, { 'station_codes':station_ids,
                                             'station_date':station_date})
     else:
-        cur.execute(SELECT_STATIONS_ID, {'station_ids':station_ids})
+        cur.execute(SELECT_STATIONS_ID, {'station_ids':station_ids,
+                                         'station_date':station_date})
 
     ans = cur.fetchall()
 

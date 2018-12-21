@@ -35,6 +35,7 @@ def setupdbWithEvents():
     except Exception as e:
         print(e)
         pass
+
 @pytest.fixture(scope="module")
 def nordicEvents():
     nordic_events = [
