@@ -164,9 +164,9 @@ def getStationCodes(db_conn = None):
 
     return stations
 
-def getAllStations(station_date = datetime.datetime.now(), db_conn = None):
+def getAllStations(station_date = None, db_conn = None):
     """
-    Function for reading all stations from database. station_date will default to current date. If None is passed as station_date, the function will fetch all station information in the database which will include all closed stations and sitechans.
+    Function for reading all stations from database. If None is passed as station_date, the function will fetch all station information in the database which will include all closed stations and sitechans.
 
     :param psycopg2.connection db_conn: Connection to the database
     :param datetime station_date: date for which the station info will be taken
