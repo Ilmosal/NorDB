@@ -413,7 +413,7 @@ def searchSimilarEvents(nordic_event, time_diff = 20.0, latitude_diff = 0.2, lon
 
     return search.searchEvents()
 
-def searchEvents(latitude, longitude, distance = 100.0,
+def searchEvents(latitude = None, longitude = None, distance = 100.0,
                  magnitude = -9.0, magnitude_diff = 2.0,
                  date=None, date_diff=-9.0):
     """
@@ -431,8 +431,10 @@ def searchEvents(latitude, longitude, distance = 100.0,
     lat_diff = (0.5*distance) / 110.574
     lon_diff = (0.5*distance) / (float(np.cos(np.deg2rad(latitude))) * 111.32)
 
-    search.addSearchBetween("epicenter_latitude", latitude-lat_diff, latitude+lat_diff)
-    search.addSearchBetween("epicenter_longitude", longitude-lon_diff, longitude+lon_diff)
+    if latitude is not None:
+        search.addSearchBetween("epicenter_latitude", latitude-lat_diff, latitude+lat_diff)
+    if longitude is not None:
+        search.addSearchBetween("epicenter_longitude", longitude-lon_diff, longitude+lon_diff)
 
     if magnitude > 0.0:
         if magnitude_diff < 0:

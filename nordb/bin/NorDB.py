@@ -157,6 +157,7 @@ def conf(repo, conf_arg):
 
     elif conf_arg[0] == "alter":
         pass
+
 @cli.command('removeuser', short_help = "remove user from db")
 @click.argument('username')
 @click.pass_obj
@@ -830,7 +831,6 @@ def insert(repo, solution_type, nofix, ignore_duplicates, no_duplicates, add_aut
                             click.echo("{0} (Yours)".format(nord.main_h[0]))
                             click.echo("-----------------------------------------------------------------------------------------")
                             root_id = -1
-                            print(similar_events)
                             for e in similar_events:
                                 if root_id != e.root_id:
                                     root_id = e.root_id
