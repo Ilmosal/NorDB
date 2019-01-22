@@ -7,7 +7,6 @@ Functions and Classes
 
 import psycopg2
 import os
-import pwd
 import re
 import datetime
 
