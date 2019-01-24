@@ -17,6 +17,7 @@ from nordb.core.nordic2sc3 import nordicEvents2SC3
 from nordb.database.nordic2sql import event2Database
 from nordb.database.sql2station import getStation
 
+from nordb.nordic.misc import CreationInfo
 from nordb.nordic.misc import Magnitude
 from nordb.nordic.misc import OriginTime
 from nordb.nordic.misc import Coordinate
@@ -37,7 +38,7 @@ class NordicEvent:
     :param string solution_type: solution type of the event
     :ivar int event_id: event id of the event
     """
-    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O"):
+    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O", creation_info = CreationInfo(None)):
         self.main_h = []
         self.macro_h = []
         self.comment_h = []
@@ -46,6 +47,7 @@ class NordicEvent:
         self.event_id = event_id
         self.root_id = root_id
         self.creation_id = creation_id
+        self.creation_info = creation_info
         self.solution_type = solution_type
 
     event_id = property(operator.attrgetter('_event_id'), doc="")
@@ -77,15 +79,16 @@ class NordicEvent:
         self._solution_type = val_solution_type
 
     def __eq__(self, other):
-        return str(self) == str(other) 
+        return str(self) == str(other)
 
     def __str__(self):
         n_string = ""
 
-        n_string += str(self.main_h[0]) + "\n"
+        if len(self.main_h) != 0:
+            n_string += str(self.main_h[0]) + "\n"
 
-        if self.main_h[0].error_h:
-            n_string += str(self.main_h[0].error_h) + "\n"
+            if self.main_h[0].error_h:
+                n_string += str(self.main_h[0].error_h) + "\n"
 
         if self.waveform_h:
             n_string += str(self.waveform_h[0]) + "\n"
@@ -120,7 +123,7 @@ class NordicEvent:
 
     def createHelpHeaderString(self):
         """
-        Function that returns the help header of type 7 as a string. 
+        Function that returns the help header of type 7 as a string.
 
         Header::
 

@@ -4,14 +4,14 @@ This module handles all operations done to creation info table
 Functions and Classes
 ---------------------
 """
-import psycopg2
 from nordb.core import usernameUtilities
+from nordb.nordic.misc import CreationInfo
 
 CREATE_CREATION_INFO =  (
-                        "INSERT INTO  " 
-                        "   creation_info  " 
+                        "INSERT INTO  "
+                        "   creation_info  "
                         "   (privacy_setting)  "
-                        "VALUES " 
+                        "VALUES "
                         "   (%s) "
                         "RETURNING id"
                         )
@@ -19,7 +19,7 @@ CREATE_CREATION_INFO =  (
 DELETE_UNNECESSARY_CREATION_INFO =  (
                                     "SELECT "
                                     "   COUNT(*) "
-                                    "FROM " 
+                                    "FROM "
                                     "   creation_info "
                                     "LEFT JOIN nordic_event ON"
                                     "       nordic_event.creation_id = creation_info.id "
@@ -36,6 +36,42 @@ DELETE_UNNECESSARY_CREATION_INFO =  (
                                     "   network.id IS NOT NULL "
                                     "   )"
                                     )
+
+SELECT_CREATION_INFO =  (
+                        "SELECT "
+                        "   id, creation_date, owner, privacy_setting, creation_comment "
+                        "FROM "
+                        "   creation_info "
+                        "WHERE "
+                        "   id in (%s) "
+                        )
+
+def getCreationInfo(creation_ids, db_conn = None):
+    """
+    Function for fetching CreationInfo entries from the database and returning them as a dict
+
+    :params list creation_ids: list of ids to be fetched from the database
+    :returns: dict of CreationInfo objects with the creation_id being the key
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+    cur = conn.cursor()
+
+    creation_ids = list(set(creation_ids))
+
+    cur.execute(SELECT_CREATION_INFO, (creation_ids,))
+    ans = cur.fetchall()
+
+    creation_info = {}
+
+    for a in ans:
+        creation_info[a[0]] = CreationInfo(a[2], a[0], a[1], a[3], a[4])
+
+    conn.close()
+
+    return creation_info
 
 def createCreationInfo(privacy_level, db_conn = None):
     """

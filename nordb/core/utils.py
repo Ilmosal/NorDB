@@ -8,7 +8,7 @@ Functions and Classes
 from datetime import date
 from datetime import timedelta
 
-MONTH_CONV = {  
+MONTH_CONV = {
                 "Jan": "01",
                 "Feb": "02",
                 "Mar": "03",
@@ -88,7 +88,7 @@ def addInteger2String(value, val_len, front):
     Function for parsing a integer into a correct string format. Front works as the parser character which tells the program how the string has to be formatted.
 
     **Examples**::
-        
+
         >> addInteger2String(3, 5, 0)
             "00003"
 
@@ -117,7 +117,7 @@ def addFloat2String(value, val_len, decimal_len, front):
     Function for parsing a float into a correct string format. Front works as the parser character which tells the program how the string has to be formatted.
 
     **Examples**::
-        
+
         >> addFloat2String(0.71, 6, 3, '>')
             " 0.710"
 
@@ -144,6 +144,6 @@ def addFloat2String(value, val_len, decimal_len, front):
 
     if float(value) < 0 and val_len == len(string) - 1:
         string = string[0] + string[2:]
-        
+
     return string
 

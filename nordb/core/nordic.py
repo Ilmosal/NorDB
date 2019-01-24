@@ -37,7 +37,6 @@ def createStringMainHeader(header, fix_nordic):
     :return: NordicMain object with list of values parsed from header
     """
     nordic_main = [None]*24
-
     nordic_main[NordicMain.ORIGIN_DATE] = header[1:10]
     nordic_main[NordicMain.ORIGIN_TIME] = header[11:20]
     nordic_main[NordicMain.LOCATION_MODEL] = header[20].strip()

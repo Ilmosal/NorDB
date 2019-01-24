@@ -4,6 +4,23 @@ This module contains all miscellaneous classes that are too small to have their 
 Functions and Classes
 ---------------------
 """
+from datetime import datetime
+
+class CreationInfo(object):
+    """
+    Class for containing basic creation info for a nordb entry.
+
+    :ivar int c_id: database id of the CreationInfo entry
+    :ivar datetime creation_date: datetime of the time of creation
+    :ivar str owner: owner of the creationInfo entry
+    :ivar str privacy: privacy level of the creationInfo object
+    """
+    def __init__(self, owner, c_id = -1, creation_date = datetime.now(), privacy = 'public', creation_comment = None):
+        self.owner = owner
+        self.c_id = c_id
+        self.creation_date = creation_date
+        self.privacy = privacy
+        self.creation_comment = creation_comment
 
 class Magnitude(object):
     """
