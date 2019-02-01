@@ -204,7 +204,7 @@ def validateDate(date_string, date_name, n_type):
     try:
         new_date = date(year=int(date_string[:4].strip()),
                         month=int(date_string[5:7].strip()),
-                        day=int(date_string[7:].strip()))
+                        day=int(date_string[8:].strip()))
     except:
         msg = "Validation Error - {0}: {1} is not parsable into date!({2})"
         raise Exception(msg.format(n_types[n_type], date_name, date_string))

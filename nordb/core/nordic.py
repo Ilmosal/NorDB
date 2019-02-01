@@ -238,7 +238,7 @@ def readNordic(nordic_string, fix_nordic=True, root_id = -1, creation_id = -1, e
     """
     Function for creating a single NordicEvent object from a string.
 
-    :param Array nordic_file: String array representation of a nordic or a file object
+    :param Array nordic_string: String array representation of a nordic
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
     :param int root_id: id of the root event
     :param int creation_id: id of the creation id in the database
