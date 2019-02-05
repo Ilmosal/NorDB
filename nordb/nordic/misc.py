@@ -83,3 +83,5 @@ class OriginTime(object):
     def __datetime__(self):
         return self.val
 
+    def __str__(self):
+        return str(self.val)
