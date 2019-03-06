@@ -30,7 +30,16 @@ def insertSiteChan2Database(channel):
     """
     conn = usernameUtilities.log2nordb()
     cur = conn.cursor()
+
     try:
+        if channel.css_id == -1:
+            cur.execute("SELECT MAX(css_id) FROM instrument")
+            ans = cur.fetchone()
+            if ans[0] is None:
+                channel.css_id = 1
+            else:
+                channel.css_id = ans[0] + 1
+
         cur.execute("SELECT id FROM station WHERE STATION_CODE = %s", (channel.station_code,))
         ans = cur.fetchone()
 
@@ -43,6 +52,7 @@ def insertSiteChan2Database(channel):
     except Exception as e:
         conn.close()
         raise e
+
     conn.commit()
     conn.close()
 

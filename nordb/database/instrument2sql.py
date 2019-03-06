@@ -71,6 +71,7 @@ def insertInstrument2Database(instrument):
     except Exception as e:
         conn.close()
         raise e
+
     conn.commit()
     conn.close()
 

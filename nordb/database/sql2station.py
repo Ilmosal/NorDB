@@ -26,6 +26,8 @@ SELECT_ALL_CLOSED_STATIONS = (
                             "   station, network "
                             "WHERE "
                             "   off_date IS NOT NULL"
+                            "AND "
+                            "   station.network_id = network.id "
                             )
 
 SELECT_ALL_STATIONS =   (
@@ -36,6 +38,8 @@ SELECT_ALL_STATIONS =   (
                         "   load_date, network.network, network_id, station.id "
                         "FROM "
                         "   station, network "
+                        "WHERE "
+                        "   station.network_id = network.id "
                         )
 
 SELECT_STATIONS_NEAR_POINT =    (
