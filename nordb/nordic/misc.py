@@ -5,7 +5,7 @@ Functions and Classes
 ---------------------
 """
 from datetime import datetime
-
+from nordb.settings import getUsername
 class CreationInfo(object):
     """
     Class for containing basic creation info for a nordb entry.
@@ -15,7 +15,7 @@ class CreationInfo(object):
     :ivar str owner: owner of the creationInfo entry
     :ivar str privacy: privacy level of the creationInfo object
     """
-    def __init__(self, owner, c_id = -1, creation_date = datetime.now(), privacy = 'public', creation_comment = None):
+    def __init__(self, owner = getUsername(), c_id = -1, creation_date = datetime.now(), privacy = 'public', creation_comment = None):
         self.owner = owner
         self.c_id = c_id
         self.creation_date = creation_date

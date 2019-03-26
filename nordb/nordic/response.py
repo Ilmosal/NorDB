@@ -19,13 +19,14 @@ class Response(object):
     Class for response information. Always use eihter PazResponse or FapResponse instead of this class.
 
     :param array data: all the relevant data for response in an array. These values are accessed by its numerations.
-    :ivar int c_id: Id of the response in the database
+    :ivar int c_id: Creation id of the response in the database
     :ivar string file_name: Name of the response file from which this object was read from
     :ivar string source: Source of the response
     :ivar string stage: stage of the response
     :ivar string description: description of the response
     :ivar string response_format: format of this response file. Either paz or fap
     :ivar string author: author of the response
+    :ivar int response_id: id of the response in the database
     :ivar int FILE_NAME: Enumeration of the data list. Value of 0
     :ivar int SOURCE: Enumeration of the data list. Value of 1
     :ivar int STAGE: Enumeration of the data list. Value of 2

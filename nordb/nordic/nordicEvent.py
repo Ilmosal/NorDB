@@ -38,7 +38,7 @@ class NordicEvent:
     :param string solution_type: solution type of the event
     :ivar int event_id: event id of the event
     """
-    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O", creation_info = CreationInfo(None)):
+    def __init__(self, event_id = -1, root_id = -1, creation_id = -1, solution_type = "O", creation_info = CreationInfo()):
         self.main_h = []
         self.macro_h = []
         self.comment_h = []

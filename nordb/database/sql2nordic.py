@@ -14,6 +14,7 @@ from nordb.nordic.nordicComment import NordicComment
 from nordb.nordic.nordicError import NordicError
 from nordb.nordic.nordicWaveform import NordicWaveform
 from nordb.nordic.nordicData import NordicData
+from nordb.database.creationInfo import getCreationInfo
 
 SELECT_QUERY =   {
                   0:(
@@ -204,9 +205,15 @@ def getNordic(event_id, db_conn = None):
         return []
 
     nordic_events = {}
-
+    creation_ids = []
     for n_event in n_events:
         nordic_events[n_event[0]] = NordicEvent(n_event[0], n_event[1], n_event[2], n_event[4])
+        creation_ids.append(n_event[2])
+
+    event_c_infos = getCreationInfo(creation_ids, db_conn)
+
+    for n_event in nordic_events.values():
+        n_event.creation_info = event_c_infos[n_event.creation_id]
 
     cur.execute(SELECT_QUERY[NordicMain.header_type], (event_ids,))
     ans = cur.fetchall()

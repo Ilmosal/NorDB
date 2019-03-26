@@ -89,4 +89,7 @@ def setTest():
 def getDBName():
     return database_settings[active_database]["dbname"]
 
+def getUsername():
+    return database_settings[active_database]["user"]
+
 init()

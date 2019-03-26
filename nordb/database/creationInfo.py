@@ -43,7 +43,7 @@ SELECT_CREATION_INFO =  (
                         "FROM "
                         "   creation_info "
                         "WHERE "
-                        "   id in (%s) "
+                        "   id IN %s "
                         )
 
 def getCreationInfo(creation_ids, db_conn = None):
@@ -59,7 +59,7 @@ def getCreationInfo(creation_ids, db_conn = None):
         conn = db_conn
     cur = conn.cursor()
 
-    creation_ids = list(set(creation_ids))
+    creation_ids = tuple(set(creation_ids))
 
     cur.execute(SELECT_CREATION_INFO, (creation_ids,))
     ans = cur.fetchall()
@@ -69,7 +69,8 @@ def getCreationInfo(creation_ids, db_conn = None):
     for a in ans:
         creation_info[a[0]] = CreationInfo(a[2], a[0], a[1], a[3], a[4])
 
-    conn.close()
+    if db_conn is None:
+        conn.close()
 
     return creation_info
 
