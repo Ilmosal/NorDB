@@ -16,6 +16,16 @@ from nordb.core.utils import addFloat2String
 from nordb.core.utils import addInteger2String
 from nordb.core.utils import addString2String
 
+SELECT_ALL_INSTRUMENTS =    (
+                            "SELECT "
+                            "   instrument_name, instrument_type, "
+                            "   band, digital, samprate, ncalib, ncalper, dir, "
+                            "   dfile, rsptype, instrument.lddate, instrument.id, "
+                            "   instrument.css_id, response_id "
+                            "FROM "
+                            "   instrument "
+                            )
+
 SELECT_INSTRUMENT =     (
                         "SELECT "
                         "   instrument_name, instrument_type, "
@@ -49,6 +59,34 @@ SELECT_INSTRUMENTS =    (
 
 def getFreeCSSInstrumentID():
     pass
+
+def getAllInstruments(db_conn = None):
+    """
+    Function for fetching all instruments from the database and returning them to the user.
+
+    :param psycopg2.connection db_conn: connection object to the database
+    :returns: list of Instrument object
+    """
+    if db_conn is None:
+        conn = usernameUtilities.log2nordb()
+    else:
+        conn = db_conn
+
+    instruments = []
+
+    cur = conn.cursor()
+    cur.execute(SELECT_ALL_INSTRUMENTS)
+    ans = cur.fetchall()
+
+    for a in ans:
+        instruments.append(Instrument(a))
+
+    responses2instruments(instruments, db_conn=conn)
+
+    if conn is None:
+        conn.close()
+
+    return instruments
 
 def getInstrument(instrument_id, db_conn = None):
     """

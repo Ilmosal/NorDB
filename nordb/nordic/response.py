@@ -20,6 +20,7 @@ class Response(object):
 
     :param array data: all the relevant data for response in an array. These values are accessed by its numerations.
     :ivar int c_id: Creation id of the response in the database
+    :ivar int response_id: Response id of the response in the database
     :ivar string file_name: Name of the response file from which this object was read from
     :ivar string source: Source of the response
     :ivar string stage: stage of the response
@@ -105,6 +106,13 @@ class Response(object):
     def author(self, val):
         val_author = validateString(val, "author", 0, 32, None, self.header_type)
         self._author = val_author
+
+    response_id = property(operator.attrgetter('_response_id'), doc="")
+
+    @response_id.setter
+    def response_id(self, val):
+        val_response_id = validateInteger(val, "response_id", -1, None, self.header_type)
+        self._response_id = val_response_id
 
     def __str__(self):
         response_string = "{0} {1} {2} {3} {4}\n".format(self.source, self.stage, self.description, self.response_format, self.author)
@@ -219,6 +227,9 @@ def readResponseArrayToResponse(resp, file_name):
     resp_data += resp[row_num].split()
     if len(resp_data) == 5:
         resp_data += [None]
+    if len(resp_data) > 6:
+        resp_data = resp_data[:5] + [' '.join(resp_data[5:]),]
+
     resp_data += [-1]
     if resp_data[4] == 'fap':
         fap = []
