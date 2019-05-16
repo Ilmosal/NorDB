@@ -19,9 +19,9 @@ After installation run the command::
 
 To see if the installation was succesful or not. You should be greeted by the help screen of the program.
 
-Getting Postgres to work
-------------------------
-Before you can do anything with the NorDB program you have to initialise postgres. `Here`_ is a handy guide for doing that.
+Getting PostgreSQL to work
+--------------------------
+Before you can do anything with the NorDB program you have to initialise postgreSQL. `Here`_ is a handy guide for doing that.
 
 Initialising NorDB 
 ------------------
