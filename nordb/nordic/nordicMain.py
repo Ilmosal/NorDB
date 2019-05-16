@@ -22,30 +22,30 @@ class NordicMain:
     A class that functions as a collection of enums. Contains the information of the main header line of a nordic file. 
 
     :param list header: The header of a nordic main in a list where each index of a value corresponds to NordicMain's pseudo-enum. This data is easily accessed by it's enums.
-    :ivar time origin_time: 
-    :ivar date origin_date:
-    :ivar str location_model: 
-    :ivar str distance_indicator: 
-    :ivar str event_desc_id: 
-    :ivar float epicenter_latitude: 
-    :ivar float epicenter_longitude: 
-    :ivar float depth: 
-    :ivar str depth_control: 
-    :ivar str locating_indicator: 
-    :ivar str epicenter_reporting_agency: 
-    :ivar int stations_used: 
-    :ivar float rms_time_residuals: 
-    :ivar float magnitude_1: 
-    :ivar str type_of_magnitude_1: 
-    :ivar str magnitude_reporting_agency_1: 
-    :ivar float magnitude_2: 
-    :ivar str type_of_magnitude_2: 
-    :ivar str magnitude_reporting_agency_2: 
-    :ivar float magnitude_3: 
-    :ivar str type_of_magnitude_3: 
-    :ivar str magnitude_reporting_agency_3: 
-    :ivar int event_id: 
-    :ivar int h_id: 
+    :ivar time origin_time: Origin time of the event
+    :ivar date origin_date: Origin date of the event
+    :ivar str location_model: location model used for this main header or the quality indicator.
+    :ivar str distance_indicator: distance indicator of the event. L - Local, R - Regional, D - Distant
+    :ivar str event_desc_id: Event Description id. See 'Nordic Format' page in the documentation for more details
+    :ivar float epicenter_latitude: latitude coordinate of the event
+    :ivar float epicenter_longitude: longitude coordinate of the event
+    :ivar float depth: depth of the event
+    :ivar str depth_control: Flag for whether the depth is fixed or not
+    :ivar str locating_indicator: Flag for whether the depth is fixed or not
+    :ivar str epicenter_reporting_agency: The reporting agency of the event
+    :ivar int stations_used: How many stations were used for this analysis
+    :ivar float rms_time_residuals: RMS of the time residuals
+    :ivar float magnitude_1: Magnitude of this analysis
+    :ivar str type_of_magnitude_1: Type of the magnitude of this analysis
+    :ivar str magnitude_reporting_agency_1: reporting agency of this analysis
+    :ivar float magnitude_2: Magnitude of an other analysis
+    :ivar str type_of_magnitude_2: Type of the magnitude of an other analysis
+    :ivar str magnitude_reporting_agency_2: Reporting agency of an other analysis
+    :ivar float magnitude_3: Magnitude of an other analysis
+    :ivar str type_of_magnitude_3: Type of the magnitude of this analysis
+    :ivar str magnitude_reporting_agency_3: Reporting agency of an other analysis
+    :ivar int event_id: Event id of this event in the database
+    :ivar int h_id: id of this header in the database
     :ivar int header_type: This value tells that this is a NordicMain object. Value of 1
     :ivar int ORIGIN_TIME: Location of the date in a array. Value of 0
     :ivar int ORIGIN_DATE: Location of the hour in a array. Value of 1

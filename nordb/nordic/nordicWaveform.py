@@ -38,7 +38,7 @@ class NordicWaveform:
             self.event_id = header[self.EVENT_ID]
             self.h_id = header[self.H_ID]
 
-    waveform_info = property(operator.attrgetter('_waveform_info'))
+    waveform_info = property(operator.attrgetter('_waveform_info'), doc="")
 
     @waveform_info.setter
     def waveform_info(self, val):

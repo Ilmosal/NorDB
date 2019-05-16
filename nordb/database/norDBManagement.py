@@ -27,7 +27,8 @@ def databaseIsRunning():
     """
     try:
         conn = usernameUtilities.log2nordb()
-    except:
+    except Exception as e:
+        print("Exception occurred: {0}".format(e))
         return False
     return True
 

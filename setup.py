@@ -31,7 +31,7 @@ setup(
     ],
     long_description=open("README.md").read(),
     entry_points='''
-        [console_scripts] 
+        [console_scripts]
         nordb=nordb.bin.NorDB:cli
     ''',
 )
