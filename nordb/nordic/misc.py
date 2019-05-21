@@ -61,9 +61,8 @@ class Depth(object):
     :ivar float val: depth of the event in kilometers
     :ivar float error: depth error of the value
     """
-    def __init__(self, val, depth_control, error = 0.0):
+    def __init__(self, val, error = 0.0):
         self.val = val
-        self.depth_control = depth_control
         self.error = error
 
     def __float__(self):
