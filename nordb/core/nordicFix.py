@@ -9,7 +9,7 @@ Errors that get fixed
     - If the 'second' value of the data header is 60.0, it will be turned into 00.00 and time info sign will be corrected if necessary
     - If the epicenter_distance is a float, it will be turned into a integer
     - Time_info sign will be added to to the nordic data header if there is need for it
-    - Zeros are put into singular dates and months in case they are missing. 
+    - Zeros are put into singular dates and months in case they are missing.
 
 Functions and Classes
 ---------------------
@@ -57,15 +57,18 @@ def fixMainData(header):
         new_time_string += ".{0}".format(round(time.microsecond /100000))
         header[NordicMain.ORIGIN_TIME] = new_time_string
 
-def fixErrorData(header):
+def fixErrorData(header, fixed_depth = None):
     """
     Method for fixing some of the common errors in error header.
 
     :param NordicError header: error header that need to be fixed
     """
+    if fixed_depth is not None and fixed_depth == 'F':
+        header[NordicError.DEPTH_ERROR] = None
+
     try:
         if int(header[NordicError.GAP]) == 360:
-            header[NordicError.GAP] == 359
+            header[NordicError.GAP] = 359
     except ValueError:
         pass
     try:
@@ -102,7 +105,6 @@ def fixPhaseData(data, main_datetime):
         new_time_string = time.strftime("%Y %m%d %H%M %S") 
         new_time_string += ".{0}".format(round(time.microsecond /10000))
         data[NordicData.OBSERVATION_TIME] = new_time_string
-
 
     try:
         data[NordicData.EPICENTER_DISTANCE] = str(int(float(data[NordicData.EPICENTER_DISTANCE])))

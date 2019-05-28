@@ -117,12 +117,13 @@ def createStringCommentHeader(header):
 
     return NordicComment(nordic_comment)
 
-def createStringErrorHeader(header, fix_nordic):
+def createStringErrorHeader(header, fix_nordic, fixed_depth = None):
     """
     Function that creates Nordic error list with values being strings
 
     :param str header: string from where the data is parsed from
     :param bool fix_nordic: Flag for fixing some common mistakes with nordic files. See nordicFix module.
+    :param str fixed_depth: Flag for if the depth value was fixed for clearing the depth_error value
     :return: NordicError object with a list of values parsed from header
     """
     nordic_error = [None]*8
@@ -137,7 +138,7 @@ def createStringErrorHeader(header, fix_nordic):
     nordic_error[NordicError.H_ID] = -1
 
     if fix_nordic:
-        nordicFix.fixErrorData(nordic_error)
+        nordicFix.fixErrorData(nordic_error, fixed_depth)
 
     return NordicError(nordic_error)
 
@@ -216,17 +217,19 @@ def readHeaders(event, nordic_string, fix_nordic):
         i-=1
 
     mheader_pos = -1
+    fixed_depth = None
 
     for x in range(0, i):
         if (nordic_string[x][79] == '1'):
             event.main_h.append(createStringMainHeader(nordic_string[x], fix_nordic))
+            fixed_depth = event.main_h[-1].depth_control
             mheader_pos +=1
         elif (nordic_string[x][79] == '2'):
             event.macro_h.append(createStringMacroseismicHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '3'):
             event.comment_h.append(createStringCommentHeader(nordic_string[x]))
         elif (nordic_string[x][79] == '5'):
-            event.main_h[mheader_pos].error_h = createStringErrorHeader(nordic_string[x], fix_nordic)
+            event.main_h[mheader_pos].error_h = createStringErrorHeader(nordic_string[x], fix_nordic, fixed_depth)
         elif (nordic_string[x][79] == '6'):
             event.waveform_h.append(createStringWaveformHeader(nordic_string[x]))
         elif (nordic_string[x][79] == 'I'):
