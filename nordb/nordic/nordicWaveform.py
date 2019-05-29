@@ -16,11 +16,15 @@ from nordb.core.utils import addFloat2String
 
 class NordicWaveform:
     """
-    A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file. 
+    A class that functions as a collection of enums. Contains the information of the waveform header line of a nordic file.
+
     :param list header: The header of a nordic waveform in a list where each index of a value corresponds to NordicWaveform's pseudo-enum.
     :ivar int header_type: This value tells that this is a NordicWaveform object. Value of 6
-    :ivar int WAVEFORM INFO: Location of the waveform info of the event. value of 0
-    :ivar int EVENT ID: Location of the event id of the event. value of 1
+    :ivar str waveform_info: the waveform file name of this event
+    :ivar int event_id: event_id of the Nordic event
+    :ivar int id: id of this NordicWaveform header in the database
+    :ivar int WAVEFORM_INFO: Location of the waveform info of the event. value of 0
+    :ivar int EVENT_ID: Location of the event id of the event. value of 1
     :ivar int ID: Location of the id of the event. value of 2
     """
     header_type = 6
