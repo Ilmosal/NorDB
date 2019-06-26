@@ -428,12 +428,12 @@ def searchEvents(latitude = None, longitude = None, distance = 100.0,
     :paran float date_diff: maximum allowed date difference from date in days. Set negative value for searching exactly at the date
     """
     search = NordicSearch()
-    lat_diff = (0.5*distance) / 110.574
-    lon_diff = (0.5*distance) / (float(np.cos(np.deg2rad(latitude))) * 111.32)
 
     if latitude is not None:
+        lat_diff = (0.5*distance) / 110.574
         search.addSearchBetween("epicenter_latitude", latitude-lat_diff, latitude+lat_diff)
     if longitude is not None:
+        lon_diff = (0.5*distance) / (float(np.cos(np.deg2rad(latitude))) * 111.32)
         search.addSearchBetween("epicenter_longitude", longitude-lon_diff, longitude+lon_diff)
 
     if magnitude > 0.0:

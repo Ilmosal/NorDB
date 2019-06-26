@@ -24,7 +24,7 @@ class NordicData:
     :ivar string phase_type: Phase type. (PG, SG, PN, etc). Maximum of 4 characters
     :ivar int weight: Weighting indicator(1-4). 0=full weight as Hypocenter program, 9=timing error
     :ivar string first_motion: First motion of the observation(C/D for clear compression/dilatation, +/- for unclear compression/dilatation).
-    :ivar observation_time datetime: Datetime of the pick
+    :ivar datetime observation_time: Datetime of the pick
     :ivar int signal_duration:  duration of the signal from phase onset to noise as seconds
     :ivar float max_amplitude: Maximum amplitude from zero to peak ground motion amplitude.
     :ivar float max_amplitude_period: Period of the maximum amplitude
