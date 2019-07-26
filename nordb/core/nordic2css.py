@@ -275,14 +275,6 @@ def nordic2Origin(main_h, origin_id):
 
     return origin_string
 
-def nordic2Wfdisc(nordic_event):
-    """
-    Function for converting a nordic file into a Wfdisc file and writing it into a file.
-
-    :param NordicEvent nordic_event: NordicEvent object to be converted
-    """
-    pass
-
 def nordic2css(nordic_event, css_filename):
     """
     Function for converting a nordic event into css format and writing it into a origin, assoc and arrival files.
@@ -308,3 +300,4 @@ def nordic2css(nordic_event, css_filename):
     assoc_file = open(css_filename + ".assoc", "w")
     assoc_file.write(assoc_string)
     assoc_file.close()
+

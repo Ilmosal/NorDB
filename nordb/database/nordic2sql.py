@@ -125,6 +125,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
         author_id = '---'
 
     cur = conn.cursor()
+
     try:
         cur.execute("SELECT allow_multiple FROM solution_type WHERE type_id = %s", (solution_type,))
         ans = cur.fetchone()

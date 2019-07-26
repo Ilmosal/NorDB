@@ -338,7 +338,7 @@ def search(repo, output_format, verbose, output, criteria):
         click.echo("All events")
 
     if (not verbose):
-        help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP"
+        help_string = " YEAR MODA HRMN SEC  DT LAT     LON    DEP   REP ST RMS MAG REP MAG REP MAG REP   CREATION DATE             "
         click.echo(" id" + (id_len-3)*" " + " | type"+(type_len-3)*" " + "|" + help_string)
         click.echo((type_len+id_len+len(help_string)+5)*"-")
 
@@ -346,9 +346,8 @@ def search(repo, output_format, verbose, output, criteria):
     for e in events:
         if root_id != e.root_id:
             root_id = e.root_id
-            click.echo("Root id: {0}".format(root_id))
         if not verbose:
-            click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}").format(e.event_id, e.solution_type, str(e.main_h[0])[:-1]))
+            click.echo((" {0:<" + str(id_len) + "}| {1:<" + str(type_len) + "} |{2}" + " | {3}").format(e.event_id, e.solution_type, str(e.main_h[0])[:-1], e.creation_info.creation_date))
         else:
             click.echo(str(e))
 

@@ -27,14 +27,14 @@ def resetEvents():
         cur.execute("ALTER SEQUENCE nordic_event_root_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE nordic_file_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE nordic_event_id_seq RESTART WITH 1")
-        cur.execute("ALTER SEQUENCE nordic_phase_data_id_seq RESTART WITH 1")   
-        cur.execute("ALTER SEQUENCE nordic_header_main_id_seq RESTART WITH 1")  
+        cur.execute("ALTER SEQUENCE nordic_phase_data_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE nordic_header_main_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE nordic_header_comment_id_seq RESTART WITH 1")
-        cur.execute("ALTER SEQUENCE nordic_header_error_id_seq RESTART WITH 1") 
-        cur.execute("ALTER SEQUENCE nordic_header_macroseismic_id_seq RESTART WITH 1")  
-        cur.execute("ALTER SEQUENCE nordic_header_waveform_id_seq RESTART WITH 1")  
+        cur.execute("ALTER SEQUENCE nordic_header_error_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE nordic_header_macroseismic_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE nordic_header_waveform_id_seq RESTART WITH 1")
     except Exception as e:
-        conn.close
+        conn.close()
         raise e
 
     conn.commit()
@@ -58,7 +58,7 @@ def resetStations():
         cur.execute("ALTER SEQUENCE station_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE network_id_seq RESTART WITH 1")
     except Exception as e:
-        conn.close
+        conn.close()
         raise e
     conn.commit()
     conn.close()
