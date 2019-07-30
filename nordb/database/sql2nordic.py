@@ -243,9 +243,10 @@ def getNordic(event_id, db_conn = None):
 
     for a in ans:
         for main_h in nordic_events[a[-1]].main_h:
-            if main_h.h_id == a[-2]:
+            if main_h.h_id == a[-3]:
                 main_h.error_h = NordicError(a[:-1])
                 break
+
 
     cur.execute(SELECT_QUERY[NordicWaveform.header_type], (event_ids,))
     ans = cur.fetchall()
