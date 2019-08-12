@@ -117,7 +117,7 @@ def event2Database(nordic_event, solution_type = "O", nordic_filename = None, f_
     author_id = None
 
     for header in nordic_event.comment_h:
-        search = re.search(r'\((\w{3})\)', header.h_comment)
+        search = re.search(r'\((\w*)\)', header.h_comment)
         if search is not None:
             author_id = search.group(0)[1:-1]
 
