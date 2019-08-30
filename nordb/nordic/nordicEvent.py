@@ -134,12 +134,14 @@ class NordicEvent:
 
     def getOriginTime(self):
         """
-        Get origin time of the NordicEvent. Modifying this value will not modify the value inside the event.
+        Get origin time of the NordicEvent. Modifying this value will not modify the value inside the event. Returns none if the event has no origin_time.
 
         :returns: OriginTime object
         """
         if self.main_h:
-            if self.main_h[0].error_h is not None:
+            if self.main_h[0].origin_time is None:
+                return None
+            elif self.main_h[0].error_h is not None:
                 return OriginTime(datetime.combine( self.main_h[0].origin_date,
                                                     self.main_h[0].origin_time),
                                   self.main_h[0].error_h.second_error)
