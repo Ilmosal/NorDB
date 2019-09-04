@@ -56,6 +56,12 @@ class NordicWaveform:
 
         return h_string
 
+    def getWaveformFileName(self):
+        """
+        Get the name of the waveform file as a string
+        """
+        return self.waveform_info.split(":")[1][:20]
+
     def getAsList(self):
         header_list = []
         header_list.append(self.waveform_info)
