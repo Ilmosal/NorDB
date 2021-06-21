@@ -1,3 +1,6 @@
+## WARNING
+This version of the project is no longer maintained! The current updated version can be found from https://version.helsinki.fi/ilmosalm/nordb.
+
 # NorDB
 [![Build Status](https://travis-ci.org/MrCubanfrog/NorDB.svg?branch=master)](https://travis-ci.org/MrCubanfrog/NorDB)[![Code Health](https://landscape.io/github/MrCubanfrog/NorDB/master/landscape.svg?style=flat)](https://landscape.io/github/MrCubanfrog/NorDB/master)[![codecov](https://codecov.io/gh/MrCubanfrog/NorDB/branch/master/graph/badge.svg)](https://codecov.io/gh/MrCubanfrog/NorDB)[![Documentation Status](https://readthedocs.org/projects/nordb/badge/?version=latest)](https://nordb.readthedocs.io/en/latest/?badge=latest)
 
